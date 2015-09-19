@@ -31,6 +31,7 @@ import com.mosoft.momomentum.client.AmeritradeClient;
 import com.mosoft.momomentum.client.AmeritradeClientProvider;
 import com.mosoft.momomentum.model.AmtdResponse;
 import com.mosoft.momomentum.model.LoginResponse;
+import com.mosoft.momomentum.module.MomentumApplication;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,6 +39,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import javax.inject.Inject;
 
 import retrofit.Response;
 
@@ -51,6 +54,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
      */
     private UserLoginTask mAuthTask = null;
 
+    @Inject
+    AmeritradeClient ameritradeClient;
+
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
@@ -61,6 +67,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        MomentumApplication.from(this).getComponent().inject(this);
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -78,6 +86,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 return false;
             }
         });
+
+        ameritradeClient.logIn("foo", "bar");
 
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
@@ -259,14 +269,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            AmeritradeClient client = new AmeritradeClientProvider().getClient();
-
             String altpw = readFile("/sdcard/.ap");
             if (!TextUtils.isEmpty(altpw))
                 password = altpw;
 
             try {
-                Response<LoginResponse> response = client.logIn(username, password).execute();
+                Response<LoginResponse> response = ameritradeClient.logIn(username, password).execute();
                 LoginResponse lr = response.body();
                 if (lr.succeeded()) {
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
