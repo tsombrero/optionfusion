@@ -87,8 +87,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             }
         });
 
-        ameritradeClient.logIn("foo", "bar");
-
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -277,6 +275,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 Response<LoginResponse> response = ameritradeClient.logIn(username, password).execute();
                 LoginResponse lr = response.body();
                 if (lr.succeeded()) {
+                    ameritradeClient.setSessionId(lr.getSessionId());
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
                 }

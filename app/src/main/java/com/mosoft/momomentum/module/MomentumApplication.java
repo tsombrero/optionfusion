@@ -21,10 +21,6 @@ public class MomentumApplication extends Application {
         applicationComponent.inject(this);
     }
 
-    public MomentumApplicationComponent getApplicationComponent() {
-        return applicationComponent;
-    }
-
     public static MomentumApplication from(@NonNull Context context) {
         return (MomentumApplication) context.getApplicationContext();
     }
