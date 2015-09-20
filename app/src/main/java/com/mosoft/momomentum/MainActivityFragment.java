@@ -28,6 +28,9 @@ public class MainActivityFragment extends Fragment {
     @Bind(R.id.symbol)
     protected TextView symbol;
 
+    @Bind(R.id.profitPercent)
+    protected TextView percent;
+
     @Inject
     AmeritradeClient ameritradeClient;
 
@@ -61,6 +64,8 @@ public class MainActivityFragment extends Fragment {
 
                 Log.i("tag", "Got option chain: " + oc);
 
+
+
             }
 
             @Override
@@ -69,4 +74,7 @@ public class MainActivityFragment extends Fragment {
             }
         });
     }
+
+
+
 }

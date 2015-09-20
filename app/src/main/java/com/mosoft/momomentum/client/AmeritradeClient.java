@@ -16,11 +16,9 @@ public class AmeritradeClient {
     private RestInterface restInterface;
     private String sessionId;
 
-
     AmeritradeClient(RestInterface restInterface) {
         this.restInterface = restInterface;
     }
-
 
     public Call<LoginResponse> logIn(String userId, String password) {
         return restInterface.logIn(userId, password, "JKRR", "1.0");
