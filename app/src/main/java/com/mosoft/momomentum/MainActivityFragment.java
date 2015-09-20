@@ -64,8 +64,9 @@ public class MainActivityFragment extends Fragment {
 
                 Log.i("tag", "Got option chain: " + oc);
 
-
-
+                for (OptionChain.OptionQuote optionQuote : oc.getOptionCalls()) {
+                    Log.i("Tag", optionQuote.getDescription());
+                }
             }
 
             @Override

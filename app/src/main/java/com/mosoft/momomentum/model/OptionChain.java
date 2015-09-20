@@ -1,7 +1,9 @@
 package com.mosoft.momomentum.model;
 
-import com.mosoft.momomentum.util.Util;
+import android.util.Log;
 
+import org.simpleframework.xml.Default;
+import org.simpleframework.xml.DefaultType;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
@@ -23,8 +25,12 @@ public class OptionChain extends AmtdResponse {
         return data.optionDates;
     }
 
-    public List<OptionQuote> getOptionQuotes() {
+    public List<OptionQuote> getOptionCalls() {
+        return data.callQuotes;
+    }
 
+    public List<OptionQuote> getOptionPuts() {
+        return data.putQuotes;
     }
 
     @Override
@@ -35,6 +41,8 @@ public class OptionChain extends AmtdResponse {
         return "Chain: " + data.description + " (" + data.optionDates.size() + " dates x " + (data.optionDates.isEmpty() ? "0" : data.optionDates.get(0).optionStrikes.size()) + " strikes)";
     }
 
+    @Root
+    @Default(value = DefaultType.FIELD, required = false)
     public static class Data {
         private Data() {
         }
@@ -51,8 +59,8 @@ public class OptionChain extends AmtdResponse {
         @ElementList(name = "option-date", inline = true)
         List<OptionDate> optionDates;
 
-        transient List<OptionQuote> callQuotes = new ArrayList<OptionQuote>();
-        transient List<OptionQuote> putQuotes = new ArrayList<OptionQuote>();
+        transient List<OptionQuote> callQuotes = new ArrayList<>();
+        transient List<OptionQuote> putQuotes = new ArrayList<>();
 
         @Commit
         public void build() {
@@ -84,6 +92,7 @@ public class OptionChain extends AmtdResponse {
     }
 
     @Root(name = "option-date")
+    @Default(value = DefaultType.FIELD, required = false)
     public static class OptionDate {
         private String date;
 
@@ -95,13 +104,17 @@ public class OptionChain extends AmtdResponse {
     }
 
     @Root(name = "option-strike")
+    @Default(value = DefaultType.FIELD, required = false)
     public static class OptionStrike {
 
         @Element(name = "strike-price")
         private Double strikePrice;
+
         private OptionQuote put, call;
     }
 
+    @Root
+    @Default(value = DefaultType.FIELD, required = false)
     public static class OptionQuote {
 
         // Serialized
@@ -112,12 +125,11 @@ public class OptionChain extends AmtdResponse {
         @Element(name = "option-symbol")
         String optionSymbol;
 
-        @Element(name = "implied-volatility")
+        @Element(name = "implied-volatility", required = false)
         Double impliedVolatility;
 
-        @Element(name = "theoratical-value")
+        @Element(name = "theoratical-value", required = false)
         Double theoreticalValue;
-
 
         // Transient
 
