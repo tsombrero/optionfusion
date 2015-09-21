@@ -38,7 +38,7 @@ public class AmeritradeClient {
         Call<LoginResponse> logIn(@Field("userid") String userid, @Field("password") String password, @Field("source") String source, @Field("version") String version);
 
         //https://apis.tdameritrade.com/apps/200/OptionChain?source=<#sourceID# >&symbol=AMTD&expire=200709&quotes=true
-        @GET("200/OptionChain?source=JKRR&quotes=true")
+        @GET("200/OptionChain?source=JKRR&quotes=true&range=ALL")
         Call<OptionChain> getOptionChain(@Query("symbol") String symbol);
     }
 }
