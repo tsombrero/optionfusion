@@ -42,10 +42,12 @@ public class BullCallSpread {
         return getMaxProfitAtExpiration() / getAsk();
     }
 
+    // how much $ the price can drop before cutting into profit
     public Double getMaxPriceDrop_MaxProfit() {
         return underlying.getBid() - sell.getStrike();
     }
 
+    // how much % the price can drop before cutting into profit
     public Double getMaxPercentDrop_MaxProfit() {
         return getMaxPriceDrop_MaxProfit() / underlying.getAsk();
     }
@@ -91,6 +93,22 @@ public class BullCallSpread {
         @Override
         public int compare(BullCallSpread lhs, BullCallSpread rhs) {
             return lhs.getProfitWeight().compareTo(rhs.getProfitWeight());
+        }
+    }
+
+    public static class AscendingBreakEvenComparator implements Comparator<BullCallSpread> {
+
+        @Override
+        public int compare(BullCallSpread lhs, BullCallSpread rhs) {
+            return lhs.getPrice_BreakEven().compareTo(rhs.getPrice_BreakEven());
+        }
+    }
+
+    public static class DescendingBreakEvenDepthComparator implements Comparator<BullCallSpread> {
+
+        @Override
+        public int compare(BullCallSpread lhs, BullCallSpread rhs) {
+            return lhs.getPrice_BreakEven().compareTo(rhs.getPrice_BreakEven());
         }
     }
 }

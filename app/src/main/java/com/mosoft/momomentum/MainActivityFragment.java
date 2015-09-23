@@ -112,10 +112,10 @@ public class MainActivityFragment extends Fragment {
 
                 allSpreads = allSpreads.subList(j, allSpreads.size() -1);
 
-                Collections.sort(allSpreads, new BullCallSpread.AscendingHighLegStrikeComparator());
+                Collections.sort(allSpreads, new BullCallSpread.AscendingBreakEvenComparator());
 
                 for (BullCallSpread spread : allSpreads.subList(0, 10)) {
-                    Log.i(TAG, spread.toString());
+                    Log.i(TAG, spread.toString() + "        " + spread.getBuy() + " / " + spread.getSell());
                 }
             }
 

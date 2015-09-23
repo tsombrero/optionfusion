@@ -1,5 +1,7 @@
 package com.mosoft.momomentum.model;
 
+import android.text.TextUtils;
+
 import org.simpleframework.xml.Default;
 import org.simpleframework.xml.DefaultType;
 import org.simpleframework.xml.Element;
@@ -179,16 +181,23 @@ public class OptionChain extends AmtdResponse {
 
             int i = 0;
 
+            OptionStrike tmpSell = null;
+            OptionStrike tmpBuy = null;
+
             while (i < optionStrikes.size() - 1) {
-                OptionStrike buy = optionStrikes.get(i);
+                tmpBuy = optionStrikes.get(i);
 
                 int j = i + 1;
-                if (buy.call != null && buy.call.getAsk() < Double.MAX_VALUE) {
+                if (tmpBuy.call != null && tmpBuy.call.getAsk() < Double.MAX_VALUE && tmpBuy.call.getAskSize() > 0) {
                     while (j < optionStrikes.size()) {
-                        OptionStrike sell = optionStrikes.get(j);
+                        tmpSell = optionStrikes.get(j);
 
-                        if (sell.call != null && sell.call.getBid() > 0)
-                            ret.add(new BullCallSpread(buy.call, optionStrikes.get(j).call, underlying));
+                        if (tmpSell.call != null
+                                && tmpSell.call.getBid() > 0
+                                && tmpSell.call.getBidSize() > 0
+                                && tmpSell.isStandard.equals(Boolean.TRUE)
+                                && tmpBuy.call.multiplier.equals(tmpSell.call.multiplier))
+                            ret.add(new BullCallSpread(tmpBuy.call, tmpSell.call, underlying));
                         j++;
                     }
                 }
@@ -210,6 +219,9 @@ public class OptionChain extends AmtdResponse {
 
         @Element(name = "strike-price")
         private Double strikePrice;
+
+        @Element(name = "standard-option")
+        private Boolean isStandard;
 
         private OptionQuote put, call;
 
@@ -236,6 +248,13 @@ public class OptionChain extends AmtdResponse {
 
         @Element(name = "theoratical-value", required = false)
         Double theoreticalValue;
+
+        Double multiplier;
+
+        @Element(name="bid-ask-size", required = false)
+        String bidAskSize;
+
+
 
         // Transients
 
@@ -293,6 +312,30 @@ public class OptionChain extends AmtdResponse {
         public String toString() {
             return description + " (" + bid + "/" + ask + ") V" + impliedVolatility;
         }
+
+        public int getBidSize() {
+            if (TextUtils.isEmpty(bidAskSize) || !bidAskSize.contains("X"))
+                return 0;
+
+            try {
+                return Integer.valueOf(bidAskSize.split("X")[0]);
+            } catch (Exception e) {
+                return 0;
+            }
+        }
+
+        public int getAskSize() {
+            if (TextUtils.isEmpty(bidAskSize) || !bidAskSize.contains("X"))
+                return 0;
+
+            try {
+                return Integer.valueOf(bidAskSize.split("X")[1]);
+            } catch (Exception e) {
+                return 0;
+            }
+        }
     }
+
+
 
 }

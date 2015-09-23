@@ -64,7 +64,8 @@ public class AmeritradeClientProvider {
             Log.d("TAG", "response" + "\n" + responseLog + "\n" + bodyString);
 
             FileOutputStream fos = new FileOutputStream(new File("/sdcard/netlog"));
-            fos.write(("\n" + bodyString).getBytes());
+            fos.write(bodyString.getBytes());
+            fos.write("\\n\\n".getBytes());
 
             return response.newBuilder()
                     .body(ResponseBody.create(response.body().contentType(), bodyString))
