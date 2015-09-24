@@ -13,10 +13,10 @@ import android.widget.Toast;
 
 import com.mosoft.momomentum.client.AmeritradeClient;
 import com.mosoft.momomentum.model.BullCallSpread;
+import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.OptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -101,7 +101,7 @@ public class MainActivityFragment extends Fragment {
                 int j = allSpreads.size() / 2;
                 int bisect = j / 2;
                 while (bisect > 0) {
-                    BullCallSpread spread = allSpreads.get(j);
+                    Spread spread = allSpreads.get(j);
                     if (spread.getMaxPercentProfitAtExpiration() > compoundGrowthByDTE.get(spread.getDaysToExpiration()))
                         j -= bisect;
                     else
@@ -112,9 +112,9 @@ public class MainActivityFragment extends Fragment {
 
                 allSpreads = allSpreads.subList(j, allSpreads.size() -1);
 
-                Collections.sort(allSpreads, new BullCallSpread.AscendingBreakEvenComparator());
+                Collections.sort(allSpreads, new Spread.DescendingBreakEvenDepthComparator());
 
-                for (BullCallSpread spread : allSpreads.subList(0, 10)) {
+                for (Spread spread : allSpreads.subList(0, 10)) {
                     Log.i(TAG, spread.toString() + "        " + spread.getBuy() + " / " + spread.getSell());
                 }
             }

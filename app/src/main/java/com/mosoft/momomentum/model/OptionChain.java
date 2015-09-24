@@ -42,7 +42,7 @@ public class OptionChain extends AmtdResponse {
         }
 
         //TODO fix double sorting
-        Collections.sort(ret, new BullCallSpread.AscendingAnnualizedProfitComparator());
+        Collections.sort(ret, new Spread.AscendingAnnualizedProfitComparator());
         return ret;
     }
 
@@ -65,7 +65,7 @@ public class OptionChain extends AmtdResponse {
         private String error;
         private String symbol;
         private String description;
-        private Double bid, ask;
+        private Double bid, ask, last;
         private Double high, low;
         private Double open, close;
         private Double change;
@@ -112,6 +112,13 @@ public class OptionChain extends AmtdResponse {
             return bid;
         }
 
+        public Double getLast() {
+            if (last == null)
+                return 0d;
+
+            return last;
+        }
+
         public String getSymbol() {
             return symbol;
         }
@@ -139,8 +146,8 @@ public class OptionChain extends AmtdResponse {
         @Transient
         transient Data underlying;
 
-        public List<BullCallSpread> getBullCallSpreads(double spread) {
-            List<BullCallSpread> ret = new ArrayList<>();
+        public List<Spread> getBullCallSpreads(double spread) {
+            List<Spread> ret = new ArrayList<>();
 
             int i = 0;
             while (i < optionStrikes.size() - 1) {
