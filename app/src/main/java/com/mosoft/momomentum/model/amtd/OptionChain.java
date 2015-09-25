@@ -1,6 +1,9 @@
-package com.mosoft.momomentum.model;
+package com.mosoft.momomentum.model.amtd;
 
 import android.text.TextUtils;
+
+import com.mosoft.momomentum.model.BullCallSpread;
+import com.mosoft.momomentum.model.Spread;
 
 import org.simpleframework.xml.Default;
 import org.simpleframework.xml.DefaultType;
@@ -35,10 +38,10 @@ public class OptionChain extends AmtdResponse {
         return data.putQuotes;
     }
 
-    public List<BullCallSpread> getAllBullCallSpreads() {
-        List<BullCallSpread> ret = new ArrayList<>();
+    public List<Spread> getAllSpreads() {
+        List<Spread> ret = new ArrayList<>();
         for (OptionDate optionDate : data.optionDates) {
-            ret.addAll(optionDate.getAllBullCallSpreads());
+            ret.addAll(optionDate.getAllSpreads());
         }
 
         //TODO fix double sorting
@@ -86,33 +89,35 @@ public class OptionChain extends AmtdResponse {
                         strike.put.underlyingSymbol = this;
                         strike.put.optionDate = optionDate;
                         strike.put.optionStrike = strike;
+                        strike.put.optionType = OptionType.PUT;
                         putQuotes.add(strike.put);
                     }
                     if (strike.call != null) {
                         strike.call.underlyingSymbol = this;
                         strike.call.optionDate = optionDate;
                         strike.call.optionStrike = strike;
+                        strike.call.optionType = OptionType.CALL;
                         callQuotes.add(strike.call);
                     }
                 }
             }
         }
 
-        public Double getAsk() {
+        public double getAsk() {
             if (ask == null)
                 return Double.MAX_VALUE;
 
             return ask;
         }
 
-        public Double getBid() {
+        public double getBid() {
             if (bid == null)
                 return 0d;
 
             return bid;
         }
 
-        public Double getLast() {
+        public double getLast() {
             if (last == null)
                 return 0d;
 
@@ -158,6 +163,7 @@ public class OptionChain extends AmtdResponse {
                 OptionStrike sell = null;
                 int j = i + 1;
                 while (j < optionStrikes.size()) {
+
                     if (optionStrikes.get(j).strikePrice == sellStrike) {
                         sell = optionStrikes.get(j);
                         break;
@@ -171,7 +177,7 @@ public class OptionChain extends AmtdResponse {
                 }
 
                 if (sell != null) {
-                    ret.add(new BullCallSpread(buy.call, sell.call, underlying));
+                    ret.add(Spread.newSpread(buy.call, sell.call, underlying));
                 }
 
                 if (j == optionStrikes.size())
@@ -183,35 +189,36 @@ public class OptionChain extends AmtdResponse {
             return ret;
         }
 
-        public List<BullCallSpread> getAllBullCallSpreads() {
-            List<BullCallSpread> ret = new ArrayList<>();
+        public List<Spread> getAllSpreads() {
+            List<Spread> ret = new ArrayList<>();
 
             int i = 0;
 
-            OptionStrike tmpSell = null;
-            OptionStrike tmpBuy = null;
+            OptionStrike lo = null;
+            OptionStrike hi = null;
 
+            // bull call spread
             while (i < optionStrikes.size() - 1) {
-                tmpBuy = optionStrikes.get(i);
-
+                hi = optionStrikes.get(i);
                 int j = i + 1;
-                if (tmpBuy.call != null && tmpBuy.call.getAsk() < Double.MAX_VALUE && tmpBuy.call.getAskSize() > 0) {
-                    while (j < optionStrikes.size()) {
-                        tmpSell = optionStrikes.get(j);
 
-                        if (tmpSell.call != null
-                                && tmpSell.call.getBid() > 0
-                                && tmpSell.call.getBidSize() > 0
-                                && tmpSell.isStandard.equals(Boolean.TRUE)
-                                && tmpBuy.call.multiplier.equals(tmpSell.call.multiplier))
-                            ret.add(new BullCallSpread(tmpBuy.call, tmpSell.call, underlying));
-                        j++;
-                    }
+                while (j < optionStrikes.size()) {
+                    lo = optionStrikes.get(j);
+                    addIfNotNull(ret, Spread.newSpread(hi.call, lo.call, underlying));
+                    addIfNotNull(ret, Spread.newSpread(lo.call, hi.call, underlying));
+                    addIfNotNull(ret, Spread.newSpread(hi.put, lo.put, underlying));
+                    addIfNotNull(ret, Spread.newSpread(lo.put, hi.put, underlying));
+                    j++;
                 }
                 i++;
             }
 
             return ret;
+        }
+
+        private void addIfNotNull(List<Spread> ret, Spread spread) {
+            if (spread != null)
+                ret.add(spread);
         }
 
         @Override
@@ -232,10 +239,18 @@ public class OptionChain extends AmtdResponse {
 
         private OptionQuote put, call;
 
+        public boolean isStandard() {
+            return isStandard;
+        }
+
         @Override
         public String toString() {
             return String.format("strike: $%.2f", strikePrice);
         }
+    }
+
+    public enum OptionType {
+        PUT, CALL;
     }
 
     @Root
@@ -262,7 +277,6 @@ public class OptionChain extends AmtdResponse {
         String bidAskSize;
 
 
-
         // Transients
 
         @Transient
@@ -271,6 +285,8 @@ public class OptionChain extends AmtdResponse {
         transient private Data underlyingSymbol;
         @Transient
         transient private OptionDate optionDate;
+        @Transient
+        transient private OptionType optionType;
 
         // Getters
 
@@ -290,7 +306,10 @@ public class OptionChain extends AmtdResponse {
             return theoreticalValue;
         }
 
-        public Double getStrike() {
+        public double getStrike() {
+            if (optionStrike.strikePrice == null)
+                return 0d;
+
             return optionStrike.strikePrice;
         }
 
@@ -302,14 +321,20 @@ public class OptionChain extends AmtdResponse {
             return optionDate.daysToExpiration;
         }
 
-        public Double getAsk() {
+        public double getMultiplier() {
+            if (multiplier == null)
+                return 0d;
+            return multiplier;
+        }
+
+        public double getAsk() {
             if (ask == null)
                 return Double.MAX_VALUE;
 
             return ask;
         }
 
-        public Double getBid() {
+        public double getBid() {
             if (bid == null)
                 return 0d;
 
@@ -340,6 +365,18 @@ public class OptionChain extends AmtdResponse {
             } catch (Exception e) {
                 return 0;
             }
+        }
+
+        public boolean hasBid() {
+            return bid > 0d && getBidSize() > 0;
+        }
+
+        public boolean hasAsk() {
+            return ask > 0d && getAskSize() > 0 && ask < Double.MAX_VALUE;
+        }
+
+        public OptionType getOptionType() {
+            return optionType;
         }
     }
 

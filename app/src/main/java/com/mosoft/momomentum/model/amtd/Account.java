@@ -1,4 +1,4 @@
-package com.mosoft.momomentum.model;
+package com.mosoft.momomentum.model.amtd;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;

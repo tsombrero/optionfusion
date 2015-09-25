@@ -12,9 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mosoft.momomentum.client.AmeritradeClient;
-import com.mosoft.momomentum.model.BullCallSpread;
 import com.mosoft.momomentum.model.Spread;
-import com.mosoft.momomentum.model.OptionChain;
+import com.mosoft.momomentum.model.amtd.OptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
 
 import java.util.Collections;
@@ -94,7 +93,7 @@ public class MainActivityFragment extends Fragment {
                     compoundGrowthByDTE.put(optiondate.getDaysToExpiration(), totalPercentGoal);
                 }
 
-                List<BullCallSpread> allSpreads = oc.getAllBullCallSpreads();
+                List<Spread> allSpreads = oc.getAllSpreads();
 
                 Log.i(TAG, "Closest matches:");
 
@@ -108,6 +107,11 @@ public class MainActivityFragment extends Fragment {
                         j += bisect;
 
                     bisect /= 2;
+                }
+
+                if (allSpreads.isEmpty()) {
+                    Toast.makeText(getActivity(), "Spreads List Empty", Toast.LENGTH_SHORT);
+                    return;
                 }
 
                 allSpreads = allSpreads.subList(j, allSpreads.size() -1);

@@ -1,5 +1,6 @@
 package com.mosoft.momomentum.model;
 
+import com.mosoft.momomentum.model.amtd.OptionChain;
 import com.mosoft.momomentum.util.Util;
 
 import java.util.Comparator;
@@ -9,13 +10,48 @@ abstract public class Spread {
 
     OptionChain.Data underlying;
 
-    public Spread(OptionChain.OptionQuote buy, OptionChain.OptionQuote sell, OptionChain.Data underlying) {
+    protected Spread(OptionChain.OptionQuote buy, OptionChain.OptionQuote sell, OptionChain.Data underlying) {
         if (buy == null || sell == null || underlying == null)
             throw new IllegalArgumentException("Quotes and Chain cannot be null");
 
         this.buy = buy;
         this.sell = sell;
         this.underlying = underlying;
+    }
+
+    public static Spread newSpread(OptionChain.OptionQuote buy, OptionChain.OptionQuote sell, OptionChain.Data underlying) {
+        //whatever this is, not impl
+        if (buy.getOptionType() != sell.getOptionType())
+            return null;
+
+        //calendar spreads not impl
+        if (buy.getDaysUntilExpiration() != sell.getDaysUntilExpiration())
+            return null;
+
+        // don't mix multipliers
+        if (buy.getMultiplier() != sell.getMultiplier())
+            return null;
+
+        if (buy.getOptionType() == OptionChain.OptionType.CALL) {
+            if (buy.getStrike() < sell.getStrike()) {
+                //Bull Call Spread
+                return new BullCallSpread(buy, sell, underlying);
+            }
+            if (buy.getStrike() > sell.getStrike()) {
+                //Bear call spread not impl
+                return null;
+            }
+        } else if (buy.getOptionType() == OptionChain.OptionType.PUT) {
+            if (buy.getStrike() > sell.getStrike()) {
+                //Bear Put Spread
+                return new BearPutSpread(buy, sell, underlying);
+            }
+            if (buy.getStrike() < sell.getStrike()) {
+                //Bull put spread not impl
+                return null;
+            }
+        }
+        return null;
     }
 
     public Double getAsk() {

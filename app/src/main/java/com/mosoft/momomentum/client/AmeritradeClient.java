@@ -1,8 +1,7 @@
 package com.mosoft.momomentum.client;
 
-import com.mosoft.momomentum.model.AmtdResponse;
-import com.mosoft.momomentum.model.LoginResponse;
-import com.mosoft.momomentum.model.OptionChain;
+import com.mosoft.momomentum.model.amtd.LoginResponse;
+import com.mosoft.momomentum.model.amtd.OptionChain;
 
 import retrofit.Call;
 import retrofit.http.Field;
