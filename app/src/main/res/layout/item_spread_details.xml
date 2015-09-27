@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="description"
+        android:layout_alignParentTop="true"
+        style="@style/ListHeader"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/title_maxProfit"
+                android:text="Max Profit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/DetailsLabel"
+                />
+
+            <TextView
+                android:id="@+id/maxProfit"
+                android:text="$123.32"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/DetailsValue"
+                />
+
+            <TextView
+                android:id="@+id/title_breakEven"
+                android:text="Break Even"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/DetailsLabel"
+                />
+
+            <TextView
+                android:id="@+id/breakEven"
+                android:text="$123.32"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/DetailsValue"
+                />
+
+            <TextView
+                android:id="@+id/title_askPrice"
+                android:text="Ask"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/DetailsLabel"
+                />
+
+            <TextView
+                android:id="@+id/askPrice"
+                android:text="$10.44"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/DetailsValue"
+                />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/title_annualizedMaxProfit"
+                android:text="Annualized"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/DetailsLabel"
+                />
+
+            <TextView
+                android:id="@+id/annualizedMaxProfit"
+                android:text="10%"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/DetailsValue"
+                />
+
+            <TextView
+                android:id="@+id/title_PercentChangeToBreakEven"
+                android:text="Change Tolerance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/DetailsLabel"
+                />
+
+            <TextView
+                android:id="@+id/percentChangeToleranceToBreakEven"
+                android:text="-20%"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/DetailsValue"
+                />
+
+            <TextView
+                android:id="@+id/title_daysToExp"
+                android:text="Days to Exp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/DetailsLabel"
+                />
+
+            <TextView
+                android:id="@+id/daysToExp"
+                android:text="10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/DetailsValue"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,9 +1,8 @@
-package com.mosoft.momomentum;
+package com.mosoft.momomentum.ui;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -27,6 +26,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.client.AmeritradeClient;
 import com.mosoft.momomentum.model.amtd.LoginResponse;
 import com.mosoft.momomentum.module.MomentumApplication;

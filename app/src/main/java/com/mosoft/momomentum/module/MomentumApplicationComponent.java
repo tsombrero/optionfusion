@@ -1,8 +1,8 @@
 package com.mosoft.momomentum.module;
 
-import com.mosoft.momomentum.LoginActivity;
-import com.mosoft.momomentum.MainActivity;
-import com.mosoft.momomentum.MainActivityFragment;
+import com.mosoft.momomentum.ui.LoginActivity;
+import com.mosoft.momomentum.ui.MainActivity;
+import com.mosoft.momomentum.ui.MainActivityFragment;
 
 import javax.inject.Singleton;
 

@@ -18,7 +18,12 @@ public class BearPutSpread extends Spread {
     }
 
     @Override
-    public Double getDepthOfBreakeven() {
+    public Double getPriceChangeToBreakEven() {
+        return getPrice_BreakEven() - underlying.getLast();
+    }
+
+    @Override
+    public Double getBreakEvenDepth() {
         return getPrice_BreakEven() - underlying.getLast();
     }
 }

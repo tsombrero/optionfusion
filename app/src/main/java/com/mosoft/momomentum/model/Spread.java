@@ -1,9 +1,12 @@
 package com.mosoft.momomentum.model;
 
+import android.text.SpannableString;
+
 import com.mosoft.momomentum.model.amtd.OptionChain;
 import com.mosoft.momomentum.util.Util;
 
 import java.util.Comparator;
+import java.util.Date;
 
 abstract public class Spread {
     OptionChain.OptionQuote buy, sell;
@@ -87,6 +90,18 @@ abstract public class Spread {
         return getMaxPriceChange_MaxProfit() / underlying.getAsk();
     }
 
+    public Double getMaxPercentChange_BreakEven() {
+        return getPriceChangeToBreakEven() / underlying.getLast();
+    }
+
+    public SpannableString getDescription() {
+        return new SpannableString(String.format("%s %s %.2f/%.2f %s", buy.getOptionType().toString(), underlying.getSymbol(), buy.getStrike(), sell.getStrike(), Util.getFormattedOptionDate(getExpiresDate())));
+    }
+
+    public Date getExpiresDate() {
+        return buy.getExpiration();
+    }
+
     // Used for sorting purposes only, if we ever need "Annualized Profit %" that can replace this
     private Double profitWeight;
 
@@ -96,7 +111,14 @@ abstract public class Spread {
         return profitWeight;
     }
 
-    abstract public Double getDepthOfBreakeven();
+    public double getMaxProfitAnnualized() {
+        return Math.pow(1d + getMaxPercentProfitAtExpiration(), 365d / (double)getDaysToExpiration()) - 1d;
+    }
+
+    abstract public Double getPriceChangeToBreakEven();
+
+    abstract public Double getBreakEvenDepth();
+
     public String toString() {
         return String.format("%s $%.2f; dte:%d; spr:%.2f/%.2f ask:$%.2f MaxProfit: %s / %.1f%% weighted:%.3f",
                 underlying.getSymbol(),
@@ -104,7 +126,7 @@ abstract public class Spread {
                 buy.getDaysUntilExpiration(),
                 buy.getStrike(), sell.getStrike(),
                 getAsk(),
-                Util.Dollars(getMaxProfitAtExpiration()),
+                Util.formatDollars(getMaxProfitAtExpiration()),
                 getMaxPercentProfitAtExpiration() * 100d,
                 getMaxPercentProfitAtExpiration() / (double) getDaysToExpiration());
     }
@@ -133,7 +155,7 @@ abstract public class Spread {
     public static class DescendingBreakEvenDepthComparator implements Comparator<Spread> {
         @Override
         public int compare(Spread lhs, Spread rhs) {
-            return rhs.getDepthOfBreakeven().compareTo(lhs.getDepthOfBreakeven());
+            return rhs.getBreakEvenDepth().compareTo(lhs.getBreakEvenDepth());
         }
     }
 }

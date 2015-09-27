@@ -14,7 +14,10 @@ import org.simpleframework.xml.Transient;
 import org.simpleframework.xml.core.Commit;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class OptionChain extends AmtdResponse {
@@ -26,7 +29,17 @@ public class OptionChain extends AmtdResponse {
         return data.symbol;
     }
 
+    public double getLast() {
+        return data.last;
+    }
+
+    public double getChange() {
+        return data.change;
+    }
+
     public List<OptionDate> getOptionDates() {
+        if (data == null)
+            return Collections.EMPTY_LIST;
         return data.optionDates;
     }
 
@@ -377,6 +390,13 @@ public class OptionChain extends AmtdResponse {
 
         public OptionType getOptionType() {
             return optionType;
+        }
+
+        public Date getExpiration() {
+            int year = Integer.valueOf(optionDate.date.substring(0, 4));
+            int month = Integer.valueOf(optionDate.date.substring(4, 6));
+            int day = Integer.valueOf(optionDate.date.substring(6));
+            return new GregorianCalendar(year, month, day).getTime();
         }
     }
 
