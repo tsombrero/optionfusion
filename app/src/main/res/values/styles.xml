@@ -3,8 +3,33 @@
 
     </style>
 
-    <color name="subhead_medium_light">#bebebe</color>
+    <color name="subhead_medium_background">@color/material_grey_300</color>
+    <color name="subhead_medium_text">@color/material_grey_600</color>
     <color name="header_inverse">@color/material_deep_teal_500</color>
+    <color name="green_900">#1B5E20</color>
+    <color name="red_900">#B71C1C</color>
+    <color name="primary_text">@android:color/primary_text_light</color>
+    <color name="secondary_text">@android:color/secondary_text_light</color>
+
+    <color name="material_blue_grey_800">#ff37474f</color>
+    <color name="material_blue_grey_900">#ff263238</color>
+    <color name="material_blue_grey_950">#ff21272b</color>
+    <color name="material_deep_teal_200">#ff80cbc4</color>
+    <color name="material_deep_teal_500">#ff009688</color>
+    <color name="material_grey_100">#fff5f5f5</color>
+    <color name="material_grey_300">#ffe0e0e0</color>
+    <color name="material_grey_50">#fffafafa</color>
+    <color name="material_grey_600">#ff757575</color>
+    <color name="material_grey_800">#ff424242</color>
+    <color name="material_grey_850">#ff303030</color>
+    <color name="material_grey_900">#ff212121</color>
+    <color name="primary_dark_material_light">@color/material_grey_600</color>
+    <color name="primary_material_light">@color/material_grey_100</color>
+    <color name="primary_text_default_material_light">#de000000</color>
+    <color name="primary_text_disabled_material_light">#39000000</color>
+    <color name="ripple_material_light">#1f000000</color>
+    <color name="secondary_text_default_material_light">#8a000000</color>
+    <color name="secondary_text_disabled_material_light">#24000000</color>
 
     <style name="ListHeader" parent="@android:style/TextAppearance.Medium">
         <item name="android:textColor">@android:color/primary_text_dark</item>
@@ -16,8 +41,8 @@
     </style>
 
     <style name="DetailsLabel" parent="@android:style/TextAppearance.Small">
-        <item name="android:textColor">@android:color/primary_text_light</item>
-        <item name="android:background">@color/subhead_medium_light</item>
+        <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:background">@color/subhead_medium_background</item>
         <item name="android:textStyle">bold</item>
         <item name="android:padding">5dp</item>
         <item name="android:textAllCaps">true</item>
@@ -30,9 +55,10 @@
     </style>
 
     <style name="LargeSymbol" parent="android:style/TextAppearance.Large">
-        <item name="android:textColor">@android:color/primary_text_light</item>
+        <item name="android:textColor">@color/material_blue_grey_800</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">26sp</item>
+        <item name="android:textSize">34sp</item>
+        <item name="android:singleLine">true</item>
     </style>
 
 </resources>

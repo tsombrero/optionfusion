@@ -23,6 +23,9 @@ abstract public class Spread {
     }
 
     public static Spread newSpread(OptionChain.OptionQuote buy, OptionChain.OptionQuote sell, OptionChain.Data underlying) {
+        if (buy == null || sell == null)
+            return null;
+
         //whatever this is, not impl
         if (buy.getOptionType() != sell.getOptionType())
             return null;
@@ -33,6 +36,9 @@ abstract public class Spread {
 
         // don't mix multipliers
         if (buy.getMultiplier() != sell.getMultiplier())
+            return null;
+
+        if (!buy.hasAsk() || !sell.hasBid())
             return null;
 
         if (buy.getOptionType() == OptionChain.OptionType.CALL) {
@@ -94,10 +100,6 @@ abstract public class Spread {
         return getPriceChangeToBreakEven() / underlying.getLast();
     }
 
-    public SpannableString getDescription() {
-        return new SpannableString(String.format("%s %s %.2f/%.2f %s", buy.getOptionType().toString(), underlying.getSymbol(), buy.getStrike(), sell.getStrike(), Util.getFormattedOptionDate(getExpiresDate())));
-    }
-
     public Date getExpiresDate() {
         return buy.getExpiration();
     }
@@ -133,6 +135,17 @@ abstract public class Spread {
 
     public int getDaysToExpiration() {
         return buy.getDaysUntilExpiration();
+    }
+
+    public boolean isInTheMoney() {
+        if (buy.getOptionType() == OptionChain.OptionType.CALL) {
+            return getPrice_BreakEven() < underlying.getLast();
+        }
+        return getPrice_BreakEven() > underlying.getLast();
+    }
+
+    public boolean isCall() {
+        return buy.getOptionType() == OptionChain.OptionType.CALL;
     }
 
     public static class AscendingAnnualizedProfitComparator implements Comparator<Spread> {

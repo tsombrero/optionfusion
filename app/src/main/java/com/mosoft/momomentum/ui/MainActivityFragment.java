@@ -1,5 +1,6 @@
 package com.mosoft.momomentum.ui;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -55,9 +56,6 @@ public class MainActivityFragment extends Fragment {
 
     @Bind(R.id.symbol)
     protected TextView symbolView;
-
-    @Bind(R.id.change)
-    protected TextView changeView;
 
     @Bind(R.id.price)
     protected TextView priceView;
@@ -129,7 +127,6 @@ public class MainActivityFragment extends Fragment {
                 recyclerView.setVisibility(View.VISIBLE);
 
                 symbolView.setText(oc.getSymbol());
-                changeView.setText(Util.formatDollars(oc.getChange()));
                 priceView.setText(Util.formatDollars(oc.getLast()));
 
                 List<Spread> allSpreads = oc.getAllSpreads();
@@ -153,15 +150,17 @@ public class MainActivityFragment extends Fragment {
                     return;
                 }
 
-                allSpreads = allSpreads.subList(j, allSpreads.size() -1);
+                allSpreads = allSpreads.subList(j, allSpreads.size() - 1);
 
                 Collections.sort(allSpreads, new Spread.DescendingBreakEvenDepthComparator());
 
-                for (Spread spread : allSpreads.subList(0, 10)) {
+                int spreadCount = Math.min(10, allSpreads.size());
+
+                for (Spread spread : allSpreads.subList(0, spreadCount)) {
                     Log.i(TAG, spread.toString() + "        " + spread.getBuy() + " / " + spread.getSell());
                 }
 
-                SpreadsAdapter adapter = new SpreadsAdapter(allSpreads.subList(0, 10));
+                SpreadsAdapter adapter = new SpreadsAdapter(allSpreads.subList(0, spreadCount));
                 recyclerView.setAdapter(adapter);
             }
 
@@ -183,7 +182,7 @@ public class MainActivityFragment extends Fragment {
         @Override
         public SpreadViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_spread_details, parent, false);
-            return new SpreadViewHolder(itemView);
+            return new SpreadViewHolder(itemView, getResources());
         }
 
         @Override
@@ -211,8 +210,11 @@ public class MainActivityFragment extends Fragment {
         @Bind(R.id.daysToExp)
         TextView daysToExp;
 
-        @Bind(R.id.description)
+        @Bind(R.id.descriptionLeft)
         TextView description;
+
+        @Bind(R.id.descriptionRight)
+        TextView expirationDate;
 
         @Bind(R.id.maxProfit)
         TextView maxProfit;
@@ -220,19 +222,30 @@ public class MainActivityFragment extends Fragment {
         @Bind(R.id.percentChangeToleranceToBreakEven)
         TextView percentChangeToleranceToBreakEven;
 
-        public SpreadViewHolder(View itemView) {
+        private Resources resources;
+
+        public SpreadViewHolder(View itemView, Resources resources) {
             super(itemView);
+            this.resources = resources;
             ButterKnife.bind(this, itemView);
         }
 
         public void bind(Spread spread) {
             annualizedProfit.setText(Util.formatPercent(spread.getMaxProfitAnnualized()));
             askPrice.setText(Util.formatDollars(spread.getAsk()));
-            breakEven.setText(Util.formatDollars(spread.getPrice_BreakEven()));
-            daysToExp.setText(String.valueOf(spread.getDaysToExpiration()));
-            description.setText(spread.getDescription());
+            breakEven.setText((spread.isCall() ? "> " : "< ") + Util.formatDollars(spread.getPrice_BreakEven()));
+            daysToExp.setText(String.valueOf(spread.getDaysToExpiration()) + " days");
+            description.setText(String.format("%s %.2f/%.2f", spread.getBuy().getOptionType().toString(), spread.getBuy().getStrike(), spread.getSell().getStrike()));
+            expirationDate.setText(Util.getFormattedOptionDate(spread.getExpiresDate()));
             maxProfit.setText(Util.formatDollars(spread.getMaxProfitAtExpiration()));
-            percentChangeToleranceToBreakEven.setText(Util.formatPercent(spread.getMaxPercentChange_BreakEven()));
+            percentChangeToleranceToBreakEven.setText(Util.formatPercent(spread.getMaxPercentChange_BreakEven()) + (spread.isInTheMoney() ? "" : "  OTM"));
+
+            int color = spread.isInTheMoney()
+                    ? resources.getColor(R.color.primary_text)
+                    : resources.getColor(R.color.red_900);
+
+            percentChangeToleranceToBreakEven.setTextColor(color);
+            breakEven.setTextColor(color);
         }
     }
 }

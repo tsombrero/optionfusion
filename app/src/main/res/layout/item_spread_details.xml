@@ -1,22 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/description"
-        android:layout_width="match_parent"
+        android:id="@+id/descriptionLeft"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="description"
         android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:gravity="start"
+        style="@style/ListHeader"
+        />
+
+    <TextView
+        android:id="@+id/descriptionRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="description"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@id/descriptionLeft"
+        android:gravity="end"
         style="@style/ListHeader"
         />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_below="@id/descriptionLeft">
 
         <LinearLayout
             android:orientation="vertical"
@@ -115,7 +130,7 @@
 
             <TextView
                 android:id="@+id/title_daysToExp"
-                android:text="Days to Exp"
+                android:text="Time to Exp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/DetailsLabel"
@@ -132,4 +147,4 @@
 
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>

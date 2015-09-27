@@ -1,7 +1,10 @@
 package com.mosoft.momomentum.util;
 
+import android.util.Log;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -10,6 +13,9 @@ public class Util {
     public static final String TAG="Mo";
 
     private static final DateFormat dateFormat = new SimpleDateFormat("d MMM yyyy");
+    private static final DateFormat dateFormatFar = new SimpleDateFormat("MMM yyyy");
+    private static final DateFormat dateFormatNear = new SimpleDateFormat("d MMM");
+    private static final GregorianCalendar calendar = new GregorianCalendar();
 
     public static long getCentsFromCurrencyString(String str) {
         try {
@@ -67,6 +73,16 @@ public class Util {
     }
 
     public static String getFormattedOptionDate(Date date) {
-        return dateFormat.format(date);
+        synchronized (calendar) {
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            calendar.set(Calendar.DAY_OF_MONTH, 1);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.add(Calendar.MONTH, 6);
+
+            if (calendar.getTime().after(date)) {
+                return dateFormatNear.format(date);
+            }
+            return dateFormatFar.format(date);
+        }
     }
 }

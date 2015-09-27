@@ -381,11 +381,11 @@ public class OptionChain extends AmtdResponse {
         }
 
         public boolean hasBid() {
-            return bid > 0d && getBidSize() > 0;
+            return bid != null && bid > 0d && getBidSize() > 0;
         }
 
         public boolean hasAsk() {
-            return ask > 0d && getAskSize() > 0 && ask < Double.MAX_VALUE;
+            return ask != null && ask > 0d && getAskSize() > 0 && ask < Double.MAX_VALUE;
         }
 
         public OptionType getOptionType() {
