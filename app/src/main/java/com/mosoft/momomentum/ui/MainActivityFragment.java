@@ -198,14 +198,14 @@ public class MainActivityFragment extends Fragment {
 
     public static class SpreadViewHolder extends RecyclerView.ViewHolder {
 
-        @Bind(R.id.annualizedMaxProfit)
-        TextView annualizedProfit;
+        @Bind(R.id.annualizedMaxReturn)
+        TextView annualizedReturn;
 
         @Bind(R.id.askPrice)
         TextView askPrice;
 
-        @Bind(R.id.breakEven)
-        TextView breakEven;
+        @Bind(R.id.breakEvenPrice)
+        TextView breakEvenPrice;
 
         @Bind(R.id.daysToExp)
         TextView daysToExp;
@@ -216,11 +216,23 @@ public class MainActivityFragment extends Fragment {
         @Bind(R.id.descriptionRight)
         TextView expirationDate;
 
-        @Bind(R.id.maxProfit)
-        TextView maxProfit;
+        @Bind(R.id.maxReturn)
+        TextView maxReturn;
 
-        @Bind(R.id.percentChangeToleranceToBreakEven)
-        TextView percentChangeToleranceToBreakEven;
+        @Bind(R.id.percentChangeToBreakEven)
+        TextView percentChangeToBreakEven;
+
+        @Bind(R.id.percentChangeToMaxReturn)
+        TextView percentChangeToMaxReturn;
+
+        @Bind(R.id.maxReturnPrice)
+        TextView maxReturnPrice;
+
+        @Bind(R.id.title_maxReturnPrice)
+        TextView title_maxReturnPrice;
+
+        @Bind(R.id.title_breakEvenPrice)
+        TextView title_breakEvenPrice;
 
         private Resources resources;
 
@@ -231,21 +243,33 @@ public class MainActivityFragment extends Fragment {
         }
 
         public void bind(Spread spread) {
-            annualizedProfit.setText(Util.formatPercent(spread.getMaxProfitAnnualized()));
+            annualizedReturn.setText(Util.formatPercent(spread.getMaxReturnAnnualized()));
             askPrice.setText(Util.formatDollars(spread.getAsk()));
-            breakEven.setText((spread.isCall() ? "> " : "< ") + Util.formatDollars(spread.getPrice_BreakEven()));
+            breakEvenPrice.setText(Util.formatDollars(spread.getPrice_BreakEven()));
+            maxReturnPrice.setText(Util.formatDollars(spread.getPrice_MaxReturn()));
             daysToExp.setText(String.valueOf(spread.getDaysToExpiration()) + " days");
             description.setText(String.format("%s %.2f/%.2f", spread.getBuy().getOptionType().toString(), spread.getBuy().getStrike(), spread.getSell().getStrike()));
             expirationDate.setText(Util.getFormattedOptionDate(spread.getExpiresDate()));
-            maxProfit.setText(Util.formatDollars(spread.getMaxProfitAtExpiration()));
-            percentChangeToleranceToBreakEven.setText(Util.formatPercent(spread.getMaxPercentChange_BreakEven()) + (spread.isInTheMoney() ? "" : "  OTM"));
+            maxReturn.setText(Util.formatDollars(spread.getMaxProfitAtExpiration()));
+            percentChangeToBreakEven.setText(Util.formatPercent(spread.getPercentChange_BreakEven()) + (spread.isInTheMoney_BreakEven() ? "" : "  OTM"));
+            percentChangeToMaxReturn.setText(Util.formatPercent(spread.getPercentChange_MaxProfit()) + (spread.isInTheMoney_MaxReturn() ? "" : "  OTM"));
 
-            int color = spread.isInTheMoney()
+            title_maxReturnPrice.setText(String.format(resources.getString(R.string.formatPriceAtMaxReturn), spread.getUnderlyingSymbol()));
+            title_breakEvenPrice.setText(String.format(resources.getString(R.string.formatPriceAtBreakEven), spread.getUnderlyingSymbol()));
+
+            int color = spread.isInTheMoney_BreakEven()
                     ? resources.getColor(R.color.primary_text)
                     : resources.getColor(R.color.red_900);
 
-            percentChangeToleranceToBreakEven.setTextColor(color);
-            breakEven.setTextColor(color);
+            percentChangeToBreakEven.setTextColor(color);
+            breakEvenPrice.setTextColor(color);
+
+            color = spread.isInTheMoney_MaxReturn()
+                    ? resources.getColor(R.color.primary_text)
+                    : resources.getColor(R.color.red_900);
+
+            percentChangeToMaxReturn.setTextColor(color);
+            maxReturnPrice.setTextColor(color);
         }
     }
 }

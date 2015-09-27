@@ -1,150 +1,199 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
     <TextView
         android:id="@+id/descriptionLeft"
+        style="@style/ListHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="description"
-        android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
         android:gravity="start"
-        style="@style/ListHeader"
+        android:text="description"
         />
 
     <TextView
         android:id="@+id/descriptionRight"
+        style="@style/ListHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="description"
-        android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
         android:layout_toEndOf="@id/descriptionLeft"
         android:gravity="end"
-        style="@style/ListHeader"
+        android:text="description"
         />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_below="@id/descriptionLeft">
+        android:layout_below="@id/descriptionLeft"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/title_maxProfit"
-                android:text="Max Profit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 style="@style/DetailsLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Max Return"
                 />
 
             <TextView
-                android:id="@+id/maxProfit"
+                android:id="@+id/title_annualizedMaxReturn"
+                style="@style/DetailsLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Annualized"
+                />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/maxReturn"
+                style="@style/DetailsValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="$123.32"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                />
+
+            <TextView
+                android:id="@+id/annualizedMaxReturn"
                 style="@style/DetailsValue"
-                />
-
-            <TextView
-                android:id="@+id/title_breakEven"
-                android:text="Break Even"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                style="@style/DetailsLabel"
+                android:layout_weight="1"
+                android:text="10%"
                 />
-
-            <TextView
-                android:id="@+id/breakEven"
-                android:text="$123.32"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/DetailsValue"
-                />
-
-            <TextView
-                android:id="@+id/title_askPrice"
-                android:text="Ask"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/DetailsLabel"
-                />
-
-            <TextView
-                android:id="@+id/askPrice"
-                android:text="$10.44"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/DetailsValue"
-                />
-
-
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/title_annualizedMaxProfit"
-                android:text="Annualized"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:id="@+id/title_askPrice"
                 style="@style/DetailsLabel"
-                />
-
-            <TextView
-                android:id="@+id/annualizedMaxProfit"
-                android:text="10%"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                style="@style/DetailsValue"
-                />
-
-            <TextView
-                android:id="@+id/title_PercentChangeToBreakEven"
-                android:text="Change Tolerance"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/DetailsLabel"
-                />
-
-            <TextView
-                android:id="@+id/percentChangeToleranceToBreakEven"
-                android:text="-20%"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/DetailsValue"
+                android:layout_weight="1"
+                android:text="Ask"
                 />
 
             <TextView
                 android:id="@+id/title_daysToExp"
-                android:text="Time to Exp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 style="@style/DetailsLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Time to Exp"
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/askPrice"
+                style="@style/DetailsValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="$10.44"
                 />
 
             <TextView
                 android:id="@+id/daysToExp"
-                android:text="10"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 style="@style/DetailsValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="10"
+                />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/title_maxReturnPrice"
+            style="@style/DetailsLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="CSCO price @ max return"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/maxReturnPrice"
+                style="@style/DetailsValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="$123.32 "
+                />
+
+            <TextView
+                android:id="@+id/percentChangeToMaxReturn"
+                style="@style/DetailsValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="10%"
+                />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/title_breakEvenPrice"
+            style="@style/DetailsLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="CSCO price @ Break Even"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/breakEvenPrice"
+                style="@style/DetailsValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="$123.32"
+                />
+
+            <TextView
+                android:id="@+id/percentChangeToBreakEven"
+                style="@style/DetailsValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="-20%"
                 />
         </LinearLayout>
 
     </LinearLayout>
-
 </RelativeLayout>

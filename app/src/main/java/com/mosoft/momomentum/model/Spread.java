@@ -1,7 +1,5 @@
 package com.mosoft.momomentum.model;
 
-import android.text.SpannableString;
-
 import com.mosoft.momomentum.model.amtd.OptionChain;
 import com.mosoft.momomentum.util.Util;
 
@@ -82,22 +80,27 @@ abstract public class Spread {
     abstract public Double getMaxValueAtExpiration();
     abstract public Double getPrice_BreakEven();
 
+
     public Double getMaxPercentProfitAtExpiration() {
         return getMaxProfitAtExpiration() / getAsk();
     }
 
-    // how much $ the price can drop before cutting into profit
-    public Double getMaxPriceChange_MaxProfit() {
-        return Math.abs(underlying.getBid() - sell.getStrike());
+    public Double getPriceChange_BreakEven() {
+        return getPrice_BreakEven() - underlying.getLast();
+    }
+
+    public Double getPercentChange_BreakEven() {
+        return getPriceChange_BreakEven() / underlying.getLast();
+    }
+
+    // how much $ the price can change before the max profit limit
+    public Double getPriceChange_MaxProfit() {
+        return sell.getStrike() - underlying.getLast();
     }
 
     // how much % the price can drop before cutting into profit
-    public Double getMaxPercentChange_MaxProfit() {
-        return getMaxPriceChange_MaxProfit() / underlying.getAsk();
-    }
-
-    public Double getMaxPercentChange_BreakEven() {
-        return getPriceChangeToBreakEven() / underlying.getLast();
+    public Double getPercentChange_MaxProfit() {
+        return getPriceChange_MaxProfit() / underlying.getLast();
     }
 
     public Date getExpiresDate() {
@@ -113,11 +116,9 @@ abstract public class Spread {
         return profitWeight;
     }
 
-    public double getMaxProfitAnnualized() {
+    public double getMaxReturnAnnualized() {
         return Math.pow(1d + getMaxPercentProfitAtExpiration(), 365d / (double)getDaysToExpiration()) - 1d;
     }
-
-    abstract public Double getPriceChangeToBreakEven();
 
     abstract public Double getBreakEvenDepth();
 
@@ -137,15 +138,30 @@ abstract public class Spread {
         return buy.getDaysUntilExpiration();
     }
 
-    public boolean isInTheMoney() {
+    public boolean isInTheMoney_BreakEven() {
         if (buy.getOptionType() == OptionChain.OptionType.CALL) {
             return getPrice_BreakEven() < underlying.getLast();
         }
         return getPrice_BreakEven() > underlying.getLast();
     }
 
+    public boolean isInTheMoney_MaxReturn() {
+        if (buy.getOptionType() == OptionChain.OptionType.CALL) {
+            return getPrice_MaxReturn() < underlying.getLast();
+        }
+        return getPrice_MaxReturn() > underlying.getLast();
+    }
+
+    public double getPrice_MaxReturn() {
+        return sell.getStrike();
+    }
+
     public boolean isCall() {
         return buy.getOptionType() == OptionChain.OptionType.CALL;
+    }
+
+    public String getUnderlyingSymbol() {
+        return underlying.getSymbol();
     }
 
     public static class AscendingAnnualizedProfitComparator implements Comparator<Spread> {
