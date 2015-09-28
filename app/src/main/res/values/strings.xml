@@ -4,6 +4,10 @@
     <string name="action_settings">Settings</string>
     <string name="symbol">Symbol</string>
     <string name="submit">Go</string>
-    <string name="formatPriceAtBreakEven">%s price @ Break Even</string>
-    <string name="formatPriceAtMaxReturn">%s price @ Max Return</string>
+    <string name="formatPriceAtMaxReturn">Max Return realized %s price</string>
+    <string name="formatPriceAtBreakEven">Negative return %s price</string>
+    <string name="spreadAsk">Spread Ask</string>
+    <string name="timeToExp">Time to Exp</string>
+    <string name="maxReturn">Max Return</string>
+    <string name="annualized">Annualized</string>
 </resources>

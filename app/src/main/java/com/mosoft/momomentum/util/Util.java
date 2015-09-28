@@ -55,7 +55,7 @@ public class Util {
         return ret - 1d;
     }
 
-    public static String formatPercent(Double pct) {
+    public static String formatPercent(double pct) {
         if (pct > 1d)
             return String.format("%d%%", (int)(100d * pct));
         if (pct > 0.1d)

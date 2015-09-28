@@ -8,17 +8,17 @@ public class BullCallSpread extends Spread {
     }
 
     @Override
-    public Double getMaxValueAtExpiration() {
+    public double getMaxValueAtExpiration() {
         return sell.getStrike() - buy.getStrike();
     }
 
     @Override
-    public Double getPrice_BreakEven() {
+    public double getPrice_BreakEven() {
         return buy.getStrike() + getAsk();
     }
 
     @Override
-    public Double getBreakEvenDepth() {
+    public double getBreakEvenDepth() {
         return underlying.getLast() - getPrice_BreakEven();
     }
 }

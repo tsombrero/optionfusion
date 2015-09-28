@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.client.AmeritradeClient;
 import com.mosoft.momomentum.model.Spread;
+import com.mosoft.momomentum.model.SpreadFilter;
 import com.mosoft.momomentum.model.amtd.OptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
 import com.mosoft.momomentum.util.Util;
@@ -63,6 +64,9 @@ public class MainActivityFragment extends Fragment {
     @Bind(R.id.stockInfo)
     protected ViewGroup stockInfo;
 
+    @Bind(R.id.equityDescription)
+    protected TextView equityDescription;
+
     @Inject
     AmeritradeClient ameritradeClient;
 
@@ -93,7 +97,7 @@ public class MainActivityFragment extends Fragment {
         if (TextUtils.isEmpty(percentText))
             Toast.makeText(getActivity(), "Enter a monthly percent growth", Toast.LENGTH_SHORT);
 
-        final Double percent = Double.valueOf(percentText) / 100d;
+        final double percent = Double.valueOf(percentText) / 100d;
 
         ameritradeClient.getOptionChain(symbol).enqueue(new Callback<OptionChain>() {
             @Override
@@ -112,14 +116,6 @@ public class MainActivityFragment extends Fragment {
 
                 Log.i("tag", "Got option chain: " + oc);
 
-                SparseArray<Double> compoundGrowthByDTE = new SparseArray<>();
-
-                for (OptionChain.OptionDate optiondate : oc.getOptionDates()) {
-                    double months = ((double) optiondate.getDaysToExpiration()) / 365d * 12d;
-                    double totalPercentGoal = Util.compoundGrowth(percent, months);
-                    compoundGrowthByDTE.put(optiondate.getDaysToExpiration(), totalPercentGoal);
-                }
-
                 editPercentView.setVisibility(View.GONE);
                 editSymbolView.setVisibility(View.GONE);
                 submitButton.setVisibility(View.GONE);
@@ -128,29 +124,18 @@ public class MainActivityFragment extends Fragment {
 
                 symbolView.setText(oc.getSymbol());
                 priceView.setText(Util.formatDollars(oc.getLast()));
+                equityDescription.setText(oc.getEquityDescription());
 
-                List<Spread> allSpreads = oc.getAllSpreads();
+                SpreadFilter filter = new SpreadFilter();
+                filter.setMinMonthlyReturn(percent);
+                List<Spread> allSpreads = oc.getAllSpreads(filter);
 
                 Log.i(TAG, "Closest matches:");
-
-                int j = allSpreads.size() / 2;
-                int bisect = j / 2;
-                while (bisect > 0) {
-                    Spread spread = allSpreads.get(j);
-                    if (spread.getMaxPercentProfitAtExpiration() > compoundGrowthByDTE.get(spread.getDaysToExpiration()))
-                        j -= bisect;
-                    else
-                        j += bisect;
-
-                    bisect /= 2;
-                }
 
                 if (allSpreads.isEmpty()) {
                     Toast.makeText(getActivity(), "Spreads List Empty", Toast.LENGTH_SHORT);
                     return;
                 }
-
-                allSpreads = allSpreads.subList(j, allSpreads.size() - 1);
 
                 Collections.sort(allSpreads, new Spread.DescendingBreakEvenDepthComparator());
 
@@ -254,8 +239,8 @@ public class MainActivityFragment extends Fragment {
             percentChangeToBreakEven.setText(Util.formatPercent(spread.getPercentChange_BreakEven()) + (spread.isInTheMoney_BreakEven() ? "" : "  OTM"));
             percentChangeToMaxReturn.setText(Util.formatPercent(spread.getPercentChange_MaxProfit()) + (spread.isInTheMoney_MaxReturn() ? "" : "  OTM"));
 
-            title_maxReturnPrice.setText(String.format(resources.getString(R.string.formatPriceAtMaxReturn), spread.getUnderlyingSymbol()));
-            title_breakEvenPrice.setText(String.format(resources.getString(R.string.formatPriceAtBreakEven), spread.getUnderlyingSymbol()));
+            title_maxReturnPrice.setText(String.format(resources.getString(R.string.formatPriceAtMaxReturn), spread.isCall() ? "Above" : "Below"));
+            title_breakEvenPrice.setText(String.format(resources.getString(R.string.formatPriceAtBreakEven), spread.isCall() ? "Below" : "Above"));
 
             int color = spread.isInTheMoney_BreakEven()
                     ? resources.getColor(R.color.primary_text)

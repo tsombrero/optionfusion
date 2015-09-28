@@ -8,17 +8,17 @@ public class BearPutSpread extends Spread {
     }
 
     @Override
-    public Double getMaxValueAtExpiration() {
+    public double getMaxValueAtExpiration() {
         return buy.getStrike() - sell.getStrike();
     }
 
     @Override
-    public Double getPrice_BreakEven() {
+    public double getPrice_BreakEven() {
         return buy.getStrike() - getAsk();
     }
 
     @Override
-    public Double getBreakEvenDepth() {
+    public double getBreakEvenDepth() {
         return getPrice_BreakEven() - underlying.getLast();
     }
 }

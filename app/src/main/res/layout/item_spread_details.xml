@@ -44,7 +44,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Max Return"
+                android:text="@string/maxReturn"
                 />
 
             <TextView
@@ -53,7 +53,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Annualized"
+                android:text="@string/annualized"
                 />
         </LinearLayout>
 
@@ -93,7 +93,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Ask"
+                android:text="@string/spreadAsk"
                 />
 
             <TextView
@@ -102,7 +102,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Time to Exp"
+                android:text="@string/timeToExp"
                 />
 
         </LinearLayout>
@@ -136,7 +136,7 @@
             style="@style/DetailsLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="CSCO price @ max return"
+            android:text="max price @ max return"
             />
 
         <LinearLayout
@@ -168,7 +168,7 @@
             style="@style/DetailsLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="CSCO price @ Break Even"
+            android:text="min price @ Break Even"
             />
 
         <LinearLayout

@@ -61,7 +61,7 @@ abstract public class Spread {
         return null;
     }
 
-    public Double getAsk() {
+    public double getAsk() {
         return buy.getAsk() - sell.getBid();
     }
 
@@ -77,29 +77,30 @@ abstract public class Spread {
         return getMaxValueAtExpiration() - getAsk();
     }
 
-    abstract public Double getMaxValueAtExpiration();
-    abstract public Double getPrice_BreakEven();
+    abstract public double getMaxValueAtExpiration();
+
+    abstract public double getPrice_BreakEven();
 
 
-    public Double getMaxPercentProfitAtExpiration() {
+    public double getMaxPercentProfitAtExpiration() {
         return getMaxProfitAtExpiration() / getAsk();
     }
 
-    public Double getPriceChange_BreakEven() {
+    public double getPriceChange_BreakEven() {
         return getPrice_BreakEven() - underlying.getLast();
     }
 
-    public Double getPercentChange_BreakEven() {
+    public double getPercentChange_BreakEven() {
         return getPriceChange_BreakEven() / underlying.getLast();
     }
 
     // how much $ the price can change before the max profit limit
-    public Double getPriceChange_MaxProfit() {
+    public double getPriceChange_MaxProfit() {
         return sell.getStrike() - underlying.getLast();
     }
 
     // how much % the price can drop before cutting into profit
-    public Double getPercentChange_MaxProfit() {
+    public double getPercentChange_MaxProfit() {
         return getPriceChange_MaxProfit() / underlying.getLast();
     }
 
@@ -107,20 +108,11 @@ abstract public class Spread {
         return buy.getExpiration();
     }
 
-    // Used for sorting purposes only, if we ever need "Annualized Profit %" that can replace this
-    private Double profitWeight;
-
-    private Double getProfitWeight() {
-        if (profitWeight == null)
-            profitWeight = getMaxPercentProfitAtExpiration() / getDaysToExpiration();
-        return profitWeight;
-    }
-
     public double getMaxReturnAnnualized() {
-        return Math.pow(1d + getMaxPercentProfitAtExpiration(), 365d / (double)getDaysToExpiration()) - 1d;
+        return Math.pow(1d + getMaxPercentProfitAtExpiration(), 365d / (double) getDaysToExpiration()) - 1d;
     }
 
-    abstract public Double getBreakEvenDepth();
+    abstract public double getBreakEvenDepth();
 
     public String toString() {
         return String.format("%s $%.2f; dte:%d; spr:%.2f/%.2f ask:$%.2f MaxProfit: %s / %.1f%% weighted:%.3f",
@@ -164,27 +156,15 @@ abstract public class Spread {
         return underlying.getSymbol();
     }
 
-    public static class AscendingAnnualizedProfitComparator implements Comparator<Spread> {
-
-        @Override
-        public int compare(Spread lhs, Spread rhs) {
-            return lhs.getProfitWeight().compareTo(rhs.getProfitWeight());
-        }
-    }
-
-    public static class AscendingBreakEvenComparator implements Comparator<Spread> {
-
-        @Override
-        public int compare(Spread lhs, Spread rhs) {
-            return lhs.getPrice_BreakEven().compareTo(rhs.getPrice_BreakEven());
-        }
-    }
-
     // Sort by break-even price distance from the current price
     public static class DescendingBreakEvenDepthComparator implements Comparator<Spread> {
         @Override
         public int compare(Spread lhs, Spread rhs) {
-            return rhs.getBreakEvenDepth().compareTo(lhs.getBreakEvenDepth());
+            if (rhs.getBreakEvenDepth() > lhs.getBreakEvenDepth())
+                return 1;
+            if (rhs.getBreakEvenDepth() < lhs.getBreakEvenDepth())
+                return -1;
+            return 0;
         }
     }
 }

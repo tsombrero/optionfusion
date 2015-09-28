@@ -46,7 +46,6 @@
     <LinearLayout
         android:id="@+id/stockInfo"
         android:visibility="gone"
-        android:layout_marginBottom="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -66,12 +65,20 @@
             android:gravity="end"
             style="@style/LargeSymbol"
             android:layout_weight="1"/>
-
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/equityDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/SmallSubhead"
+        android:gravity="start"
+        />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/list"
         android:visibility="gone"
+        android:layout_marginTop="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"

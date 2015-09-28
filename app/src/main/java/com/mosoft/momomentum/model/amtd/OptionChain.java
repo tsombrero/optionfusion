@@ -2,7 +2,7 @@ package com.mosoft.momomentum.model.amtd;
 
 import android.text.TextUtils;
 
-import com.mosoft.momomentum.model.BullCallSpread;
+import com.mosoft.momomentum.model.SpreadFilter;
 import com.mosoft.momomentum.model.Spread;
 
 import org.simpleframework.xml.Default;
@@ -14,7 +14,6 @@ import org.simpleframework.xml.Transient;
 import org.simpleframework.xml.core.Commit;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -51,14 +50,11 @@ public class OptionChain extends AmtdResponse {
         return data.putQuotes;
     }
 
-    public List<Spread> getAllSpreads() {
+    public List<Spread> getAllSpreads(SpreadFilter filter) {
         List<Spread> ret = new ArrayList<>();
         for (OptionDate optionDate : data.optionDates) {
-            ret.addAll(optionDate.getAllSpreads());
+            ret.addAll(optionDate.getAllSpreads(filter));
         }
-
-        //TODO fix double sorting
-        Collections.sort(ret, new Spread.AscendingAnnualizedProfitComparator());
         return ret;
     }
 
@@ -68,6 +64,10 @@ public class OptionChain extends AmtdResponse {
             return "<empty>";
 
         return "Chain: " + data.description + " (" + data.optionDates.size() + " dates x " + (data.optionDates.isEmpty() ? "0" : data.optionDates.get(0).optionStrikes.size()) + " strikes)";
+    }
+
+    public String getEquityDescription() {
+        return data.description;
     }
 
     // Deserialized:
@@ -164,45 +164,7 @@ public class OptionChain extends AmtdResponse {
         @Transient
         transient Data underlying;
 
-        public List<Spread> getBullCallSpreads(double spread) {
-            List<Spread> ret = new ArrayList<>();
-
-            int i = 0;
-            while (i < optionStrikes.size() - 1) {
-                OptionStrike buy = optionStrikes.get(i);
-
-                // Find the sell leg.
-                double sellStrike = (buy.strikePrice + spread);
-                OptionStrike sell = null;
-                int j = i + 1;
-                while (j < optionStrikes.size()) {
-
-                    if (optionStrikes.get(j).strikePrice == sellStrike) {
-                        sell = optionStrikes.get(j);
-                        break;
-                    }
-
-                    if (optionStrikes.get(j).strikePrice > sellStrike) {
-                        break;
-                    }
-
-                    j++;
-                }
-
-                if (sell != null) {
-                    ret.add(Spread.newSpread(buy.call, sell.call, underlying));
-                }
-
-                if (j == optionStrikes.size())
-                    break;
-
-                i++;
-            }
-
-            return ret;
-        }
-
-        public List<Spread> getAllSpreads() {
+        public List<Spread> getAllSpreads(SpreadFilter filter) {
             List<Spread> ret = new ArrayList<>();
 
             int i = 0;
@@ -217,10 +179,10 @@ public class OptionChain extends AmtdResponse {
 
                 while (j < optionStrikes.size()) {
                     lo = optionStrikes.get(j);
-                    addIfNotNull(ret, Spread.newSpread(hi.call, lo.call, underlying));
-                    addIfNotNull(ret, Spread.newSpread(lo.call, hi.call, underlying));
-                    addIfNotNull(ret, Spread.newSpread(hi.put, lo.put, underlying));
-                    addIfNotNull(ret, Spread.newSpread(lo.put, hi.put, underlying));
+                    addIfPassFilter(ret, filter, Spread.newSpread(hi.call, lo.call, underlying));
+                    addIfPassFilter(ret, filter, Spread.newSpread(lo.call, hi.call, underlying));
+                    addIfPassFilter(ret, filter, Spread.newSpread(hi.put, lo.put, underlying));
+                    addIfPassFilter(ret, filter, Spread.newSpread(lo.put, hi.put, underlying));
                     j++;
                 }
                 i++;
@@ -229,8 +191,8 @@ public class OptionChain extends AmtdResponse {
             return ret;
         }
 
-        private void addIfNotNull(List<Spread> ret, Spread spread) {
-            if (spread != null)
+        private void addIfPassFilter(List<Spread> ret, SpreadFilter filter, Spread spread) {
+            if (filter.pass(spread))
                 ret.add(spread);
         }
 
@@ -245,7 +207,7 @@ public class OptionChain extends AmtdResponse {
     public static class OptionStrike {
 
         @Element(name = "strike-price")
-        private Double strikePrice;
+        private double strikePrice = Double.MAX_VALUE;
 
         @Element(name = "standard-option")
         private Boolean isStandard;
@@ -279,12 +241,12 @@ public class OptionChain extends AmtdResponse {
         String optionSymbol;
 
         @Element(name = "implied-volatility", required = false)
-        Double impliedVolatility;
+        double impliedVolatility = Double.MAX_VALUE;
 
         @Element(name = "theoratical-value", required = false)
-        Double theoreticalValue;
+        double theoreticalValue = Double.MAX_VALUE;
 
-        Double multiplier;
+        double multiplier = Double.MAX_VALUE;
 
         @Element(name="bid-ask-size", required = false)
         String bidAskSize;
@@ -311,16 +273,16 @@ public class OptionChain extends AmtdResponse {
             return description;
         }
 
-        public Double getImpliedVolatility() {
+        public double getImpliedVolatility() {
             return impliedVolatility;
         }
 
-        public Double getTheoreticalValue() {
+        public double getTheoreticalValue() {
             return theoreticalValue;
         }
 
         public double getStrike() {
-            if (optionStrike.strikePrice == null)
+            if (optionStrike.strikePrice == Double.MAX_VALUE)
                 return 0d;
 
             return optionStrike.strikePrice;
@@ -335,7 +297,7 @@ public class OptionChain extends AmtdResponse {
         }
 
         public double getMultiplier() {
-            if (multiplier == null)
+            if (multiplier == Double.MAX_VALUE)
                 return 0d;
             return multiplier;
         }
