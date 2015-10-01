@@ -27,173 +27,163 @@
         android:text="description"
         />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <TextView
+        android:id="@+id/title_daysToExp"
+        style="@style/DetailsLabel"
         android:layout_below="@id/descriptionLeft"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/title_maxProfit"
-                style="@style/DetailsLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/maxReturn"
-                />
-
-            <TextView
-                android:id="@+id/title_annualizedMaxReturn"
-                style="@style/DetailsLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/annualized"
-                />
-        </LinearLayout>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/timeToExp"
+        />
 
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+    <TextView
+        android:id="@+id/title_askPrice"
+        style="@style/DetailsLabel"
+        android:layout_below="@id/title_daysToExp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/spreadAsk"
+        />
 
-            <TextView
-                android:id="@+id/maxReturn"
-                style="@style/DetailsValue"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="$123.32"
-                />
+    <TextView
+        android:id="@+id/title_maxReturn"
+        style="@style/DetailsLabel"
+        android:layout_below="@id/title_askPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/maxReturn"
+        />
 
-            <TextView
-                android:id="@+id/annualizedMaxReturn"
-                style="@style/DetailsValue"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="10%"
-                />
-        </LinearLayout>
+    <TextView
+        android:id="@+id/title_annualizedMaxReturn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_maxReturn"
+        style="@style/DetailsSubLabel"
+        android:text="@string/annualized"
+        />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+    <TextView
+        android:id="@+id/title_maxReturnPrice"
+        style="@style/DetailsSubLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_annualizedMaxReturn"
+        android:text="@string/formatPriceAtMaxReturn"
+        />
 
-            <TextView
-                android:id="@+id/title_askPrice"
-                style="@style/DetailsLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/spreadAsk"
-                />
+    <TextView
+        android:id="@+id/title_maxReturnTolerance"
+        style="@style/DetailsSubLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_maxReturnPrice"
+        android:text="Price change tolerance"
+        />
 
-            <TextView
-                android:id="@+id/title_daysToExp"
-                style="@style/DetailsLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/timeToExp"
-                />
+    <TextView
+        android:id="@+id/title_breakEvenPrice"
+        style="@style/DetailsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_maxReturnTolerance"
+        android:text="@string/formatPriceAtBreakEven"
+        />
 
-        </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+    <TextView
+        android:id="@+id/title_breakEvenTolerance"
+        style="@style/DetailsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_breakEvenPrice"
+        android:text="tolerance to break even"
+        />
 
-            <TextView
-                android:id="@+id/askPrice"
-                style="@style/DetailsValue"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="$10.44"
-                />
 
-            <TextView
-                android:id="@+id/daysToExp"
-                style="@style/DetailsValue"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="10"
-                />
-        </LinearLayout>
 
-        <TextView
-            android:id="@+id/title_maxReturnPrice"
-            style="@style/DetailsLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="max price @ max return"
-            />
+    <TextView
+        android:id="@+id/askPrice"
+        style="@style/DetailsValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/title_askPrice"
+        android:layout_alignParentEnd="true"
+        android:text="$10.44"
+        />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/maxReturnPrice"
-                style="@style/DetailsValue"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="$123.32 "
-                />
 
-            <TextView
-                android:id="@+id/percentChangeToMaxReturn"
-                style="@style/DetailsValue"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="10%"
-                />
-        </LinearLayout>
+    <TextView
+        android:id="@+id/percentChangeToMaxReturn"
+        style="@style/DetailsValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/title_maxReturnTolerance"
+        android:layout_alignParentEnd="true"
+        android:text="10%"
+        />
 
-        <TextView
-            android:id="@+id/title_breakEvenPrice"
-            style="@style/DetailsLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="min price @ Break Even"
-            />
+    <TextView
+        android:id="@+id/annualizedMaxReturn"
+        style="@style/DetailsValue"
+        android:layout_alignBaseline="@id/title_annualizedMaxReturn"
+        android:layout_alignParentEnd="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="10%"
+        />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+    <TextView
+        android:id="@+id/maxReturn"
+        style="@style/DetailsValue"
+        android:layout_alignBaseline="@id/title_maxReturn"
+        android:layout_alignParentEnd="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="$123.32"
+        />
 
-            <TextView
-                android:id="@+id/breakEvenPrice"
-                style="@style/DetailsValue"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="$123.32"
-                />
+    <TextView
+        android:id="@+id/daysToExp"
+        style="@style/DetailsValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/title_daysToExp"
+        android:layout_alignParentEnd="true"
+        android:text="10 days"
+        />
 
-            <TextView
-                android:id="@+id/percentChangeToBreakEven"
-                style="@style/DetailsValue"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="-20%"
-                />
-        </LinearLayout>
 
-    </LinearLayout>
+    <TextView
+        android:id="@+id/maxReturnPrice"
+        style="@style/DetailsValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBaseline="@id/title_maxReturnPrice"
+        android:text="$123.32"
+        />
+
+    <TextView
+        android:id="@+id/percentChangeToBreakEven"
+        style="@style/DetailsValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBaseline="@id/title_breakEvenTolerance"
+        android:text="-20%"
+        />
+
+    <TextView
+        android:id="@+id/breakEvenPrice"
+        style="@style/DetailsValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBaseline="@id/title_breakEvenPrice"
+        android:text="$123.32"
+        />
+
 </RelativeLayout>
