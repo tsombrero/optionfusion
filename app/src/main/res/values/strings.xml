@@ -10,4 +10,9 @@
     <string name="timeToExp">Time to Expire</string>
     <string name="maxReturn">Max Return</string>
     <string name="annualized">Annualized</string>
+    <string name="expires_before">Expires before</string>
+    <string name="expires_after">Expires after</string>
+    <string name="change_to_break_even">Change to Break Even</string>
+    <string name="change_to_max_return">Change to Max Return</string>
+    <string name="max_return_annualized">Max Return Annualized</string>
 </resources>

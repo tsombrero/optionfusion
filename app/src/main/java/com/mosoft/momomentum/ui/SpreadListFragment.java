@@ -7,7 +7,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +26,7 @@ import com.mosoft.momomentum.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -41,7 +41,7 @@ import static com.mosoft.momomentum.util.Util.TAG;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
+public class SpreadListFragment extends Fragment {
 
     @Bind(R.id.edit_symbol)
     protected EditText editSymbolView;
@@ -70,7 +70,7 @@ public class MainActivityFragment extends Fragment {
     @Inject
     AmeritradeClient ameritradeClient;
 
-    public MainActivityFragment() {
+    public SpreadListFragment() {
     }
 
     @Override
@@ -145,7 +145,7 @@ public class MainActivityFragment extends Fragment {
                     Log.i(TAG, spread.toString() + "        " + spread.getBuy() + " / " + spread.getSell());
                 }
 
-                SpreadsAdapter adapter = new SpreadsAdapter(allSpreads.subList(0, spreadCount));
+                SpreadsAdapter adapter = new SpreadsAdapter(filter, allSpreads.subList(0, spreadCount));
                 recyclerView.setAdapter(adapter);
             }
 
@@ -156,32 +156,145 @@ public class MainActivityFragment extends Fragment {
         });
     }
 
-    private class SpreadsAdapter extends RecyclerView.Adapter<SpreadViewHolder> {
+    private static class ListItem {
+        Spread spread;
+        SpreadFilter.Filter filter;
+        double filterValue;
+        ViewType viewType;
+        int layout;
 
-        List<Spread> spreads = new ArrayList<>();
+        ListItem(Spread spread) {
+            this.spread = spread;
+            layout = R.layout.item_spread_details;
+        }
 
-        public SpreadsAdapter(List<Spread> spreads) {
-            this.spreads = spreads;
+        ListItem(SpreadFilter.Filter filter) {
+            this.filter = filter;
+            layout = R.layout.item_filter_inactive;
+        }
+
+        ListItem(SpreadFilter.Filter filter, double filterValue) {
+            this.filter = filter;
+            this.filterValue = filterValue;
+            layout = R.layout.item_filter_active;
+        }
+    }
+
+    enum ViewType {
+        ACTIVE_FILTER(R.layout.item_filter_active),
+        INACTIVE_FILTER(R.layout.item_filter_inactive),
+        SPREAD_DETAILS(R.layout.item_spread_details);
+
+        private int layout;
+
+        ViewType(int layout) {
+
+            this.layout = layout;
+        }
+    };
+
+    SpreadFilter filter;
+
+    List<Spread> spreads = new ArrayList<>();
+
+
+    private class SpreadsAdapter extends RecyclerView.Adapter<BaseViewHolder> {
+
+        List<ListItem> items;
+
+        public SpreadsAdapter(SpreadFilter spreadFilter, List<Spread> spreads) {
+            List<ListItem> newList = new ArrayList<>();
+
+            Map<SpreadFilter.Filter, Double> activeFilters = filter.getActiveFilters();
+            for (SpreadFilter.Filter filter : activeFilters.keySet()) {
+                newList.add(new ListItem(filter, activeFilters.get(filter)));
+            }
+
+            for (SpreadFilter.Filter filter : spreadFilter.getInactiveFilters()) {
+                newList.add(new ListItem(filter));
+            }
+
+            for (Spread spread : spreads) {
+                newList.add(new ListItem(spread));
+            }
         }
 
         @Override
-        public SpreadViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_spread_details, parent, false);
-            return new SpreadViewHolder(itemView, getResources());
+        public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            ViewType type = ViewType.values()[viewType];
+
+            View itemView = LayoutInflater.from(parent.getContext()).inflate(type.layout, parent, false);
+
+            switch (type) {
+                case ACTIVE_FILTER:
+                    return new ActiveFilterViewHolder(itemView, getResources());
+                case INACTIVE_FILTER:
+                    return new FilterViewHolder(itemView, getResources());
+                case SPREAD_DETAILS:
+                    return new SpreadViewHolder(itemView, getResources());
+            }
+            return null;
         }
 
         @Override
-        public void onBindViewHolder(SpreadViewHolder holder, int position) {
-            holder.bind(spreads.get(position));
+        public int getItemViewType(int position) {
+            return items.get(position).viewType.ordinal();
+        }
+
+        @Override
+        public void onBindViewHolder(BaseViewHolder holder, int position) {
+            holder.bind(items.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return spreads.size();
+            return items.size();
         }
     }
 
-    public static class SpreadViewHolder extends RecyclerView.ViewHolder {
+    public static abstract class BaseViewHolder extends RecyclerView.ViewHolder {
+
+        protected Resources resources;
+
+        public BaseViewHolder(View itemView, Resources resources) {
+            super(itemView);
+            this.resources = resources;
+            ButterKnife.bind(this, itemView);
+        }
+
+        abstract void bind(ListItem item);
+    }
+
+    public static class FilterViewHolder extends BaseViewHolder {
+
+        @Bind(R.id.filterName)
+        TextView filterName;
+
+        public FilterViewHolder(View itemView, Resources resources) {
+            super(itemView, resources);
+        }
+
+        public void bind(ListItem item) {
+            filterName.setText(resources.getString(item.filter.getStringRes()));
+        }
+    }
+
+    public static class ActiveFilterViewHolder extends FilterViewHolder {
+
+        @Bind(R.id.filterValue)
+        TextView filterValue;
+
+        public ActiveFilterViewHolder(View itemView, Resources resources) {
+            super(itemView, resources);
+        }
+
+        public void bind(ListItem item) {
+            super.bind(item);
+            filterValue.setText(item.filter.formatValue(item.filterValue));
+        }
+    }
+
+    public static class SpreadViewHolder extends BaseViewHolder {
 
         @Bind(R.id.annualizedMaxReturn)
         TextView annualizedReturn;
@@ -219,15 +332,12 @@ public class MainActivityFragment extends Fragment {
         @Bind(R.id.title_breakEvenPrice)
         TextView title_breakEvenPrice;
 
-        private Resources resources;
-
         public SpreadViewHolder(View itemView, Resources resources) {
-            super(itemView);
-            this.resources = resources;
-            ButterKnife.bind(this, itemView);
+            super(itemView, resources);
         }
 
-        public void bind(Spread spread) {
+        public void bind(ListItem item) {
+            Spread spread = item.spread;
             annualizedReturn.setText(Util.formatPercent(spread.getMaxReturnAnnualized()));
             askPrice.setText(Util.formatDollars(spread.getAsk()));
             breakEvenPrice.setText(Util.formatDollars(spread.getPrice_BreakEven()));

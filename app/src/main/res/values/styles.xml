@@ -82,4 +82,12 @@
         <item name="android:singleLine">true</item>
     </style>
 
+    <style name="filterItemText" parent="android:style/TextAppearance.Medium">
+        <item name="android:textColor">@color/secondary_text</item>
+    </style>
+
+    <style name="filterItemTextActive" parent="android:style/TextAppearance.Medium">
+        <item name="android:textColor">@color/primary_text</item>
+    </style>
+
 </resources>

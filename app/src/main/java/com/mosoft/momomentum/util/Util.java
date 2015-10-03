@@ -85,4 +85,11 @@ public class Util {
             return dateFormatFar.format(date);
         }
     }
+    public static String getFormattedOptionDate(int daysFromNow) {
+        synchronized (calendar) {
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            calendar.add(Calendar.DATE, daysFromNow);
+            return getFormattedOptionDate(calendar.getTime());
+        }
+    }
 }
