@@ -1,6 +1,5 @@
 package com.mosoft.momomentum.ui;
 
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,7 +25,6 @@ import com.mosoft.momomentum.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -69,6 +67,8 @@ public class SpreadListFragment extends Fragment {
 
     @Inject
     AmeritradeClient ameritradeClient;
+
+    SpreadFilter filter;
 
     public SpreadListFragment() {
     }
@@ -145,7 +145,7 @@ public class SpreadListFragment extends Fragment {
                     Log.i(TAG, spread.toString() + "        " + spread.getBuy() + " / " + spread.getSell());
                 }
 
-                SpreadsAdapter adapter = new SpreadsAdapter(filter, allSpreads.subList(0, spreadCount));
+                SpreadsAdapter adapter = new SpreadsAdapter(filter, allSpreads.subList(0, spreadCount), getResources());
                 recyclerView.setAdapter(adapter);
             }
 
@@ -154,217 +154,5 @@ public class SpreadListFragment extends Fragment {
                 t.printStackTrace();
             }
         });
-    }
-
-    private static class ListItem {
-        Spread spread;
-        SpreadFilter.Filter filter;
-        double filterValue;
-        ViewType viewType;
-        int layout;
-
-        ListItem(Spread spread) {
-            this.spread = spread;
-            layout = R.layout.item_spread_details;
-        }
-
-        ListItem(SpreadFilter.Filter filter) {
-            this.filter = filter;
-            layout = R.layout.item_filter_inactive;
-        }
-
-        ListItem(SpreadFilter.Filter filter, double filterValue) {
-            this.filter = filter;
-            this.filterValue = filterValue;
-            layout = R.layout.item_filter_active;
-        }
-    }
-
-    enum ViewType {
-        ACTIVE_FILTER(R.layout.item_filter_active),
-        INACTIVE_FILTER(R.layout.item_filter_inactive),
-        SPREAD_DETAILS(R.layout.item_spread_details);
-
-        private int layout;
-
-        ViewType(int layout) {
-
-            this.layout = layout;
-        }
-    };
-
-    SpreadFilter filter;
-
-    List<Spread> spreads = new ArrayList<>();
-
-
-    private class SpreadsAdapter extends RecyclerView.Adapter<BaseViewHolder> {
-
-        List<ListItem> items;
-
-        public SpreadsAdapter(SpreadFilter spreadFilter, List<Spread> spreads) {
-            List<ListItem> newList = new ArrayList<>();
-
-            Map<SpreadFilter.Filter, Double> activeFilters = filter.getActiveFilters();
-            for (SpreadFilter.Filter filter : activeFilters.keySet()) {
-                newList.add(new ListItem(filter, activeFilters.get(filter)));
-            }
-
-            for (SpreadFilter.Filter filter : spreadFilter.getInactiveFilters()) {
-                newList.add(new ListItem(filter));
-            }
-
-            for (Spread spread : spreads) {
-                newList.add(new ListItem(spread));
-            }
-        }
-
-        @Override
-        public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            ViewType type = ViewType.values()[viewType];
-
-            View itemView = LayoutInflater.from(parent.getContext()).inflate(type.layout, parent, false);
-
-            switch (type) {
-                case ACTIVE_FILTER:
-                    return new ActiveFilterViewHolder(itemView, getResources());
-                case INACTIVE_FILTER:
-                    return new FilterViewHolder(itemView, getResources());
-                case SPREAD_DETAILS:
-                    return new SpreadViewHolder(itemView, getResources());
-            }
-            return null;
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            return items.get(position).viewType.ordinal();
-        }
-
-        @Override
-        public void onBindViewHolder(BaseViewHolder holder, int position) {
-            holder.bind(items.get(position));
-        }
-
-        @Override
-        public int getItemCount() {
-            return items.size();
-        }
-    }
-
-    public static abstract class BaseViewHolder extends RecyclerView.ViewHolder {
-
-        protected Resources resources;
-
-        public BaseViewHolder(View itemView, Resources resources) {
-            super(itemView);
-            this.resources = resources;
-            ButterKnife.bind(this, itemView);
-        }
-
-        abstract void bind(ListItem item);
-    }
-
-    public static class FilterViewHolder extends BaseViewHolder {
-
-        @Bind(R.id.filterName)
-        TextView filterName;
-
-        public FilterViewHolder(View itemView, Resources resources) {
-            super(itemView, resources);
-        }
-
-        public void bind(ListItem item) {
-            filterName.setText(resources.getString(item.filter.getStringRes()));
-        }
-    }
-
-    public static class ActiveFilterViewHolder extends FilterViewHolder {
-
-        @Bind(R.id.filterValue)
-        TextView filterValue;
-
-        public ActiveFilterViewHolder(View itemView, Resources resources) {
-            super(itemView, resources);
-        }
-
-        public void bind(ListItem item) {
-            super.bind(item);
-            filterValue.setText(item.filter.formatValue(item.filterValue));
-        }
-    }
-
-    public static class SpreadViewHolder extends BaseViewHolder {
-
-        @Bind(R.id.annualizedMaxReturn)
-        TextView annualizedReturn;
-
-        @Bind(R.id.askPrice)
-        TextView askPrice;
-
-        @Bind(R.id.breakEvenPrice)
-        TextView breakEvenPrice;
-
-        @Bind(R.id.daysToExp)
-        TextView daysToExp;
-
-        @Bind(R.id.descriptionLeft)
-        TextView description;
-
-        @Bind(R.id.descriptionRight)
-        TextView expirationDate;
-
-        @Bind(R.id.maxReturn)
-        TextView maxReturn;
-
-        @Bind(R.id.percentChangeToBreakEven)
-        TextView percentChangeToBreakEven;
-
-        @Bind(R.id.percentChangeToMaxReturn)
-        TextView percentChangeToMaxReturn;
-
-        @Bind(R.id.maxReturnPrice)
-        TextView maxReturnPrice;
-
-        @Bind(R.id.title_maxReturnPrice)
-        TextView title_maxReturnPrice;
-
-        @Bind(R.id.title_breakEvenPrice)
-        TextView title_breakEvenPrice;
-
-        public SpreadViewHolder(View itemView, Resources resources) {
-            super(itemView, resources);
-        }
-
-        public void bind(ListItem item) {
-            Spread spread = item.spread;
-            annualizedReturn.setText(Util.formatPercent(spread.getMaxReturnAnnualized()));
-            askPrice.setText(Util.formatDollars(spread.getAsk()));
-            breakEvenPrice.setText(Util.formatDollars(spread.getPrice_BreakEven()));
-            maxReturnPrice.setText(Util.formatDollars(spread.getPrice_MaxReturn()));
-            daysToExp.setText(String.valueOf(spread.getDaysToExpiration()) + " days");
-            description.setText(String.format("%s %.2f/%.2f", spread.getBuy().getOptionType().toString(), spread.getBuy().getStrike(), spread.getSell().getStrike()));
-            expirationDate.setText(Util.getFormattedOptionDate(spread.getExpiresDate()));
-            maxReturn.setText(Util.formatDollars(spread.getMaxProfitAtExpiration()));
-            percentChangeToBreakEven.setText(Util.formatPercent(spread.getPercentChange_BreakEven()) + (spread.isInTheMoney_BreakEven() ? "" : "  OTM"));
-            percentChangeToMaxReturn.setText(Util.formatPercent(spread.getPercentChange_MaxProfit()) + (spread.isInTheMoney_MaxReturn() ? "" : "  OTM"));
-
-            title_maxReturnPrice.setText(String.format(resources.getString(R.string.formatPriceAtMaxReturn), spread.isCall() ? "Above" : "Below"));
-            title_breakEvenPrice.setText(String.format(resources.getString(R.string.formatPriceAtBreakEven), spread.isCall() ? "Below" : "Above"));
-
-            int color = spread.isInTheMoney_BreakEven()
-                    ? resources.getColor(R.color.primary_text)
-                    : resources.getColor(R.color.red_900);
-
-            percentChangeToBreakEven.setTextColor(color);
-            breakEvenPrice.setTextColor(color);
-
-            color = spread.isInTheMoney_MaxReturn()
-                    ? resources.getColor(R.color.primary_text)
-                    : resources.getColor(R.color.red_900);
-
-            percentChangeToMaxReturn.setTextColor(color);
-            maxReturnPrice.setTextColor(color);
-        }
     }
 }

@@ -60,13 +60,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/title_maxReturn"
-        style="@style/DetailsSubLabel"
+        style="@style/DetailsLabel.Indented"
         android:text="@string/annualized"
         />
 
     <TextView
         android:id="@+id/title_maxReturnPrice"
-        style="@style/DetailsSubLabel"
+        style="@style/DetailsLabel.Indented"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/title_annualizedMaxReturn"
@@ -75,7 +75,7 @@
 
     <TextView
         android:id="@+id/title_maxReturnTolerance"
-        style="@style/DetailsSubLabel"
+        style="@style/DetailsLabel.Indented"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/title_maxReturnPrice"
