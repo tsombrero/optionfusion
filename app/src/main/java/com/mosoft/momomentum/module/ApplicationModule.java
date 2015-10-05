@@ -3,6 +3,7 @@ package com.mosoft.momomentum.module;
 import android.app.Application;
 import android.content.Context;
 
+import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.client.AmeritradeClient;
 import com.mosoft.momomentum.client.AmeritradeClientProvider;
 
@@ -16,20 +17,33 @@ public class ApplicationModule {
 
     private final Application application;
 
-    private AmeritradeClient ameritradeClient;
-
     ApplicationModule(Application application) {
         this.application = application;
-        ameritradeClient = new AmeritradeClientProvider().getClient();
     }
 
-    @Provides @Singleton
+    @Provides
+    @Singleton
     Application application() {
         return application;
     }
 
-    @Provides @Singleton
+    @Provides
+    @Singleton
     AmeritradeClient getAmeritradeClient() {
-        return ameritradeClient;
+        return new AmeritradeClientProvider().getClient();
     }
+
+    @Provides
+    @Singleton
+    OptionChainProvider getOptionChainProvider(Context context, AmeritradeClient ameritradeClient) {
+        return new OptionChainProvider(context, ameritradeClient);
+    }
+
+    @Provides
+    @Singleton
+    Context provideApplicationContext() {
+        return application.getApplicationContext();
+    }
+
+
 }

@@ -1,5 +1,8 @@
 package com.mosoft.momomentum.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.util.Util;
 
@@ -10,9 +13,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SpreadFilter {
+public class SpreadFilter implements Parcelable {
 
     Map<Filter, Double> filters = new HashMap<>();
+
+    public SpreadFilter() {
+    }
 
     public boolean pass(Spread spread) {
         if (spread == null)
@@ -35,6 +41,20 @@ public class SpreadFilter {
 
     public int getCount() {
         return Filter.values().length;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(filters.size());
+        for (Filter f : filters.keySet()) {
+            dest.writeInt(f.ordinal());
+            dest.writeDouble(filters.get(f));
+        }
     }
 
     public enum FilterType {
@@ -84,4 +104,23 @@ public class SpreadFilter {
             return "<error>";
         }
     }
+
+    public static final Parcelable.Creator<SpreadFilter> CREATOR
+            = new Parcelable.Creator<SpreadFilter>() {
+        public SpreadFilter createFromParcel(Parcel in) {
+            return new SpreadFilter(in);
+        }
+
+        public SpreadFilter[] newArray(int size) {
+            return new SpreadFilter[size];
+        }
+    };
+
+    public SpreadFilter(Parcel in) {
+        int mapSize = in.readInt();
+        for (int i = 0; i < mapSize; i++) {
+            filters.put(Filter.values()[in.readInt()], in.readDouble());
+        }
+    }
+
 }
