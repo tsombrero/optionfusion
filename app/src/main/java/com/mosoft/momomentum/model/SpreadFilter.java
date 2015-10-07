@@ -62,7 +62,7 @@ public class SpreadFilter implements Parcelable {
     }
 
     public List<Filter> getInactiveFilters() {
-        List <Filter> ret = new ArrayList<>();
+        List<Filter> ret = new ArrayList<>();
         ret.addAll(Arrays.asList(Filter.values()));
         ret.removeAll(filters.keySet());
         return ret;
@@ -75,8 +75,7 @@ public class SpreadFilter implements Parcelable {
         MaxReturnTolerance(R.string.change_to_max_return),
         AnnualizedReturn(R.string.max_return_annualized),
         MinAskPrice(R.string.min_position_cost),
-        MaxAskPrice(R.string.max_position_cost)
-        ;
+        MaxAskPrice(R.string.max_position_cost);
 
         int stringResource;
 
@@ -92,7 +91,7 @@ public class SpreadFilter implements Parcelable {
             switch (this) {
                 case MinDaysToExp:
                 case MaxDaysToExp:
-                    return Util.getFormattedOptionDate((int)value);
+                    return Util.getFormattedOptionDate((int) value);
                 case BreakEvenTolerance:
                 case MaxReturnTolerance:
                 case AnnualizedReturn:
@@ -103,7 +102,28 @@ public class SpreadFilter implements Parcelable {
             }
             return "<error>";
         }
+
+        public boolean isPercentage() {
+            switch (this) {
+                case BreakEvenTolerance:
+                case MaxReturnTolerance:
+                case AnnualizedReturn:
+                    return true;
+            }
+            return false;
+        }
+
+        public boolean isCurrency() {
+            switch(this) {
+                case MinAskPrice:
+                case MaxAskPrice:
+                    return true;
+            }
+            return false;
+        }
     }
+
+
 
     public static final Parcelable.Creator<SpreadFilter> CREATOR
             = new Parcelable.Creator<SpreadFilter>() {

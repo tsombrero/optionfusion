@@ -17,16 +17,6 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         android:singleLine="true"/>
 
-    <Button
-        android:id="@+id/submit"
-        style="?android:textAppearanceSmall"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:text="@string/submit"
-        android:textStyle="bold"
-        />
-
     <ProgressBar
         android:id="@+id/progress"
         android:layout_gravity="center"

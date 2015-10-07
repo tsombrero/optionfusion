@@ -29,9 +29,6 @@ import butterknife.ButterKnife;
 
 import static com.mosoft.momomentum.util.Util.TAG;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class ResultsFragment extends Fragment implements ResultsAdapter.FilterClickListener {
 
     @Bind(R.id.list)
@@ -115,7 +112,8 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCl
 
 
     @Override
-    public void onClickAddFilter(SpreadFilter.Filter filter) {
+    public void onAddFilter(SpreadFilter.Filter filter, String val) {
+
     }
 
     @Override

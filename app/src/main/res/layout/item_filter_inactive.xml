@@ -5,7 +5,7 @@
               android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/filterName"
+        android:id="@+id/filter_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -13,12 +13,90 @@
         />
 
     <ImageView
-        android:id="@+id/filterAdd"
+        android:id="@+id/filter_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:background="@android:drawable/ic_input_add"
         android:layout_marginEnd="@dimen/list_item_padding_horizontal"
         />
+
+    <LinearLayout
+        android:id="@+id/dollar_entry_layout"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            style="@style/DetailsValue"
+            android:text="$"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingRight="0dp"
+            />
+
+        <EditText
+            android:id="@+id/filter_dollar_value"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="@dimen/list_item_padding_horizontal"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/percent_entry_layout"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/filter_percent_value"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="@dimen/list_item_padding_horizontal"
+            />
+
+        <TextView
+            style="@style/DetailsValue"
+            android:text="%"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingLeft="0dp"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/date_entry_layout"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/filter_date_value"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="@dimen/list_item_padding_horizontal"
+            />
+
+        <TextView
+            style="@style/DetailsValue"
+            android:text="days"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingLeft="0dp"
+            />
+
+    </LinearLayout>
 
 </LinearLayout>

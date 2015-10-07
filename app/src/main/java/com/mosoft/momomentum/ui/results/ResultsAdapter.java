@@ -129,7 +129,7 @@ class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseViewHolder
     }
 
     public interface FilterClickListener {
-        public void onClickAddFilter(SpreadFilter.Filter filter);
+        public void onAddFilter(SpreadFilter.Filter filter, String val);
         public void onClickRemoveFilter(SpreadFilter.Filter filter);
         public void onClickChangeFilter(SpreadFilter.Filter filter);
     }

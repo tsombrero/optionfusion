@@ -2,16 +2,23 @@ package com.mosoft.momomentum.ui.results;
 
 import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.model.Spread;
+import com.mosoft.momomentum.model.SpreadFilter;
 import com.mosoft.momomentum.util.Util;
+
+import java.security.KeyException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.OnEditorAction;
 
 public class ListViewHolders {
     enum ViewType {
@@ -59,11 +66,22 @@ public class ListViewHolders {
 
     public static class FilterViewHolder extends BaseViewHolder {
 
-        @Bind(R.id.filterName)
+        @Bind(R.id.filter_name)
         TextView filterName;
 
-        @Bind(R.id.filterAdd)
+        @Bind(R.id.filter_add)
         ImageView addFilter;
+
+        @Bind(R.id.percent_entry_layout)
+        View percentageEntryLayout;
+
+        @Bind(R.id.dollar_entry_layout)
+        View dollarEntryLayout;
+
+        @Bind(R.id.date_entry_layout)
+        View dateEntryLayout;
+
+        private SpreadFilter.Filter filter;
 
         public FilterViewHolder(View itemView, Resources resources, ResultsAdapter.FilterClickListener clickListener) {
             super(itemView, resources, clickListener);
@@ -71,13 +89,34 @@ public class ListViewHolders {
 
         public void bind(final ResultsAdapter.ListItem item) {
             filterName.setText(resources.getString(item.filter.getStringRes()));
-            addFilter.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    clickListener.onClickAddFilter(item.filter);
-                }
-            });
+            this.filter = item.filter;
         }
+
+        @OnClick(R.id.filter_add)
+        public void onAddFilter(View view) {
+            percentageEntryLayout.setVisibility(View.GONE);
+            dollarEntryLayout.setVisibility(View.GONE);
+            dateEntryLayout.setVisibility(View.GONE);
+            addFilter.setVisibility(View.GONE);
+
+            if (filter.isPercentage()) {
+                percentageEntryLayout.setVisibility(View.VISIBLE);
+            } else if (filter.isCurrency()) {
+                dollarEntryLayout.setVisibility(View.VISIBLE);
+            } else {
+                dateLayout.setVisibility(View.VISIBLE);
+            }
+        }
+
+        @OnEditorAction({R.id.filter_dollar_value, R.id.filter_percent_value})
+        public void onAction(View v, int actionId, KeyEvent keyEvent) {
+            if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+
+            } else if (actionId == EditorInfo.IME_ACTION_DONE) {
+
+            }
+        }
+
     }
 
     public static class ActiveFilterViewHolder extends FilterViewHolder {
