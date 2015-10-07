@@ -1,0 +1,58 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context="com.mosoft.momomentum.ui.results.ResultsFragment">
+
+
+    <RelativeLayout
+        android:id="@+id/stockInfo"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:background="@color/header_inverse"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="6dp"
+        >
+
+        <TextView
+            android:id="@+id/symbol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            style="@style/Largest.Inverse"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            />
+
+        <TextView
+            android:id="@+id/price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            style="@style/Largest.Inverse"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            />
+
+        <TextView
+            android:id="@+id/equityDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/SmallSubhead.Inverse"
+            android:gravity="start"
+            android:layout_marginTop="-8dp"
+            android:layout_below="@id/symbol"
+            android:layout_alignParentStart="true"
+            />
+    </RelativeLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        />
+
+</LinearLayout>

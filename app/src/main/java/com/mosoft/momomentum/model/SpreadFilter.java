@@ -57,10 +57,6 @@ public class SpreadFilter implements Parcelable {
         }
     }
 
-    public enum FilterType {
-        MAX, MIN
-    }
-
     public Map<Filter, Double> getActiveFilters() {
         return Collections.unmodifiableMap(filters);
     }
@@ -73,18 +69,19 @@ public class SpreadFilter implements Parcelable {
     }
 
     public enum Filter {
-        MinDaysToExp(R.string.expires_before, FilterType.MIN),
-        MaxDaysToExp(R.string.expires_after, FilterType.MAX),
-        BreakEvenTolerance(R.string.change_to_break_even, FilterType.MAX),
-        MaxReturnTolerance(R.string.change_to_max_return, FilterType.MAX),
-        AnnualizedReturn(R.string.max_return_annualized, FilterType.MIN);
+        MinDaysToExp(R.string.expires_before),
+        MaxDaysToExp(R.string.expires_after),
+        BreakEvenTolerance(R.string.change_to_break_even),
+        MaxReturnTolerance(R.string.change_to_max_return),
+        AnnualizedReturn(R.string.max_return_annualized),
+        MinAskPrice(R.string.min_position_cost),
+        MaxAskPrice(R.string.max_position_cost)
+        ;
 
         int stringResource;
-        FilterType type;
 
-        Filter(int str, FilterType type) {
+        Filter(int str) {
             stringResource = str;
-            this.type = type;
         }
 
         public int getStringRes() {
@@ -100,6 +97,9 @@ public class SpreadFilter implements Parcelable {
                 case MaxReturnTolerance:
                 case AnnualizedReturn:
                     return Util.formatPercent(value);
+                case MinAskPrice:
+                case MaxAskPrice:
+                    return Util.formatDollars(value);
             }
             return "<error>";
         }

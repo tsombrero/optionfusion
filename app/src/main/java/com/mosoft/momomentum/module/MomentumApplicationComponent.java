@@ -3,8 +3,8 @@ package com.mosoft.momomentum.module;
 import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.ui.LoginActivity;
 import com.mosoft.momomentum.ui.MainActivity;
-import com.mosoft.momomentum.ui.SearchFragment;
-import com.mosoft.momomentum.ui.SpreadListFragment;
+import com.mosoft.momomentum.ui.results.ResultsFragment;
+import com.mosoft.momomentum.ui.search.SearchFragment;
 
 import javax.inject.Singleton;
 
@@ -18,7 +18,7 @@ public interface MomentumApplicationComponent {
 
     void inject(LoginActivity activity);
 
-    void inject(SpreadListFragment spreadListFragment);
+    void inject(ResultsFragment resultsFragment);
 
     void inject(MainActivity mainActivity);
 

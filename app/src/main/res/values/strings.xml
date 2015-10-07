@@ -15,4 +15,6 @@
     <string name="change_to_break_even">Change to Break Even</string>
     <string name="change_to_max_return">Change to Max Return</string>
     <string name="max_return_annualized">Max Return Annualized</string>
+    <string name="min_position_cost">Min Cost of Position</string>
+    <string name="max_position_cost">Max Cost of Position</string>
 </resources>

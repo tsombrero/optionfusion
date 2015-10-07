@@ -13,10 +13,12 @@
         />
 
     <ImageView
+        android:id="@+id/filterAdd"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:background="@android:drawable/edit_text"
+        android:background="@android:drawable/ic_input_add"
+        android:layout_marginEnd="@dimen/list_item_padding_horizontal"
         />
 
 </LinearLayout>
