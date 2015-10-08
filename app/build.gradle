@@ -46,7 +46,9 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.0.1'
     compile 'com.android.support:recyclerview-v7:23.0.1'
 
+    // ui
     compile 'com.jakewharton:butterknife:7.0.1'
+    compile "com.wefika:flowlayout:0.4.1"
 
     //network
     compile 'com.squareup.retrofit:retrofit:2.0.0-beta1'

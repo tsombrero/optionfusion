@@ -14,7 +14,7 @@ import android.widget.Toast;
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.model.Spread;
-import com.mosoft.momomentum.model.SpreadFilter;
+import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.amtd.OptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
 import com.mosoft.momomentum.util.Util;
@@ -29,7 +29,7 @@ import butterknife.ButterKnife;
 
 import static com.mosoft.momomentum.util.Util.TAG;
 
-public class ResultsFragment extends Fragment implements ResultsAdapter.FilterClickListener {
+public class ResultsFragment extends Fragment implements ResultsAdapter.FilterChangeListener {
 
     @Bind(R.id.list)
     protected RecyclerView recyclerView;
@@ -49,7 +49,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCl
     @Inject
     OptionChainProvider optionChainProvider;
 
-    SpreadFilter filter = new SpreadFilter();
+    FilterSet filter = new FilterSet();
     String symbol;
 
     private static final String ARG_SYMBOL="symbol";
@@ -106,23 +106,12 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCl
             Log.i(TAG, spread.toString() + "        " + spread.getBuy() + " / " + spread.getSell());
         }
 
-        ResultsAdapter adapter = new ResultsAdapter(filter, allSpreads.subList(0, spreadCount), getResources(), this);
+        ResultsAdapter adapter = new ResultsAdapter(filter, allSpreads.subList(0, spreadCount), getActivity(), this);
         recyclerView.setAdapter(adapter);
     }
 
-
     @Override
-    public void onAddFilter(SpreadFilter.Filter filter, String val) {
-
-    }
-
-    @Override
-    public void onClickRemoveFilter(SpreadFilter.Filter filter) {
-
-    }
-
-    @Override
-    public void onClickChangeFilter(SpreadFilter.Filter filter) {
+    public void onChange(FilterSet filterSet) {
 
     }
 }

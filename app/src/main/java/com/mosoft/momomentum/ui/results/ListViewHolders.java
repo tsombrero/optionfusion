@@ -1,30 +1,22 @@
 package com.mosoft.momomentum.ui.results;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.model.Spread;
-import com.mosoft.momomentum.model.SpreadFilter;
 import com.mosoft.momomentum.util.Util;
-
-import java.security.KeyException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnEditorAction;
 
 public class ListViewHolders {
     enum ViewType {
         LABEL(R.layout.item_label),
-        ACTIVE_FILTER(R.layout.item_filter_active),
-        INACTIVE_FILTER(R.layout.item_filter_inactive),
+        FILTER_SET(R.layout.item_filter_buttons),
         SPREAD_DETAILS(R.layout.item_spread_details);
 
         int layout;
@@ -37,13 +29,13 @@ public class ListViewHolders {
 
     public static abstract class BaseViewHolder extends RecyclerView.ViewHolder {
 
-        protected final Resources resources;
-        protected final ResultsAdapter.FilterClickListener clickListener;
+        protected final Context context;
+        protected final ResultsAdapter.FilterChangeListener changeListener;
 
-        public BaseViewHolder(View itemView, Resources resources, ResultsAdapter.FilterClickListener clickListener) {
+        public BaseViewHolder(View itemView, Context context, ResultsAdapter.FilterChangeListener changeListener) {
             super(itemView);
-            this.resources = resources;
-            this.clickListener = clickListener;
+            this.context = context;
+            this.changeListener = changeListener;
             ButterKnife.bind(this, itemView);
         }
 
@@ -54,83 +46,13 @@ public class ListViewHolders {
         @Bind(R.id.text)
         TextView textView;
 
-        public LabelViewHolder(View itemView, Resources resources, ResultsAdapter.FilterClickListener clickListener) {
-            super(itemView, resources, clickListener);
+        public LabelViewHolder(View itemView) {
+            super(itemView, null, null);
         }
 
         @Override
         void bind(ResultsAdapter.ListItem item) {
             textView.setText(item.labelText);
-        }
-    }
-
-    public static class FilterViewHolder extends BaseViewHolder {
-
-        @Bind(R.id.filter_name)
-        TextView filterName;
-
-        @Bind(R.id.filter_add)
-        ImageView addFilter;
-
-        @Bind(R.id.percent_entry_layout)
-        View percentageEntryLayout;
-
-        @Bind(R.id.dollar_entry_layout)
-        View dollarEntryLayout;
-
-        @Bind(R.id.date_entry_layout)
-        View dateEntryLayout;
-
-        private SpreadFilter.Filter filter;
-
-        public FilterViewHolder(View itemView, Resources resources, ResultsAdapter.FilterClickListener clickListener) {
-            super(itemView, resources, clickListener);
-        }
-
-        public void bind(final ResultsAdapter.ListItem item) {
-            filterName.setText(resources.getString(item.filter.getStringRes()));
-            this.filter = item.filter;
-        }
-
-        @OnClick(R.id.filter_add)
-        public void onAddFilter(View view) {
-            percentageEntryLayout.setVisibility(View.GONE);
-            dollarEntryLayout.setVisibility(View.GONE);
-            dateEntryLayout.setVisibility(View.GONE);
-            addFilter.setVisibility(View.GONE);
-
-            if (filter.isPercentage()) {
-                percentageEntryLayout.setVisibility(View.VISIBLE);
-            } else if (filter.isCurrency()) {
-                dollarEntryLayout.setVisibility(View.VISIBLE);
-            } else {
-                dateLayout.setVisibility(View.VISIBLE);
-            }
-        }
-
-        @OnEditorAction({R.id.filter_dollar_value, R.id.filter_percent_value})
-        public void onAction(View v, int actionId, KeyEvent keyEvent) {
-            if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK) {
-
-            } else if (actionId == EditorInfo.IME_ACTION_DONE) {
-
-            }
-        }
-
-    }
-
-    public static class ActiveFilterViewHolder extends FilterViewHolder {
-
-        @Bind(R.id.filterValue)
-        TextView filterValue;
-
-        public ActiveFilterViewHolder(View itemView, Resources resources, ResultsAdapter.FilterClickListener clickListener) {
-            super(itemView, resources, clickListener);
-        }
-
-        public void bind(ResultsAdapter.ListItem item) {
-            super.bind(item);
-            filterValue.setText(item.filter.formatValue(item.filterValue));
         }
     }
 
@@ -172,8 +94,8 @@ public class ListViewHolders {
         @Bind(R.id.title_breakEvenPrice)
         TextView title_breakEvenPrice;
 
-        public SpreadViewHolder(View itemView, Resources resources) {
-            super(itemView, resources, null);
+        public SpreadViewHolder(View itemView, Context context) {
+            super(itemView, context, null);
         }
 
         public void bind(ResultsAdapter.ListItem item) {
@@ -189,8 +111,10 @@ public class ListViewHolders {
             percentChangeToBreakEven.setText(Util.formatPercent(spread.getPercentChange_BreakEven()) + (spread.isInTheMoney_BreakEven() ? "" : "  OTM"));
             percentChangeToMaxReturn.setText(Util.formatPercent(spread.getPercentChange_MaxProfit()) + (spread.isInTheMoney_MaxReturn() ? "" : "  OTM"));
 
-            title_maxReturnPrice.setText(String.format(resources.getString(R.string.formatPriceAtMaxReturn), spread.isCall() ? "Above" : "Below"));
-            title_breakEvenPrice.setText(String.format(resources.getString(R.string.formatPriceAtBreakEven), spread.isCall() ? "Below" : "Above"));
+            title_maxReturnPrice.setText(String.format(context.getResources().getString(R.string.formatPriceAtMaxReturn), spread.isCall() ? "Above" : "Below"));
+            title_breakEvenPrice.setText(String.format(context.getResources().getString(R.string.formatPriceAtBreakEven), spread.isCall() ? "Below" : "Above"));
+
+            Resources resources = context.getResources();
 
             int color = spread.isInTheMoney_BreakEven()
                     ? resources.getColor(R.color.primary_text)

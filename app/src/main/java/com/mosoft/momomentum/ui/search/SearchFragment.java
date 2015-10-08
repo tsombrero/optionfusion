@@ -6,7 +6,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -19,15 +19,12 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
+import butterknife.OnEditorAction;
 
 public class SearchFragment extends Fragment {
 
     @Bind(R.id.edit_symbol)
     protected EditText editSymbolView;
-
-    @Bind(R.id.submit)
-    protected Button submitButton;
 
     @Bind(R.id.progress)
     protected View progress;
@@ -45,16 +42,23 @@ public class SearchFragment extends Fragment {
         return ret;
     }
 
-    @OnClick(R.id.submit)
-    public void onClick(View view) {
+    @OnEditorAction(R.id.edit_symbol)
+    public boolean onEditorAction(int action) {
+        switch (action) {
+            case EditorInfo.IME_ACTION_DONE:
+            case EditorInfo.IME_ACTION_GO:
+                break;
+            default:
+                return false;
+        }
+
         final String symbol = editSymbolView.getText().toString();
 
         if (TextUtils.isEmpty(symbol)) {
             Toast.makeText(getActivity(), "Enter a ticker symbolView", Toast.LENGTH_SHORT);
-            return;
+            return true;
         }
 
-        submitButton.setEnabled(false);
         progress.setVisibility(View.VISIBLE);
 
         optionChainProvider.get(symbol, new OptionChainProvider.OptionChainCallback() {
@@ -63,10 +67,10 @@ public class SearchFragment extends Fragment {
                 if (optionChain != null)
                     ((FragmentHost) getActivity()).openResultsFragment(optionChain);
 
-                submitButton.setEnabled(true);
                 progress.setVisibility(View.GONE);
             }
         });
+        return true;
     }
 
     public static Fragment newInstance() {
@@ -74,6 +78,6 @@ public class SearchFragment extends Fragment {
     }
 
     public interface FragmentHost {
-         void openResultsFragment(OptionChain optionChain);
+        void openResultsFragment(OptionChain optionChain);
     }
 }

@@ -2,7 +2,7 @@ package com.mosoft.momomentum.model.amtd;
 
 import android.text.TextUtils;
 
-import com.mosoft.momomentum.model.SpreadFilter;
+import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.Spread;
 
 import org.simpleframework.xml.Default;
@@ -50,7 +50,7 @@ public class OptionChain extends AmtdResponse {
         return data.putQuotes;
     }
 
-    public List<Spread> getAllSpreads(SpreadFilter filter) {
+    public List<Spread> getAllSpreads(FilterSet filter) {
         List<Spread> ret = new ArrayList<>();
         for (OptionDate optionDate : data.optionDates) {
             ret.addAll(optionDate.getAllSpreads(filter));
@@ -164,7 +164,7 @@ public class OptionChain extends AmtdResponse {
         @Transient
         transient Data underlying;
 
-        public List<Spread> getAllSpreads(SpreadFilter filter) {
+        public List<Spread> getAllSpreads(FilterSet filter) {
             List<Spread> ret = new ArrayList<>();
 
             int i = 0;
@@ -191,7 +191,7 @@ public class OptionChain extends AmtdResponse {
             return ret;
         }
 
-        private void addIfPassFilter(List<Spread> ret, SpreadFilter filter, Spread spread) {
+        private void addIfPassFilter(List<Spread> ret, FilterSet filter, Spread spread) {
             if (filter.pass(spread))
                 ret.add(spread);
         }

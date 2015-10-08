@@ -11,6 +11,10 @@
     <color name="primary_text_inverse">@android:color/white</color>
     <color name="secondary_text">@color/material_grey_600</color>
 
+    <color name="button_normal">@color/material_grey_800</color>
+    <color name="button_pressed">@color/material_deep_teal_200</color>
+    <color name="button_selected">@color/material_deep_teal_500</color>
+
     <color name="material_blue_grey_800">#ff37474f</color>
     <color name="material_blue_grey_900">#ff263238</color>
     <color name="material_blue_grey_950">#ff21272b</color>
@@ -113,6 +117,15 @@
 
     <style name="FilterItemText.Active">
         <item name="android:textColor">@color/primary_text</item>
+    </style>
+
+    <style name="FilterButton">
+        <item name="android:tint">@color/primary_text_inverse</item>
+        <item name="android:tintMode">src_in</item>
+    </style>
+
+    <style name="FilterButtonText" parent="@android:style/TextAppearance.Small">
+        <item name="android:textColor">@color/filter_button_color</item>
     </style>
 
 </resources>

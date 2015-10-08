@@ -13,11 +13,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SpreadFilter implements Parcelable {
+public class FilterSet implements Parcelable {
 
     Map<Filter, Double> filters = new HashMap<>();
 
-    public SpreadFilter() {
+    public FilterSet() {
     }
 
     public boolean pass(Spread spread) {
@@ -125,18 +125,18 @@ public class SpreadFilter implements Parcelable {
 
 
 
-    public static final Parcelable.Creator<SpreadFilter> CREATOR
-            = new Parcelable.Creator<SpreadFilter>() {
-        public SpreadFilter createFromParcel(Parcel in) {
-            return new SpreadFilter(in);
+    public static final Parcelable.Creator<FilterSet> CREATOR
+            = new Parcelable.Creator<FilterSet>() {
+        public FilterSet createFromParcel(Parcel in) {
+            return new FilterSet(in);
         }
 
-        public SpreadFilter[] newArray(int size) {
-            return new SpreadFilter[size];
+        public FilterSet[] newArray(int size) {
+            return new FilterSet[size];
         }
     };
 
-    public SpreadFilter(Parcel in) {
+    public FilterSet(Parcel in) {
         int mapSize = in.readInt();
         for (int i = 0; i < mapSize; i++) {
             filters.put(Filter.values()[in.readInt()], in.readDouble());
