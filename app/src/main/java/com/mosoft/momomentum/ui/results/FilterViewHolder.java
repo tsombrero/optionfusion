@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -12,6 +13,8 @@ import android.widget.TextView;
 
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.model.FilterSet;
+import com.mosoft.momomentum.model.filter.Filter;
+import com.mosoft.momomentum.model.filter.RoiFilter;
 import com.wefika.flowlayout.FlowLayout;
 
 import butterknife.Bind;
@@ -48,6 +51,26 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     public void bind(final ResultsAdapter.ListItem item) {
         this.filterSet = item.filterSet;
+
+        bindFilters();
+    }
+
+    private void bindFilters() {
+        activeFiltersContainer.removeAllViews();
+
+        for (Filter filter : filterSet.getFilters()) {
+            View newFilterView = activeFiltersContainer.inflate(context, R.layout.item_filter_pill, activeFiltersContainer);
+            TextView newFilterTextView = (TextView) newFilterView.findViewById(R.id.filter_pill_text);
+            newFilterTextView.setText(filter.getPillText());
+            newFilterTextView.setTag(filter);
+            newFilterTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    filterSet.removeFilter((Filter) v.getTag());
+                    changeListener.onChange(filterSet);
+                }
+            });
+        }
     }
 
     @OnClick(R.id.btn_roi)
@@ -65,11 +88,13 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         if (action != EditorInfo.IME_ACTION_DONE)
             return false;
 
-        View newFilterView = activeFiltersContainer.inflate(context, R.layout.item_filter_pill, activeFiltersContainer);
-        TextView newFilterTextView = (TextView) newFilterView.findViewById(R.id.filter_pill_text);
-        newFilterTextView.setText("ROI at least " + view.getText() + "%");
-
+        try {
+            filterSet.addFilter(new RoiFilter(Double.valueOf(view.getText().toString()) / 100d));
+        } catch (Exception e) {
+            Log.w("Can't add filter", e);
+        }
         resetButtons();
+        changeListener.onChange(filterSet);
         return true;
     }
 

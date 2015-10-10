@@ -1,6 +1,6 @@
 package com.mosoft.momomentum.model;
 
-import com.mosoft.momomentum.model.amtd.OptionChain;
+import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 import com.mosoft.momomentum.util.Util;
 
 import java.util.Comparator;
@@ -154,6 +154,24 @@ abstract public class Spread {
 
     public String getUnderlyingSymbol() {
         return underlying.getSymbol();
+    }
+
+    public boolean isBullSpread() {
+        if (buy.getOptionType() == OptionChain.OptionType.CALL
+                && sell.getOptionType() == OptionChain.OptionType.CALL
+                && buy.getStrike() < sell.getStrike())
+            return true;
+
+        if (buy.getOptionType() == OptionChain.OptionType.PUT
+                && sell.getOptionType() == OptionChain.OptionType.PUT
+                && buy.getStrike() < sell.getStrike())
+            return true;
+
+        return false;
+    }
+
+    public boolean isBearSpread() {
+        return !isBullSpread();
     }
 
     // Sort by break-even price distance from the current price

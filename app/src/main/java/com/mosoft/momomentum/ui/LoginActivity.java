@@ -28,7 +28,7 @@ import android.widget.TextView;
 
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.client.AmeritradeClient;
-import com.mosoft.momomentum.model.amtd.LoginResponse;
+import com.mosoft.momomentum.model.provider.amtd.LoginResponse;
 import com.mosoft.momomentum.module.MomentumApplication;
 
 import java.io.File;

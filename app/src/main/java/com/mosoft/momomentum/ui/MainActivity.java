@@ -8,7 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.mosoft.momomentum.R;
-import com.mosoft.momomentum.model.amtd.OptionChain;
+import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 import com.mosoft.momomentum.ui.results.ResultsFragment;
 import com.mosoft.momomentum.ui.search.SearchFragment;
 

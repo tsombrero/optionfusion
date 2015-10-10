@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.cache.OptionChainProvider;
-import com.mosoft.momomentum.model.amtd.OptionChain;
+import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
 
 import javax.inject.Inject;

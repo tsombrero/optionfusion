@@ -12,109 +12,106 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         >
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight=".5"/>
-
-        <ImageButton
-            android:id="@+id/btn_time"
-            style="@style/FilterButton"
-            android:layout_width="@dimen/circle_button"
-            android:layout_height="@dimen/circle_button"
-            android:background="@drawable/shape_circle"
-            android:src="@drawable/ic_schedule_black_24px"
-            />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-
-        <ImageButton
-            android:id="@+id/btn_strike"
-            style="@style/FilterButton"
-            android:layout_width="@dimen/circle_button"
-            android:layout_height="@dimen/circle_button"
-            android:background="@drawable/shape_circle"
-            android:src="@drawable/ic_attach_money_black_24px"
-            />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-
-        <ImageButton
-            android:id="@+id/btn_roi"
-            style="@style/FilterButton"
-            android:layout_width="@dimen/circle_button"
-            android:layout_height="@dimen/circle_button"
-            android:background="@drawable/shape_circle"
-            android:src="@drawable/ic_trending_up_black_24px"
-            />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-
-        <ImageButton
-            android:id="@+id/btn_disposition"
-            style="@style/FilterButton"
-            android:layout_width="@dimen/circle_button"
-            android:layout_height="@dimen/circle_button"
-            android:background="@drawable/shape_circle"
-            android:src="@drawable/ic_mood_black_24px"
-            />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight=".5"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            style="@style/FilterButtonText"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="center"
-            android:text="Time"
-            />
+            android:orientation="vertical">
 
-        <TextView
-            style="@style/FilterButtonText"
-            android:layout_width="0dp"
+            <ImageButton
+                android:id="@+id/btn_time"
+                style="@style/FilterButton"
+                android:layout_width="@dimen/circle_button"
+                android:layout_height="@dimen/circle_button"
+                android:background="@drawable/shape_circle"
+                android:src="@drawable/ic_schedule_black_24px"
+                />
+
+            <TextView
+                style="@style/FilterButtonText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Time"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="center"
-            android:text="Strike"
-            />
+            android:orientation="vertical">
 
-        <TextView
-            style="@style/FilterButtonText"
-            android:layout_width="0dp"
+
+            <ImageButton
+                android:id="@+id/btn_strike"
+                style="@style/FilterButton"
+                android:layout_width="@dimen/circle_button"
+                android:layout_height="@dimen/circle_button"
+                android:background="@drawable/shape_circle"
+                android:src="@drawable/ic_attach_money_black_24px"
+                />
+
+            <TextView
+                style="@style/FilterButtonText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Strike"
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="center"
-            android:text="Return"
-            />
+            android:orientation="vertical">
 
-        <TextView
-            style="@style/FilterButtonText"
-            android:layout_width="0dp"
+
+            <ImageButton
+                android:id="@+id/btn_roi"
+                style="@style/FilterButton"
+                android:layout_width="@dimen/circle_button"
+                android:layout_height="@dimen/circle_button"
+                android:background="@drawable/shape_circle"
+                android:src="@drawable/ic_trending_up_black_24px"
+                />
+
+            <TextView
+                style="@style/FilterButtonText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Return"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="center"
-            android:text="Disposition"
-            />
+            android:orientation="vertical">
+
+
+            <ImageButton
+                android:id="@+id/btn_disposition"
+                style="@style/FilterButton"
+                android:layout_width="@dimen/circle_button"
+                android:layout_height="@dimen/circle_button"
+                android:background="@drawable/shape_circle"
+                android:src="@drawable/ic_mood_black_24px"
+                />
+
+            <TextView
+                style="@style/FilterButtonText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Disposition"
+                />
+        </LinearLayout>
+
     </LinearLayout>
 
     <FrameLayout
@@ -127,12 +124,12 @@
 
         <RelativeLayout
             android:id="@+id/return_edit_layout"
+            style="@style/card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/activity_vertical_margin"
             android:layout_gravity="center"
+            android:padding="@dimen/activity_vertical_margin"
             android:visibility="gone"
-            android:background="@android:color/white"
             >
 
             <TextView
@@ -149,10 +146,10 @@
                 android:id="@+id/return_edit_value"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
+                android:layout_alignBaseline="@id/return_edit_label"
                 android:layout_marginLeft="10dp"
                 android:layout_toEndOf="@id/return_edit_label"
                 android:layout_toRightOf="@id/return_edit_label"
-                android:layout_alignBaseline="@id/return_edit_label"
                 android:inputType="numberDecimal"
                 android:singleLine="true"
                 android:textDirection="ltr"
@@ -160,12 +157,12 @@
                 />
 
             <TextView
+                style="@style/FilterItemLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignBaseline="@id/return_edit_label"
                 android:layout_toRightOf="@id/return_edit_value"
                 android:text="% / year"
-                style="@style/FilterItemLabel"
-                android:layout_alignBaseline="@id/return_edit_label"
                 />
 
         </RelativeLayout>

@@ -94,12 +94,28 @@ public class ListViewHolders {
         @Bind(R.id.title_breakEvenPrice)
         TextView title_breakEvenPrice;
 
+        @Bind(R.id.summary)
+        TextView summary;
+
         public SpreadViewHolder(View itemView, Context context) {
             super(itemView, context, null);
         }
 
         public void bind(ResultsAdapter.ListItem item) {
             Spread spread = item.spread;
+
+            summary.setText(String.format("%s RoR if %s is %s %s (%s %s) at expiration",
+                    Util.formatPercentCompact(spread.getMaxReturnAnnualized()),             // is %s RoR
+                    spread.getUnderlyingSymbol(),                                           // if %symbol
+                    spread.isBullSpread() ? "above" : "below",                              // is %above|below
+                    Util.formatDollars(spread.getPrice_MaxReturn()),                        // %stockprice
+                    spread.isBullSpread()                                                   // "down less than" "up at leaat" "up less than" "down at least"
+                            ? (spread.isInTheMoney_MaxReturn() ? "down less than" : "up at least")
+                            : (spread.isInTheMoney_MaxReturn() ? "up less than" : "down at least"),
+                    Util.formatPercentCompact(Math.abs(spread.getPercentChange_MaxProfit()))    // some percent
+            ));
+
+
             annualizedReturn.setText(Util.formatPercent(spread.getMaxReturnAnnualized()));
             askPrice.setText(Util.formatDollars(spread.getAsk()));
             breakEvenPrice.setText(Util.formatDollars(spread.getPrice_BreakEven()));

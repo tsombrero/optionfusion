@@ -1,4 +1,4 @@
-package com.mosoft.momomentum.model.amtd;
+package com.mosoft.momomentum.model.provider.amtd;
 
 import android.text.TextUtils;
 
@@ -50,10 +50,10 @@ public class OptionChain extends AmtdResponse {
         return data.putQuotes;
     }
 
-    public List<Spread> getAllSpreads(FilterSet filter) {
+    public List<Spread> getAllSpreads(FilterSet filterSet) {
         List<Spread> ret = new ArrayList<>();
         for (OptionDate optionDate : data.optionDates) {
-            ret.addAll(optionDate.getAllSpreads(filter));
+            ret.addAll(optionDate.getAllSpreads(filterSet));
         }
         return ret;
     }
@@ -164,8 +164,11 @@ public class OptionChain extends AmtdResponse {
         @Transient
         transient Data underlying;
 
-        public List<Spread> getAllSpreads(FilterSet filter) {
+        public List<Spread> getAllSpreads(FilterSet filterSet) {
             List<Spread> ret = new ArrayList<>();
+
+            if (!filterSet.pass(this))
+                return ret;
 
             int i = 0;
 
@@ -179,10 +182,10 @@ public class OptionChain extends AmtdResponse {
 
                 while (j < optionStrikes.size()) {
                     lo = optionStrikes.get(j);
-                    addIfPassFilter(ret, filter, Spread.newSpread(hi.call, lo.call, underlying));
-                    addIfPassFilter(ret, filter, Spread.newSpread(lo.call, hi.call, underlying));
-                    addIfPassFilter(ret, filter, Spread.newSpread(hi.put, lo.put, underlying));
-                    addIfPassFilter(ret, filter, Spread.newSpread(lo.put, hi.put, underlying));
+                    addIfPassFilters(ret, filterSet, Spread.newSpread(hi.call, lo.call, underlying));
+                    addIfPassFilters(ret, filterSet, Spread.newSpread(lo.call, hi.call, underlying));
+                    addIfPassFilters(ret, filterSet, Spread.newSpread(hi.put, lo.put, underlying));
+                    addIfPassFilters(ret, filterSet, Spread.newSpread(lo.put, hi.put, underlying));
                     j++;
                 }
                 i++;
@@ -191,8 +194,8 @@ public class OptionChain extends AmtdResponse {
             return ret;
         }
 
-        private void addIfPassFilter(List<Spread> ret, FilterSet filter, Spread spread) {
-            if (filter.pass(spread))
+        private void addIfPassFilters(List<Spread> ret, FilterSet filters, Spread spread) {
+            if (filters.pass(spread))
                 ret.add(spread);
         }
 

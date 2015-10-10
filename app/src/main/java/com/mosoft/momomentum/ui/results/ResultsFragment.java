@@ -15,7 +15,7 @@ import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.FilterSet;
-import com.mosoft.momomentum.model.amtd.OptionChain;
+import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
 import com.mosoft.momomentum.util.Util;
 
@@ -49,7 +49,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCh
     @Inject
     OptionChainProvider optionChainProvider;
 
-    FilterSet filter = new FilterSet();
+    FilterSet filterSet = new FilterSet();
     String symbol;
 
     private static final String ARG_SYMBOL="symbol";
@@ -89,7 +89,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCh
         priceView.setText(Util.formatDollars(oc.getLast()));
         equityDescription.setText(oc.getEquityDescription());
 
-        List<Spread> allSpreads = oc.getAllSpreads(filter);
+        List<Spread> allSpreads = oc.getAllSpreads(filterSet);
 
         Log.i(TAG, "Closest matches:");
 
@@ -106,12 +106,13 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCh
             Log.i(TAG, spread.toString() + "        " + spread.getBuy() + " / " + spread.getSell());
         }
 
-        ResultsAdapter adapter = new ResultsAdapter(filter, allSpreads.subList(0, spreadCount), getActivity(), this);
+        ResultsAdapter adapter = new ResultsAdapter(filterSet, allSpreads.subList(0, spreadCount), getActivity(), this);
         recyclerView.setAdapter(adapter);
     }
 
     @Override
     public void onChange(FilterSet filterSet) {
-
+        this.filterSet = filterSet;
+        initView();
     }
 }

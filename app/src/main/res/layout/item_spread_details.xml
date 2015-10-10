@@ -3,7 +3,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:background="@android:color/white"
+                style="@style/card"
     >
 
     <TextView
@@ -30,9 +30,19 @@
         />
 
     <TextView
+        android:id="@+id/summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailsValue"
+        android:layout_below="@id/descriptionLeft"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        />
+
+    <TextView
         android:id="@+id/title_daysToExp"
         style="@style/DetailsLabel"
-        android:layout_below="@id/descriptionLeft"
+        android:layout_below="@id/summary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/timeToExp"

@@ -3,19 +3,17 @@ package com.mosoft.momomentum.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.mosoft.momomentum.R;
+import com.mosoft.momomentum.model.filter.Filter;
+import com.mosoft.momomentum.model.filter.RoiFilter;
+import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 import com.mosoft.momomentum.util.Util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FilterSet implements Parcelable {
 
-    Map<Filter, Double> filters = new HashMap<>();
+    List<Filter> filters = new ArrayList<>();
 
     public FilterSet() {
     }
@@ -24,25 +22,51 @@ public class FilterSet implements Parcelable {
         if (spread == null)
             return false;
 
-        // TODO a property map
-        if (filters.containsKey(Filter.AnnualizedReturn) && spread.getMaxReturnAnnualized() < filters.get(Filter.AnnualizedReturn))
-            return false;
-
+        for (Filter filter : filters) {
+            if (!filter.pass(spread))
+                return false;
+        }
         return true;
     }
 
-    public void putFilter(Filter filter, Double value) {
-        filters.put(filter, value);
+    public boolean pass(OptionChain.OptionDate optionDate) {
+        if (optionDate == null)
+            return false;
+
+        for (Filter filter : filters) {
+            if (!filter.pass(optionDate))
+                return false;
+        }
+        return true;
     }
 
-    public void setMinMonthlyReturn(double pct) {
-        filters.put(Filter.AnnualizedReturn, Util.compoundGrowth(pct, 12));
+    public boolean pass(OptionChain.OptionQuote optionQuote) {
+        if (optionQuote == null)
+            return false;
+
+        for (Filter filter : filters) {
+            if (!filter.pass(optionQuote))
+                return false;
+        }
+        return true;
+    }
+
+    public void setFilters(List<Filter> filters) {
+        this.filters = filters;
     }
 
     public int getCount() {
-        return Filter.values().length;
+        return filters.size();
     }
 
+    public Filter getFilter(int i) {
+        if (i < 0 || i >= getCount())
+            return null;
+
+        return filters.get(i);
+    }
+
+    // Parcelable
     @Override
     public int describeContents() {
         return 0;
@@ -50,81 +74,10 @@ public class FilterSet implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(filters.size());
-        for (Filter f : filters.keySet()) {
-            dest.writeInt(f.ordinal());
-            dest.writeDouble(filters.get(f));
-        }
+        dest.writeTypedList(filters);
     }
 
-    public Map<Filter, Double> getActiveFilters() {
-        return Collections.unmodifiableMap(filters);
-    }
-
-    public List<Filter> getInactiveFilters() {
-        List<Filter> ret = new ArrayList<>();
-        ret.addAll(Arrays.asList(Filter.values()));
-        ret.removeAll(filters.keySet());
-        return ret;
-    }
-
-    public enum Filter {
-        MinDaysToExp(R.string.expires_before),
-        MaxDaysToExp(R.string.expires_after),
-        BreakEvenTolerance(R.string.change_to_break_even),
-        MaxReturnTolerance(R.string.change_to_max_return),
-        AnnualizedReturn(R.string.max_return_annualized),
-        MinAskPrice(R.string.min_position_cost),
-        MaxAskPrice(R.string.max_position_cost);
-
-        int stringResource;
-
-        Filter(int str) {
-            stringResource = str;
-        }
-
-        public int getStringRes() {
-            return stringResource;
-        }
-
-        public String formatValue(double value) {
-            switch (this) {
-                case MinDaysToExp:
-                case MaxDaysToExp:
-                    return Util.getFormattedOptionDate((int) value);
-                case BreakEvenTolerance:
-                case MaxReturnTolerance:
-                case AnnualizedReturn:
-                    return Util.formatPercent(value);
-                case MinAskPrice:
-                case MaxAskPrice:
-                    return Util.formatDollars(value);
-            }
-            return "<error>";
-        }
-
-        public boolean isPercentage() {
-            switch (this) {
-                case BreakEvenTolerance:
-                case MaxReturnTolerance:
-                case AnnualizedReturn:
-                    return true;
-            }
-            return false;
-        }
-
-        public boolean isCurrency() {
-            switch(this) {
-                case MinAskPrice:
-                case MaxAskPrice:
-                    return true;
-            }
-            return false;
-        }
-    }
-
-
-
+    // not needed unless we decide to do an array of filtersets
     public static final Parcelable.Creator<FilterSet> CREATOR
             = new Parcelable.Creator<FilterSet>() {
         public FilterSet createFromParcel(Parcel in) {
@@ -137,10 +90,25 @@ public class FilterSet implements Parcelable {
     };
 
     public FilterSet(Parcel in) {
-        int mapSize = in.readInt();
-        for (int i = 0; i < mapSize; i++) {
-            filters.put(Filter.values()[in.readInt()], in.readDouble());
-        }
+        filters = in.createTypedArrayList(Filter.CREATOR);
     }
 
+    public void addFilter(RoiFilter filter) {
+        if (filter == null)
+            return;
+
+        for (int i = filters.size() - 1; i>=0; i--) {
+            if (filter.shouldReplace(filters.get(i)))
+                filters.remove(i);
+        }
+        filters.add(filter);
+    }
+
+    public List<Filter> getFilters() {
+        return filters;
+    }
+
+    public void removeFilter(Filter filter) {
+        filters.remove(filter);
+    }
 }

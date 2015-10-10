@@ -2,6 +2,9 @@ package com.mosoft.momomentum.util;
 
 import android.util.Log;
 
+import org.joda.time.Days;
+import org.joda.time.LocalDate;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -72,6 +75,12 @@ public class Util {
         return "0";
     }
 
+    public static String formatPercentCompact(double pct) {
+        return formatPercent(pct)
+                .replace(".00%", "%")
+                .replace(".0%", "%");
+    }
+
     public static String getFormattedOptionDate(Date date) {
         synchronized (calendar) {
             calendar.setTimeInMillis(System.currentTimeMillis());
@@ -91,5 +100,9 @@ public class Util {
             calendar.add(Calendar.DATE, daysFromNow);
             return getFormattedOptionDate(calendar.getTime());
         }
+    }
+
+    public static int getDaysFromNow(Date date) {
+        return Days.daysBetween(new LocalDate(), new LocalDate(date.getTime())).getDays();
     }
 }

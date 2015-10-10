@@ -6,7 +6,7 @@ import android.util.LruCache;
 import android.widget.Toast;
 
 import com.mosoft.momomentum.client.AmeritradeClient;
-import com.mosoft.momomentum.model.amtd.OptionChain;
+import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 
 import retrofit.Callback;
 import retrofit.Response;
