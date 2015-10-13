@@ -1,44 +1,62 @@
 <resources>
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="android:colorPrimaryDark">@color/primary_dark</item>
+        <item name="android:colorAccent">@color/accent</item>
     </style>
+
+    <color name="primary">@color/material_deep_teal_500</color>
+    <color name="primary_dark">@color/material_deep_teal_700</color>
+    <color name="primary_light">@color/material_deep_teal_100</color>
+    <color name="accent">@color/material_light_blue_500</color>
+    <color name="primary_text">@color/foreground_dark_grey</color>
+    <color name="secondary_text">@color/foreground_middle_grey</color>
+    <color name="icons">@color/primary_text</color>
+    <color name="divider">@color/foreground_lightest_grey</color>
 
     <color name="subhead_medium_background">@color/material_grey_300</color>
     <color name="header_inverse">@color/material_deep_teal_500</color>
-    <color name="green_900">#1B5E20</color>
-    <color name="red_900">#B71C1C</color>
-    <color name="primary_text">@android:color/primary_text_light</color>
+
     <color name="primary_text_inverse">@android:color/white</color>
-    <color name="secondary_text">@color/material_grey_600</color>
+    <color name="secondary_text_inverse">#B3FFFFFF</color>
 
-    <color name="button_normal">@color/material_grey_600</color>
-    <color name="button_pressed">@color/material_deep_teal_200</color>
-    <color name="button_selected">@color/material_deep_teal_500</color>
+    <color name="button_normal">@color/material_deep_teal_700</color>
+    <color name="button_disabled">@color/foreground_light_grey</color>
+    <color name="button_pressed">@color/primary_light</color>
+    <color name="button_selected">@color/primary</color>
 
-    <color name="material_blue_grey_800">#ff37474f</color>
-    <color name="material_blue_grey_900">#ff263238</color>
-    <color name="material_blue_grey_950">#ff21272b</color>
-    <color name="material_deep_teal_200">#ff80cbc4</color>
+    <color name="bull_spread_background">@color/primary</color>
+    <color name="bear_spread_background">@color/material_blue_grey_500</color>
+
+    <color name="material_deep_teal_100">#ffB2DFDB</color>
     <color name="material_deep_teal_500">#ff009688</color>
-    <color name="material_grey_100">#fff5f5f5</color>
-    <color name="material_grey_300">#ffe0e0e0</color>
-    <color name="material_grey_50">#fffafafa</color>
-    <color name="material_grey_600">#ff757575</color>
-    <color name="material_grey_800">#ff424242</color>
-    <color name="material_grey_850">#ff303030</color>
-    <color name="material_grey_900">#ff212121</color>
-    <color name="primary_dark_material_light">@color/material_grey_600</color>
-    <color name="primary_material_light">@color/material_grey_100</color>
-    <color name="primary_text_default_material_light">#de000000</color>
-    <color name="primary_text_disabled_material_light">#39000000</color>
-    <color name="ripple_material_light">#1f000000</color>
-    <color name="secondary_text_default_material_light">#8a000000</color>
-    <color name="secondary_text_disabled_material_light">#24000000</color>
+    <color name="material_deep_teal_700">#ff00796B</color>
+
+    // accent candidates
+    <color name="material_light_blue_500">#ff03A9F4</color>
+    <color name="material_orange_500">#FFFF9800</color>
+
+    // handy colors
+    <color name="material_blue_grey_500">#ff607D8B</color>
+    <color name="material_blue_grey_700">#ff455A64</color>
+    <color name="material_blue_grey_800">#ff37474F</color>
+    <color name="material_blue_grey_900">#ff263238</color>
+
+    <color name="material_blue_700">#ff1976D2</color>
+    <color name="material_green_700">#ff388E3C</color>
+
+    <color name="material_green_900">#1B5E20</color>
+    <color name="material_red_900">#B71C1C</color>
+
+    // for text
+    <color name="foreground_middle_grey">#8a000000</color>
+    <color name="foreground_dark_grey">#de000000</color>
+    <color name="foreground_light_grey">#39000000</color>
+    <color name="foreground_lightest_grey">#24000000</color>
 
     <style name="ListHeader" parent="@android:style/TextAppearance.Medium">
         <item name="android:textColor">@android:color/primary_text_dark</item>
-        <item name="android:background">@color/header_inverse</item>
         <item name="android:textStyle">bold</item>
         <item name="android:paddingTop">@dimen/list_item_padding_vertical</item>
         <item name="android:paddingBottom">@dimen/list_item_padding_vertical</item>

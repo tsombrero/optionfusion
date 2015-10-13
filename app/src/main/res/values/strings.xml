@@ -5,8 +5,8 @@
     <string name="symbol">Symbol</string>
     <string name="submit">Go</string>
     <string name="formatPriceAtMaxReturn">Realized %s price</string>
-    <string name="formatPriceAtBreakEven">Negative return %s price</string>
-    <string name="spreadAsk">Spread Ask (max loss)</string>
+    <string name="formatPriceAtBreakEven">Break Even Price</string>
+    <string name="spreadAsk">Max Loss</string>
     <string name="timeToExp">Time to Expire</string>
     <string name="maxReturn">Max Return</string>
     <string name="annualized">Annualized</string>

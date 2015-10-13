@@ -14,15 +14,21 @@ import org.simpleframework.xml.Transient;
 import org.simpleframework.xml.core.Commit;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class OptionChain extends AmtdResponse {
 
     @Element(name = "option-chain-results", required = false)
     private Data data;
+
+    private List<Date> expirationDates;
+    private List<Double> strikePrices;
 
     public String getSymbol() {
         return data.symbol;
@@ -36,10 +42,41 @@ public class OptionChain extends AmtdResponse {
         return data.change;
     }
 
-    public List<OptionDate> getOptionDates() {
+    public List<OptionDate> getChainsByDate() {
         if (data == null)
             return Collections.EMPTY_LIST;
         return data.optionDates;
+    }
+
+    public synchronized List<Date> getExpirationDates() {
+        if (expirationDates == null) {
+            HashSet<Date> ret = new HashSet<>();
+            for (OptionDate optionDate : getChainsByDate()) {
+                Date d = optionDate.getExpirationDate();
+                if (d != null)
+                    ret.add(d);
+            }
+            if (!ret.isEmpty())
+                expirationDates = new ArrayList(ret);
+        }
+
+        return expirationDates;
+    }
+
+    public synchronized List<Double> getStrikePrices() {
+        if (strikePrices == null) {
+            // grab the list of prices from the first four and the last one
+            Set<Double> priceSet = new HashSet<>();
+            for (int i=0; i<4 && i < data.optionDates.size(); i++) {
+                priceSet.addAll(data.optionDates.get(i).getStrikePrices());
+            }
+
+            priceSet.addAll(data.optionDates.get(data.optionDates.size()-1).getStrikePrices());
+
+            if (!priceSet.isEmpty())
+                strikePrices = new ArrayList<>(priceSet);
+        }
+        return strikePrices;
     }
 
     public List<OptionQuote> getOptionCalls() {
@@ -102,14 +139,16 @@ public class OptionChain extends AmtdResponse {
                         strike.put.underlyingSymbol = this;
                         strike.put.optionDate = optionDate;
                         strike.put.optionStrike = strike;
-                        strike.put.optionType = OptionType.PUT;
+                        strike.put.optionType = OptionType.BEAR_PUT;
+                        strike.put.standard = strike.isStandard();
                         putQuotes.add(strike.put);
                     }
                     if (strike.call != null) {
                         strike.call.underlyingSymbol = this;
                         strike.call.optionDate = optionDate;
                         strike.call.optionStrike = strike;
-                        strike.call.optionType = OptionType.CALL;
+                        strike.call.optionType = OptionType.BULL_CALL;
+                        strike.call.standard = strike.isStandard();
                         callQuotes.add(strike.call);
                     }
                 }
@@ -195,13 +234,37 @@ public class OptionChain extends AmtdResponse {
         }
 
         private void addIfPassFilters(List<Spread> ret, FilterSet filters, Spread spread) {
+            if (spread == null
+                    || spread.getMaxPercentProfitAtExpiration() < 0.001d
+                    || !spread.getBuy().isStandard()
+                    || !spread.getSell().isStandard())
+                return;
+
             if (filters.pass(spread))
                 ret.add(spread);
+        }
+
+        public Date getExpirationDate() {
+            for (OptionStrike strike : optionStrikes) {
+                if (strike.call != null)
+                    return strike.call.getExpiration();
+                if (strike.put != null)
+                    return strike.put.getExpiration();
+            }
+            return null;
         }
 
         @Override
         public String toString() {
             return String.format("expiration: %d days (%d strikes)", daysToExpiration, optionStrikes.size());
+        }
+
+        public List<Double> getStrikePrices() {
+            List<Double> ret = new ArrayList<>();
+            for (OptionStrike strike : optionStrikes) {
+                ret.add(strike.strikePrice);
+            }
+            return ret;
         }
     }
 
@@ -228,7 +291,20 @@ public class OptionChain extends AmtdResponse {
     }
 
     public enum OptionType {
-        PUT, CALL;
+        BEAR_PUT("BEAR PUT"),
+        BULL_CALL("BULL CALL"),
+        BEAR_CALL("BEAR CALL"),
+        BULL_PUT("BULL PUT");
+
+        private final String string;
+
+        OptionType(String string) {
+            this.string = string;
+        }
+
+        public String toString() {
+            return string;
+        }
     }
 
     @Root
@@ -265,6 +341,7 @@ public class OptionChain extends AmtdResponse {
         transient private OptionDate optionDate;
         @Transient
         transient private OptionType optionType;
+        private boolean standard;
 
         // Getters
 
@@ -362,6 +439,10 @@ public class OptionChain extends AmtdResponse {
             int month = Integer.valueOf(optionDate.date.substring(4, 6));
             int day = Integer.valueOf(optionDate.date.substring(6));
             return new GregorianCalendar(year, month, day).getTime();
+        }
+
+        public boolean isStandard() {
+            return standard;
         }
     }
 

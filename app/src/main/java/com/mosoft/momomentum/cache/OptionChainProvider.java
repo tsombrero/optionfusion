@@ -60,6 +60,6 @@ public class OptionChainProvider extends LruCache<String, OptionChain> {
     }
 
     public interface OptionChainCallback {
-        public void call(OptionChain optionChain);
+        void call(OptionChain optionChain);
     }
 }

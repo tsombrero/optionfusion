@@ -39,7 +39,7 @@ abstract public class Spread {
         if (!buy.hasAsk() || !sell.hasBid())
             return null;
 
-        if (buy.getOptionType() == OptionChain.OptionType.CALL) {
+        if (buy.getOptionType() == OptionChain.OptionType.BULL_CALL) {
             if (buy.getStrike() < sell.getStrike()) {
                 //Bull Call Spread
                 return new BullCallSpread(buy, sell, underlying);
@@ -48,7 +48,7 @@ abstract public class Spread {
                 //Bear call spread not impl
                 return null;
             }
-        } else if (buy.getOptionType() == OptionChain.OptionType.PUT) {
+        } else if (buy.getOptionType() == OptionChain.OptionType.BEAR_PUT) {
             if (buy.getStrike() > sell.getStrike()) {
                 //Bear Put Spread
                 return new BearPutSpread(buy, sell, underlying);
@@ -123,7 +123,7 @@ abstract public class Spread {
                 getAsk(),
                 Util.formatDollars(getMaxProfitAtExpiration()),
                 getMaxPercentProfitAtExpiration() * 100d,
-                getMaxPercentProfitAtExpiration() / (double) getDaysToExpiration());
+                getWeightedValue());
     }
 
     public int getDaysToExpiration() {
@@ -131,14 +131,14 @@ abstract public class Spread {
     }
 
     public boolean isInTheMoney_BreakEven() {
-        if (buy.getOptionType() == OptionChain.OptionType.CALL) {
+        if (buy.getOptionType() == OptionChain.OptionType.BULL_CALL) {
             return getPrice_BreakEven() < underlying.getLast();
         }
         return getPrice_BreakEven() > underlying.getLast();
     }
 
     public boolean isInTheMoney_MaxReturn() {
-        if (buy.getOptionType() == OptionChain.OptionType.CALL) {
+        if (buy.getOptionType() == OptionChain.OptionType.BULL_CALL) {
             return getPrice_MaxReturn() < underlying.getLast();
         }
         return getPrice_MaxReturn() > underlying.getLast();
@@ -149,7 +149,7 @@ abstract public class Spread {
     }
 
     public boolean isCall() {
-        return buy.getOptionType() == OptionChain.OptionType.CALL;
+        return buy.getOptionType() == OptionChain.OptionType.BULL_CALL;
     }
 
     public String getUnderlyingSymbol() {
@@ -157,32 +157,37 @@ abstract public class Spread {
     }
 
     public boolean isBullSpread() {
-        if (buy.getOptionType() == OptionChain.OptionType.CALL
-                && sell.getOptionType() == OptionChain.OptionType.CALL
+        if (buy.getOptionType() == OptionChain.OptionType.BULL_CALL
+                && sell.getOptionType() == OptionChain.OptionType.BULL_CALL
                 && buy.getStrike() < sell.getStrike())
             return true;
 
-        if (buy.getOptionType() == OptionChain.OptionType.PUT
-                && sell.getOptionType() == OptionChain.OptionType.PUT
-                && buy.getStrike() < sell.getStrike())
-            return true;
+        return buy.getOptionType() == OptionChain.OptionType.BEAR_PUT
+                && sell.getOptionType() == OptionChain.OptionType.BEAR_PUT
+                && buy.getStrike() < sell.getStrike();
 
-        return false;
     }
 
     public boolean isBearSpread() {
         return !isBullSpread();
     }
 
+    public double getWeightedValue() {
+        return getBreakEvenDepth() * Math.max(0, getMaxPercentProfitAtExpiration());
+    }
+
     // Sort by break-even price distance from the current price
     public static class DescendingBreakEvenDepthComparator implements Comparator<Spread> {
         @Override
         public int compare(Spread lhs, Spread rhs) {
-            if (rhs.getBreakEvenDepth() > lhs.getBreakEvenDepth())
-                return 1;
-            if (rhs.getBreakEvenDepth() < lhs.getBreakEvenDepth())
-                return -1;
-            return 0;
+            return Double.compare(rhs.getBreakEvenDepth(), lhs.getBreakEvenDepth());
+        }
+    }
+
+    public static class DescendingWeightComparator implements Comparator<Spread> {
+        @Override
+        public int compare(Spread lhs, Spread rhs) {
+            return Double.compare(rhs.getWeightedValue(), lhs.getWeightedValue());
         }
     }
 }

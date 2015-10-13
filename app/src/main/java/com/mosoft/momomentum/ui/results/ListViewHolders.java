@@ -58,9 +58,6 @@ public class ListViewHolders {
 
     public static class SpreadViewHolder extends BaseViewHolder {
 
-        @Bind(R.id.annualizedMaxReturn)
-        TextView annualizedReturn;
-
         @Bind(R.id.askPrice)
         TextView askPrice;
 
@@ -70,32 +67,17 @@ public class ListViewHolders {
         @Bind(R.id.daysToExp)
         TextView daysToExp;
 
-        @Bind(R.id.descriptionLeft)
+        @Bind(R.id.description_left)
         TextView description;
-
-        @Bind(R.id.descriptionRight)
-        TextView expirationDate;
 
         @Bind(R.id.maxReturn)
         TextView maxReturn;
 
-        @Bind(R.id.percentChangeToBreakEven)
-        TextView percentChangeToBreakEven;
-
-        @Bind(R.id.percentChangeToMaxReturn)
-        TextView percentChangeToMaxReturn;
-
-        @Bind(R.id.maxReturnPrice)
-        TextView maxReturnPrice;
-
-        @Bind(R.id.title_maxReturnPrice)
-        TextView title_maxReturnPrice;
-
-        @Bind(R.id.title_breakEvenPrice)
-        TextView title_breakEvenPrice;
-
         @Bind(R.id.summary)
         TextView summary;
+
+        @Bind(R.id.header)
+        View header;
 
         public SpreadViewHolder(View itemView, Context context) {
             super(itemView, context, null);
@@ -104,47 +86,34 @@ public class ListViewHolders {
         public void bind(ResultsAdapter.ListItem item) {
             Spread spread = item.spread;
 
-            summary.setText(String.format("%s RoR if %s is %s %s (%s %s) at expiration",
-                    Util.formatPercentCompact(spread.getMaxReturnAnnualized()),             // is %s RoR
-                    spread.getUnderlyingSymbol(),                                           // if %symbol
-                    spread.isBullSpread() ? "above" : "below",                              // is %above|below
-                    Util.formatDollars(spread.getPrice_MaxReturn()),                        // %stockprice
-                    spread.isBullSpread()                                                   // "down less than" "up at leaat" "up less than" "down at least"
-                            ? (spread.isInTheMoney_MaxReturn() ? "down less than" : "up at least")
-                            : (spread.isInTheMoney_MaxReturn() ? "up less than" : "down at least"),
-                    Util.formatPercentCompact(Math.abs(spread.getPercentChange_MaxProfit()))    // some percent
+            summary.setText(String.format("Returns %s/yr if %s is %s %s from the current price",
+                            Util.formatPercentCompact(spread.getMaxReturnAnnualized()),             // is %s RoR
+                            spread.getUnderlyingSymbol(),                                           // if %symbol
+                            spread.isBullSpread()                                                   // "down less than" "up at least" "up less than" "down at least"
+                                    ? (spread.isInTheMoney_MaxReturn() ? "down less than" : "up at least")
+                                    : (spread.isInTheMoney_MaxReturn() ? "up less than" : "down at least"),
+                            Util.formatPercentCompact(Math.abs(spread.getPercentChange_MaxProfit()))    // some percent
             ));
 
-
-            annualizedReturn.setText(Util.formatPercent(spread.getMaxReturnAnnualized()));
             askPrice.setText(Util.formatDollars(spread.getAsk()));
             breakEvenPrice.setText(Util.formatDollars(spread.getPrice_BreakEven()));
-            maxReturnPrice.setText(Util.formatDollars(spread.getPrice_MaxReturn()));
             daysToExp.setText(String.valueOf(spread.getDaysToExpiration()) + " days");
             description.setText(String.format("%s %.2f/%.2f", spread.getBuy().getOptionType().toString(), spread.getBuy().getStrike(), spread.getSell().getStrike()));
-            expirationDate.setText(Util.getFormattedOptionDate(spread.getExpiresDate()));
             maxReturn.setText(Util.formatDollars(spread.getMaxProfitAtExpiration()));
-            percentChangeToBreakEven.setText(Util.formatPercent(spread.getPercentChange_BreakEven()) + (spread.isInTheMoney_BreakEven() ? "" : "  OTM"));
-            percentChangeToMaxReturn.setText(Util.formatPercent(spread.getPercentChange_MaxProfit()) + (spread.isInTheMoney_MaxReturn() ? "" : "  OTM"));
-
-            title_maxReturnPrice.setText(String.format(context.getResources().getString(R.string.formatPriceAtMaxReturn), spread.isCall() ? "Above" : "Below"));
-            title_breakEvenPrice.setText(String.format(context.getResources().getString(R.string.formatPriceAtBreakEven), spread.isCall() ? "Below" : "Above"));
 
             Resources resources = context.getResources();
 
             int color = spread.isInTheMoney_BreakEven()
                     ? resources.getColor(R.color.primary_text)
-                    : resources.getColor(R.color.red_900);
+                    : resources.getColor(R.color.material_red_900);
 
-            percentChangeToBreakEven.setTextColor(color);
             breakEvenPrice.setTextColor(color);
 
-            color = spread.isInTheMoney_MaxReturn()
-                    ? resources.getColor(R.color.primary_text)
-                    : resources.getColor(R.color.red_900);
+            color = spread.isBullSpread()
+                    ? resources.getColor(R.color.bull_spread_background)
+                    : resources.getColor(R.color.bear_spread_background);
 
-            percentChangeToMaxReturn.setTextColor(color);
-            maxReturnPrice.setTextColor(color);
+            header.setBackgroundColor(color);
         }
     }
 }

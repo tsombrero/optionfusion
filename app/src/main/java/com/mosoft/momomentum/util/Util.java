@@ -15,23 +15,10 @@ public class Util {
 
     public static final String TAG="Mo";
 
-    private static final DateFormat dateFormat = new SimpleDateFormat("d MMM yyyy");
+    private static final DateFormat dateFormat = new SimpleDateFormat("MM/d/yy");
     private static final DateFormat dateFormatFar = new SimpleDateFormat("MMM yyyy");
     private static final DateFormat dateFormatNear = new SimpleDateFormat("d MMM");
     private static final GregorianCalendar calendar = new GregorianCalendar();
-
-    public static long getCentsFromCurrencyString(String str) {
-        try {
-            String parts[] = str.split(".");
-            long ret = Long.valueOf(parts[0]) * 100;
-            if (parts.length > 1) {
-                ret += Long.valueOf(parts[1]);
-            }
-            return ret;
-        } catch (Exception e) {
-            return -1;
-        }
-    }
 
     public static String formatDollars(Double val) {
         if (val >= 0) {
@@ -52,8 +39,6 @@ public class Util {
         }
 
         ret *= (1d + (periodicGrowth * periodRemaining));
-
-//        Log.d(TAG, String.format("%2.1f%% compounded monthly for %.2f months is %2.1f%%", periodicGrowth * 100d, periodCount, (ret * 100d) - 100d));
 
         return ret - 1d;
     }
@@ -94,11 +79,10 @@ public class Util {
             return dateFormatFar.format(date);
         }
     }
-    public static String getFormattedOptionDate(int daysFromNow) {
-        synchronized (calendar) {
-            calendar.setTimeInMillis(System.currentTimeMillis());
-            calendar.add(Calendar.DATE, daysFromNow);
-            return getFormattedOptionDate(calendar.getTime());
+
+    public static String getFormattedOptionDateCompact(Date date) {
+        synchronized (dateFormat) {
+            return dateFormat.format(date);
         }
     }
 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical">
@@ -118,6 +119,7 @@
         android:id="@+id/filter_adjust_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clipChildren="false"
         >
 
         <!-- the minimum ROI editor -->
@@ -143,7 +145,7 @@
                 />
 
             <EditText
-                android:id="@+id/return_edit_value"
+                android:id="@+id/roi_edit_value"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_alignBaseline="@id/return_edit_label"
@@ -161,11 +163,61 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBaseline="@id/return_edit_label"
-                android:layout_toRightOf="@id/return_edit_value"
+                android:layout_toRightOf="@id/roi_edit_value"
                 android:text="% / year"
                 />
 
         </RelativeLayout>
+
+        <!-- the Time Filter layout -->
+
+        <RelativeLayout
+            android:id="@+id/time_edit_layout"
+            style="@style/card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="@dimen/activity_vertical_margin"
+            android:clipChildren="false"
+            android:visibility="gone"
+            >
+
+            <TextView
+                android:id="@+id/time_edit_label"
+                style="@style/FilterItemLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:text="Include trades expiring:"
+                />
+
+            <com.appyvet.rangebar.RangeBar
+                android:id="@+id/rangebar_expiration"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_below="@id/time_edit_label"
+                android:layout_marginLeft="-10dp"
+                android:layout_marginRight="-10dp"
+                app:barColor="@color/foreground_light_grey"
+                app:barWeight="0.3dp"
+                app:connectingLineColor="@color/primary"
+                app:pinAlwaysVisible="true"
+                app:pinColor="@color/accent"
+                app:pinPadding="3.3dp"
+                app:pinScaleMin="0.8"
+                app:pinHeight="40dp"
+                app:pinWidth="120dp"
+                app:rangeBar="true"
+                app:selectorColor="@color/accent"
+                app:selectorSize="2dp"
+                app:textColor="@color/primary_text_inverse"
+                app:tickColor="@color/foreground_light_grey"
+                app:tickHeight="0.5dp"
+                />
+
+        </RelativeLayout>
+
 
     </FrameLayout>
 

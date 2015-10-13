@@ -1,9 +1,6 @@
 package com.mosoft.momomentum.ui.results;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,11 +8,15 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.appyvet.rangebar.RangeBar;
 import com.mosoft.momomentum.R;
+import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.filter.Filter;
 import com.mosoft.momomentum.model.filter.RoiFilter;
 import com.wefika.flowlayout.FlowLayout;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -25,6 +26,9 @@ import butterknife.OnEditorAction;
 public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     private FilterSet filterSet;
+
+    @Inject
+    OptionChainProvider optionChainProvider;
 
     @Bind(R.id.btn_disposition)
     ImageButton btnDisposition;
@@ -41,8 +45,14 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
     @Bind(R.id.return_edit_layout)
     ViewGroup editRoiLayout;
 
+    @Bind(R.id.time_edit_layout)
+    ViewGroup editTimeLayout;
+
     @Bind(R.id.active_filters_container)
     FlowLayout activeFiltersContainer;
+
+    @Bind(R.id.rangebar_expiration)
+    RangeBar rangeBarExpiration;
 
     public FilterViewHolder(View itemView, Context context, ResultsAdapter.FilterChangeListener changeListener) {
         super(itemView, context, changeListener);
@@ -51,7 +61,6 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     public void bind(final ResultsAdapter.ListItem item) {
         this.filterSet = item.filterSet;
-
         bindFilters();
     }
 
@@ -59,7 +68,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         activeFiltersContainer.removeAllViews();
 
         for (Filter filter : filterSet.getFilters()) {
-            View newFilterView = activeFiltersContainer.inflate(context, R.layout.item_filter_pill, activeFiltersContainer);
+            View newFilterView = View.inflate(context, R.layout.item_filter_pill, activeFiltersContainer);
             TextView newFilterTextView = (TextView) newFilterView.findViewById(R.id.filter_pill_text);
             newFilterTextView.setText(filter.getPillText());
             newFilterTextView.setTag(filter);
@@ -76,14 +85,14 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
     @OnClick(R.id.btn_roi)
     public void onClickRoiFilter() {
         if (editRoiLayout.getVisibility() == View.VISIBLE) {
-            resetButtons();
+            resetButtons(true);
             return;
         }
 
         showEditFilter(btnRoi, editRoiLayout);
     }
 
-    @OnEditorAction(R.id.return_edit_value)
+    @OnEditorAction(R.id.roi_edit_value)
     public boolean onEditRoi(TextView view, int action) {
         if (action != EditorInfo.IME_ACTION_DONE)
             return false;
@@ -93,35 +102,40 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         } catch (Exception e) {
             Log.w("Can't add filter", e);
         }
-        resetButtons();
+        resetButtons(true);
         changeListener.onChange(filterSet);
         return true;
     }
 
-    private void resetButtons() {
+    @OnClick(R.id.btn_time)
+    public void onClickTimeFilter() {
+        if (editTimeLayout.getVisibility() == View.VISIBLE) {
+            resetButtons(true);
+            return;
+        }
+
+        rangeBarExpiration.setXValues(optionChainProvider.get(););
+
+        showEditFilter(btnTime, editTimeLayout);
+    }
+
+    private void resetButtons(boolean enabled) {
         for (ImageButton btn : new ImageButton[]{btnDisposition, btnRoi, btnStrike, btnTime}) {
-            btn.setEnabled(true);
+            btn.setEnabled(enabled);
             btn.setSelected(false);
         }
 
-        for (ViewGroup viewGroup : new ViewGroup[]{editRoiLayout}) {
+        for (ViewGroup viewGroup : new ViewGroup[]{editRoiLayout, editTimeLayout}) {
             viewGroup.setVisibility(View.GONE);
         }
     }
 
     private void showEditFilter(ImageButton filterButton, ViewGroup filterLayout) {
-        for (ImageButton btn : new ImageButton[]{btnDisposition, btnRoi, btnStrike, btnTime}) {
-            btn.setEnabled(false);
-            btn.setSelected(false);
-        }
+        resetButtons(false);
 
         if (filterButton != null) {
             filterButton.setEnabled(true);
             filterButton.setSelected(true);
-        }
-
-        for (ViewGroup viewGroup : new ViewGroup[]{editRoiLayout}) {
-            viewGroup.setVisibility(View.GONE);
         }
 
         if (filterLayout != null)

@@ -38,6 +38,6 @@ abstract public class Filter implements Parcelable {
 
     public enum FilterType {
         ROI,
-        TIME;
+        TIME
     }
 }

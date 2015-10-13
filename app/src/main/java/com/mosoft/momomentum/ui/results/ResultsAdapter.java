@@ -1,7 +1,6 @@
 package com.mosoft.momomentum.ui.results;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +9,7 @@ import android.view.ViewGroup;
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.FilterSet;
+import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseViewHolder
     private void update(FilterSet filterSet, List<Spread> spreads) {
         List<ListItem> newList = new ArrayList<>();
 
-        newList.add(new ListItem(filterSet));
+        newList.add(new ListItem(filterSet, spreads.get(0).getUnderlyingSymbol()));
 
         if (spreads != null) {
             for (Spread spread : spreads) {
@@ -93,7 +93,7 @@ class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseViewHolder
             viewType = ListViewHolders.ViewType.LABEL;
         }
 
-        public ListItem(FilterSet filterSet) {
+        public ListItem(FilterSet filterSet, String symbol) {
             this.filterSet = filterSet;
             layout = R.layout.item_filter_buttons;
             viewType = ListViewHolders.ViewType.FILTER_SET;
@@ -101,6 +101,6 @@ class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseViewHolder
     }
 
     public interface FilterChangeListener {
-        public void onChange(FilterSet filterSet);
+        void onChange(FilterSet filterSet);
     }
 }
