@@ -7,6 +7,8 @@ import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.client.AmeritradeClient;
 import com.mosoft.momomentum.client.AmeritradeClientProvider;
 
+import net.danlew.android.joda.JodaTimeAndroid;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -19,6 +21,8 @@ public class ApplicationModule {
 
     ApplicationModule(Application application) {
         this.application = application;
+        JodaTimeAndroid.init(application);
+
     }
 
     @Provides

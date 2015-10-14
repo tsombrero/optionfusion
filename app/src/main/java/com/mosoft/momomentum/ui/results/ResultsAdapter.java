@@ -7,9 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.mosoft.momomentum.R;
-import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.FilterSet;
-import com.mosoft.momomentum.model.provider.amtd.OptionChain;
+import com.mosoft.momomentum.model.Spread;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +26,7 @@ class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseViewHolder
         update(filterSet, spreads);
     }
 
-    private void update(FilterSet filterSet, List<Spread> spreads) {
+    public void update(FilterSet filterSet, List<Spread> spreads) {
         List<ListItem> newList = new ArrayList<>();
 
         newList.add(new ListItem(filterSet, spreads.get(0).getUnderlyingSymbol()));
@@ -75,6 +74,7 @@ class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseViewHolder
     }
 
     static class ListItem {
+        String symbol;
         Spread spread;
         ListViewHolders.ViewType viewType;
         FilterSet filterSet;
@@ -94,6 +94,7 @@ class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseViewHolder
         }
 
         public ListItem(FilterSet filterSet, String symbol) {
+            this.symbol = symbol;
             this.filterSet = filterSet;
             layout = R.layout.item_filter_buttons;
             viewType = ListViewHolders.ViewType.FILTER_SET;

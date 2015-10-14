@@ -13,8 +13,8 @@ import android.widget.Toast;
 
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.cache.OptionChainProvider;
-import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.FilterSet;
+import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
 import com.mosoft.momomentum.util.Util;
@@ -51,8 +51,9 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCh
 
     FilterSet filterSet = new FilterSet();
     String symbol;
+    ResultsAdapter resultsAdapter;
 
-    private static final String ARG_SYMBOL="symbol";
+    private static final String ARG_SYMBOL = "symbol";
 
     public static ResultsFragment newInstance(String symbol) {
         ResultsFragment ret = new ResultsFragment();
@@ -106,8 +107,12 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCh
             Log.i(TAG, spread.toString() + "        " + spread.getBuy() + " / " + spread.getSell());
         }
 
-        ResultsAdapter adapter = new ResultsAdapter(filterSet, allSpreads.subList(0, spreadCount), getActivity(), this);
-        recyclerView.setAdapter(adapter);
+        if (resultsAdapter == null) {
+            resultsAdapter = new ResultsAdapter(filterSet, allSpreads.subList(0, spreadCount), getActivity(), this);
+            recyclerView.setAdapter(resultsAdapter);
+        } else {
+            resultsAdapter.update(filterSet, allSpreads.subList(0, spreadCount));
+        }
     }
 
     @Override

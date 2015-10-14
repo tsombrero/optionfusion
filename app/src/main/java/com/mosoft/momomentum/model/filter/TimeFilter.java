@@ -15,7 +15,7 @@ public class TimeFilter extends Filter {
     private int minDaysToExp = 0;
     private int maxDaysToExp = Integer.MAX_VALUE;
 
-    public TimeFilter(Date maxExpDate, Date minExpDate) {
+    public TimeFilter(Date minExpDate, Date maxExpDate) {
         if (maxExpDate == null && minExpDate == null)
             throw new IllegalArgumentException("No max or min date provided");
 

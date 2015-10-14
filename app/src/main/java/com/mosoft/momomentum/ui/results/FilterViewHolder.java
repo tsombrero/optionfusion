@@ -14,7 +14,16 @@ import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.filter.Filter;
 import com.mosoft.momomentum.model.filter.RoiFilter;
+import com.mosoft.momomentum.model.filter.TimeFilter;
+import com.mosoft.momomentum.module.MomentumApplication;
+import com.mosoft.momomentum.util.Util;
 import com.wefika.flowlayout.FlowLayout;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -54,12 +63,19 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
     @Bind(R.id.rangebar_expiration)
     RangeBar rangeBarExpiration;
 
+    @Bind(R.id.filter_hint)
+    TextView filterHintText;
+
+    private String symbol;
+
     public FilterViewHolder(View itemView, Context context, ResultsAdapter.FilterChangeListener changeListener) {
         super(itemView, context, changeListener);
+        MomentumApplication.from(context).getComponent().inject(this);
         ButterKnife.bind(itemView);
     }
 
     public void bind(final ResultsAdapter.ListItem item) {
+        this.symbol = item.symbol;
         this.filterSet = item.filterSet;
         bindFilters();
     }
@@ -80,6 +96,8 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
                 }
             });
         }
+
+        filterHintText.setVisibility(filterSet.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     @OnClick(R.id.btn_roi)
@@ -114,7 +132,30 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             return;
         }
 
-        rangeBarExpiration.setXValues(optionChainProvider.get(););
+        final List<Date> dates = optionChainProvider.get(symbol).getExpirationDates();
+        Collections.sort(dates, new Comparator<Date>(){
+            @Override
+            public int compare(Date lhs, Date rhs) {
+                return Long.compare(lhs.getTime(), rhs.getTime());
+            }
+        });
+
+        ArrayList<String> dateStr = new ArrayList<>();
+        for (Date date : dates) {
+            dateStr.add(Util.getFormattedOptionDate(date));
+        }
+
+        rangeBarExpiration.setxValues(dateStr);
+
+        rangeBarExpiration.setRangePinsByIndices(0, dateStr.size() - 1);
+
+        rangeBarExpiration.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
+            @Override
+            public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
+                filterSet.addFilter(new TimeFilter(dates.get(leftPinIndex), dates.get(rightPinIndex)));
+                changeListener.onChange(filterSet);
+            }
+        });
 
         showEditFilter(btnTime, editTimeLayout);
     }
@@ -128,6 +169,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         for (ViewGroup viewGroup : new ViewGroup[]{editRoiLayout, editTimeLayout}) {
             viewGroup.setVisibility(View.GONE);
         }
+        filterHintText.setVisibility(filterSet.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     private void showEditFilter(ImageButton filterButton, ViewGroup filterLayout) {
@@ -138,7 +180,9 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             filterButton.setSelected(true);
         }
 
-        if (filterLayout != null)
+        if (filterLayout != null) {
             filterLayout.setVisibility(View.VISIBLE);
+            filterHintText.setVisibility(View.GONE);
+        }
     }
 }

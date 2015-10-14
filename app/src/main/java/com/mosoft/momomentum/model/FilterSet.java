@@ -93,7 +93,7 @@ public class FilterSet implements Parcelable {
         filters = in.createTypedArrayList(Filter.CREATOR);
     }
 
-    public void addFilter(RoiFilter filter) {
+    public void addFilter(Filter filter) {
         if (filter == null)
             return;
 
@@ -110,5 +110,9 @@ public class FilterSet implements Parcelable {
 
     public void removeFilter(Filter filter) {
         filters.remove(filter);
+    }
+
+    public boolean isEmpty() {
+        return filters.isEmpty();
     }
 }
