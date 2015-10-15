@@ -116,17 +116,6 @@
 
     </LinearLayout>
 
-    <!--Hint-->
-    <TextView
-        android:id="@+id/filter_hint"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Add filters to refine results"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="32dp"
-        style="@style/filterHint"
-        />
-
     <!--Adjust Container-->
     <FrameLayout
         android:id="@+id/filter_adjust_container"
@@ -221,7 +210,7 @@
                 app:connectingLineWeight="2dp"
                 app:pinAlwaysVisible="true"
                 app:pinColor="@color/accent"
-                app:pinPadding="3.3dp"
+                app:pinPadding="2.5dp"
                 app:pinScaleMin="0.8"
                 app:pinHeight="40dp"
                 app:pinWidth="120dp"
@@ -236,7 +225,19 @@
         </RelativeLayout>
 
 
+
     </FrameLayout>
+
+    <!--Hint-->
+    <TextView
+        android:id="@+id/filter_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add filters to refine results"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
+        style="@style/filterHint"
+        />
 
     <com.wefika.flowlayout.FlowLayout
         android:id="@+id/active_filters_container"

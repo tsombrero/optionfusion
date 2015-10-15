@@ -1,7 +1,8 @@
 package com.mosoft.momomentum.ui.results;
 
-import android.content.Context;
+import android.app.Activity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -34,6 +35,7 @@ import butterknife.OnEditorAction;
 
 public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
+    private final LayoutInflater inflater;
     private FilterSet filterSet;
 
     @Inject
@@ -68,9 +70,10 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     private String symbol;
 
-    public FilterViewHolder(View itemView, Context context, ResultsAdapter.FilterChangeListener changeListener) {
-        super(itemView, context, changeListener);
+    public FilterViewHolder(View itemView, Activity activity, ResultsAdapter.FilterChangeListener changeListener) {
+        super(itemView, activity, changeListener);
         MomentumApplication.from(context).getComponent().inject(this);
+        inflater = activity.getLayoutInflater();
         ButterKnife.bind(itemView);
     }
 
@@ -84,11 +87,11 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         activeFiltersContainer.removeAllViews();
 
         for (Filter filter : filterSet.getFilters()) {
-            View newFilterView = View.inflate(context, R.layout.item_filter_pill, activeFiltersContainer);
-            TextView newFilterTextView = (TextView) newFilterView.findViewById(R.id.filter_pill_text);
-            newFilterTextView.setText(filter.getPillText());
-            newFilterTextView.setTag(filter);
-            newFilterTextView.setOnClickListener(new View.OnClickListener() {
+            inflater.inflate(R.layout.item_filter_pill, activeFiltersContainer, true);
+            TextView newFilterView = (TextView) activeFiltersContainer.getChildAt(activeFiltersContainer.getChildCount() - 1);
+            newFilterView.setText(filter.getPillText());
+            newFilterView.setTag(filter);
+            newFilterView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     filterSet.removeFilter((Filter) v.getTag());
@@ -133,7 +136,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         }
 
         final List<Date> dates = optionChainProvider.get(symbol).getExpirationDates();
-        Collections.sort(dates, new Comparator<Date>(){
+        Collections.sort(dates, new Comparator<Date>() {
             @Override
             public int compare(Date lhs, Date rhs) {
                 return Long.compare(lhs.getTime(), rhs.getTime());
@@ -152,7 +155,22 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         rangeBarExpiration.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
             @Override
             public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
-                filterSet.addFilter(new TimeFilter(dates.get(leftPinIndex), dates.get(rightPinIndex)));
+                Date startDate = null;
+                if (leftPinIndex > 0)
+                    startDate = dates.get(leftPinIndex);
+
+                Date endDate = null;
+                if (rightPinIndex < dates.size() - 1)
+                    endDate = dates.get(rightPinIndex);
+
+                if (startDate == null && endDate == null) {
+                    for (Filter filter : filterSet.getFilters()) {
+                        if (filter instanceof TimeFilter)
+                            filterSet.removeFilter(filter);
+                    }
+                } else {
+                    filterSet.addFilter(new TimeFilter(startDate, endDate));
+                }
                 changeListener.onChange(filterSet);
             }
         });

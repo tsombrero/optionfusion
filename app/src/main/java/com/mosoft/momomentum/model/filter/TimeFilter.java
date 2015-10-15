@@ -19,7 +19,7 @@ public class TimeFilter extends Filter {
         if (maxExpDate == null && minExpDate == null)
             throw new IllegalArgumentException("No max or min date provided");
 
-        if (maxExpDate.getTime() < minExpDate.getTime()) {
+        if (maxExpDate != null && minExpDate != null && maxExpDate.getTime() < minExpDate.getTime()) {
             throw new IllegalArgumentException("Max date is before min date");
         }
 

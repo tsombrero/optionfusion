@@ -1,6 +1,6 @@
 package com.mosoft.momomentum.ui.results;
 
-import android.content.Context;
+import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,12 +15,12 @@ import java.util.List;
 
 class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseViewHolder> {
 
-    private final Context context;
+    private final Activity activity;
     List<ListItem> items;
     private final FilterChangeListener filterChangeListener;
 
-    public ResultsAdapter(FilterSet filterSet, List<Spread> spreads, Context context, FilterChangeListener filterChangeListener) {
-        this.context = context;
+    public ResultsAdapter(FilterSet filterSet, List<Spread> spreads, Activity activity, FilterChangeListener filterChangeListener) {
+        this.activity = activity;
         this.filterChangeListener = filterChangeListener;
 
         update(filterSet, spreads);
@@ -51,9 +51,9 @@ class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseViewHolder
             case LABEL:
                 return new ListViewHolders.LabelViewHolder(itemView);
             case FILTER_SET:
-                return new FilterViewHolder(itemView, context, filterChangeListener);
+                return new FilterViewHolder(itemView, activity, filterChangeListener);
             case SPREAD_DETAILS:
-                return new ListViewHolders.SpreadViewHolder(itemView, context);
+                return new ListViewHolders.SpreadViewHolder(itemView, activity);
         }
         return null;
     }
