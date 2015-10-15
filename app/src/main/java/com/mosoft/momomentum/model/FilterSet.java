@@ -4,9 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.mosoft.momomentum.model.filter.Filter;
-import com.mosoft.momomentum.model.filter.RoiFilter;
 import com.mosoft.momomentum.model.provider.amtd.OptionChain;
-import com.mosoft.momomentum.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,5 +112,14 @@ public class FilterSet implements Parcelable {
 
     public boolean isEmpty() {
         return filters.isEmpty();
+    }
+
+    public void removeFilterMatching(Filter match) {
+        for (Filter filter : filters) {
+            if (match.shouldReplace(filter)) {
+                removeFilter(filter);
+                break;
+            }
+        }
     }
 }

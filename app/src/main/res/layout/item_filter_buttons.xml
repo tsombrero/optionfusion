@@ -26,7 +26,7 @@
                 android:layout_width="@dimen/circle_button"
                 android:layout_height="@dimen/circle_button"
                 android:background="@drawable/shape_circle"
-                android:src="@drawable/ic_schedule_black_24px"
+                android:src="@drawable/ic_today_24dp"
                 />
 
             <TextView
@@ -102,7 +102,7 @@
                 android:layout_width="@dimen/circle_button"
                 android:layout_height="@dimen/circle_button"
                 android:background="@drawable/shape_circle"
-                android:src="@drawable/ic_mood_black_24px"
+                android:src="@drawable/ic_sort_24dp"
                 />
 
             <TextView
@@ -110,7 +110,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Disposition"
+                android:text="Sort"
                 />
         </LinearLayout>
 
@@ -174,7 +174,7 @@
         <!-- the Time Filter layout -->
 
         <RelativeLayout
-            android:id="@+id/time_edit_layout"
+            android:id="@+id/expiration_edit_layout"
             style="@style/card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -184,7 +184,7 @@
             >
 
             <TextView
-                android:id="@+id/time_edit_label"
+                android:id="@+id/rangebar_expiration_label"
                 style="@style/FilterItemLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -192,39 +192,78 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginLeft="@dimen/activity_vertical_margin"
-                android:text="Filter by expiration date:"
+                android:text="Expiration:"
                 />
 
             <com.appyvet.rangebar.RangeBar
                 android:id="@+id/rangebar_expiration"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/time_edit_label"
-                android:layout_marginLeft="-10dp"
-                android:layout_marginRight="-10dp"
-                android:layout_marginTop="20dp"
-                android:clipChildren="false"
-                app:barColor="@color/foreground_light_grey"
-                app:barWeight="2dp"
-                app:connectingLineColor="@color/primary"
-                app:connectingLineWeight="2dp"
-                app:pinAlwaysVisible="true"
-                app:pinColor="@color/accent"
-                app:pinPadding="2.5dp"
-                app:pinScaleMin="0.8"
-                app:pinHeight="40dp"
-                app:pinWidth="120dp"
-                app:rangeBar="true"
-                app:selectorColor="@color/accent"
-                app:selectorSize="2dp"
-                app:textColor="@color/primary_text_inverse"
-                app:tickColor="@color/foreground_light_grey"
-                app:tickHeight="0dp"
+                android:layout_below="@id/rangebar_expiration_label"
+                style="@style/rangebar"
                 />
 
         </RelativeLayout>
 
 
+        <RelativeLayout
+            android:id="@+id/strike_edit_layout"
+            style="@style/card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:clipChildren="false"
+            android:visibility="gone"
+            >
+
+            <TextView
+                android:id="@+id/strike_edit_bullish_label"
+                style="@style/FilterItemLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginLeft="@dimen/activity_vertical_margin"
+                android:text="Bullish trades; stock is above:"
+                />
+
+            <com.appyvet.rangebar.RangeBar
+                android:id="@+id/strike_edit_bullish"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/strike_edit_bullish_label"
+                style="@style/rangebar"
+                app:endedness="left"
+                app:connectingLineColor="@color/rangebar_green"
+                app:selectorColor="@color/rangebar_green"
+                app:barColor="@color/rangebar_red"
+                />
+
+            <TextView
+                android:id="@+id/strike_edit_bearish_label"
+                style="@style/FilterItemLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/strike_edit_bullish"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginLeft="@dimen/activity_vertical_margin"
+                android:text="Bearish trades, stock is below:"
+                />
+
+            <com.appyvet.rangebar.RangeBar
+                android:id="@+id/strike_edit_bearish"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/strike_edit_bearish_label"
+                style="@style/rangebar"
+                app:endedness="right"
+                app:connectingLineColor="@color/rangebar_green"
+                app:selectorColor="@color/rangebar_green"
+                app:barColor="@color/rangebar_red"
+                />
+
+        </RelativeLayout>
 
     </FrameLayout>
 

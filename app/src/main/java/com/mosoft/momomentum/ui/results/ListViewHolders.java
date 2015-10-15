@@ -30,12 +30,12 @@ public class ListViewHolders {
     public static abstract class BaseViewHolder extends RecyclerView.ViewHolder {
 
         protected final Context context;
-        protected final ResultsAdapter.FilterChangeListener changeListener;
+        protected final ResultsAdapter.FilterChangeListener filterChangeListener;
 
-        public BaseViewHolder(View itemView, Context context, ResultsAdapter.FilterChangeListener changeListener) {
+        public BaseViewHolder(View itemView, Context context, ResultsAdapter.FilterChangeListener filterChangeListener) {
             super(itemView);
             this.context = context;
-            this.changeListener = changeListener;
+            this.filterChangeListener = filterChangeListener;
             ButterKnife.bind(this, itemView);
         }
 

@@ -15,6 +15,7 @@ import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.filter.Filter;
 import com.mosoft.momomentum.model.filter.RoiFilter;
+import com.mosoft.momomentum.model.filter.StrikeFilter;
 import com.mosoft.momomentum.model.filter.TimeFilter;
 import com.mosoft.momomentum.module.MomentumApplication;
 import com.mosoft.momomentum.util.Util;
@@ -56,8 +57,11 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
     @Bind(R.id.return_edit_layout)
     ViewGroup editRoiLayout;
 
-    @Bind(R.id.time_edit_layout)
+    @Bind(R.id.expiration_edit_layout)
     ViewGroup editTimeLayout;
+
+    @Bind(R.id.strike_edit_layout)
+    ViewGroup editStrikeLayout;
 
     @Bind(R.id.active_filters_container)
     FlowLayout activeFiltersContainer;
@@ -67,6 +71,12 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     @Bind(R.id.filter_hint)
     TextView filterHintText;
+
+    @Bind(R.id.strike_edit_bullish)
+    RangeBar rangeBarStrikeBullish;
+
+    @Bind(R.id.strike_edit_bearish)
+    RangeBar rangeBarStrikeBearish;
 
     private String symbol;
 
@@ -95,7 +105,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
                 @Override
                 public void onClick(View v) {
                     filterSet.removeFilter((Filter) v.getTag());
-                    changeListener.onChange(filterSet);
+                    filterChangeListener.onChange(filterSet);
                 }
             });
         }
@@ -124,7 +134,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             Log.w("Can't add filter", e);
         }
         resetButtons(true);
-        changeListener.onChange(filterSet);
+        filterChangeListener.onChange(filterSet);
         return true;
     }
 
@@ -149,7 +159,6 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         }
 
         rangeBarExpiration.setxValues(dateStr);
-
         rangeBarExpiration.setRangePinsByIndices(0, dateStr.size() - 1);
 
         rangeBarExpiration.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
@@ -164,6 +173,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
                     endDate = dates.get(rightPinIndex);
 
                 if (startDate == null && endDate == null) {
+                    filterSet.removeFilterMatching(TimeFilter.EMPTY_FILTER);
                     for (Filter filter : filterSet.getFilters()) {
                         if (filter instanceof TimeFilter)
                             filterSet.removeFilter(filter);
@@ -171,11 +181,79 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
                 } else {
                     filterSet.addFilter(new TimeFilter(startDate, endDate));
                 }
-                changeListener.onChange(filterSet);
+                filterChangeListener.onChange(filterSet);
             }
         });
 
         showEditFilter(btnTime, editTimeLayout);
+    }
+
+    @OnClick(R.id.btn_strike)
+    public void onClickStrikeFilter() {
+        if (editStrikeLayout.getVisibility() == View.VISIBLE) {
+            resetButtons(true);
+            return;
+        }
+
+        final List<Double> strikes = optionChainProvider.get(symbol).getStrikePrices();
+
+        Collections.sort(strikes, new Comparator<Double>() {
+            @Override
+            public int compare(Double lhs, Double rhs) {
+                return Double.compare(lhs, rhs);
+            }
+        });
+
+        ArrayList<String> strikeStrings = new ArrayList<>();
+        for (Double strike : strikes) {
+            strikeStrings.add(Util.formatDollars(strike));
+        }
+
+        strikeStrings.set(0, "Any");
+        strikeStrings.set(strikes.size() - 1, "None");
+        rangeBarStrikeBullish.setxValues(strikeStrings);
+
+        strikeStrings.set(0, "None");
+        strikeStrings.set(strikes.size() - 1, "Any");
+        rangeBarStrikeBearish.setxValues(strikeStrings);
+
+        rangeBarStrikeBullish.setRangePinsByIndices(0, strikes.size() - 1);
+        rangeBarStrikeBearish.setRangePinsByIndices(0, strikes.size() - 1);
+
+        StrikeRangeChangeListener rangeBarListener = new StrikeRangeChangeListener(strikes, filterSet, filterChangeListener);
+        rangeBarStrikeBearish.setOnRangeBarChangeListener(rangeBarListener);
+        rangeBarStrikeBullish.setOnRangeBarChangeListener(rangeBarListener);
+
+        rangeBarStrikeBearish.setTag(StrikeFilter.Type.BEARISH);
+        rangeBarStrikeBullish.setTag(StrikeFilter.Type.BULLISH);
+
+        showEditFilter(btnStrike, editStrikeLayout);
+    }
+
+    private static class StrikeRangeChangeListener implements RangeBar.OnRangeBarChangeListener {
+
+        private final List<Double> strikes;
+        private final FilterSet filterSet;
+        private final ResultsAdapter.FilterChangeListener filterChangeListener;
+
+        public StrikeRangeChangeListener(List<Double> strikes, FilterSet filterSet, ResultsAdapter.FilterChangeListener filterChangeListener) {
+            this.strikes = strikes;
+            this.filterSet = filterSet;
+            this.filterChangeListener = filterChangeListener;
+        }
+
+        @Override
+        public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
+            StrikeFilter.Type type = (StrikeFilter.Type) rangeBar.getTag();
+            if (type == StrikeFilter.Type.BULLISH && leftPinIndex > 0) {
+                filterSet.addFilter(new StrikeFilter(strikes.get(leftPinIndex), StrikeFilter.Type.BULLISH));
+            } else if (type == StrikeFilter.Type.BEARISH && rightPinIndex < strikes.size() - 1) {
+                filterSet.addFilter(new StrikeFilter(strikes.get(rightPinIndex), StrikeFilter.Type.BEARISH));
+            } else {
+                filterSet.removeFilterMatching(new StrikeFilter(0, type));
+            }
+            filterChangeListener.onChange(filterSet);
+        }
     }
 
     private void resetButtons(boolean enabled) {
@@ -184,7 +262,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             btn.setSelected(false);
         }
 
-        for (ViewGroup viewGroup : new ViewGroup[]{editRoiLayout, editTimeLayout}) {
+        for (ViewGroup viewGroup : new ViewGroup[]{editRoiLayout, editTimeLayout, editStrikeLayout}) {
             viewGroup.setVisibility(View.GONE);
         }
         filterHintText.setVisibility(filterSet.isEmpty() ? View.VISIBLE : View.GONE);

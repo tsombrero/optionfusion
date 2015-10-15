@@ -141,7 +141,8 @@ public class Bar {
      * @return the zero-based index of the nearest tick
      */
     public int getNearestTickIndex(PinView thumb) {
-
+        if (thumb == null)
+            return 0;
         return (int) ((thumb.getX() - mLeftX + mTickDistance / 2f) / mTickDistance);
     }
 

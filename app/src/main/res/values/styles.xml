@@ -29,6 +29,9 @@
     <color name="bull_spread_background">@color/primary</color>
     <color name="bear_spread_background">@color/material_blue_grey_500</color>
 
+    <color name="rangebar_green">@color/material_green_700</color>
+    <color name="rangebar_red">@color/material_red_900</color>
+
     <color name="material_deep_teal_100">#ffB2DFDB</color>
     <color name="material_deep_teal_500">#ff009688</color>
     <color name="material_deep_teal_700">#ff00796B</color>
@@ -162,5 +165,28 @@
         <item name="android:textColor">@color/secondary_text</item>
         <item name="android:textStyle">italic</item>
         <item name="android:gravity">center</item>
+    </style>
+
+    <style name="rangebar" parent="android:style/TextAppearance.Medium">
+        <item name="android:layout_marginLeft">-10dp</item>
+        <item name="android:layout_marginRight">-10dp</item>
+        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:clipChildren">false</item>
+        <item name="barColor">@color/foreground_light_grey</item>
+        <item name="barWeight">2dp</item>
+        <item name="connectingLineColor">@color/primary</item>
+        <item name="connectingLineWeight">2dp</item>
+        <item name="pinAlwaysVisible">true</item>
+        <item name="pinColor">@color/accent</item>
+        <item name="pinPadding">2.5dp</item>
+        <item name="pinScaleMin">0.8</item>
+        <item name="pinHeight">40dp</item>
+        <item name="pinWidth">120dp</item>
+        <item name="rangeBar">true</item>
+        <item name="selectorColor">@color/accent</item>
+        <item name="selectorSize">2dp</item>
+        <item name="textColor">@color/primary_text_inverse</item>
+        <item name="tickColor">@color/foreground_light_grey</item>
+        <item name="tickHeight">0dp</item>
     </style>
 </resources>
