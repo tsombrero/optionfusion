@@ -232,9 +232,12 @@ class PinView extends View {
     //Draw the circle regardless of pressed state. If pin size is >0 then also draw the pin and text
     @Override
     public void onDraw(Canvas canvas) {
-        canvas.drawCircle(mX, mY, mCircleRadiusPx, mCirclePaint);
+        canvas.drawCircle(
+                Math.min(canvas.getWidth() - mCircleRadiusPx, Math.max(mX, mCircleRadiusPx)),
+                mY, mCircleRadiusPx, mCirclePaint);
+
         //Draw pin if pressed
-        if (mScale > 0f) {
+        if (mScale > 0f && mPinHeightPx > 0 && mPinWidthPx > 0) {
             int wScaledPx = getScaledPinWidth();
             int hScaledPx = getScaledPinHeight();
             int paddingScaled = getScaledPinPadding();

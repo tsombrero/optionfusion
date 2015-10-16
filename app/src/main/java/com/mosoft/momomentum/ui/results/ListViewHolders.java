@@ -86,8 +86,8 @@ public class ListViewHolders {
         public void bind(ResultsAdapter.ListItem item) {
             Spread spread = item.spread;
 
-            summary.setText(String.format("Returns %s/yr if %s is %s %s from the current price",
-                            Util.formatPercentCompact(spread.getMaxReturnAnnualized()),             // is %s RoR
+            summary.setText(String.format("Returns %s if %s is %s %s from the current price",
+                            Util.formatPercentCompact(spread.getMaxPercentProfitAtExpiration()),    // Returns %s
                             spread.getUnderlyingSymbol(),                                           // if %symbol
                             spread.isBullSpread()                                                   // "down less than" "up at least" "up less than" "down at least"
                                     ? (spread.isInTheMoney_MaxReturn() ? "down less than" : "up at least")
@@ -97,9 +97,9 @@ public class ListViewHolders {
 
             askPrice.setText(Util.formatDollars(spread.getAsk()));
             breakEvenPrice.setText(Util.formatDollars(spread.getPrice_BreakEven()));
-            daysToExp.setText(String.valueOf(spread.getDaysToExpiration()) + " days");
+            daysToExp.setText(Util.getFormattedOptionDate(spread.getExpiresDate()) + " / " + String.valueOf(spread.getDaysToExpiration()) + " days");
             description.setText(String.format("%s %.2f/%.2f", spread.getBuy().getOptionType().toString(), spread.getBuy().getStrike(), spread.getSell().getStrike()));
-            maxReturn.setText(Util.formatDollars(spread.getMaxProfitAtExpiration()));
+            maxReturn.setText(Util.formatDollars(spread.getMaxProfitAtExpiration()) + " / " + Util.formatPercentCompact(spread.getMaxReturnAnnualized()) + " yr" );
 
             Resources resources = context.getResources();
 

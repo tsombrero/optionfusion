@@ -7,7 +7,7 @@
     <string name="formatPriceAtMaxReturn">Realized %s price</string>
     <string name="formatPriceAtBreakEven">Break Even Price</string>
     <string name="spreadAsk">Max Loss</string>
-    <string name="timeToExp">Time to Expire</string>
+    <string name="timeToExp">Expires</string>
     <string name="maxReturn">Max Return</string>
     <string name="annualized">Annualized</string>
     <string name="expires_before">Expires before</string>

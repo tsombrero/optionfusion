@@ -1,9 +1,5 @@
 package com.mosoft.momomentum.util;
 
-import android.util.Log;
-
-import net.danlew.android.joda.JodaTimeAndroid;
-
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
@@ -11,8 +7,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -50,18 +44,22 @@ public class Util {
     }
 
     public static String formatPercent(double pct) {
+        if (pct > 100d)
+            return String.format("%dx", (int)pct);
         if (pct > 1d)
             return String.format("%d%%", (int)(100d * pct));
         if (pct > 0.1d)
             return String.format("%.1f%%", 100d * pct);
         if (pct > 0d)
             return String.format("%.2f%%", 100d * pct);
+        if (pct < 100d)
+            return String.format("-%dx", (int)pct);
         if (pct < -1d)
-            return String.format("(%d%%)", (int)(-100d * pct));
+            return String.format("-%d%%", (int)(-100d * pct));
         if (pct < -0.1d)
-            return String.format("(%.2f%%)", -100d * pct);
+            return String.format("-%.2f%%", -100d * pct);
         if (pct < 0d)
-            return String.format("(%.1f%%)", -100d * pct);
+            return String.format("-%.1f%%", -100d * pct);
 
         return "0";
     }
@@ -106,6 +104,12 @@ public class Util {
 
         if (limitLo == 0d && limitHi == Double.MAX_VALUE)
             return "All";
+
+        if (limitLo > 0d)
+            limitLo = Math.round(limitLo);
+
+        if (limitHi < Double.MAX_VALUE)
+            limitHi = Math.round(limitHi);
 
         if (limitHi == Double.MAX_VALUE)
             return Util.formatDollarsCompact(limitLo) + " or higher";

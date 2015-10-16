@@ -32,6 +32,8 @@ public class Bar {
 
     // Left-coordinate of the horizontal bar.
     private final float mLeftX;
+    private final int barColor;
+    private final int leftBarColor;
 
     private final float mRightX;
 
@@ -67,9 +69,11 @@ public class Bar {
                float tickHeightDP,
                int tickColor,
                float barWeight,
-               int barColor) {
+               int barColor,
+               int leftBarColor) {
 
         mLeftX = x;
+        this.barColor = barColor;
         mRightX = x + length;
         mY = y;
 
@@ -82,6 +86,7 @@ public class Bar {
         // Initialize the paint.
         mBarPaint = new Paint();
         mBarPaint.setColor(barColor);
+        this.leftBarColor = leftBarColor;
         mBarPaint.setStrokeWidth(barWeight);
         mBarPaint.setAntiAlias(true);
         mTickPaint = new Paint();
@@ -95,12 +100,18 @@ public class Bar {
     /**
      * Draws the bar on the given Canvas.
      *
-     * @param canvas Canvas to draw on; should be the Canvas passed into {#link
-     *               View#onDraw()}
+     * @param canvas                 Canvas to draw on; should be the Canvas passed into {#link
+     *                               View#onDraw()}
+     * @param leftSelectorCoordinate
      */
-    public void draw(Canvas canvas) {
+    public void draw(Canvas canvas, float leftSelectorCoordinate) {
 
+        mBarPaint.setColor(barColor);
         canvas.drawLine(mLeftX, mY, mRightX, mY, mBarPaint);
+
+        mBarPaint.setColor(leftBarColor);
+        canvas.drawLine(mLeftX, mY, leftSelectorCoordinate, mY, mBarPaint);
+
     }
 
     /**
@@ -143,7 +154,20 @@ public class Bar {
     public int getNearestTickIndex(PinView thumb) {
         if (thumb == null)
             return 0;
-        return (int) ((thumb.getX() - mLeftX + mTickDistance / 2f) / mTickDistance);
+
+        final float barLength = mRightX - mLeftX;
+
+        float ret = (thumb.getX() - mLeftX + mTickDistance / 2f) / mTickDistance;
+
+        float tickCount = mNumSegments + 1;
+
+        if (ret < tickCount / 25f)
+            ret = 0;
+
+        else if (ret > tickCount - (tickCount / 25f))
+            ret = (int) (tickCount - 1);
+
+        return (int) ret;
     }
 
 

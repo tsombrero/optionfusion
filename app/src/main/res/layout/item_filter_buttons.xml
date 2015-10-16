@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <!--Buttons-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        >
+        android:paddingTop="@dimen/activity_vertical_margin">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -26,16 +25,14 @@
                 android:layout_width="@dimen/circle_button"
                 android:layout_height="@dimen/circle_button"
                 android:background="@drawable/shape_circle"
-                android:src="@drawable/ic_today_24dp"
-                />
+                android:src="@drawable/ic_today_24dp" />
 
             <TextView
                 style="@style/FilterButtonText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Time"
-                />
+                android:text="Time" />
         </LinearLayout>
 
         <LinearLayout
@@ -51,16 +48,14 @@
                 android:layout_width="@dimen/circle_button"
                 android:layout_height="@dimen/circle_button"
                 android:background="@drawable/shape_circle"
-                android:src="@drawable/ic_attach_money_black_24px"
-                />
+                android:src="@drawable/ic_attach_money_black_24px" />
 
             <TextView
                 style="@style/FilterButtonText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Strike"
-                />
+                android:text="Strike" />
 
         </LinearLayout>
 
@@ -77,16 +72,14 @@
                 android:layout_width="@dimen/circle_button"
                 android:layout_height="@dimen/circle_button"
                 android:background="@drawable/shape_circle"
-                android:src="@drawable/ic_trending_up_black_24px"
-                />
+                android:src="@drawable/ic_trending_up_black_24px" />
 
             <TextView
                 style="@style/FilterButtonText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Return"
-                />
+                android:text="Return" />
         </LinearLayout>
 
         <LinearLayout
@@ -102,16 +95,14 @@
                 android:layout_width="@dimen/circle_button"
                 android:layout_height="@dimen/circle_button"
                 android:background="@drawable/shape_circle"
-                android:src="@drawable/ic_sort_24dp"
-                />
+                android:src="@drawable/ic_sort_24dp" />
 
             <TextView
                 style="@style/FilterButtonText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Sort"
-                />
+                android:text="Sort" />
         </LinearLayout>
 
     </LinearLayout>
@@ -120,21 +111,17 @@
     <FrameLayout
         android:id="@+id/filter_adjust_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clipChildren="false"
-        >
+        android:layout_height="wrap_content" >
 
         <!-- the minimum ROI editor -->
 
         <RelativeLayout
             android:id="@+id/return_edit_layout"
-            style="@style/card"
+            style="@style/filtercard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:padding="@dimen/activity_vertical_margin"
-            android:visibility="gone"
-            >
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/return_edit_label"
@@ -143,8 +130,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:text="Potential return:"
-                />
+                android:text="Potential return:" />
 
             <EditText
                 android:id="@+id/roi_edit_value"
@@ -157,8 +143,7 @@
                 android:inputType="numberDecimal"
                 android:singleLine="true"
                 android:textDirection="ltr"
-                android:textIsSelectable="false"
-                />
+                android:textIsSelectable="false" />
 
             <TextView
                 style="@style/FilterItemLabel"
@@ -166,8 +151,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBaseline="@id/return_edit_label"
                 android:layout_toRightOf="@id/roi_edit_value"
-                android:text="% / year"
-                />
+                android:text="% / year" />
 
         </RelativeLayout>
 
@@ -175,73 +159,62 @@
 
         <RelativeLayout
             android:id="@+id/expiration_edit_layout"
-            style="@style/card"
+            style="@style/filtercard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:clipChildren="false"
-            android:visibility="gone"
-            >
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/expiration_filter_label"
                 style="@style/FilterItemLabel"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_marginLeft="@dimen/activity_vertical_margin"
-                android:text="Expiration:"
-                />
+                android:text="Expiration" />
 
             <TextView
                 android:id="@+id/rangebar_expiration_text"
+                style="@style/RangebarValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/expiration_filter_label"
-                style="@style/RangebarValue"
-                />
+                android:layout_below="@id/expiration_filter_label" />
 
             <com.appyvet.rangebar.RangeBar
                 android:id="@+id/rangebar_expiration"
+                style="@style/rangebar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/rangebar_expiration_text"
-                style="@style/rangebar"
-                />
+                android:layout_below="@id/rangebar_expiration_text" />
 
         </RelativeLayout>
 
 
         <RelativeLayout
             android:id="@+id/strike_edit_layout"
-            style="@style/card"
+            style="@style/filtercard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:clipChildren="false"
-            android:visibility="gone"
-            >
+            android:paddingLeft="@dimen/activity_vertical_margin"
+            android:paddingRight="@dimen/activity_vertical_margin"
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/strike_edit_bullish_label"
                 style="@style/FilterItemLabel"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_marginLeft="@dimen/activity_vertical_margin"
-                android:text="Price Target for Bullish Trades:"
-                />
+                android:text="Price Target for Bullish Trades" />
 
             <TextView
                 android:id="@+id/strike_edit_bullish_text"
+                style="@style/RangebarValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/strike_edit_bullish_label"
-                style="@style/RangebarValue"
+                android:text="All"
                 />
 
             <com.appyvet.rangebar.RangeBar
@@ -250,30 +223,28 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/strike_edit_bullish_text"
                 style="@style/rangebar"
-                app:endedness="both"
+                app:barColor="@color/rangebar_green"
+                app:barColorLeft="@color/rangebar_red"
                 app:connectingLineColor="@color/rangebar_green"
                 app:selectorColor="@color/rangebar_green"
-                app:barColor="@color/rangebar_red"
                 />
 
             <TextView
                 android:id="@+id/strike_edit_bearish_label"
                 style="@style/FilterItemLabel"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/strike_edit_bullish"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginLeft="@dimen/activity_vertical_margin"
-                android:text="Price Target for Bearish Trades:"
-                />
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:text="Price Target for Bearish Trades" />
 
             <TextView
                 android:id="@+id/strike_edit_bearish_text"
+                style="@style/RangebarValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/strike_edit_bearish_label"
-                style="@style/RangebarValue"
-                />
+                android:layout_below="@id/strike_edit_bearish_label" />
 
             <com.appyvet.rangebar.RangeBar
                 android:id="@+id/strike_edit_bearish"
@@ -281,46 +252,39 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/strike_edit_bearish_text"
                 style="@style/rangebar"
-                app:endedness="both"
-                app:connectingLineColor="@color/rangebar_green"
-                app:selectorColor="@color/rangebar_green"
                 app:barColor="@color/rangebar_red"
-                />
+                app:barColorLeft="@color/rangebar_green"
+                app:connectingLineColor="@color/rangebar_green"
+                app:selectorColor="@color/rangebar_green" />
 
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/sorting_edit_layout"
-            style="@style/card"
+            style="@style/filtercard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:clipChildren="false"
-            android:visibility="gone"
-            >
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/sort_low_risk"
                 style="@style/FilterItemLabel"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_marginLeft="@dimen/activity_vertical_margin"
-                android:text="Sort By Lowest Risk"
-                />
+                android:text="Sort By Lowest Risk" />
 
 
             <TextView
                 android:id="@+id/sort_high_return"
                 style="@style/FilterItemLabel"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/sort_low_risk"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginLeft="@dimen/activity_vertical_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:text="Sort By Highest Return"
+                android:layout_marginBottom="@dimen/list_item_padding_vertical"
                 />
 
         </RelativeLayout>
@@ -330,20 +294,18 @@
     <!--Hint-->
     <TextView
         android:id="@+id/filter_hint"
+        style="@style/filterHint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add filters to refine results"
-        android:layout_marginTop="32dp"
         android:layout_marginBottom="32dp"
-        style="@style/filterHint"
-        />
+        android:layout_marginTop="32dp"
+        android:text="Add filters to refine results" />
 
     <com.wefika.flowlayout.FlowLayout
         android:id="@+id/active_filters_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="start|top"
-        />
+        android:gravity="start|top" />
 
 
 </LinearLayout>

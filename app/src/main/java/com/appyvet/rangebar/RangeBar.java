@@ -49,7 +49,7 @@ import java.util.HashMap;
  * RangeBar only allows its thumbs to be dragged to discrete positions (denoted by tick marks) in
  * the bar. When released, a RangeBar thumb will snap to the nearest tick mark. This version is
  * forked from edmodo range bar https://github.com/edmodo/range-bar.git
- * <p>
+ * <p/>
  * Clients of the RangeBar can attach a {@link com.appyvet.rangebar.RangeBar.OnRangeBarChangeListener}
  * to be notified when the pins have been moved.
  */
@@ -292,7 +292,7 @@ public class RangeBar extends View {
             width = mDefaultWidth;
         }
 
-        mDefaultHeight = (int) (mCircleSize + mPinHeightPx + (mPinHeightPx/2) + mBarPaddingBottom);
+        mDefaultHeight = (int) (mCircleSize + mPinHeightPx + (mPinHeightPx / 2) + mBarPaddingBottom);
 
         // The RangeBar height should be as small as possible.
         if (measureHeightMode == MeasureSpec.AT_MOST) {
@@ -325,7 +325,7 @@ public class RangeBar extends View {
 
         super.onDraw(canvas);
 
-        mBar.draw(canvas);
+        mBar.draw(canvas, mLeftThumb.getX());
         mBar.drawTicks(canvas);
 
         mConnectingLine.draw(canvas,
@@ -890,7 +890,8 @@ public class RangeBar extends View {
                 mTickHeightPx,
                 mTickColor,
                 mBarWeight,
-                mBarColor);
+                mBarColor,
+                barColorLeft);
         invalidate();
     }
 
@@ -952,7 +953,7 @@ public class RangeBar extends View {
      * @return float marginLeft
      */
     private float getMarginLeft() {
-        return mPinWidthPx / 2;
+        return mPinWidthPx / 2 + mCircleSize;
     }
 
     /**
@@ -1226,7 +1227,8 @@ public class RangeBar extends View {
     }
 
 
-    public enum Action { DOWN, UP, DRAG }
+    public enum Action {DOWN, UP, DRAG}
+
     /**
      * A callback that notifies clients when the RangeBar has changed. The listener will only be
      * called when either thumb's index has changed - not for every movement of the thumb.

@@ -125,6 +125,9 @@
         <item name="android:paddingBottom">@dimen/list_item_padding_vertical</item>
         <item name="android:paddingRight">@dimen/list_item_padding_horizontal</item>
         <item name="android:paddingLeft">@dimen/list_item_padding_horizontal</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:layout_centerHorizontal">true</item>
     </style>
 
     <style name="FilterItemText" parent="android:style/TextAppearance.Medium">
@@ -170,9 +173,9 @@
     <style name="rangebar" parent="android:style/TextAppearance.Medium">
         <item name="android:layout_marginLeft">10dp</item>
         <item name="android:layout_marginRight">10dp</item>
-        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:layout_marginTop">10dp</item>
         <item name="barColor">@color/foreground_light_grey</item>
-        <item name="barWeight">2dp</item>
+        <item name="barWeight">3dp</item>
         <item name="connectingLineColor">@color/primary</item>
         <item name="selectorColor">@color/primary</item>
         <item name="connectingLineWeight">2dp</item>
@@ -191,7 +194,13 @@
 
     <style name="RangebarValue" parent="android:style/TextAppearance.Large">
         <item name="android:gravity">center</item>
-        <item name="android:layout_marginTop">10dp</item>
-        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:layout_marginBottom">0dp</item>
+    </style>
+
+    <style name="filtercard" parent="card">
+        <item name="android:paddingTop">@dimen/activity_vertical_margin</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
     </style>
 </resources>

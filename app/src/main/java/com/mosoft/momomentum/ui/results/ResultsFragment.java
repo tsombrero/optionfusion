@@ -91,7 +91,18 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCh
         priceView.setText(Util.formatDollars(oc.getLast()));
         equityDescription.setText(oc.getEquityDescription());
 
+        onChange(filterSet);
+    }
+
+    @Override
+    public void onChange(final FilterSet filterSet) {
+        Log.i(TAG, "TACO onChange filter");
+        this.filterSet = filterSet;
+
         new AsyncTask<Void, Void, List<Spread>>() {
+
+            private OptionChain oc;
+
             @Override
             protected void onPostExecute(List<Spread> spreads) {
                 if (resultsAdapter == null) {
@@ -104,6 +115,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCh
 
             @Override
             protected List<Spread> doInBackground(Void... params) {
+                oc = optionChainProvider.get(symbol);
                 List<Spread> allSpreads = oc.getAllSpreads(filterSet);
 
                 Log.i(TAG, "Closest matches:");
@@ -123,11 +135,5 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCh
                 return allSpreads.subList(0, spreadCount);
             }
         }.execute();
-    }
-
-    @Override
-    public void onChange(FilterSet filterSet) {
-        this.filterSet = filterSet;
-        initView();
     }
 }

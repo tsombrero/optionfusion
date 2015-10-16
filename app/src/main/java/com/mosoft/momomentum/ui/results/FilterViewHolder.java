@@ -212,6 +212,9 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
             textExpiration.setText(Util.formatDateRange(startDate, endDate));
 
+            indexDateRangeLo = leftPinIndex;
+            indexDateRangeHi = rightPinIndex;
+
             if (action == RangeBar.Action.UP) {
                 animateTextViewActive(textExpiration, false);
                 if (startDate == null && endDate == null) {
@@ -219,7 +222,6 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
                 } else {
                     addFilter(new TimeFilter(startDate, endDate));
                 }
-                filterChangeListener.onChange(filterSet);
             }
         }
 
@@ -333,7 +335,6 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             textView.setText(Util.formatDollarRange(limitLo, limitHi));
 
             if (action == RangeBar.Action.UP) {
-                addFilter(new StrikeFilter(limitLo, limitHi, type));
                 if (type == StrikeFilter.Type.BULLISH) {
                     indexBullStrikeLow = leftPinIndex;
                     indexBullStrikeHi = rightPinIndex;
@@ -341,6 +342,14 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
                     indexBearStrikeLow = leftPinIndex;
                     indexBearStrikeHi = rightPinIndex;
                 }
+
+                Filter filter = new StrikeFilter(limitLo, limitHi, type);
+
+                if (limitLo == 0d && limitHi == Double.MAX_VALUE)
+                    removeFilterMatching(filter);
+                else
+                    addFilter(filter);
+
             }
         }
     }
@@ -387,6 +396,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         textView.animate()
                 .scaleX(targetScale).scaleY(targetScale)
                 .setDuration(100)
+                .translationY((1f - targetScale) * (float)textView.getHeight())
                 .start();
     }
 }
