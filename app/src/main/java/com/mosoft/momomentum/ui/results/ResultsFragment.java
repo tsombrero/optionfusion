@@ -99,7 +99,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCh
             return;
         }
 
-        Collections.sort(allSpreads, new Spread.DescendingBreakEvenDepthComparator());
+        Collections.sort(allSpreads, filterSet.getComparator());
 
         int spreadCount = Math.min(10, allSpreads.size());
 

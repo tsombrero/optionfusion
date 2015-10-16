@@ -13,6 +13,7 @@ import com.appyvet.rangebar.RangeBar;
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.model.FilterSet;
+import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.filter.Filter;
 import com.mosoft.momomentum.model.filter.RoiFilter;
 import com.mosoft.momomentum.model.filter.StrikeFilter;
@@ -42,8 +43,8 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
     @Inject
     OptionChainProvider optionChainProvider;
 
-    @Bind(R.id.btn_disposition)
-    ImageButton btnDisposition;
+    @Bind(R.id.btn_sort)
+    ImageButton btnSorting;
 
     @Bind(R.id.btn_roi)
     ImageButton btnRoi;
@@ -77,6 +78,15 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     @Bind(R.id.strike_edit_bearish)
     RangeBar rangeBarStrikeBearish;
+
+    @Bind(R.id.sorting_edit_layout)
+    ViewGroup editSortingLayout;
+
+    @Bind(R.id.sort_high_return)
+    TextView sortByRoi;
+
+    @Bind(R.id.sort_low_risk)
+    TextView sortByRisk;
 
     private String symbol;
 
@@ -230,6 +240,30 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         showEditFilter(btnStrike, editStrikeLayout);
     }
 
+    @OnClick(R.id.btn_sort)
+    public void onClickSortButton() {
+        if (editSortingLayout.getVisibility() == View.VISIBLE) {
+            resetButtons(true);
+            return;
+        }
+
+        showEditFilter(btnSorting, editSortingLayout);
+    }
+
+    @OnClick(R.id.sort_low_risk)
+    public void onClickSortByRisk() {
+        filterSet.setComparator(new Spread.DescendingBreakEvenDepthComparator());
+        filterChangeListener.onChange(filterSet);
+        resetButtons(true);
+    }
+
+    @OnClick(R.id.sort_high_return)
+    public void onClickSortHighReturn() {
+        filterSet.setComparator(new Spread.DescendingMaxReturnComparator());
+        filterChangeListener.onChange(filterSet);
+        resetButtons(true);
+    }
+
     private static class StrikeRangeChangeListener implements RangeBar.OnRangeBarChangeListener {
 
         private final List<Double> strikes;
@@ -246,9 +280,15 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
             StrikeFilter.Type type = (StrikeFilter.Type) rangeBar.getTag();
             if (type == StrikeFilter.Type.BULLISH && leftPinIndex > 0) {
-                filterSet.addFilter(new StrikeFilter(strikes.get(leftPinIndex), StrikeFilter.Type.BULLISH));
+                double limit = strikes.get(leftPinIndex);
+                if (leftPinIndex == strikes.size() - 1)
+                    limit = Double.MAX_VALUE;
+                filterSet.addFilter(new StrikeFilter(limit, StrikeFilter.Type.BULLISH));
             } else if (type == StrikeFilter.Type.BEARISH && rightPinIndex < strikes.size() - 1) {
-                filterSet.addFilter(new StrikeFilter(strikes.get(rightPinIndex), StrikeFilter.Type.BEARISH));
+                double limit = strikes.get(rightPinIndex);
+                if (rightPinIndex == 0)
+                    limit = 0;
+                filterSet.addFilter(new StrikeFilter(limit, StrikeFilter.Type.BEARISH));
             } else {
                 filterSet.removeFilterMatching(new StrikeFilter(0, type));
             }
@@ -257,12 +297,12 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
     }
 
     private void resetButtons(boolean enabled) {
-        for (ImageButton btn : new ImageButton[]{btnDisposition, btnRoi, btnStrike, btnTime}) {
+        for (ImageButton btn : new ImageButton[]{btnSorting, btnRoi, btnStrike, btnTime}) {
             btn.setEnabled(enabled);
             btn.setSelected(false);
         }
 
-        for (ViewGroup viewGroup : new ViewGroup[]{editRoiLayout, editTimeLayout, editStrikeLayout}) {
+        for (ViewGroup viewGroup : new ViewGroup[]{editRoiLayout, editTimeLayout, editStrikeLayout, editSortingLayout}) {
             viewGroup.setVisibility(View.GONE);
         }
         filterHintText.setVisibility(filterSet.isEmpty() ? View.VISIBLE : View.GONE);

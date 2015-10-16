@@ -175,6 +175,7 @@
         <item name="barColor">@color/foreground_light_grey</item>
         <item name="barWeight">2dp</item>
         <item name="connectingLineColor">@color/primary</item>
+        <item name="selectorColor">@color/primary</item>
         <item name="connectingLineWeight">2dp</item>
         <item name="pinAlwaysVisible">true</item>
         <item name="pinColor">@color/accent</item>
@@ -183,7 +184,6 @@
         <item name="pinHeight">40dp</item>
         <item name="pinWidth">120dp</item>
         <item name="rangeBar">true</item>
-        <item name="selectorColor">@color/accent</item>
         <item name="selectorSize">2dp</item>
         <item name="textColor">@color/primary_text_inverse</item>
         <item name="tickColor">@color/foreground_light_grey</item>

@@ -20,6 +20,9 @@ public class StrikeFilter extends Filter {
 
     @Override
     public boolean pass(Spread spread) {
+        Type spreadType = spread.isBullSpread() ? Type.BULLISH : Type.BEARISH;
+        if (spreadType != type)
+            return true;
         return pass(spread.getPrice_MaxReturn());
     }
 
@@ -43,14 +46,14 @@ public class StrikeFilter extends Filter {
 
     @Override
     public String getPillText() {
-        if (type == Type.BULLISH && limit == 0) {
+        if (type == Type.BULLISH && limit == Double.MAX_VALUE) {
             return "No Bullish trades";
         } else if (type == Type.BULLISH) {
-            return "Bullish: stock is above " + Util.formatDollars(limit);
-        } else if (type == Type.BEARISH && limit == Double.MAX_VALUE) {
+            return "Bullish: stock > " + Util.formatDollars(limit);
+        } else if (type == Type.BEARISH && limit == 0) {
             return "No Bearish trades";
         }
-        return "Bearish: stock is below "+ Util.formatDollars(limit);
+        return "Bearish: stock < " + Util.formatDollars(limit);
     }
 
     @Override

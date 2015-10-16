@@ -97,7 +97,7 @@
 
 
             <ImageButton
-                android:id="@+id/btn_disposition"
+                android:id="@+id/btn_sort"
                 style="@style/FilterButton"
                 android:layout_width="@dimen/circle_button"
                 android:layout_height="@dimen/circle_button"
@@ -261,6 +261,42 @@
                 app:connectingLineColor="@color/rangebar_green"
                 app:selectorColor="@color/rangebar_green"
                 app:barColor="@color/rangebar_red"
+                />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/sorting_edit_layout"
+            style="@style/card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:clipChildren="false"
+            android:visibility="gone"
+            >
+
+            <TextView
+                android:id="@+id/sort_low_risk"
+                style="@style/FilterItemLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginLeft="@dimen/activity_vertical_margin"
+                android:text="Sort By Lowest Risk"
+                />
+
+
+            <TextView
+                android:id="@+id/sort_high_return"
+                style="@style/FilterItemLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/sort_low_risk"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginLeft="@dimen/activity_vertical_margin"
+                android:text="Sort By Highest Return"
                 />
 
         </RelativeLayout>

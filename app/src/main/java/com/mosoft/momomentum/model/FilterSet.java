@@ -7,11 +7,14 @@ import com.mosoft.momomentum.model.filter.Filter;
 import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class FilterSet implements Parcelable {
 
     List<Filter> filters = new ArrayList<>();
+
+    Comparator<Spread> comparator = new Spread.DescendingBreakEvenDepthComparator();
 
     public FilterSet() {
     }
@@ -121,5 +124,13 @@ public class FilterSet implements Parcelable {
                 break;
             }
         }
+    }
+
+    public void setComparator(Comparator<Spread> comparator) {
+        this.comparator = comparator;
+    }
+
+    public Comparator<Spread> getComparator() {
+        return comparator;
     }
 }

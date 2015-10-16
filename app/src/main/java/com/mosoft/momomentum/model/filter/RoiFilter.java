@@ -35,7 +35,7 @@ public class RoiFilter extends Filter {
 
     @Override
     public String getPillText() {
-        return String.format("Potential Return at least %s", Util.formatPercentCompact(roi));
+        return String.format("Potential Return: %s", Util.formatPercentCompact(roi));
     }
 
     @Override

@@ -190,4 +190,11 @@ abstract public class Spread {
             return Double.compare(rhs.getWeightedValue(), lhs.getWeightedValue());
         }
     }
+
+    public static class DescendingMaxReturnComparator implements Comparator<Spread> {
+        @Override
+        public int compare(Spread lhs, Spread rhs) {
+            return Double.compare(rhs.getMaxPercentProfitAtExpiration(), lhs.getMaxPercentProfitAtExpiration());
+        }
+    }
 }
