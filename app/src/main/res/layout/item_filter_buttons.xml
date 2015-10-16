@@ -184,7 +184,7 @@
             >
 
             <TextView
-                android:id="@+id/rangebar_expiration_label"
+                android:id="@+id/expiration_filter_label"
                 style="@style/FilterItemLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -195,11 +195,19 @@
                 android:text="Expiration:"
                 />
 
+            <TextView
+                android:id="@+id/rangebar_expiration_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/expiration_filter_label"
+                style="@style/RangebarValue"
+                />
+
             <com.appyvet.rangebar.RangeBar
                 android:id="@+id/rangebar_expiration"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/rangebar_expiration_label"
+                android:layout_below="@id/rangebar_expiration_text"
                 style="@style/rangebar"
                 />
 
@@ -225,16 +233,24 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginLeft="@dimen/activity_vertical_margin"
-                android:text="Bullish trades; stock is above:"
+                android:text="Price Target for Bullish Trades:"
+                />
+
+            <TextView
+                android:id="@+id/strike_edit_bullish_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/strike_edit_bullish_label"
+                style="@style/RangebarValue"
                 />
 
             <com.appyvet.rangebar.RangeBar
                 android:id="@+id/strike_edit_bullish"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/strike_edit_bullish_label"
+                android:layout_below="@id/strike_edit_bullish_text"
                 style="@style/rangebar"
-                app:endedness="left"
+                app:endedness="both"
                 app:connectingLineColor="@color/rangebar_green"
                 app:selectorColor="@color/rangebar_green"
                 app:barColor="@color/rangebar_red"
@@ -248,16 +264,24 @@
                 android:layout_below="@id/strike_edit_bullish"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginLeft="@dimen/activity_vertical_margin"
-                android:text="Bearish trades, stock is below:"
+                android:text="Price Target for Bearish Trades:"
+                />
+
+            <TextView
+                android:id="@+id/strike_edit_bearish_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/strike_edit_bearish_label"
+                style="@style/RangebarValue"
                 />
 
             <com.appyvet.rangebar.RangeBar
                 android:id="@+id/strike_edit_bearish"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/strike_edit_bearish_label"
+                android:layout_below="@id/strike_edit_bearish_text"
                 style="@style/rangebar"
-                app:endedness="right"
+                app:endedness="both"
                 app:connectingLineColor="@color/rangebar_green"
                 app:selectorColor="@color/rangebar_green"
                 app:barColor="@color/rangebar_red"

@@ -144,7 +144,7 @@
         <item name="android:tintMode">src_in</item>
         <item name="android:scaleType">fitCenter</item>
         <item name="android:elevation">@dimen/widget_elevation_resting</item>
-        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:layout_gravity">center</item>
     </style>
 
     <style name="FilterButtonText" parent="@android:style/TextAppearance.Small">
@@ -168,10 +168,9 @@
     </style>
 
     <style name="rangebar" parent="android:style/TextAppearance.Medium">
-        <item name="android:layout_marginLeft">-10dp</item>
-        <item name="android:layout_marginRight">-10dp</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:layout_marginRight">10dp</item>
         <item name="android:layout_marginTop">20dp</item>
-        <item name="android:clipChildren">false</item>
         <item name="barColor">@color/foreground_light_grey</item>
         <item name="barWeight">2dp</item>
         <item name="connectingLineColor">@color/primary</item>
@@ -180,13 +179,19 @@
         <item name="pinAlwaysVisible">true</item>
         <item name="pinColor">@color/accent</item>
         <item name="pinPadding">2.5dp</item>
-        <item name="pinScaleMin">0.8</item>
-        <item name="pinHeight">40dp</item>
-        <item name="pinWidth">120dp</item>
-        <item name="rangeBar">true</item>
-        <item name="selectorSize">2dp</item>
+        <item name="pinScaleMin">0</item>
+        <item name="pinHeight">0dp</item>
+        <item name="pinWidth">0dp</item>
+        <item name="selectorSize">3dp</item>
         <item name="textColor">@color/primary_text_inverse</item>
         <item name="tickColor">@color/foreground_light_grey</item>
         <item name="tickHeight">0dp</item>
+        <item name="barPaddingBottom">10dp</item>
+    </style>
+
+    <style name="RangebarValue" parent="android:style/TextAppearance.Large">
+        <item name="android:gravity">center</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
     </style>
 </resources>

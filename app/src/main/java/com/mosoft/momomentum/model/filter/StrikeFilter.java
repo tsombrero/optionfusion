@@ -8,13 +8,20 @@ import com.mosoft.momomentum.util.Util;
 
 public class StrikeFilter extends Filter {
 
+    private final double limitLo;
+    private final double limitHi;
+
+    public static final StrikeFilter EMPTY_BULLISH = new StrikeFilter(0, Double.MAX_VALUE, Type.BULLISH);
+    public static final StrikeFilter EMPTY_BEARISH = new StrikeFilter(0, Double.MAX_VALUE, Type.BEARISH);
+
     public enum Type {BULLISH, BEARISH}
 
-    private final double limit;
     private final Type type;
 
-    public StrikeFilter(double limit, Type type) {
-        this.limit = limit;
+    public StrikeFilter(double limitLo, double limitHi, Type type) {
+
+        this.limitLo = limitLo;
+        this.limitHi = limitHi;
         this.type = type;
     }
 
@@ -27,11 +34,7 @@ public class StrikeFilter extends Filter {
     }
 
     private boolean pass(double limit) {
-        if (type == Type.BULLISH) {
-            return limit >= this.limit;
-        }
-
-        return limit <= this.limit;
+        return limit >= this.limitLo && limit <= this.limitHi;
     }
 
     @Override
@@ -46,14 +49,10 @@ public class StrikeFilter extends Filter {
 
     @Override
     public String getPillText() {
-        if (type == Type.BULLISH && limit == Double.MAX_VALUE) {
-            return "No Bullish trades";
-        } else if (type == Type.BULLISH) {
-            return "Bullish: stock > " + Util.formatDollars(limit);
-        } else if (type == Type.BEARISH && limit == 0) {
-            return "No Bearish trades";
-        }
-        return "Bearish: stock < " + Util.formatDollars(limit);
+        return (type == Type.BULLISH
+                ? "Bullish price target: "
+                : "Bearish price target: ")
+                + Util.formatDollarRange(limitLo, limitHi);
     }
 
     @Override
@@ -69,15 +68,18 @@ public class StrikeFilter extends Filter {
 
     //Parcelable
     public StrikeFilter(Parcel parcel) {
-        this.limit = parcel.readDouble();
         this.type = Type.values()[parcel.readInt()];
+        this.limitLo = parcel.readDouble();
+        this.limitHi = parcel.readDouble();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeDouble(limit);
         dest.writeInt(type.ordinal());
+        dest.writeDouble(limitLo);
+        dest.writeDouble(limitHi);
     }
+
 
 
 }

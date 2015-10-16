@@ -26,6 +26,8 @@
             <enum name="left" value="1" />
             <enum name="right" value="2" />
         </attr>
+        <attr name="showPin" format="boolean" />
+        <attr name="barColorLeft" format="reference|color" />
     </declare-styleable>
 
 </resources>

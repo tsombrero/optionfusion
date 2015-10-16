@@ -9,9 +9,13 @@ import org.joda.time.LocalDate;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 public class Util {
 
@@ -91,4 +95,67 @@ public class Util {
     public static int getDaysFromNow(Date date) {
         return Days.daysBetween(new LocalDate(), new LocalDate(date.getTime())).getDays();
     }
+
+    public static String formatDollarsCompact(Double strike) {
+        return formatDollars(strike).replace(".00", "");
+    }
+
+    public static String formatDollarRange(double limitLo, double limitHi) {
+        if (limitHi == limitLo && (limitLo == Double.MAX_VALUE || limitLo == 0d))
+            return "None";
+
+        if (limitLo == 0d && limitHi == Double.MAX_VALUE)
+            return "All";
+
+        if (limitHi == Double.MAX_VALUE)
+            return Util.formatDollarsCompact(limitLo) + " or higher";
+
+        if (limitLo == 0d)
+            return "Lower than " + Util.formatDollarsCompact(limitHi);
+
+        return Util.formatDollarsCompact(limitLo) + " - " + Util.formatDollarsCompact(limitHi);
+    }
+
+    public static String formatDateRange(Date startDate, Date endDate) {
+        if (startDate == null && endDate == null) {
+            return "All";
+        }
+        if (startDate == null) {
+            return "Before " + getFormattedOptionDate(endDate);
+        }
+        if (endDate == null) {
+            return getFormattedOptionDate(startDate) + " or later";
+        }
+        return getFormattedOptionDate(startDate) + " - " + getFormattedOptionDate(endDate);
+    }
+
+    // sometimes there are too many strike prices, limit ticks
+    private static List<Double> limitStrikeTicks(List<Double> strikePrices) {
+        double targetTicks = 20;
+        if (strikePrices.size() <= targetTicks) {
+            return strikePrices;
+        }
+
+        double interval = (strikePrices.get(strikePrices.size() - 1) - strikePrices.get(0)) / targetTicks;
+
+        double intervals[] = new double[]{0.01d, 0.05d, 0.10d, .25d, 0.5d, 1d, 2d, 2.50d, 5d, 10d, 20d, 50d, 100d, 250d};
+
+        for (int i = 0; i < intervals.length; i++) {
+            if (intervals[i] > interval) {
+                interval = intervals[i - 1];
+                break;
+            }
+        }
+
+        double start = Math.round(strikePrices.get(0) * 100d) / 100d;
+
+        ArrayList<Double> ret = new ArrayList<>();
+
+        for (double strike = start; strike <= strikePrices.get(strikePrices.size() - 1); strike += interval) {
+            ret.add(strike);
+        }
+
+        return ret;
+    }
+
 }

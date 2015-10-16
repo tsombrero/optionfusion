@@ -1,6 +1,7 @@
 package com.mosoft.momomentum.ui.results;
 
 import android.app.Fragment;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -84,35 +85,44 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCh
 
     public void initView() {
 
-        OptionChain oc = optionChainProvider.get(symbol);
+        final OptionChain oc = optionChainProvider.get(symbol);
 
         symbolView.setText(symbol);
         priceView.setText(Util.formatDollars(oc.getLast()));
         equityDescription.setText(oc.getEquityDescription());
 
-        List<Spread> allSpreads = oc.getAllSpreads(filterSet);
+        new AsyncTask<Void, Void, List<Spread>>() {
+            @Override
+            protected void onPostExecute(List<Spread> spreads) {
+                if (resultsAdapter == null) {
+                    resultsAdapter = new ResultsAdapter(filterSet, spreads, getActivity(), ResultsFragment.this);
+                    recyclerView.setAdapter(resultsAdapter);
+                } else {
+                    resultsAdapter.update(filterSet, spreads);
+                }
+            }
 
-        Log.i(TAG, "Closest matches:");
+            @Override
+            protected List<Spread> doInBackground(Void... params) {
+                List<Spread> allSpreads = oc.getAllSpreads(filterSet);
 
-        if (allSpreads.isEmpty()) {
-            Toast.makeText(getActivity(), "Spreads List Empty", Toast.LENGTH_SHORT);
-            return;
-        }
+                Log.i(TAG, "Closest matches:");
 
-        Collections.sort(allSpreads, filterSet.getComparator());
+                if (allSpreads.isEmpty()) {
+                    Toast.makeText(getActivity(), "Spreads List Empty", Toast.LENGTH_SHORT);
+                    return allSpreads;
+                }
 
-        int spreadCount = Math.min(10, allSpreads.size());
+                Collections.sort(allSpreads, filterSet.getComparator());
 
-        for (Spread spread : allSpreads.subList(0, spreadCount)) {
-            Log.i(TAG, spread.toString() + "        " + spread.getBuy() + " / " + spread.getSell());
-        }
+                int spreadCount = Math.min(10, allSpreads.size());
 
-        if (resultsAdapter == null) {
-            resultsAdapter = new ResultsAdapter(filterSet, allSpreads.subList(0, spreadCount), getActivity(), this);
-            recyclerView.setAdapter(resultsAdapter);
-        } else {
-            resultsAdapter.update(filterSet, allSpreads.subList(0, spreadCount));
-        }
+                for (Spread spread : allSpreads.subList(0, spreadCount)) {
+                    Log.i(TAG, spread.toString() + "        " + spread.getBuy() + " / " + spread.getSell());
+                }
+                return allSpreads.subList(0, spreadCount);
+            }
+        }.execute();
     }
 
     @Override

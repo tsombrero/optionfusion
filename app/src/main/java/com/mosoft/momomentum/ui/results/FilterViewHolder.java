@@ -82,13 +82,24 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
     @Bind(R.id.sorting_edit_layout)
     ViewGroup editSortingLayout;
 
-    @Bind(R.id.sort_high_return)
-    TextView sortByRoi;
+    @Bind(R.id.strike_edit_bearish_text)
+    TextView textStrikeBearish;
 
-    @Bind(R.id.sort_low_risk)
-    TextView sortByRisk;
+    @Bind(R.id.strike_edit_bullish_text)
+    TextView textStrikeBullish;
+
+    @Bind(R.id.rangebar_expiration_text)
+    TextView textExpiration;
 
     private String symbol;
+
+    private int
+            indexBullStrikeLow,
+            indexBearStrikeLow,
+            indexDateRangeLo,
+            indexBullStrikeHi = Integer.MAX_VALUE,
+            indexBearStrikeHi = Integer.MAX_VALUE,
+            indexDateRangeHi = Integer.MAX_VALUE;
 
     public FilterViewHolder(View itemView, Activity activity, ResultsAdapter.FilterChangeListener changeListener) {
         super(itemView, activity, changeListener);
@@ -114,8 +125,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             newFilterView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    filterSet.removeFilter((Filter) v.getTag());
-                    filterChangeListener.onChange(filterSet);
+                    removeFilterMatching((Filter) v.getTag());
                 }
             });
         }
@@ -139,12 +149,11 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             return false;
 
         try {
-            filterSet.addFilter(new RoiFilter(Double.valueOf(view.getText().toString()) / 100d));
+            addFilter(new RoiFilter(Double.valueOf(view.getText().toString()) / 100d));
         } catch (Exception e) {
             Log.w("Can't add filter", e);
         }
         resetButtons(true);
-        filterChangeListener.onChange(filterSet);
         return true;
     }
 
@@ -168,34 +177,52 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             dateStr.add(Util.getFormattedOptionDate(date));
         }
 
+        indexDateRangeHi = Math.min(indexDateRangeHi, dates.size() - 1);
+
         rangeBarExpiration.setxValues(dateStr);
-        rangeBarExpiration.setRangePinsByIndices(0, dateStr.size() - 1);
+        rangeBarExpiration.setRangePinsByIndices(indexDateRangeLo, indexDateRangeHi);
 
-        rangeBarExpiration.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
-            @Override
-            public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
-                Date startDate = null;
-                if (leftPinIndex > 0)
-                    startDate = dates.get(leftPinIndex);
+        ExpirationRangeBarListener listener = new ExpirationRangeBarListener(dates);
+        rangeBarExpiration.setOnRangeBarChangeListener(listener);
+        listener.onRangeChangeListener(rangeBarExpiration, null, indexDateRangeLo, indexDateRangeHi);
 
-                Date endDate = null;
-                if (rightPinIndex < dates.size() - 1)
-                    endDate = dates.get(rightPinIndex);
+        showEditFilter(btnTime, editTimeLayout);
+    }
 
+    private class ExpirationRangeBarListener implements RangeBar.OnRangeBarChangeListener {
+        private final List<Date> dates;
+
+        ExpirationRangeBarListener(List<Date> dates) {
+            this.dates = dates;
+        }
+
+        @Override
+        public void onRangeChangeListener(RangeBar rangeBar, RangeBar.Action action, int leftPinIndex, int rightPinIndex) {
+            if (action == RangeBar.Action.DOWN) {
+                animateTextViewActive(textExpiration, true);
+                return;
+            }
+            Date startDate = null;
+            if (leftPinIndex > 0)
+                startDate = dates.get(leftPinIndex);
+
+            Date endDate = null;
+            if (rightPinIndex < dates.size() - 1)
+                endDate = dates.get(rightPinIndex);
+
+            textExpiration.setText(Util.formatDateRange(startDate, endDate));
+
+            if (action == RangeBar.Action.UP) {
+                animateTextViewActive(textExpiration, false);
                 if (startDate == null && endDate == null) {
-                    filterSet.removeFilterMatching(TimeFilter.EMPTY_FILTER);
-                    for (Filter filter : filterSet.getFilters()) {
-                        if (filter instanceof TimeFilter)
-                            filterSet.removeFilter(filter);
-                    }
+                    removeFilterMatching(TimeFilter.EMPTY_FILTER);
                 } else {
-                    filterSet.addFilter(new TimeFilter(startDate, endDate));
+                    addFilter(new TimeFilter(startDate, endDate));
                 }
                 filterChangeListener.onChange(filterSet);
             }
-        });
+        }
 
-        showEditFilter(btnTime, editTimeLayout);
     }
 
     @OnClick(R.id.btn_strike)
@@ -216,29 +243,31 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
         ArrayList<String> strikeStrings = new ArrayList<>();
         for (Double strike : strikes) {
-            strikeStrings.add(Util.formatDollars(strike));
+            strikeStrings.add(Util.formatDollarsCompact(strike));
         }
 
-        strikeStrings.set(0, "Any");
-        strikeStrings.set(strikes.size() - 1, "None");
         rangeBarStrikeBullish.setxValues(strikeStrings);
-
-        strikeStrings.set(0, "None");
-        strikeStrings.set(strikes.size() - 1, "Any");
         rangeBarStrikeBearish.setxValues(strikeStrings);
 
-        rangeBarStrikeBullish.setRangePinsByIndices(0, strikes.size() - 1);
-        rangeBarStrikeBearish.setRangePinsByIndices(0, strikes.size() - 1);
+        indexBearStrikeHi = Math.min(indexBearStrikeHi, strikes.size() - 1);
+        indexBullStrikeHi = Math.min(indexBullStrikeHi, strikes.size() - 1);
 
-        StrikeRangeChangeListener rangeBarListener = new StrikeRangeChangeListener(strikes, filterSet, filterChangeListener);
+        rangeBarStrikeBullish.setRangePinsByIndices(indexBullStrikeLow, indexBullStrikeHi);
+        rangeBarStrikeBearish.setRangePinsByIndices(indexBearStrikeLow, indexBearStrikeHi);
+
+        StrikeRangeChangeListener rangeBarListener = new StrikeRangeChangeListener(strikes);
         rangeBarStrikeBearish.setOnRangeBarChangeListener(rangeBarListener);
         rangeBarStrikeBullish.setOnRangeBarChangeListener(rangeBarListener);
+
+        rangeBarListener.onRangeChangeListener(rangeBarStrikeBearish, null, indexBearStrikeLow, indexBearStrikeHi);
+        rangeBarListener.onRangeChangeListener(rangeBarStrikeBullish, null, indexBullStrikeLow, indexBullStrikeHi);
 
         rangeBarStrikeBearish.setTag(StrikeFilter.Type.BEARISH);
         rangeBarStrikeBullish.setTag(StrikeFilter.Type.BULLISH);
 
         showEditFilter(btnStrike, editStrikeLayout);
     }
+
 
     @OnClick(R.id.btn_sort)
     public void onClickSortButton() {
@@ -264,36 +293,66 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         resetButtons(true);
     }
 
-    private static class StrikeRangeChangeListener implements RangeBar.OnRangeBarChangeListener {
+    private class StrikeRangeChangeListener implements RangeBar.OnRangeBarChangeListener {
 
         private final List<Double> strikes;
-        private final FilterSet filterSet;
-        private final ResultsAdapter.FilterChangeListener filterChangeListener;
 
-        public StrikeRangeChangeListener(List<Double> strikes, FilterSet filterSet, ResultsAdapter.FilterChangeListener filterChangeListener) {
+        public StrikeRangeChangeListener(List<Double> strikes) {
             this.strikes = strikes;
-            this.filterSet = filterSet;
-            this.filterChangeListener = filterChangeListener;
         }
 
         @Override
-        public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
+        public void onRangeChangeListener(RangeBar rangeBar, RangeBar.Action action, int leftPinIndex, int rightPinIndex) {
             StrikeFilter.Type type = (StrikeFilter.Type) rangeBar.getTag();
-            if (type == StrikeFilter.Type.BULLISH && leftPinIndex > 0) {
-                double limit = strikes.get(leftPinIndex);
-                if (leftPinIndex == strikes.size() - 1)
-                    limit = Double.MAX_VALUE;
-                filterSet.addFilter(new StrikeFilter(limit, StrikeFilter.Type.BULLISH));
-            } else if (type == StrikeFilter.Type.BEARISH && rightPinIndex < strikes.size() - 1) {
-                double limit = strikes.get(rightPinIndex);
-                if (rightPinIndex == 0)
-                    limit = 0;
-                filterSet.addFilter(new StrikeFilter(limit, StrikeFilter.Type.BEARISH));
-            } else {
-                filterSet.removeFilterMatching(new StrikeFilter(0, type));
+            TextView textView = type == StrikeFilter.Type.BULLISH ? textStrikeBullish : textStrikeBearish;
+
+            if (action == RangeBar.Action.DOWN) {
+                animateTextViewActive(textView, true);
+                return;
+            } else if (action == RangeBar.Action.UP) {
+                animateTextViewActive(textView, false);
             }
-            filterChangeListener.onChange(filterSet);
+
+            double limitLo;
+            double limitHi;
+
+            if (leftPinIndex == strikes.size() - 1)
+                limitLo = Double.MAX_VALUE;
+            else if (leftPinIndex == 0)
+                limitLo = 0d;
+            else
+                limitLo = strikes.get(leftPinIndex);
+
+            if (rightPinIndex == strikes.size() - 1)
+                limitHi = Double.MAX_VALUE;
+            else if (rightPinIndex == 0)
+                limitHi = 0d;
+            else
+                limitHi = strikes.get(rightPinIndex);
+
+            textView.setText(Util.formatDollarRange(limitLo, limitHi));
+
+            if (action == RangeBar.Action.UP) {
+                addFilter(new StrikeFilter(limitLo, limitHi, type));
+                if (type == StrikeFilter.Type.BULLISH) {
+                    indexBullStrikeLow = leftPinIndex;
+                    indexBullStrikeHi = rightPinIndex;
+                } else {
+                    indexBearStrikeLow = leftPinIndex;
+                    indexBearStrikeHi = rightPinIndex;
+                }
+            }
         }
+    }
+
+    private void addFilter(Filter filter) {
+        filterSet.addFilter(filter);
+        filterChangeListener.onChange(filterSet);
+    }
+
+    private void removeFilterMatching(Filter matchfilter) {
+        if (filterSet.removeFilterMatching(matchfilter))
+            filterChangeListener.onChange(filterSet);
     }
 
     private void resetButtons(boolean enabled) {
@@ -320,5 +379,14 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             filterLayout.setVisibility(View.VISIBLE);
             filterHintText.setVisibility(View.GONE);
         }
+    }
+
+    private void animateTextViewActive(TextView textView, boolean active) {
+        float targetScale = active ? 1.2f : 1f;
+
+        textView.animate()
+                .scaleX(targetScale).scaleY(targetScale)
+                .setDuration(100)
+                .start();
     }
 }

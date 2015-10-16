@@ -109,21 +109,25 @@ public class FilterSet implements Parcelable {
         return filters;
     }
 
-    public void removeFilter(Filter filter) {
-        filters.remove(filter);
+    public boolean removeFilter(Filter filter) {
+        return filters.remove(filter);
     }
 
     public boolean isEmpty() {
         return filters.isEmpty();
     }
 
-    public void removeFilterMatching(Filter match) {
+    public Filter getFilterMatching(Filter match) {
         for (Filter filter : filters) {
             if (match.shouldReplace(filter)) {
-                removeFilter(filter);
-                break;
+                return filter;
             }
         }
+        return null;
+    }
+
+    public boolean removeFilterMatching(Filter match) {
+        return removeFilter(getFilterMatching(match));
     }
 
     public void setComparator(Comparator<Spread> comparator) {

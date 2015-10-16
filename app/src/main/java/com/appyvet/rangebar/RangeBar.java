@@ -152,8 +152,6 @@ public class RangeBar extends View {
 
     private int mRightIndex;
 
-    private boolean mIsRangeBar = true;
-
     private float mPinPadding = DEFAULT_PIN_PADDING_DP;
 
     private float mBarPaddingBottom = DEFAULT_BAR_PADDING_BOTTOM_DP;
@@ -176,6 +174,8 @@ public class RangeBar extends View {
     private float mLastY;
     private ArrayList<String> xValues;
     private Endedness endedness;
+    private int barColorLeft;
+
 
     // Constructors ////////////////////////////////////////////////////////////
 
@@ -225,7 +225,6 @@ public class RangeBar extends View {
         bundle.putFloat("EXPANDED_PIN_RADIUS_DP", pinScaleDeselected);
         bundle.putFloat("PIN_PADDING", mPinPadding);
         bundle.putFloat("BAR_PADDING_BOTTOM", mBarPaddingBottom);
-        bundle.putBoolean("IS_RANGE_BAR", mIsRangeBar);
         bundle.putInt("LEFT_INDEX", mLeftIndex);
         bundle.putInt("RIGHT_INDEX", mRightIndex);
 
@@ -259,7 +258,6 @@ public class RangeBar extends View {
             pinScaleDeselected = bundle.getFloat("EXPANDED_PIN_RADIUS_DP");
             mPinPadding = bundle.getFloat("PIN_PADDING");
             mBarPaddingBottom = bundle.getFloat("BAR_PADDING_BOTTOM");
-            mIsRangeBar = bundle.getBoolean("IS_RANGE_BAR");
 
             mLeftIndex = bundle.getInt("LEFT_INDEX");
             mRightIndex = bundle.getInt("RIGHT_INDEX");
@@ -294,7 +292,7 @@ public class RangeBar extends View {
             width = mDefaultWidth;
         }
 
-        mDefaultHeight = (int) (mCircleSize + mPinHeightPx + (mPinHeightPx/2));
+        mDefaultHeight = (int) (mCircleSize + mPinHeightPx + (mPinHeightPx/2) + mBarPaddingBottom);
 
         // The RangeBar height should be as small as possible.
         if (measureHeightMode == MeasureSpec.AT_MOST) {
@@ -543,16 +541,6 @@ public class RangeBar extends View {
     public void setPinTextColor(int textColor) {
         mTextColor = textColor;
         createPins();
-    }
-
-    /**
-     * Set if the view is a range bar or a seek bar.
-     *
-     * @param isRangeBar Boolean - true sets it to rangebar, false to seekbar.
-     */
-    public void setRangeBarEnabled(boolean isRangeBar) {
-        mIsRangeBar = isRangeBar;
-        invalidate();
     }
 
     /**
@@ -883,8 +871,7 @@ public class RangeBar extends View {
             mBarPaddingBottom = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                     ta.getDimension(R.styleable.RangeBar_barPaddingBottom,
                             DEFAULT_BAR_PADDING_BOTTOM_DP), getResources().getDisplayMetrics());
-            mIsRangeBar = ta.getBoolean(R.styleable.RangeBar_rangeBar, true);
-
+            barColorLeft = ta.getColor(R.styleable.RangeBar_barColorLeft, mBarColor);
         } finally {
             ta.recycle();
         }
@@ -1127,6 +1114,10 @@ public class RangeBar extends View {
             if (mRightThumb != null) {
                 mRightThumb.setXValue(getPinValue(mRightIndex));
             }
+
+            if (mListener != null) {
+                mListener.onRangeChangeListener(this, Action.DRAG, mLeftIndex, mRightIndex);
+            }
         }
     }
 
@@ -1140,6 +1131,10 @@ public class RangeBar extends View {
 
         if (thumb == null)
             return;
+
+        if (mListener != null) {
+            mListener.onRangeChangeListener(this, Action.DOWN, mLeftIndex, mRightIndex);
+        }
 
         if (mFirstSetTickCount) {
             mFirstSetTickCount = false;
@@ -1171,9 +1166,7 @@ public class RangeBar extends View {
             return;
 
         if (mListener != null) {
-            mListener.onRangeChangeListener(this, mLeftIndex, mRightIndex,
-                    getPinValue(mLeftIndex),
-                    getPinValue(mRightIndex));
+            mListener.onRangeChangeListener(this, Action.UP, mLeftIndex, mRightIndex);
         }
 
         final float nearestTickX = mBar.getNearestTickCoordinate(thumb);
@@ -1232,15 +1225,15 @@ public class RangeBar extends View {
         mTickInterval = 1;
     }
 
-    // Inner Classes ///////////////////////////////////////////////////////////
 
+    public enum Action { DOWN, UP, DRAG }
     /**
      * A callback that notifies clients when the RangeBar has changed. The listener will only be
      * called when either thumb's index has changed - not for every movement of the thumb.
      */
     public interface OnRangeBarChangeListener {
 
-        void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex,
-                                   int rightPinIndex, String leftPinValue, String rightPinValue);
+        void onRangeChangeListener(RangeBar rangeBar, Action action, int leftPinIndex,
+                                   int rightPinIndex);
     }
 }
