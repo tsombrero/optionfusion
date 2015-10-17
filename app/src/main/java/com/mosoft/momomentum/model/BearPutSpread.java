@@ -1,9 +1,10 @@
 package com.mosoft.momomentum.model;
 
+import com.mosoft.momomentum.model.provider.Interfaces;
 import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 
 public class BearPutSpread extends Spread {
-    protected BearPutSpread(OptionChain.OptionQuote buy, OptionChain.OptionQuote sell, OptionChain.Data underlying) {
+    protected BearPutSpread(Interfaces.OptionQuote buy, Interfaces.OptionQuote sell, OptionChain underlying) {
         super(buy, sell, underlying);
     }
 

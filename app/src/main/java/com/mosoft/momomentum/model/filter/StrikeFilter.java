@@ -2,7 +2,8 @@ package com.mosoft.momomentum.model.filter;
 
 import android.os.Parcel;
 
-import com.appyvet.rangebar.RangeBar;
+import com.mosoft.momomentum.model.provider.Interfaces;
+import com.mosoft.momomentum.ui.widgets.rangebar.RangeBar;
 import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 import com.mosoft.momomentum.util.Util;
@@ -52,7 +53,7 @@ public class StrikeFilter extends Filter implements RangeBar.RangeBarDataProvide
     }
 
     @Override
-    public boolean pass(OptionChain.OptionQuote optionQuote) {
+    public boolean pass(Interfaces.OptionQuote optionQuote) {
         return pass(optionQuote.getAsk());
     }
 

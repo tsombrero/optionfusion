@@ -180,7 +180,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/expiration_filter_label" />
 
-            <com.appyvet.rangebar.RangeBar
+            <com.mosoft.momomentum.ui.widgets.rangebar.RangeBar
                 android:id="@+id/rangebar_expiration"
                 style="@style/rangebar"
                 android:layout_width="match_parent"
@@ -217,7 +217,7 @@
                 android:text="All"
                 />
 
-            <com.appyvet.rangebar.RangeBar
+            <com.mosoft.momomentum.ui.widgets.rangebar.RangeBar
                 android:id="@+id/strike_edit_bullish"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -246,7 +246,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/strike_edit_bearish_label" />
 
-            <com.appyvet.rangebar.RangeBar
+            <com.mosoft.momomentum.ui.widgets.rangebar.RangeBar
                 android:id="@+id/strike_edit_bearish"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

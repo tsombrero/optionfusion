@@ -11,7 +11,7 @@
  * governing permissions and limitations under the License. 
  */
 
-package com.appyvet.rangebar;
+package com.mosoft.momomentum.ui.widgets.rangebar;
 /*
  * Copyright 2015, Appyvet, Inc.
  *
@@ -41,7 +41,6 @@ import android.view.View;
 import com.mosoft.momomentum.R;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -52,7 +51,7 @@ import java.util.List;
  * the bar. When released, a RangeBar thumb will snap to the nearest tick mark. This version is
  * forked from edmodo range bar https://github.com/edmodo/range-bar.git
  * <p/>
- * Clients of the RangeBar can attach a {@link com.appyvet.rangebar.RangeBar.OnRangeBarChangeListener}
+ * Clients of the RangeBar can attach a {@link RangeBar.OnRangeBarChangeListener}
  * to be notified when the pins have been moved.
  */
 public class RangeBar extends View {

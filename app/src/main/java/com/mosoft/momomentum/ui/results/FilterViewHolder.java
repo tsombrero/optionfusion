@@ -9,7 +9,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.appyvet.rangebar.RangeBar;
+import com.mosoft.momomentum.ui.widgets.rangebar.RangeBar;
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.model.FilterSet;
@@ -240,7 +240,6 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
                 }
             }
         }
-
     }
 
     @OnClick(R.id.btn_strike)

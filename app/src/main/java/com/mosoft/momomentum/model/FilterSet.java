@@ -2,10 +2,9 @@ package com.mosoft.momomentum.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.view.ViewGroup;
-import android.widget.ImageButton;
 
 import com.mosoft.momomentum.model.filter.Filter;
+import com.mosoft.momomentum.model.provider.Interfaces;
 import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ public class FilterSet implements Parcelable {
         return true;
     }
 
-    public boolean pass(OptionChain.OptionQuote optionQuote) {
+    public boolean pass(Interfaces.OptionQuote optionQuote) {
         if (optionQuote == null)
             return false;
 
@@ -68,33 +67,6 @@ public class FilterSet implements Parcelable {
             return null;
 
         return filters.get(i);
-    }
-
-    // Parcelable
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeTypedList(filters);
-    }
-
-    // not needed unless we decide to do an array of filtersets
-    public static final Parcelable.Creator<FilterSet> CREATOR
-            = new Parcelable.Creator<FilterSet>() {
-        public FilterSet createFromParcel(Parcel in) {
-            return new FilterSet(in);
-        }
-
-        public FilterSet[] newArray(int size) {
-            return new FilterSet[size];
-        }
-    };
-
-    public FilterSet(Parcel in) {
-        filters = in.createTypedArrayList(Filter.CREATOR);
     }
 
     public void addFilter(Filter filter) {
@@ -147,5 +119,32 @@ public class FilterSet implements Parcelable {
 
     public void setActiveButton(int activeButton) {
         this.activeButton = activeButton;
+    }
+
+    // Parcelable
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeTypedList(filters);
+    }
+
+    // not needed unless we decide to do an array of filtersets
+    public static final Parcelable.Creator<FilterSet> CREATOR
+            = new Parcelable.Creator<FilterSet>() {
+        public FilterSet createFromParcel(Parcel in) {
+            return new FilterSet(in);
+        }
+
+        public FilterSet[] newArray(int size) {
+            return new FilterSet[size];
+        }
+    };
+
+    public FilterSet(Parcel in) {
+        filters = in.createTypedArrayList(Filter.CREATOR);
     }
 }

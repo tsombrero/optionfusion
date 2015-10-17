@@ -2,8 +2,10 @@ package com.mosoft.momomentum.model.provider.amtd;
 
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
 import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.Spread;
+import com.mosoft.momomentum.model.provider.Interfaces;
 
 import org.simpleframework.xml.Default;
 import org.simpleframework.xml.DefaultType;
@@ -14,7 +16,6 @@ import org.simpleframework.xml.Transient;
 import org.simpleframework.xml.core.Commit;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -22,7 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class OptionChain extends AmtdResponse {
+public class OptionChain extends AmtdResponse implements Interfaces.OptionChain {
 
     @Element(name = "option-chain-results", required = false)
     private Data data;
@@ -30,28 +31,39 @@ public class OptionChain extends AmtdResponse {
     private List<Date> expirationDates;
     private List<Double> strikePrices;
 
+    @Override
     public String getSymbol() {
         return data.symbol;
     }
 
+    @Override
     public double getLast() {
         return data.last;
     }
 
+    @Override
+    public double getAsk() { return data.ask; }
+
+    @Override
     public double getChange() {
         return data.change;
     }
 
-    public List<OptionDate> getChainsByDate() {
+    @Override
+    public List<Interfaces.OptionDate> getChainsByDate() {
         if (data == null)
             return Collections.EMPTY_LIST;
-        return data.optionDates;
+
+        List<Interfaces.OptionDate> ret = new ArrayList<>();
+        ret.addAll(data.optionDates);
+        return ret;
     }
 
+    @Override
     public synchronized List<Date> getExpirationDates() {
         if (expirationDates == null) {
             HashSet<Date> ret = new HashSet<>();
-            for (OptionDate optionDate : getChainsByDate()) {
+            for (Interfaces.OptionDate optionDate : getChainsByDate()) {
                 Date d = optionDate.getExpirationDate();
                 if (d != null)
                     ret.add(d);
@@ -63,6 +75,7 @@ public class OptionChain extends AmtdResponse {
         return expirationDates;
     }
 
+    @Override
     public synchronized List<Double> getStrikePrices() {
         if (strikePrices == null) {
             // grab the list of prices from the first four and the last one
@@ -79,14 +92,17 @@ public class OptionChain extends AmtdResponse {
         return strikePrices;
     }
 
-    public List<OptionQuote> getOptionCalls() {
-        return data.callQuotes;
+    @Override
+    public List<Interfaces.OptionQuote> getOptionCalls() {
+        return callQuotes;
     }
 
-    public List<OptionQuote> getOptionPuts() {
-        return data.putQuotes;
+    @Override
+    public List<Interfaces.OptionQuote> getOptionPuts() {
+        return putQuotes;
     }
 
+    @Override
     public List<Spread> getAllSpreads(FilterSet filterSet) {
         List<Spread> ret = new ArrayList<>();
         for (OptionDate optionDate : data.optionDates) {
@@ -103,18 +119,55 @@ public class OptionChain extends AmtdResponse {
         return "Chain: " + data.description + " (" + data.optionDates.size() + " dates x " + (data.optionDates.isEmpty() ? "0" : data.optionDates.get(0).optionStrikes.size()) + " strikes)";
     }
 
+    @Override
     public String getEquityDescription() {
         return data.description;
+    }
+
+    @Override
+    public String toJson(Gson gson) {
+        return gson.toJson(this);
+    }
+
+    @Override
+    public double getClose() {
+        return data.close;
+    }
+
+
+    transient List<Interfaces.OptionQuote> callQuotes = new ArrayList<>();
+    transient List<Interfaces.OptionQuote> putQuotes = new ArrayList<>();
+
+    @Commit
+    public void build() {
+        for (OptionDate optionDate : data.optionDates) {
+            optionDate.underlying = this;
+            for (OptionStrike strike : optionDate.optionStrikes) {
+                if (strike.put != null) {
+                    strike.put.underlyingSymbol = this;
+                    strike.put.optionDate = optionDate;
+                    strike.put.optionStrike = strike;
+                    strike.put.optionType = Interfaces.OptionType.BEAR_PUT;
+                    strike.put.standard = strike.isStandard();
+                    putQuotes.add(strike.put);
+                }
+                if (strike.call != null) {
+                    strike.call.underlyingSymbol = this;
+                    strike.call.optionDate = optionDate;
+                    strike.call.optionStrike = strike;
+                    strike.call.optionType = Interfaces.OptionType.BULL_CALL;
+                    strike.call.standard = strike.isStandard();
+                    callQuotes.add(strike.call);
+                }
+            }
+        }
     }
 
     // Deserialized:
 
     @Root
     @Default(value = DefaultType.FIELD, required = false)
-    public static class Data {
-        private Data() {
-        }
-
+    private static class Data {
         private String error;
         private String symbol;
         private String description;
@@ -126,70 +179,14 @@ public class OptionChain extends AmtdResponse {
 
         @ElementList(name = "option-date", inline = true)
         List<OptionDate> optionDates;
-
-        transient List<OptionQuote> callQuotes = new ArrayList<>();
-        transient List<OptionQuote> putQuotes = new ArrayList<>();
-
-        @Commit
-        public void build() {
-            for (OptionDate optionDate : optionDates) {
-                optionDate.underlying = this;
-                for (OptionStrike strike : optionDate.optionStrikes) {
-                    if (strike.put != null) {
-                        strike.put.underlyingSymbol = this;
-                        strike.put.optionDate = optionDate;
-                        strike.put.optionStrike = strike;
-                        strike.put.optionType = OptionType.BEAR_PUT;
-                        strike.put.standard = strike.isStandard();
-                        putQuotes.add(strike.put);
-                    }
-                    if (strike.call != null) {
-                        strike.call.underlyingSymbol = this;
-                        strike.call.optionDate = optionDate;
-                        strike.call.optionStrike = strike;
-                        strike.call.optionType = OptionType.BULL_CALL;
-                        strike.call.standard = strike.isStandard();
-                        callQuotes.add(strike.call);
-                    }
-                }
-            }
-        }
-
-        public double getAsk() {
-            if (ask == null)
-                return Double.MAX_VALUE;
-
-            return ask;
-        }
-
-        public double getBid() {
-            if (bid == null)
-                return 0d;
-
-            return bid;
-        }
-
-        public double getLast() {
-            if (last == null)
-                return 0d;
-
-            return last;
-        }
-
-        public String getSymbol() {
-            return symbol;
-        }
-
-        public Double getClose() {
-            return close;
-        }
     }
 
     @Root(name = "option-date")
     @Default(value = DefaultType.FIELD, required = false)
-    public static class OptionDate {
+    public static class OptionDate implements Interfaces.OptionDate {
         String date;
 
+        @Override
         public int getDaysToExpiration() {
             return daysToExpiration;
         }
@@ -201,8 +198,9 @@ public class OptionChain extends AmtdResponse {
         List<OptionStrike> optionStrikes;
 
         @Transient
-        transient Data underlying;
+        transient OptionChain underlying;
 
+        @Override
         public List<Spread> getAllSpreads(FilterSet filterSet) {
             List<Spread> ret = new ArrayList<>();
 
@@ -244,6 +242,7 @@ public class OptionChain extends AmtdResponse {
                 ret.add(spread);
         }
 
+        @Override
         public Date getExpirationDate() {
             for (OptionStrike strike : optionStrikes) {
                 if (strike.call != null)
@@ -259,6 +258,7 @@ public class OptionChain extends AmtdResponse {
             return String.format("expiration: %d days (%d strikes)", daysToExpiration, optionStrikes.size());
         }
 
+        @Override
         public List<Double> getStrikePrices() {
             List<Double> ret = new ArrayList<>();
             for (OptionStrike strike : optionStrikes) {
@@ -266,11 +266,21 @@ public class OptionChain extends AmtdResponse {
             }
             return ret;
         }
+
+        @Override
+        public String getJson(Gson gson) {
+            return gson.toJson(this);
+        }
+
+        @Override
+        public Interfaces.Provider getProvider() {
+            return Interfaces.Provider.AMERITRADE;
+        }
     }
 
     @Root(name = "option-strike")
     @Default(value = DefaultType.FIELD, required = false)
-    public static class OptionStrike {
+    public static class OptionStrike implements Interfaces.OptionStrike {
 
         @Element(name = "strike-price")
         private double strikePrice = Double.MAX_VALUE;
@@ -278,8 +288,21 @@ public class OptionChain extends AmtdResponse {
         @Element(name = "standard-option")
         private Boolean isStandard;
 
+        public OptionQuote getPut() {
+            return put;
+        }
+
+        public OptionQuote getCall() {
+            return call;
+        }
+
+        public double getStrikePrice() {
+            return strikePrice;
+        }
+
         private OptionQuote put, call;
 
+        @Override
         public boolean isStandard() {
             return isStandard;
         }
@@ -288,28 +311,22 @@ public class OptionChain extends AmtdResponse {
         public String toString() {
             return String.format("strike: $%.2f", strikePrice);
         }
-    }
 
-    public enum OptionType {
-        BEAR_PUT("BEAR PUT"),
-        BULL_CALL("BULL CALL"),
-        BEAR_CALL("BEAR CALL"),
-        BULL_PUT("BULL PUT");
-
-        private final String string;
-
-        OptionType(String string) {
-            this.string = string;
+        @Override
+        public String getJson(Gson gson) {
+            return gson.toJson(this);
         }
 
-        public String toString() {
-            return string;
+        @Override
+        public Interfaces.Provider getProvider() {
+            return Interfaces.Provider.AMERITRADE;
         }
+
     }
 
     @Root
     @Default(value = DefaultType.FIELD, required = false)
-    public static class OptionQuote {
+    public static class OptionQuote implements Interfaces.OptionQuote {
 
         // Serialized
 
@@ -336,31 +353,36 @@ public class OptionChain extends AmtdResponse {
         @Transient
         transient private OptionStrike optionStrike;
         @Transient
-        transient private Data underlyingSymbol;
+        transient private OptionChain underlyingSymbol;
         @Transient
         transient private OptionDate optionDate;
         @Transient
-        transient private OptionType optionType;
+        transient private Interfaces.OptionType optionType;
         private boolean standard;
 
         // Getters
 
+        @Override
         public String getOptionSymbol() {
             return optionSymbol;
         }
 
+        @Override
         public String getDescription() {
             return description;
         }
 
+        @Override
         public double getImpliedVolatility() {
             return impliedVolatility;
         }
 
+        @Override
         public double getTheoreticalValue() {
             return theoreticalValue;
         }
 
+        @Override
         public double getStrike() {
             if (optionStrike.strikePrice == Double.MAX_VALUE)
                 return 0d;
@@ -368,20 +390,24 @@ public class OptionChain extends AmtdResponse {
             return optionStrike.strikePrice;
         }
 
+        @Override
         public Double getUnderlyingSymbolAsk() {
-            return underlyingSymbol.ask;
+            return underlyingSymbol.getAsk();
         }
 
+        @Override
         public int getDaysUntilExpiration() {
             return optionDate.daysToExpiration;
         }
 
+        @Override
         public double getMultiplier() {
             if (multiplier == Double.MAX_VALUE)
                 return 0d;
             return multiplier;
         }
 
+        @Override
         public double getAsk() {
             if (ask == null)
                 return Double.MAX_VALUE;
@@ -389,6 +415,7 @@ public class OptionChain extends AmtdResponse {
             return ask;
         }
 
+        @Override
         public double getBid() {
             if (bid == null)
                 return 0d;
@@ -400,6 +427,7 @@ public class OptionChain extends AmtdResponse {
             return description + " (" + bid + "/" + ask + ") V" + impliedVolatility;
         }
 
+        @Override
         public int getBidSize() {
             if (TextUtils.isEmpty(bidAskSize) || !bidAskSize.contains("X"))
                 return 0;
@@ -411,6 +439,7 @@ public class OptionChain extends AmtdResponse {
             }
         }
 
+        @Override
         public int getAskSize() {
             if (TextUtils.isEmpty(bidAskSize) || !bidAskSize.contains("X"))
                 return 0;
@@ -422,18 +451,22 @@ public class OptionChain extends AmtdResponse {
             }
         }
 
+        @Override
         public boolean hasBid() {
             return bid != null && bid > 0d && getBidSize() > 0;
         }
 
+        @Override
         public boolean hasAsk() {
             return ask != null && ask > 0d && getAskSize() > 0 && ask < Double.MAX_VALUE;
         }
 
-        public OptionType getOptionType() {
+        @Override
+        public Interfaces.OptionType getOptionType() {
             return optionType;
         }
 
+        @Override
         public Date getExpiration() {
             int year = Integer.valueOf(optionDate.date.substring(0, 4));
             int month = Integer.valueOf(optionDate.date.substring(4, 6));
@@ -441,11 +474,20 @@ public class OptionChain extends AmtdResponse {
             return new GregorianCalendar(year, month, day).getTime();
         }
 
+        @Override
         public boolean isStandard() {
             return standard;
         }
+
+        @Override
+        public String toJson(Gson gson) {
+            return gson.toJson(this);
+        }
+
+        @Override
+        public Interfaces.Provider getProvider() {
+            return Interfaces.Provider.AMERITRADE;
+        }
+
     }
-
-
-
 }

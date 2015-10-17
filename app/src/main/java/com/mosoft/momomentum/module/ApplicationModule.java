@@ -3,6 +3,8 @@ package com.mosoft.momomentum.module;
 import android.app.Application;
 import android.content.Context;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.client.AmeritradeClient;
 import com.mosoft.momomentum.client.AmeritradeClientProvider;
@@ -50,4 +52,9 @@ public class ApplicationModule {
     }
 
 
+    @Provides
+    @Singleton
+    Gson provideGson() {
+        return new GsonBuilder().create();
+    }
 }

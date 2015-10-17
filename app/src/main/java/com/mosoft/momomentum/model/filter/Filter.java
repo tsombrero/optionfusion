@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.mosoft.momomentum.model.Spread;
+import com.mosoft.momomentum.model.provider.Interfaces;
 import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 
 abstract public class Filter implements Parcelable {
@@ -11,7 +12,7 @@ abstract public class Filter implements Parcelable {
 
     public abstract boolean pass(OptionChain.OptionDate optionDate);
 
-    public abstract boolean pass(OptionChain.OptionQuote optionQuote);
+    public abstract boolean pass(Interfaces.OptionQuote optionQuote);
 
     public abstract String getPillText();
 

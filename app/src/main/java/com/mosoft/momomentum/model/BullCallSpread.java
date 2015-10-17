@@ -1,9 +1,10 @@
 package com.mosoft.momomentum.model;
 
+import com.mosoft.momomentum.model.provider.Interfaces;
 import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 
 public class BullCallSpread extends Spread {
-    protected BullCallSpread(OptionChain.OptionQuote buy, OptionChain.OptionQuote sell, OptionChain.Data underlying) {
+    protected BullCallSpread(Interfaces.OptionQuote buy, Interfaces.OptionQuote sell, OptionChain underlying) {
         super(buy, sell, underlying);
     }
 

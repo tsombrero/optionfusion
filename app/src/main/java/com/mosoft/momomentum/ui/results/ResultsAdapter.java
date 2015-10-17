@@ -13,7 +13,7 @@ import com.mosoft.momomentum.model.Spread;
 import java.util.ArrayList;
 import java.util.List;
 
-class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseViewHolder> {
+public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseViewHolder> {
 
     private final Activity activity;
     List<ListItem> items;

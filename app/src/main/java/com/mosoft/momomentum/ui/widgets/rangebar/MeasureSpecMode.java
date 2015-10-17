@@ -11,7 +11,7 @@
  * governing permissions and limitations under the License.
  */
 
-package com.appyvet.rangebar;
+package com.mosoft.momomentum.ui.widgets.rangebar;
 
 import android.view.View;
 

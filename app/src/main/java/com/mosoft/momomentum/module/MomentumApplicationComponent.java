@@ -1,10 +1,12 @@
 package com.mosoft.momomentum.module;
 
 import com.mosoft.momomentum.cache.OptionChainProvider;
+import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.ui.LoginActivity;
 import com.mosoft.momomentum.ui.MainActivity;
 import com.mosoft.momomentum.ui.results.FilterViewHolder;
 import com.mosoft.momomentum.ui.results.ResultsFragment;
+import com.mosoft.momomentum.ui.tradedetails.TradeDetailsFragment;
 import com.mosoft.momomentum.ui.search.SearchFragment;
 
 import javax.inject.Singleton;
@@ -28,4 +30,10 @@ public interface MomentumApplicationComponent {
     void inject(OptionChainProvider optionChainProvider);
 
     void inject(FilterViewHolder filterViewHolder);
+
+    void inject(TradeDetailsFragment tradeDetailsFragment);
+
+    void inject(Spread spread);
+
+    void inject(Spread.SpreadCreator spreadCreator);
 }
