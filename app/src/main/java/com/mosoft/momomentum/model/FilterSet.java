@@ -2,6 +2,8 @@ package com.mosoft.momomentum.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import com.mosoft.momomentum.model.filter.Filter;
 import com.mosoft.momomentum.model.provider.amtd.OptionChain;
@@ -15,6 +17,7 @@ public class FilterSet implements Parcelable {
     List<Filter> filters = new ArrayList<>();
 
     Comparator<Spread> comparator = new Spread.DescendingBreakEvenDepthComparator();
+    private int activeButton;
 
     public FilterSet() {
     }
@@ -136,5 +139,13 @@ public class FilterSet implements Parcelable {
 
     public Comparator<Spread> getComparator() {
         return comparator;
+    }
+
+    public int getActiveButton() {
+        return activeButton;
+    }
+
+    public void setActiveButton(int activeButton) {
+        this.activeButton = activeButton;
     }
 }

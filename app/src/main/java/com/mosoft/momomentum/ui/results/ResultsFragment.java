@@ -111,6 +111,10 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCh
                 } else {
                     resultsAdapter.update(filterSet, spreads);
                 }
+
+                if (spreads.isEmpty()) {
+                    Toast.makeText(getActivity(), "No results", Toast.LENGTH_SHORT);
+                }
             }
 
             @Override
@@ -121,7 +125,6 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCh
                 Log.i(TAG, "Closest matches:");
 
                 if (allSpreads.isEmpty()) {
-                    Toast.makeText(getActivity(), "Spreads List Empty", Toast.LENGTH_SHORT);
                     return allSpreads;
                 }
 

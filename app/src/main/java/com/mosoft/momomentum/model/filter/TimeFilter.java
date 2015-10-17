@@ -2,13 +2,14 @@ package com.mosoft.momomentum.model.filter;
 
 import android.os.Parcel;
 
+import com.appyvet.rangebar.RangeBar;
 import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 import com.mosoft.momomentum.util.Util;
 
 import java.util.Date;
 
-public class TimeFilter extends Filter {
+public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider {
     private Date maxExpDate;
     private Date minExpDate;
 
@@ -87,5 +88,23 @@ public class TimeFilter extends Filter {
         dest.writeInt(FilterType.TIME.ordinal());
         dest.writeLong(minExpDate.getTime());
         dest.writeLong(maxExpDate.getTime());
+    }
+
+    public Date getMinExpDate() {
+        return minExpDate;
+    }
+
+    public Date getMaxExpDate() {
+        return maxExpDate;
+    }
+
+    @Override
+    public Object getLeftValue() {
+        return getMinExpDate();
+    }
+
+    @Override
+    public Object getRightValue() {
+        return getMaxExpDate();
     }
 }

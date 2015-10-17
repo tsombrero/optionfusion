@@ -37,6 +37,7 @@ import butterknife.OnEditorAction;
 
 public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
+    private static final String TAG = FilterViewHolder.class.getSimpleName();
     private final LayoutInflater inflater;
     private FilterSet filterSet;
 
@@ -93,22 +94,17 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     private String symbol;
 
-    private int
-            indexBullStrikeLow,
-            indexBearStrikeLow,
-            indexDateRangeLo,
-            indexBullStrikeHi = Integer.MAX_VALUE,
-            indexBearStrikeHi = Integer.MAX_VALUE,
-            indexDateRangeHi = Integer.MAX_VALUE;
-
     public FilterViewHolder(View itemView, Activity activity, ResultsAdapter.FilterChangeListener changeListener) {
         super(itemView, activity, changeListener);
         MomentumApplication.from(context).getComponent().inject(this);
         inflater = activity.getLayoutInflater();
         ButterKnife.bind(itemView);
+
+        Log.i(TAG, "TACO new FilterViewHolder");
     }
 
     public void bind(final ResultsAdapter.ListItem item) {
+        Log.i(TAG, "TACO bind FilterViewHolder");
         this.symbol = item.symbol;
         this.filterSet = item.filterSet;
         bindFilters();
@@ -131,6 +127,25 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         }
 
         filterHintText.setVisibility(filterSet.isEmpty() ? View.VISIBLE : View.GONE);
+
+        int activeButton = filterSet.getActiveButton();
+
+        resetButtons(true);
+
+        switch (activeButton) {
+            case R.id.btn_time:
+                onClickTimeFilter();
+                break;
+            case R.id.btn_strike:
+                onClickStrikeFilter();
+                break;
+            case R.id.btn_roi:
+                onClickRoiFilter();
+                break;
+            case R.id.btn_sort:
+                onClickSortButton();
+                break;
+        }
     }
 
     @OnClick(R.id.btn_roi)
@@ -177,14 +192,14 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             dateStr.add(Util.getFormattedOptionDate(date));
         }
 
-        indexDateRangeHi = Math.min(indexDateRangeHi, dates.size() - 1);
+        TimeFilter dateFilter = (TimeFilter) filterSet.getFilterMatching(TimeFilter.EMPTY_FILTER);
 
         rangeBarExpiration.setxValues(dateStr);
-        rangeBarExpiration.setRangePinsByIndices(indexDateRangeLo, indexDateRangeHi);
+        rangeBarExpiration.setRangePins(dates, dateFilter);
 
         ExpirationRangeBarListener listener = new ExpirationRangeBarListener(dates);
         rangeBarExpiration.setOnRangeBarChangeListener(listener);
-        listener.onRangeChangeListener(rangeBarExpiration, null, indexDateRangeLo, indexDateRangeHi);
+        listener.onRangeChangeListener(rangeBarExpiration, null);
 
         showEditFilter(btnTime, editTimeLayout);
     }
@@ -197,11 +212,15 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         }
 
         @Override
-        public void onRangeChangeListener(RangeBar rangeBar, RangeBar.Action action, int leftPinIndex, int rightPinIndex) {
+        public void onRangeChangeListener(RangeBar rangeBar, RangeBar.Action action) {
             if (action == RangeBar.Action.DOWN) {
                 animateTextViewActive(textExpiration, true);
                 return;
             }
+
+            int leftPinIndex = rangeBar.getLeftIndex();
+            int rightPinIndex = rangeBar.getRightIndex();
+
             Date startDate = null;
             if (leftPinIndex > 0)
                 startDate = dates.get(leftPinIndex);
@@ -211,9 +230,6 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
                 endDate = dates.get(rightPinIndex);
 
             textExpiration.setText(Util.formatDateRange(startDate, endDate));
-
-            indexDateRangeLo = leftPinIndex;
-            indexDateRangeHi = rightPinIndex;
 
             if (action == RangeBar.Action.UP) {
                 animateTextViewActive(textExpiration, false);
@@ -229,6 +245,8 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     @OnClick(R.id.btn_strike)
     public void onClickStrikeFilter() {
+        Log.i(TAG, "TACO onClickStrikeFilter");
+
         if (editStrikeLayout.getVisibility() == View.VISIBLE) {
             resetButtons(true);
             return;
@@ -251,18 +269,15 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         rangeBarStrikeBullish.setxValues(strikeStrings);
         rangeBarStrikeBearish.setxValues(strikeStrings);
 
-        indexBearStrikeHi = Math.min(indexBearStrikeHi, strikes.size() - 1);
-        indexBullStrikeHi = Math.min(indexBullStrikeHi, strikes.size() - 1);
-
-        rangeBarStrikeBullish.setRangePinsByIndices(indexBullStrikeLow, indexBullStrikeHi);
-        rangeBarStrikeBearish.setRangePinsByIndices(indexBearStrikeLow, indexBearStrikeHi);
+        rangeBarStrikeBullish.setRangePins(strikes, (RangeBar.RangeBarDataProvider) filterSet.getFilterMatching(StrikeFilter.EMPTY_BULLISH));
+        rangeBarStrikeBearish.setRangePins(strikes, (RangeBar.RangeBarDataProvider) filterSet.getFilterMatching(StrikeFilter.EMPTY_BEARISH));
 
         StrikeRangeChangeListener rangeBarListener = new StrikeRangeChangeListener(strikes);
         rangeBarStrikeBearish.setOnRangeBarChangeListener(rangeBarListener);
         rangeBarStrikeBullish.setOnRangeBarChangeListener(rangeBarListener);
 
-        rangeBarListener.onRangeChangeListener(rangeBarStrikeBearish, null, indexBearStrikeLow, indexBearStrikeHi);
-        rangeBarListener.onRangeChangeListener(rangeBarStrikeBullish, null, indexBullStrikeLow, indexBullStrikeHi);
+        rangeBarListener.onRangeChangeListener(rangeBarStrikeBearish, null);
+        rangeBarListener.onRangeChangeListener(rangeBarStrikeBullish, null);
 
         rangeBarStrikeBearish.setTag(StrikeFilter.Type.BEARISH);
         rangeBarStrikeBullish.setTag(StrikeFilter.Type.BULLISH);
@@ -304,7 +319,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         }
 
         @Override
-        public void onRangeChangeListener(RangeBar rangeBar, RangeBar.Action action, int leftPinIndex, int rightPinIndex) {
+        public void onRangeChangeListener(RangeBar rangeBar, RangeBar.Action action) {
             StrikeFilter.Type type = (StrikeFilter.Type) rangeBar.getTag();
             TextView textView = type == StrikeFilter.Type.BULLISH ? textStrikeBullish : textStrikeBearish;
 
@@ -317,6 +332,9 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
             double limitLo;
             double limitHi;
+
+            int leftPinIndex = rangeBar.getLeftIndex();
+            int rightPinIndex = rangeBar.getRightIndex();
 
             if (leftPinIndex == strikes.size() - 1)
                 limitLo = Double.MAX_VALUE;
@@ -335,14 +353,6 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             textView.setText(Util.formatDollarRange(limitLo, limitHi));
 
             if (action == RangeBar.Action.UP) {
-                if (type == StrikeFilter.Type.BULLISH) {
-                    indexBullStrikeLow = leftPinIndex;
-                    indexBullStrikeHi = rightPinIndex;
-                } else {
-                    indexBearStrikeLow = leftPinIndex;
-                    indexBearStrikeHi = rightPinIndex;
-                }
-
                 Filter filter = new StrikeFilter(limitLo, limitHi, type);
 
                 if (limitLo == 0d && limitHi == Double.MAX_VALUE)
@@ -365,6 +375,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
     }
 
     private void resetButtons(boolean enabled) {
+        Log.i(TAG, "TACO resetButtons");
         for (ImageButton btn : new ImageButton[]{btnSorting, btnRoi, btnStrike, btnTime}) {
             btn.setEnabled(enabled);
             btn.setSelected(false);
@@ -373,6 +384,9 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         for (ViewGroup viewGroup : new ViewGroup[]{editRoiLayout, editTimeLayout, editStrikeLayout, editSortingLayout}) {
             viewGroup.setVisibility(View.GONE);
         }
+
+        filterSet.setActiveButton(0);
+
         filterHintText.setVisibility(filterSet.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
@@ -387,6 +401,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         if (filterLayout != null) {
             filterLayout.setVisibility(View.VISIBLE);
             filterHintText.setVisibility(View.GONE);
+            filterSet.setActiveButton(filterButton.getId());
         }
     }
 
@@ -396,7 +411,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         textView.animate()
                 .scaleX(targetScale).scaleY(targetScale)
                 .setDuration(100)
-                .translationY((1f - targetScale) * (float)textView.getHeight())
+                .translationY((1f - targetScale) * (float) textView.getHeight())
                 .start();
     }
 }

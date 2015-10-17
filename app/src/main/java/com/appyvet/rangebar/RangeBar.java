@@ -41,7 +41,9 @@ import android.view.View;
 import com.mosoft.momomentum.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * The MaterialRangeBar is a single or double-sided version of a {@link android.widget.SeekBar} with
@@ -172,7 +174,7 @@ public class RangeBar extends View {
     private float mLastX;
 
     private float mLastY;
-    private ArrayList<String> xValues;
+    private ArrayList<String> xValues = new ArrayList<>();
     private Endedness endedness;
     private int barColorLeft;
 
@@ -657,6 +659,28 @@ public class RangeBar extends View {
         requestLayout();
     }
 
+    public void setRangePinsByListIndexes(List list, Object left, Object right) {
+        int leftIndex = list.indexOf(left);
+        int rightIndex = list.indexOf(right);
+
+        if (leftIndex < 0)
+            leftIndex = 0;
+
+        if (rightIndex < 0)
+            rightIndex = list.size() - 1;
+
+        setRangePinsByIndices(leftIndex, rightIndex);
+    }
+
+    public void setRangePins(List list, RangeBarDataProvider rangeBarDataProvider) {
+        if (rangeBarDataProvider == null)
+            setRangePinsByIndices(0, list.size() - 1);
+        else
+            setRangePinsByListIndexes(list,
+                    rangeBarDataProvider.getLeftValue(),
+                    rangeBarDataProvider.getRightValue());
+    }
+
     /**
      * Sets the location of pin according by the supplied index. Numbered from 0 to mTickCount - 1
      * from the left.
@@ -1117,7 +1141,7 @@ public class RangeBar extends View {
             }
 
             if (mListener != null) {
-                mListener.onRangeChangeListener(this, Action.DRAG, mLeftIndex, mRightIndex);
+                mListener.onRangeChangeListener(this, Action.DRAG);
             }
         }
     }
@@ -1134,7 +1158,7 @@ public class RangeBar extends View {
             return;
 
         if (mListener != null) {
-            mListener.onRangeChangeListener(this, Action.DOWN, mLeftIndex, mRightIndex);
+            mListener.onRangeChangeListener(this, Action.DOWN);
         }
 
         if (mFirstSetTickCount) {
@@ -1167,7 +1191,7 @@ public class RangeBar extends View {
             return;
 
         if (mListener != null) {
-            mListener.onRangeChangeListener(this, Action.UP, mLeftIndex, mRightIndex);
+            mListener.onRangeChangeListener(this, Action.UP);
         }
 
         final float nearestTickX = mBar.getNearestTickCoordinate(thumb);
@@ -1195,6 +1219,9 @@ public class RangeBar extends View {
      * @param tickIndex the index to set the value for
      */
     private String getPinValue(int tickIndex) {
+        if (tickIndex < 0 || tickIndex >= xValues.size())
+            return null;
+
         return xValues.get(tickIndex);
     }
 
@@ -1235,7 +1262,12 @@ public class RangeBar extends View {
      */
     public interface OnRangeBarChangeListener {
 
-        void onRangeChangeListener(RangeBar rangeBar, Action action, int leftPinIndex,
-                                   int rightPinIndex);
+        void onRangeChangeListener(RangeBar rangeBar, Action action);
+    }
+
+    public interface RangeBarDataProvider {
+        public Object getLeftValue();
+
+        public Object getRightValue();
     }
 }

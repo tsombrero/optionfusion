@@ -2,17 +2,26 @@ package com.mosoft.momomentum.model.filter;
 
 import android.os.Parcel;
 
+import com.appyvet.rangebar.RangeBar;
 import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 import com.mosoft.momomentum.util.Util;
 
-public class StrikeFilter extends Filter {
+public class StrikeFilter extends Filter implements RangeBar.RangeBarDataProvider {
 
     private final double limitLo;
     private final double limitHi;
 
     public static final StrikeFilter EMPTY_BULLISH = new StrikeFilter(0, Double.MAX_VALUE, Type.BULLISH);
     public static final StrikeFilter EMPTY_BEARISH = new StrikeFilter(0, Double.MAX_VALUE, Type.BEARISH);
+
+    public Double getMinValue() {
+        return limitLo;
+    }
+
+    public Double getMaxValue() {
+        return limitHi;
+    }
 
     public enum Type {BULLISH, BEARISH}
 
@@ -78,6 +87,17 @@ public class StrikeFilter extends Filter {
         dest.writeInt(type.ordinal());
         dest.writeDouble(limitLo);
         dest.writeDouble(limitHi);
+    }
+
+
+    @Override
+    public Object getLeftValue() {
+        return getMinValue();
+    }
+
+    @Override
+    public Object getRightValue() {
+        return getMaxValue();
     }
 
 
