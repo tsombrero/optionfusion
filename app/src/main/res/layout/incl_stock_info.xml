@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/stockInfo"
+    android:paddingTop="@dimen/actionbar_padding_vertical"
+    android:paddingBottom="@dimen/actionbar_padding_vertical"
+    android:paddingLeft="@dimen/actionbar_padding_horizontal"
+    android:paddingRight="@dimen/actionbar_padding_horizontal"
+    android:background="@color/header_inverse"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:elevation="@dimen/actionbar_elevation"
+    tools:showIn="@layout/fragment_results">
+
+    <TextView
+        android:id="@+id/symbol"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        style="@style/Largest.Inverse"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        />
+
+    <TextView
+        android:id="@+id/price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        style="@style/Largest.Inverse"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        />
+
+    <TextView
+        android:id="@+id/equityDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/SmallSubhead.Inverse"
+        android:gravity="start"
+        android:layout_marginTop="-8dp"
+        android:layout_below="@id/symbol"
+        android:layout_alignParentStart="true"
+        />
+</RelativeLayout>

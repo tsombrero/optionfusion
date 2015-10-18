@@ -147,7 +147,7 @@ public class OptionChain extends AmtdResponse implements Interfaces.OptionChain 
                     strike.put.underlyingSymbol = this;
                     strike.put.optionDate = optionDate;
                     strike.put.optionStrike = strike;
-                    strike.put.optionType = Interfaces.OptionType.BEAR_PUT;
+                    strike.put.optionType = Interfaces.OptionType.PUT;
                     strike.put.standard = strike.isStandard();
                     putQuotes.add(strike.put);
                 }
@@ -155,7 +155,7 @@ public class OptionChain extends AmtdResponse implements Interfaces.OptionChain 
                     strike.call.underlyingSymbol = this;
                     strike.call.optionDate = optionDate;
                     strike.call.optionStrike = strike;
-                    strike.call.optionType = Interfaces.OptionType.BULL_CALL;
+                    strike.call.optionType = Interfaces.OptionType.CALL;
                     strike.call.standard = strike.isStandard();
                     callQuotes.add(strike.call);
                 }
@@ -424,7 +424,7 @@ public class OptionChain extends AmtdResponse implements Interfaces.OptionChain 
         }
 
         public String toString() {
-            return description + " (" + bid + "/" + ask + ") V" + impliedVolatility;
+            return description + " bid/ask: " + bid + "/" + ask ;
         }
 
         @Override

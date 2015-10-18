@@ -10,20 +10,8 @@ import java.util.List;
 public class Interfaces {
 
     public enum OptionType {
-        BEAR_PUT("BEAR PUT"),
-        BULL_CALL("BULL CALL"),
-        BEAR_CALL("BEAR CALL"),
-        BULL_PUT("BULL PUT");
-
-        private final String string;
-
-        OptionType(String string) {
-            this.string = string;
-        }
-
-        public String toString() {
-            return string;
-        }
+        PUT,
+        CALL;
     }
 
     public enum Provider {

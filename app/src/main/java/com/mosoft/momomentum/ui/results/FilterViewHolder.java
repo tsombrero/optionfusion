@@ -94,17 +94,14 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     private String symbol;
 
-    public FilterViewHolder(View itemView, Activity activity, ResultsAdapter.FilterChangeListener changeListener) {
+    public FilterViewHolder(View itemView, Activity activity, ResultsAdapter.ResultsListener changeListener) {
         super(itemView, activity, changeListener);
         MomentumApplication.from(context).getComponent().inject(this);
         inflater = activity.getLayoutInflater();
         ButterKnife.bind(itemView);
-
-        Log.i(TAG, "TACO new FilterViewHolder");
     }
 
     public void bind(final ResultsAdapter.ListItem item) {
-        Log.i(TAG, "TACO bind FilterViewHolder");
         this.symbol = item.symbol;
         this.filterSet = item.filterSet;
         bindFilters();
@@ -298,14 +295,14 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
     @OnClick(R.id.sort_low_risk)
     public void onClickSortByRisk() {
         filterSet.setComparator(new Spread.DescendingBreakEvenDepthComparator());
-        filterChangeListener.onChange(filterSet);
+        resultsListener.onChange(filterSet);
         resetButtons(true);
     }
 
     @OnClick(R.id.sort_high_return)
     public void onClickSortHighReturn() {
         filterSet.setComparator(new Spread.DescendingMaxReturnComparator());
-        filterChangeListener.onChange(filterSet);
+        resultsListener.onChange(filterSet);
         resetButtons(true);
     }
 
@@ -365,16 +362,15 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     private void addFilter(Filter filter) {
         filterSet.addFilter(filter);
-        filterChangeListener.onChange(filterSet);
+        resultsListener.onChange(filterSet);
     }
 
     private void removeFilterMatching(Filter matchfilter) {
         if (filterSet.removeFilterMatching(matchfilter))
-            filterChangeListener.onChange(filterSet);
+            resultsListener.onChange(filterSet);
     }
 
     private void resetButtons(boolean enabled) {
-        Log.i(TAG, "TACO resetButtons");
         for (ImageButton btn : new ImageButton[]{btnSorting, btnRoi, btnStrike, btnTime}) {
             btn.setEnabled(enabled);
             btn.setSelected(false);

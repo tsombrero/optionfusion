@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mosoft.momomentum.R;
@@ -18,7 +17,7 @@ import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
-import com.mosoft.momomentum.util.Util;
+import com.mosoft.momomentum.ui.SharedViewHolders;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,22 +29,13 @@ import butterknife.ButterKnife;
 
 import static com.mosoft.momomentum.util.Util.TAG;
 
-public class ResultsFragment extends Fragment implements ResultsAdapter.FilterChangeListener {
+public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsListener {
 
     @Bind(R.id.list)
     protected RecyclerView recyclerView;
 
-    @Bind(R.id.symbol)
-    protected TextView symbolView;
-
-    @Bind(R.id.price)
-    protected TextView priceView;
-
     @Bind(R.id.stockInfo)
-    protected ViewGroup stockInfo;
-
-    @Bind(R.id.equityDescription)
-    protected TextView equityDescription;
+    protected ViewGroup stockInfoLayout;
 
     @Inject
     OptionChainProvider optionChainProvider;
@@ -83,20 +73,23 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCh
         initView();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        resultsAdapter = null;
+    }
+
     public void initView() {
 
         final OptionChain oc = optionChainProvider.get(symbol);
 
-        symbolView.setText(symbol);
-        priceView.setText(Util.formatDollars(oc.getLast()));
-        equityDescription.setText(oc.getEquityDescription());
+        new SharedViewHolders.StockInfoHolder(stockInfoLayout).bind(oc);
 
         onChange(filterSet);
     }
 
     @Override
     public void onChange(final FilterSet filterSet) {
-        Log.i(TAG, "TACO onChange filter");
         this.filterSet = filterSet;
 
         new AsyncTask<Void, Void, List<Spread>>() {
@@ -138,5 +131,14 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.FilterCh
                 return allSpreads.subList(0, spreadCount);
             }
         }.execute();
+    }
+
+    @Override
+    public void onResultSelected(Spread spread, View headerLayout, View briefDetailsLayout) {
+        ((Host)getActivity()).showDetails(spread, this, headerLayout, briefDetailsLayout, stockInfoLayout);
+    }
+
+    public interface Host {
+        void showDetails(Spread spread, Fragment requestingFragment, View detailsLayout, View headerLayout, View stockInfoLayout);
     }
 }

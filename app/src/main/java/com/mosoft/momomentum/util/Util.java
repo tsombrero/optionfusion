@@ -112,10 +112,10 @@ public class Util {
             limitHi = Math.round(limitHi);
 
         if (limitHi == Double.MAX_VALUE)
-            return Util.formatDollarsCompact(limitLo) + " or higher";
+            return "Above " + Util.formatDollarsCompact(limitLo);
 
         if (limitLo == 0d)
-            return "Lower than " + Util.formatDollarsCompact(limitHi);
+            return "Below " + Util.formatDollarsCompact(limitHi);
 
         return Util.formatDollarsCompact(limitLo) + " - " + Util.formatDollarsCompact(limitHi);
     }
@@ -128,7 +128,7 @@ public class Util {
             return "Before " + getFormattedOptionDate(endDate);
         }
         if (endDate == null) {
-            return getFormattedOptionDate(startDate) + " or later";
+            return "After " + getFormattedOptionDate(startDate);
         }
         return getFormattedOptionDate(startDate) + " - " + getFormattedOptionDate(endDate);
     }
@@ -161,5 +161,7 @@ public class Util {
 
         return ret;
     }
+
+
 
 }

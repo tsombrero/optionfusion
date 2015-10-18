@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/details_brief"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:showIn="@layout/item_spread_details">
+
+    <TextView
+        android:id="@+id/summary"
+        style="@style/DetailsValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
+        />
+
+    <TextView
+        android:id="@+id/title_daysToExp"
+        style="@style/DetailsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/summary"
+        android:text="@string/timeToExp"
+        />
+
+    <TextView
+        android:id="@+id/title_askPrice"
+        style="@style/DetailsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_daysToExp"
+        android:text="@string/spreadAsk"
+        />
+
+    <TextView
+        android:id="@+id/title_maxReturn"
+        style="@style/DetailsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_askPrice"
+        android:text="@string/maxReturn"
+        />
+
+    <TextView
+        android:id="@+id/title_breakEvenPrice"
+        style="@style/DetailsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_maxReturn"
+        android:text="@string/formatPriceAtBreakEven"
+        />
+
+    <TextView
+        android:id="@+id/askPrice"
+        style="@style/DetailsValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/title_askPrice"
+        android:layout_alignParentEnd="true"
+        android:text="$10.44"
+        />
+
+    <TextView
+        android:id="@+id/maxReturn"
+        style="@style/DetailsValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/title_maxReturn"
+        android:layout_alignParentEnd="true"
+        android:text="$123.32"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
+    <TextView
+        android:id="@+id/daysToExp"
+        style="@style/DetailsValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/title_daysToExp"
+        android:layout_alignParentEnd="true"
+        android:text="10 days"
+        />
+
+    <TextView
+        android:id="@+id/breakEvenPrice"
+        style="@style/DetailsValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/title_breakEvenPrice"
+        android:layout_alignParentEnd="true"
+        android:text="$123.32"
+        />
+
+</RelativeLayout>
+
+

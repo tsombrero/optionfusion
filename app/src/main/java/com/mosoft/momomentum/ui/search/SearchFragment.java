@@ -65,7 +65,7 @@ public class SearchFragment extends Fragment {
             @Override
             public void call(OptionChain optionChain) {
                 if (optionChain != null)
-                    ((FragmentHost) getActivity()).openResultsFragment(optionChain);
+                    ((Host) getActivity()).openResultsFragment(optionChain);
 
                 progress.setVisibility(View.GONE);
             }
@@ -77,7 +77,7 @@ public class SearchFragment extends Fragment {
         return new SearchFragment();
     }
 
-    public interface FragmentHost {
+    public interface Host {
         void openResultsFragment(OptionChain optionChain);
     }
 }

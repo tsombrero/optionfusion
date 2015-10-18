@@ -2,8 +2,6 @@ package com.mosoft.momomentum.ui.tradedetails;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,11 +9,10 @@ import android.widget.TextView;
 
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.cache.OptionChainProvider;
-import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
-import com.mosoft.momomentum.util.Util;
+import com.mosoft.momomentum.ui.SharedViewHolders;
 
 import javax.inject.Inject;
 
@@ -24,26 +21,25 @@ import butterknife.ButterKnife;
 
 public class TradeDetailsFragment extends Fragment {
 
-    @Bind(R.id.list)
-    protected RecyclerView recyclerView;
-
-    @Bind(R.id.symbol)
-    protected TextView symbolView;
-
-    @Bind(R.id.price)
-    protected TextView priceView;
-
     @Bind(R.id.stockInfo)
     protected ViewGroup stockInfo;
 
-    @Bind(R.id.equityDescription)
-    protected TextView equityDescription;
+    @Bind(R.id.details_brief)
+    protected ViewGroup briefDetailsLayout;
+
+    @Bind(R.id.header)
+    protected ViewGroup spreadHeaderLayout;
+
+    @Bind(R.id.detail_sell)
+    protected TextView textViewSell;
+
+    @Bind(R.id.detail_buy)
+    protected TextView textViewBuy;
 
     @Inject
     OptionChainProvider optionChainProvider;
 
-    FilterSet filterSet = new FilterSet();
-    String symbol;
+    Spread spread;
 
     private static final String ARG_TRADE = "trade";
 
@@ -59,10 +55,8 @@ public class TradeDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         MomentumApplication.from(getActivity()).getComponent().inject(this);
-        View ret = inflater.inflate(R.layout.fragment_results, container, false);
+        View ret = inflater.inflate(R.layout.fragment_trade_details, container, false);
         ButterKnife.bind(this, ret);
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
 
         return ret;
     }
@@ -70,16 +64,21 @@ public class TradeDetailsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        symbol = getArguments().getString(ARG_TRADE);
+        spread = getArguments().getParcelable(ARG_TRADE);
         initView();
     }
 
     public void initView() {
+        final OptionChain oc = optionChainProvider.get(spread.getUnderlyingSymbol());
 
-        final OptionChain oc = optionChainProvider.get(symbol);
+        new SharedViewHolders.StockInfoHolder(stockInfo).bind(oc);
+        new SharedViewHolders.BriefTradeDetailsHolder(briefDetailsLayout).bind(spread);
+        new SharedViewHolders.TradeDetailsHeaderHolder(spreadHeaderLayout).bind(spread);
 
-        symbolView.setText(symbol);
-        priceView.setText(Util.formatDollars(oc.getLast()));
-        equityDescription.setText(oc.getEquityDescription());
+        spreadHeaderLayout.setElevation(stockInfo.getElevation());
+        spreadHeaderLayout.findViewById(R.id.item_menu).setVisibility(View.GONE);
+
+        textViewBuy.setText("BUY one of: " + spread.getBuy());
+        textViewSell.setText("SELL one of: " + spread.getSell());
     }
 }

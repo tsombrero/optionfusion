@@ -1,0 +1,140 @@
+package com.mosoft.momomentum.ui;
+
+import android.content.Context;
+import android.content.res.Resources;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.mosoft.momomentum.R;
+import com.mosoft.momomentum.model.Spread;
+import com.mosoft.momomentum.model.provider.Interfaces;
+import com.mosoft.momomentum.util.Util;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
+public class SharedViewHolders {
+
+    public static class StockInfoHolder {
+
+        private final View view;
+        @Bind(R.id.symbol)
+        TextView symbolView;
+
+        @Bind(R.id.price)
+        TextView priceView;
+
+        @Bind(R.id.equityDescription)
+        TextView equityDescriptionView;
+
+        public StockInfoHolder(View view) {
+            this.view = view;
+            ButterKnife.bind(this, view);
+        }
+
+        public void bind(Interfaces.OptionChain oc) {
+            symbolView.setText(oc.getSymbol());
+            priceView.setText(Util.formatDollars(oc.getLast()));
+            equityDescriptionView.setText(oc.getEquityDescription());
+            view.setTransitionName(getTransitionName(oc.getSymbol()));
+        }
+
+        static public String getTransitionName(String symbol) {
+            return "stockinfo_" + symbol;
+        }
+    }
+
+    public static class TradeDetailsHeaderHolder {
+        private final Context context;
+
+        @Bind(R.id.header)
+        View header;
+
+        @Bind(R.id.trade_description)
+        TextView description;
+
+        public TradeDetailsHeaderHolder(View view) {
+            this.context = view.getContext();
+            ButterKnife.bind(this, view);
+        }
+
+        public void bind(Spread spread) {
+
+            Resources resources = context.getResources();
+
+            int color = spread.isBullSpread()
+                    ? resources.getColor(R.color.bull_spread_background)
+                    : resources.getColor(R.color.bear_spread_background);
+
+            header.setBackgroundColor(color);
+
+            description.setText(String.format("%s %.2f/%.2f", spread.getSpreadType().toString(), spread.getBuy().getStrike(), spread.getSell().getStrike()));
+
+            header.setTransitionName(getTransitionName(spread));
+        }
+
+        static public String getTransitionName(Spread spread) {
+            return "header_" + spread.toString();
+        }
+    }
+
+    public static class BriefTradeDetailsHolder {
+
+        private final Context context;
+
+        @Bind(R.id.askPrice)
+        TextView askPrice;
+
+        @Bind(R.id.breakEvenPrice)
+        TextView breakEvenPrice;
+
+        @Bind(R.id.daysToExp)
+        TextView daysToExp;
+
+        @Bind(R.id.maxReturn)
+        TextView maxReturn;
+
+        @Bind(R.id.summary)
+        TextView summary;
+
+        @Bind(R.id.details_brief)
+        ViewGroup layout;
+
+        public BriefTradeDetailsHolder(View view) {
+            this.context = view.getContext();
+            ButterKnife.bind(this, view);
+        }
+
+        public void bind(Spread spread) {
+            summary.setText(String.format("Returns %s if %s is %s %s from the current price",
+                    Util.formatPercentCompact(spread.getMaxPercentProfitAtExpiration()),    // Returns %s
+                    spread.getUnderlyingSymbol(),                                           // if %symbol
+                    spread.isBullSpread()                                                   // "down less than" "up at least" "up less than" "down at least"
+                            ? (spread.isInTheMoney_MaxReturn() ? "down less than" : "up at least")
+                            : (spread.isInTheMoney_MaxReturn() ? "up less than" : "down at least"),
+                    Util.formatPercentCompact(Math.abs(spread.getPercentChange_MaxProfit()))    // some percent
+            ));
+
+            askPrice.setText(Util.formatDollars(spread.getAsk()));
+            breakEvenPrice.setText(Util.formatDollars(spread.getPrice_BreakEven()));
+            daysToExp.setText(Util.getFormattedOptionDate(spread.getExpiresDate()) + " / " + String.valueOf(spread.getDaysToExpiration()) + " days");
+            maxReturn.setText(Util.formatDollars(spread.getMaxProfitAtExpiration()) + " / " + Util.formatPercentCompact(spread.getMaxReturnAnnualized()) + " yr");
+
+            Resources resources = context.getResources();
+
+            int color = spread.isInTheMoney_BreakEven()
+                    ? resources.getColor(R.color.primary_text)
+                    : resources.getColor(R.color.material_red_900);
+
+            breakEvenPrice.setTextColor(color);
+
+            layout.setTransitionName(getTransitionName(spread));
+        }
+
+        static public String getTransitionName(Spread spread) {
+            return "details_" + spread;
+        }
+    }
+
+}

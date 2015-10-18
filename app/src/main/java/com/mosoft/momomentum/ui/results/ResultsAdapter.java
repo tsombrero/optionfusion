@@ -17,11 +17,11 @@ public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseVie
 
     private final Activity activity;
     List<ListItem> items;
-    private final FilterChangeListener filterChangeListener;
+    private final ResultsListener resultsListener;
 
-    public ResultsAdapter(FilterSet filterSet, List<Spread> spreads, Activity activity, FilterChangeListener filterChangeListener) {
+    public ResultsAdapter(FilterSet filterSet, List<Spread> spreads, Activity activity, ResultsListener resultsListener) {
         this.activity = activity;
-        this.filterChangeListener = filterChangeListener;
+        this.resultsListener = resultsListener;
 
         update(filterSet, spreads);
     }
@@ -51,9 +51,9 @@ public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseVie
             case LABEL:
                 return new ListViewHolders.LabelViewHolder(itemView);
             case FILTER_SET:
-                return new FilterViewHolder(itemView, activity, filterChangeListener);
+                return new FilterViewHolder(itemView, activity, resultsListener);
             case SPREAD_DETAILS:
-                return new ListViewHolders.SpreadViewHolder(itemView, activity);
+                return new ListViewHolders.SpreadViewHolder(itemView, activity, resultsListener);
         }
         return null;
     }
@@ -73,7 +73,7 @@ public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseVie
         return items.size();
     }
 
-    static class ListItem {
+    public static class ListItem {
         String symbol;
         Spread spread;
         ListViewHolders.ViewType viewType;
@@ -81,7 +81,7 @@ public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseVie
         int layout;
         String labelText;
 
-        ListItem(Spread spread) {
+        public ListItem(Spread spread) {
             this.spread = spread;
             layout = R.layout.item_spread_details;
             viewType = ListViewHolders.ViewType.SPREAD_DETAILS;
@@ -101,7 +101,8 @@ public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseVie
         }
     }
 
-    public interface FilterChangeListener {
+    public interface ResultsListener {
         void onChange(FilterSet filterSet);
+        void onResultSelected(Spread spread, View headerLayout, View detailsLayout);
     }
 }

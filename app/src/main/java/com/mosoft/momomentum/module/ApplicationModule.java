@@ -50,11 +50,4 @@ public class ApplicationModule {
     Context provideApplicationContext() {
         return application.getApplicationContext();
     }
-
-
-    @Provides
-    @Singleton
-    Gson provideGson() {
-        return new GsonBuilder().create();
-    }
 }

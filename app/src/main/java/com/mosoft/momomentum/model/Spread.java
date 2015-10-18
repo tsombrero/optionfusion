@@ -3,27 +3,30 @@ package com.mosoft.momomentum.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.gson.Gson;
-import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.model.provider.ClassFactory;
 import com.mosoft.momomentum.model.provider.Interfaces;
 import com.mosoft.momomentum.model.provider.amtd.OptionChain;
+import com.mosoft.momomentum.module.MomentumApplication;
 import com.mosoft.momomentum.util.Util;
 
 import java.util.Comparator;
 import java.util.Date;
 
-import javax.inject.Inject;
-
 abstract public class Spread implements Parcelable {
     Interfaces.OptionQuote buy, sell;
     Interfaces.OptionChain underlying;
 
-    @Inject
-    Gson gson;
+    public enum SpreadType {
+        BULL_CALL,
+        BEAR_CALL,
+        BULL_PUT,
+        BEAR_PUT;
 
-    @Inject
-    OptionChainProvider optionChainProvider;
+        @Override
+        public String toString() {
+            return name().replace('_', ' ');
+        }
+    }
 
     protected Spread(Interfaces.OptionQuote buy, Interfaces.OptionQuote sell, OptionChain underlying) {
         if (buy == null || sell == null || underlying == null)
@@ -32,6 +35,18 @@ abstract public class Spread implements Parcelable {
         this.buy = buy;
         this.sell = sell;
         this.underlying = underlying;
+    }
+
+    public SpreadType getSpreadType() {
+        if (buy.getOptionType() == Interfaces.OptionType.CALL) {
+            return buy.getStrike() < sell.getStrike()
+                    ? SpreadType.BULL_CALL
+                    : SpreadType.BEAR_CALL;
+        }
+
+        return buy.getStrike() > sell.getStrike()
+                ? SpreadType.BEAR_PUT
+                : SpreadType.BULL_PUT;
     }
 
     public static Spread newSpread(Interfaces.OptionQuote buy, Interfaces.OptionQuote sell, OptionChain underlying) {
@@ -53,7 +68,7 @@ abstract public class Spread implements Parcelable {
         if (!buy.hasAsk() || !sell.hasBid())
             return null;
 
-        if (buy.getOptionType() == Interfaces.OptionType.BULL_CALL) {
+        if (buy.getOptionType() == Interfaces.OptionType.CALL) {
             if (buy.getStrike() < sell.getStrike()) {
                 //Bull Call Spread
                 return new BullCallSpread(buy, sell, underlying);
@@ -62,7 +77,7 @@ abstract public class Spread implements Parcelable {
                 //Bear call spread not impl
                 return null;
             }
-        } else if (buy.getOptionType() == Interfaces.OptionType.BEAR_PUT) {
+        } else if (buy.getOptionType() == Interfaces.OptionType.PUT) {
             if (buy.getStrike() > sell.getStrike()) {
                 //Bear Put Spread
                 return new BearPutSpread(buy, sell, underlying);
@@ -145,14 +160,14 @@ abstract public class Spread implements Parcelable {
     }
 
     public boolean isInTheMoney_BreakEven() {
-        if (buy.getOptionType() == Interfaces.OptionType.BULL_CALL) {
+        if (buy.getOptionType() == Interfaces.OptionType.CALL) {
             return getPrice_BreakEven() < underlying.getLast();
         }
         return getPrice_BreakEven() > underlying.getLast();
     }
 
     public boolean isInTheMoney_MaxReturn() {
-        if (buy.getOptionType() == Interfaces.OptionType.BULL_CALL) {
+        if (buy.getOptionType() == Interfaces.OptionType.CALL) {
             return getPrice_MaxReturn() < underlying.getLast();
         }
         return getPrice_MaxReturn() > underlying.getLast();
@@ -163,7 +178,7 @@ abstract public class Spread implements Parcelable {
     }
 
     public boolean isCall() {
-        return buy.getOptionType() == Interfaces.OptionType.BULL_CALL;
+        return buy.getOptionType() == Interfaces.OptionType.CALL;
     }
 
     public String getUnderlyingSymbol() {
@@ -171,13 +186,13 @@ abstract public class Spread implements Parcelable {
     }
 
     public boolean isBullSpread() {
-        if (buy.getOptionType() == Interfaces.OptionType.BULL_CALL
-                && sell.getOptionType() == Interfaces.OptionType.BULL_CALL
+        if (buy.getOptionType() == Interfaces.OptionType.CALL
+                && sell.getOptionType() == Interfaces.OptionType.CALL
                 && buy.getStrike() < sell.getStrike())
             return true;
 
-        return buy.getOptionType() == Interfaces.OptionType.BEAR_PUT
-                && sell.getOptionType() == Interfaces.OptionType.BEAR_PUT
+        return buy.getOptionType() == Interfaces.OptionType.PUT
+                && sell.getOptionType() == Interfaces.OptionType.PUT
                 && buy.getStrike() < sell.getStrike();
 
     }
@@ -221,43 +236,32 @@ abstract public class Spread implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(getBuy().getProvider().ordinal());
-        dest.writeString(getBuy().toJson(gson));
+        dest.writeString(getBuy().toJson(MomentumApplication.getGson()));
 
         dest.writeInt(getSell().getProvider().ordinal());
-        dest.writeString(getSell().toJson(gson));
+        dest.writeString(getSell().toJson(MomentumApplication.getGson()));
 
-        dest.writeString(underlying.getSymbol());
         dest.writeInt(underlying.getProvider().ordinal());
-        dest.writeString(underlying.toJson(gson));
+        dest.writeString(underlying.toJson(MomentumApplication.getGson()));
     }
 
     public static final Parcelable.Creator<Spread> CREATOR = new SpreadCreator();
 
     public static class SpreadCreator implements Parcelable.Creator<Spread> {
-        @Inject
-        Gson gson;
-
-        @Inject
-        OptionChainProvider optionChainProvider;
-
-
         public Spread createFromParcel(Parcel in) {
             Interfaces.Provider provider = Interfaces.Provider.values()[in.readInt()];
-            Interfaces.OptionQuote buy = ClassFactory.OptionQuoteFromJson(gson, provider, in.readString());
+            Interfaces.OptionQuote buy = ClassFactory.OptionQuoteFromJson(MomentumApplication.getGson(), provider, in.readString());
+
             provider = Interfaces.Provider.values()[in.readInt()];
-            Interfaces.OptionQuote sell = ClassFactory.OptionQuoteFromJson(gson, provider, in.readString());
-            String symbol = in.readString();
-            OptionChain oc = optionChainProvider.get(symbol);
-            if (oc == null) {
-                provider = Interfaces.Provider.values()[in.readInt()];
-                oc = ClassFactory.OptionChainFromJson(gson, provider, in.readString());
-            }
+            Interfaces.OptionQuote sell = ClassFactory.OptionQuoteFromJson(MomentumApplication.getGson(), provider, in.readString());
+
+            provider = Interfaces.Provider.values()[in.readInt()];
+            OptionChain oc = ClassFactory.OptionChainFromJson(MomentumApplication.getGson(), provider, in.readString());
             return Spread.newSpread(buy, sell, oc);
         }
 
         public Spread[] newArray(int size) {
             return new Spread[size];
         }
-
     }
 }

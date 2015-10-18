@@ -5,9 +5,8 @@ import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.ui.LoginActivity;
 import com.mosoft.momomentum.ui.MainActivity;
 import com.mosoft.momomentum.ui.results.FilterViewHolder;
-import com.mosoft.momomentum.ui.results.ResultsFragment;
-import com.mosoft.momomentum.ui.tradedetails.TradeDetailsFragment;
 import com.mosoft.momomentum.ui.search.SearchFragment;
+import com.mosoft.momomentum.ui.tradedetails.TradeDetailsFragment;
 
 import javax.inject.Singleton;
 
@@ -21,7 +20,7 @@ public interface MomentumApplicationComponent {
 
     void inject(LoginActivity activity);
 
-    void inject(ResultsFragment resultsFragment);
+    void inject(com.mosoft.momomentum.ui.results.ResultsFragment resultsFragment);
 
     void inject(MainActivity mainActivity);
 
@@ -32,8 +31,4 @@ public interface MomentumApplicationComponent {
     void inject(FilterViewHolder filterViewHolder);
 
     void inject(TradeDetailsFragment tradeDetailsFragment);
-
-    void inject(Spread spread);
-
-    void inject(Spread.SpreadCreator spreadCreator);
 }
