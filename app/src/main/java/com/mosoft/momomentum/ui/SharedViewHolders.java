@@ -34,6 +34,9 @@ public class SharedViewHolders {
         }
 
         public void bind(Interfaces.OptionChain oc) {
+            if (oc == null)
+                return;
+
             symbolView.setText(oc.getSymbol());
             priceView.setText(Util.formatDollars(oc.getLast()));
             equityDescriptionView.setText(oc.getEquityDescription());

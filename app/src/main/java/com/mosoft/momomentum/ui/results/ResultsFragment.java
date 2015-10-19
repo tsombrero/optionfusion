@@ -81,11 +81,13 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
 
     public void initView() {
 
-        final OptionChain oc = optionChainProvider.get(symbol);
-
-        new SharedViewHolders.StockInfoHolder(stockInfoLayout).bind(oc);
-
-        onChange(filterSet);
+        optionChainProvider.get(symbol, new OptionChainProvider.OptionChainCallback() {
+            @Override
+            public void call(OptionChain optionChain) {
+                new SharedViewHolders.StockInfoHolder(stockInfoLayout).bind(optionChain);
+                onChange(filterSet);
+            }
+        });
     }
 
     @Override

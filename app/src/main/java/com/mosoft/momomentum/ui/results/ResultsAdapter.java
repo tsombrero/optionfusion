@@ -27,6 +27,9 @@ public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseVie
     }
 
     public void update(FilterSet filterSet, List<Spread> spreads) {
+        if (spreads == null || spreads.isEmpty())
+            return;
+
         List<ListItem> newList = new ArrayList<>();
 
         newList.add(new ListItem(filterSet, spreads.get(0).getUnderlyingSymbol()));

@@ -658,15 +658,21 @@ public class RangeBar extends View {
         requestLayout();
     }
 
-    public void setRangePinsByListIndexes(List list, Object left, Object right) {
+    public void setRangePinsByPositionInList(List list, Object left, Object right) {
         int leftIndex = list.indexOf(left);
         int rightIndex = list.indexOf(right);
+
+        if (left.equals(Double.MAX_VALUE))
+            leftIndex = list.size() - 1;
+
+        if (right.equals(Double.MAX_VALUE))
+            rightIndex = list.size() - 1;
 
         if (leftIndex < 0)
             leftIndex = 0;
 
         if (rightIndex < 0)
-            rightIndex = list.size() - 1;
+            rightIndex = 0;
 
         setRangePinsByIndices(leftIndex, rightIndex);
     }
@@ -675,7 +681,7 @@ public class RangeBar extends View {
         if (rangeBarDataProvider == null)
             setRangePinsByIndices(0, list.size() - 1);
         else
-            setRangePinsByListIndexes(list,
+            setRangePinsByPositionInList(list,
                     rangeBarDataProvider.getLeftValue(),
                     rangeBarDataProvider.getRightValue());
     }
