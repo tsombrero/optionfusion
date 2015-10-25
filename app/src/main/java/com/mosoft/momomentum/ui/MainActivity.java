@@ -1,5 +1,6 @@
 package com.mosoft.momomentum.ui;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.SharedElementCallback;
 import android.content.Context;
@@ -7,7 +8,6 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.v7.app.AppCompatActivity;
 import android.transition.TransitionInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,7 +23,7 @@ import com.mosoft.momomentum.ui.tradedetails.TradeDetailsFragment;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements SearchFragment.Host, ResultsFragment.Host {
+public class MainActivity extends Activity implements SearchFragment.Host, ResultsFragment.Host {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
         if (getFragmentManager().getBackStackEntryCount() > 1) {
             getFragmentManager().popBackStack();
         } else {
-            super.onBackPressed();
+            finish();
         }
     }
 

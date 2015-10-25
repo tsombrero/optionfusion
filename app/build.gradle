@@ -7,6 +7,7 @@ buildscript {
     }
 }
 
+
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 
@@ -42,13 +43,13 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.google.android.gms:play-services:7.8.0'
-    compile 'com.android.support:appcompat-v7:23.0.1'
     compile 'com.android.support:recyclerview-v7:23.0.1'
+    compile 'com.android.support:multidex:1.0.0'
 
     // ui
     compile 'com.jakewharton:butterknife:7.0.1'
     compile "com.wefika:flowlayout:0.4.1"
+    compile 'com.github.lecho:hellocharts-library:1.5.8@aar'
 
     // util
     compile 'net.danlew:android.joda:2.8.2'

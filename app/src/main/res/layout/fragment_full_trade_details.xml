@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+    >
+
+    <include layout="@layout/incl_stock_info"/>
+
+    <include layout="@layout/incl_details_header"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/card_horizontal_margin"
+            android:layout_marginRight="@dimen/card_horizontal_margin"
+            android:orientation="vertical"
+            >
+
+            <include layout="@layout/incl_details_brief"/>
+
+            <LinearLayout
+                android:id="@+id/trade_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:orientation="vertical" >
+
+                <include layout="@layout/incl_option_quote_header" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_height="250dp"
+                >
+
+                <TextView
+                    android:id="@+id/label_xaxis"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:text="Xaxis"
+                    android:paddingLeft="20dp"
+                    android:gravity="center"
+                    style="@style/DetailsLabel"
+                    />
+
+                <com.mosoft.momomentum.ui.widgets.VerticalTextView
+                    android:id="@+id/label_yaxis"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:layout_above="@id/label_xaxis"
+                    android:text="Yaxis"
+                    android:layout_marginRight="-8dp"
+                    android:gravity="center"
+                    style="@style/DetailsLabel"
+                    android:rotation="180"
+                    />
+
+                <lecho.lib.hellocharts.view.LineChartView
+                    android:id="@+id/pl_chart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_toRightOf="@+id/label_yaxis"
+                    android:layout_above="@+id/label_xaxis"
+                    android:paddingLeft="8dp"
+                    android:layout_marginBottom="@dimen/card_vertical_margin"
+                    android:layout_marginLeft="@dimen/card_horizontal_margin"
+                    android:layout_marginRight="@dimen/card_horizontal_margin"
+                    android:layout_marginTop="@dimen/card_vertical_margin"
+                    />
+
+
+            </RelativeLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

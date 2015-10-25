@@ -3,6 +3,7 @@ package com.mosoft.momomentum.ui;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -10,11 +11,9 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -45,7 +44,7 @@ import retrofit.Response;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -307,7 +306,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     static String readFile(String path) {
         try {
-            return new Scanner( new File(path) ).useDelimiter("\\A").next().trim();
+            return new Scanner(new File(path)).useDelimiter("\\A").next().trim();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

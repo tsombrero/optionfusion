@@ -102,7 +102,7 @@ abstract public class Spread implements Parcelable {
         return sell;
     }
 
-    public Double getMaxProfitAtExpiration() {
+    public double getMaxReturn() {
         return getMaxValueAtExpiration() - getAsk();
     }
 
@@ -112,7 +112,7 @@ abstract public class Spread implements Parcelable {
 
 
     public double getMaxPercentProfitAtExpiration() {
-        return getMaxProfitAtExpiration() / getAsk();
+        return getMaxReturn() / getAsk();
     }
 
     public double getPriceChange_BreakEven() {
@@ -150,7 +150,7 @@ abstract public class Spread implements Parcelable {
                 buy.getDaysUntilExpiration(),
                 buy.getStrike(), sell.getStrike(),
                 getAsk(),
-                Util.formatDollars(getMaxProfitAtExpiration()),
+                Util.formatDollars(getMaxReturn()),
                 getMaxPercentProfitAtExpiration() * 100d,
                 getWeightedValue());
     }
@@ -176,6 +176,8 @@ abstract public class Spread implements Parcelable {
     public double getPrice_MaxReturn() {
         return sell.getStrike();
     }
+
+    public double getPrice_MaxLoss() { return buy.getStrike(); }
 
     public boolean isCall() {
         return buy.getOptionType() == Interfaces.OptionType.CALL;

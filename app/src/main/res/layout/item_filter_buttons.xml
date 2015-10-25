@@ -190,6 +190,8 @@
         </RelativeLayout>
 
 
+        <!-- the Strike filter layout -->
+
         <RelativeLayout
             android:id="@+id/strike_edit_layout"
             style="@style/filtercard"
@@ -214,7 +216,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/strike_edit_bullish_label"
-                android:text="All"
                 />
 
             <com.mosoft.momomentum.ui.widgets.rangebar.RangeBar

@@ -27,8 +27,9 @@ public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseVie
     }
 
     public void update(FilterSet filterSet, List<Spread> spreads) {
-        if (spreads == null || spreads.isEmpty())
+        if (spreads == null || spreads.isEmpty()) {
             return;
+        }
 
         List<ListItem> newList = new ArrayList<>();
 

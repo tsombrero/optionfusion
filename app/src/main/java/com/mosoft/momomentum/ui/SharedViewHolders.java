@@ -82,6 +82,38 @@ public class SharedViewHolders {
         }
     }
 
+    public static class OptionQuoteHolder {
+        private final Context context;
+
+        @Bind(R.id.quantity)
+        TextView textQuantity;
+
+        @Bind(R.id.option_description)
+        TextView textDescription;
+
+        @Bind(R.id.bid)
+        TextView textBid;
+
+        @Bind(R.id.ask)
+        TextView textAsk;
+
+        public OptionQuoteHolder(Context context, View view) {
+            this.context = context;
+            ButterKnife.bind(this, view);
+        }
+
+        public void bind(int qty, Interfaces.OptionQuote optionQuote) {
+            textQuantity.setText(String.valueOf(qty));
+            textDescription.setText(String.format("%s %s %s",
+                    Util.getFormattedOptionDate(optionQuote.getExpiration()),
+                    Util.formatDollars(optionQuote.getStrike()),
+                    optionQuote.getOptionType().toString()
+            ));
+            textBid.setText(Util.formatDollars(optionQuote.getBid()));
+            textAsk.setText(Util.formatDollars(optionQuote.getAsk()));
+        }
+    }
+
     public static class BriefTradeDetailsHolder {
 
         private final Context context;
@@ -110,8 +142,8 @@ public class SharedViewHolders {
         }
 
         public void bind(Spread spread) {
-            summary.setText(String.format("Returns %s if %s is %s %s from the current price",
-                    Util.formatPercentCompact(spread.getMaxPercentProfitAtExpiration()),    // Returns %s
+            summary.setText(String.format("Returns %s/yr if %s is %s %s from the current price",
+                    Util.formatPercentCompact(spread.getMaxReturnAnnualized()),             // Returns %s / yr
                     spread.getUnderlyingSymbol(),                                           // if %symbol
                     spread.isBullSpread()                                                   // "down less than" "up at least" "up less than" "down at least"
                             ? (spread.isInTheMoney_MaxReturn() ? "down less than" : "up at least")
@@ -122,7 +154,7 @@ public class SharedViewHolders {
             askPrice.setText(Util.formatDollars(spread.getAsk()));
             breakEvenPrice.setText(Util.formatDollars(spread.getPrice_BreakEven()));
             daysToExp.setText(Util.getFormattedOptionDate(spread.getExpiresDate()) + " / " + String.valueOf(spread.getDaysToExpiration()) + " days");
-            maxReturn.setText(Util.formatDollars(spread.getMaxProfitAtExpiration()) + " / " + Util.formatPercentCompact(spread.getMaxReturnAnnualized()) + " yr");
+            maxReturn.setText(Util.formatDollars(spread.getMaxReturn()) + " / " + Util.formatPercentCompact(spread.getMaxPercentProfitAtExpiration()));
 
             Resources resources = context.getResources();
 
