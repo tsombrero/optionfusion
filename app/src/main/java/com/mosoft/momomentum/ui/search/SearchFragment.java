@@ -47,6 +47,7 @@ public class SearchFragment extends Fragment {
         switch (action) {
             case EditorInfo.IME_ACTION_DONE:
             case EditorInfo.IME_ACTION_GO:
+            case EditorInfo.IME_ACTION_SEARCH:
                 break;
             default:
                 return false;

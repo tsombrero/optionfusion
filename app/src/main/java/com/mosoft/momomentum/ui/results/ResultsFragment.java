@@ -18,6 +18,7 @@ import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.provider.amtd.OptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
 import com.mosoft.momomentum.ui.SharedViewHolders;
+import com.mosoft.momomentum.util.Util;
 
 import java.util.Collections;
 import java.util.List;
@@ -88,6 +89,8 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
                 onChange(filterSet);
             }
         });
+
+        Util.hideSoftKeyboard(getActivity());
     }
 
     @Override
