@@ -225,4 +225,12 @@
         <item name="android:paddingLeft">20dp</item>
         <item name="android:paddingRight">20dp</item>
     </style>
+
+    <style name="primaryText" parent="android:style/TextAppearance.Medium">
+        <item name="textColor">@color/primary_text</item>
+    </style>
+
+    <style name="secondaryText" parent="android:style/TextAppearance.Medium">
+        <item name="textColor">@color/secondary_text</item>
+    </style>
 </resources>

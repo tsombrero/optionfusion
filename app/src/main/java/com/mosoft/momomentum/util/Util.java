@@ -1,6 +1,8 @@
 package com.mosoft.momomentum.util;
 
+import android.app.ActionBar;
 import android.app.Activity;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import org.joda.time.Days;
@@ -16,7 +18,7 @@ import java.util.List;
 
 public class Util {
 
-    public static final String TAG="Mo";
+    public static final String TAG = "Mo";
 
     private static final DateFormat dateFormat = new SimpleDateFormat("MM/d/yy");
     private static final DateFormat dateFormatFar = new SimpleDateFormat("MMM yyyy");
@@ -48,17 +50,17 @@ public class Util {
 
     public static String formatPercent(double pct) {
         if (pct > 100d)
-            return String.format("%dx", (int)pct);
+            return String.format("%dx", (int) pct);
         if (pct > 1d)
-            return String.format("%d%%", (int)(100d * pct));
+            return String.format("%d%%", (int) (100d * pct));
         if (pct > 0.1d)
             return String.format("%.1f%%", 100d * pct);
         if (pct > 0d)
             return String.format("%.2f%%", 100d * pct);
         if (pct < 100d)
-            return String.format("-%dx", (int)pct);
+            return String.format("-%dx", (int) pct);
         if (pct < -1d)
-            return String.format("-%d%%", (int)(-100d * pct));
+            return String.format("-%d%%", (int) (-100d * pct));
         if (pct < -0.1d)
             return String.format("-%.2f%%", -100d * pct);
         if (pct < 0d)
@@ -166,7 +168,21 @@ public class Util {
     }
 
     public static void hideSoftKeyboard(Activity activity) {
-        InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+    }
+
+    public static void goFullscreen(Activity activity) {
+        View decorView = activity.getWindow().getDecorView();
+
+        // Hide the status bar.
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+
+        // Remember that you should never show the action bar if the
+        // status bar is hidden, so hide that too if necessary.
+        ActionBar actionBar = activity.getActionBar();
+        if (actionBar != null)
+           actionBar.hide();
     }
 }
