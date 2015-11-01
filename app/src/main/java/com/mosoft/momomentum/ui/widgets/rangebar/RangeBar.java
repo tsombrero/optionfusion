@@ -662,10 +662,10 @@ public class RangeBar extends View {
         int leftIndex = list.indexOf(left);
         int rightIndex = list.indexOf(right);
 
-        if (left.equals(Double.MAX_VALUE))
+        if (left != null && left.equals(Double.MAX_VALUE))
             leftIndex = list.size() - 1;
 
-        if (right.equals(Double.MAX_VALUE))
+        if (right != null && right.equals(Double.MAX_VALUE))
             rightIndex = list.size() - 1;
 
         if (leftIndex < 0)

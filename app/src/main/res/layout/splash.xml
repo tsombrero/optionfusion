@@ -60,6 +60,7 @@
             >
 
             <ImageView
+                android:id="@+id/logo_ameritrade"
                 android:layout_width="wrap_content"
                 android:layout_height="70dp"
                 android:src="@drawable/logo_tdameritrade"
@@ -68,6 +69,7 @@
                 />
 
             <ImageView
+                android:id="@+id/logo_tradestation"
                 android:layout_width="wrap_content"
                 android:layout_height="70dp"
                 android:src="@drawable/logo_tradestation"
@@ -76,6 +78,7 @@
                 />
 
             <ImageView
+                android:id="@+id/logo_etrade"
                 android:layout_width="wrap_content"
                 android:layout_height="70dp"
                 android:src="@drawable/logo_etrade"
@@ -86,6 +89,7 @@
 
 
         <TextView
+            android:id='@+id/no_thanks'
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="No, thanks"

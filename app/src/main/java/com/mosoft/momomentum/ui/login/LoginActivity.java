@@ -1,4 +1,4 @@
-package com.mosoft.momomentum.ui;
+package com.mosoft.momomentum.ui.login;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -29,6 +29,7 @@ import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.client.AmeritradeClient;
 import com.mosoft.momomentum.model.provider.amtd.LoginResponse;
 import com.mosoft.momomentum.module.MomentumApplication;
+import com.mosoft.momomentum.ui.MainActivity;
 
 import java.io.File;
 import java.io.FileNotFoundException;
