@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:gravity="center"
-        android:text="Spreadseeker"
+        android:text="Vertical"
         android:textColor="@color/secondary_text_inverse"
         android:textSize="36sp"
         android:textStyle="bold"
@@ -89,7 +89,7 @@
 
 
         <TextView
-            android:id='@+id/no_thanks'
+            android:id="@+id/no_thanks"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="No, thanks"

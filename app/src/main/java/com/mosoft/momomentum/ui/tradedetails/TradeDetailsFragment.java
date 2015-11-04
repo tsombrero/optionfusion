@@ -12,7 +12,8 @@ import android.widget.TextView;
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.model.Spread;
-import com.mosoft.momomentum.model.provider.amtd.OptionChain;
+import com.mosoft.momomentum.model.provider.Interfaces;
+import com.mosoft.momomentum.model.provider.amtd.AmeritradeOptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
 import com.mosoft.momomentum.ui.SharedViewHolders;
 import com.mosoft.momomentum.ui.widgets.VerticalTextView;
@@ -28,10 +29,8 @@ import javax.inject.Inject;
 import butterknife.Bind;
 import butterknife.BindColor;
 import butterknife.ButterKnife;
-import lecho.lib.hellocharts.formatter.AxisValueFormatter;
 import lecho.lib.hellocharts.formatter.SimpleAxisValueFormatter;
 import lecho.lib.hellocharts.model.Axis;
-import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
@@ -82,7 +81,7 @@ public class TradeDetailsFragment extends Fragment {
     Spread spread;
 
     private static final String ARG_TRADE = "trade";
-    private OptionChain oc;
+    private Interfaces.OptionChain oc;
 
     public static TradeDetailsFragment newInstance(Spread spread) {
         TradeDetailsFragment ret = new TradeDetailsFragment();

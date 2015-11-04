@@ -3,20 +3,18 @@ package com.mosoft.momomentum.model.provider;
 import com.google.gson.Gson;
 import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.Spread;
+import com.mosoft.momomentum.module.MomentumApplication;
 
 import java.util.Date;
 import java.util.List;
+
+import static com.mosoft.momomentum.module.MomentumApplication.*;
 
 public class Interfaces {
 
     public enum OptionType {
         PUT,
         CALL;
-    }
-
-    public enum Provider {
-        AMERITRADE,
-        GOOGGLE_FINANCE
     }
 
     public static interface OptionQuote {
@@ -55,8 +53,6 @@ public class Interfaces {
         boolean isStandard();
 
         String toJson(Gson gson);
-
-        Provider getProvider();
     }
 
     public interface OptionStrike {
@@ -69,8 +65,6 @@ public class Interfaces {
         public double getStrikePrice();
 
         String getJson(Gson gson);
-
-        Provider getProvider();
     }
 
     public interface OptionDate {
@@ -83,11 +77,9 @@ public class Interfaces {
         List<Double> getStrikePrices();
 
         String getJson(Gson gson);
-
-        Provider getProvider();
     }
 
-    public interface OptionChain {
+    public interface OptionChain extends ResponseBase {
         String getSymbol();
 
         double getLast();
@@ -112,8 +104,22 @@ public class Interfaces {
 
         String toJson(Gson gson);
 
-        Provider getProvider();
-
         double getClose();
+    }
+
+    public interface Account {
+        String getAccountId();
+
+        String getDisplayName();
+
+        String getDescription();
+
+        String getAssociatedAccount();
+    }
+
+    public interface ResponseBase {
+        boolean succeeded();
+
+        String getError();
     }
 }

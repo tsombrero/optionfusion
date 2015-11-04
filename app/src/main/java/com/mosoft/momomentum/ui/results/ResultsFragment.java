@@ -15,7 +15,8 @@ import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.Spread;
-import com.mosoft.momomentum.model.provider.amtd.OptionChain;
+import com.mosoft.momomentum.model.provider.Interfaces;
+import com.mosoft.momomentum.model.provider.amtd.AmeritradeOptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
 import com.mosoft.momomentum.ui.SharedViewHolders;
 import com.mosoft.momomentum.util.Util;
@@ -84,7 +85,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
 
         optionChainProvider.get(symbol, new OptionChainProvider.OptionChainCallback() {
             @Override
-            public void call(OptionChain optionChain) {
+            public void call(Interfaces.OptionChain optionChain) {
                 new SharedViewHolders.StockInfoHolder(stockInfoLayout).bind(optionChain);
                 onChange(filterSet);
             }
@@ -99,7 +100,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
 
         new AsyncTask<Void, Void, List<Spread>>() {
 
-            private OptionChain oc;
+            private Interfaces.OptionChain oc;
 
             @Override
             protected void onPostExecute(List<Spread> spreads) {

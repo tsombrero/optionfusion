@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import com.mosoft.momomentum.model.filter.Filter;
 import com.mosoft.momomentum.model.provider.Interfaces;
-import com.mosoft.momomentum.model.provider.amtd.OptionChain;
+import com.mosoft.momomentum.model.provider.amtd.AmeritradeOptionChain;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,7 +32,7 @@ public class FilterSet implements Parcelable {
         return true;
     }
 
-    public boolean pass(OptionChain.OptionDate optionDate) {
+    public boolean pass(AmeritradeOptionChain.OptionDate optionDate) {
         if (optionDate == null)
             return false;
 

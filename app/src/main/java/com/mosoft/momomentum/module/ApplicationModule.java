@@ -8,6 +8,7 @@ import com.google.gson.GsonBuilder;
 import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.client.AmeritradeClient;
 import com.mosoft.momomentum.client.AmeritradeClientProvider;
+import com.mosoft.momomentum.client.ClientInterfaces;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -24,7 +25,6 @@ public class ApplicationModule {
     ApplicationModule(Application application) {
         this.application = application;
         JodaTimeAndroid.init(application);
-
     }
 
     @Provides
@@ -35,14 +35,18 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    AmeritradeClient getAmeritradeClient() {
-        return new AmeritradeClientProvider().getClient();
+    ClientInterfaces.BrokerageClient getBrokerageClient(Context context) {
+        switch(MomentumApplication.from(context).getProvider()) {
+            case AMERITRADE:
+                return new AmeritradeClientProvider().getClient(MomentumApplication.from(context));
+        }
+        return null;
     }
 
     @Provides
     @Singleton
-    OptionChainProvider getOptionChainProvider(Context context, AmeritradeClient ameritradeClient) {
-        return new OptionChainProvider(context, ameritradeClient);
+    OptionChainProvider getOptionChainProvider(Context context, ClientInterfaces.BrokerageClient client) {
+        return new OptionChainProvider(context, client);
     }
 
     @Provides

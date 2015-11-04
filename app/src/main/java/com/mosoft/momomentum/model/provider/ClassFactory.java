@@ -3,17 +3,18 @@ package com.mosoft.momomentum.model.provider;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.mosoft.momomentum.model.provider.amtd.OptionChain;
+import com.mosoft.momomentum.model.provider.amtd.AmeritradeOptionChain;
+import com.mosoft.momomentum.module.MomentumApplication;
 
 public class ClassFactory {
     private static final String TAG = "Provider.ClassFactory";
 
-    public static Interfaces.OptionQuote OptionQuoteFromJson(Gson gson, Interfaces.Provider provider, String json) {
+    public static Interfaces.OptionQuote OptionQuoteFromJson(Gson gson, MomentumApplication.Provider provider, String json) {
         try {
             switch (provider) {
                 case AMERITRADE:
-                    return gson.fromJson(json, OptionChain.OptionQuote.class);
-                case GOOGGLE_FINANCE:
+                    return gson.fromJson(json, AmeritradeOptionChain.OptionQuote.class);
+                case GOOGLE_FINANCE:
                     break;
             }
         } catch (Exception e) {
@@ -23,12 +24,12 @@ public class ClassFactory {
     }
 
 
-    public static OptionChain OptionChainFromJson(Gson gson, Interfaces.Provider provider, String json) {
+    public static AmeritradeOptionChain OptionChainFromJson(Gson gson, MomentumApplication.Provider provider, String json) {
         try {
             switch (provider) {
                 case AMERITRADE:
-                    return gson.fromJson(json, OptionChain.class);
-                case GOOGGLE_FINANCE:
+                    return gson.fromJson(json, AmeritradeOptionChain.class);
+                case GOOGLE_FINANCE:
                     break;
             }
         } catch (Exception e) {

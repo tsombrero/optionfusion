@@ -15,7 +15,8 @@ import android.view.View;
 
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.model.Spread;
-import com.mosoft.momomentum.model.provider.amtd.OptionChain;
+import com.mosoft.momomentum.model.provider.Interfaces;
+import com.mosoft.momomentum.model.provider.amtd.AmeritradeOptionChain;
 import com.mosoft.momomentum.ui.results.ResultsFragment;
 import com.mosoft.momomentum.ui.search.SearchFragment;
 import com.mosoft.momomentum.ui.tradedetails.TradeDetailsFragment;
@@ -59,7 +60,7 @@ public class MainActivity extends Activity implements SearchFragment.Host, Resul
     }
 
     @Override
-    public void openResultsFragment(OptionChain optionChain) {
+    public void openResultsFragment(Interfaces.OptionChain optionChain) {
         Fragment fragment = ResultsFragment.newInstance(optionChain.getSymbol());
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment, optionChain.getSymbol())

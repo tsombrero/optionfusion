@@ -5,61 +5,55 @@ import android.util.Log;
 import android.util.LruCache;
 import android.widget.Toast;
 
-import com.mosoft.momomentum.client.AmeritradeClient;
-import com.mosoft.momomentum.model.provider.amtd.OptionChain;
+import com.mosoft.momomentum.client.ClientInterfaces;
+import com.mosoft.momomentum.model.provider.Interfaces;
 
-import retrofit.Callback;
-import retrofit.Response;
-
-public class OptionChainProvider extends LruCache<String, OptionChain> {
+public class OptionChainProvider extends LruCache<String, Interfaces.OptionChain> {
 
     private final Context context;
-    private final AmeritradeClient ameritradeClient;
+    private final ClientInterfaces.BrokerageClient brokerageClient;
 
-    public OptionChainProvider(Context context, AmeritradeClient ameritradeClient) {
+    public OptionChainProvider(Context context, ClientInterfaces.BrokerageClient brokerageClient) {
         super(10);
         this.context = context;
-        this.ameritradeClient = ameritradeClient;
+        this.brokerageClient = brokerageClient;
     }
 
     public void get(final String symbol, final OptionChainCallback callback) {
-        OptionChain ret = get(symbol);
+        Interfaces.OptionChain ret = get(symbol);
         if (ret != null) {
             callback.call(ret);
             return;
         }
 
-        ameritradeClient.getOptionChain(symbol).enqueue(new Callback<OptionChain>() {
-            @Override
-            public void onResponse(Response<OptionChain> response) {
-                if (!response.isSuccess()) {
-                    Log.w("tag", "Failed: " + response.message());
-                    return;
+        brokerageClient.getOptionChain(symbol, new ClientInterfaces.Callback<Interfaces.OptionChain>() {
+                    @Override
+                    public void call(Interfaces.OptionChain oc) {
+                        if (oc == null || !oc.succeeded()) {
+                            Log.w("tag", "Failed: " + oc.getError());
+                            callback.call(null);
+                            return;
+                        }
+
+                        Log.i("tag", "Got option chain: " + oc);
+
+                        put(symbol, oc);
+
+                        callback.call(oc);
+                    }
+
+                    @Override
+                    public void onError(int status, String message) {
+                        Log.w("tag", "Failed: " + status + " " + message);
+                        Toast.makeText(context, "Failed getting option chain", Toast.LENGTH_SHORT);
+                        callback.call(null);
+
+                    }
                 }
-
-                OptionChain oc = response.body();
-
-                if (!oc.succeeded()) {
-                    Log.w("tag", "Failed: " + oc.getError());
-                    return;
-                }
-
-                Log.i("tag", "Got option chain: " + oc);
-
-                put(symbol, oc);
-
-                callback.call(oc);
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                Toast.makeText(context, "Failed getting option chain", Toast.LENGTH_SHORT);
-                callback.call(null);
-            }
-        });
+        );
     }
 
     public interface OptionChainCallback {
-        void call(OptionChain optionChain);
+        void call(Interfaces.OptionChain optionChain);
     }
 }

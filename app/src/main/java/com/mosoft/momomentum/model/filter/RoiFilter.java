@@ -4,7 +4,7 @@ import android.os.Parcel;
 
 import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.provider.Interfaces;
-import com.mosoft.momomentum.model.provider.amtd.OptionChain;
+import com.mosoft.momomentum.model.provider.amtd.AmeritradeOptionChain;
 import com.mosoft.momomentum.util.Util;
 
 public class RoiFilter extends Filter {
@@ -25,7 +25,7 @@ public class RoiFilter extends Filter {
     }
 
     @Override
-    public boolean pass(OptionChain.OptionDate optionDate) {
+    public boolean pass(AmeritradeOptionChain.OptionDate optionDate) {
         return true;
     }
 

@@ -1,8 +1,11 @@
 package com.mosoft.momomentum.module;
 
 import com.mosoft.momomentum.cache.OptionChainProvider;
+import com.mosoft.momomentum.client.AmeritradeClient;
 import com.mosoft.momomentum.ui.MainActivity;
 import com.mosoft.momomentum.ui.login.LoginActivity;
+import com.mosoft.momomentum.ui.login.LoginFragment;
+import com.mosoft.momomentum.ui.login.StartFragment;
 import com.mosoft.momomentum.ui.results.FilterViewHolder;
 import com.mosoft.momomentum.ui.results.ResultsFragment;
 import com.mosoft.momomentum.ui.search.SearchFragment;
@@ -31,4 +34,10 @@ public interface MomentumApplicationComponent {
     void inject(FilterViewHolder filterViewHolder);
 
     void inject(TradeDetailsFragment tradeDetailsFragment);
+
+    void inject(LoginFragment loginFragment);
+
+    void inject(StartFragment startFragment);
+
+    void inject(AmeritradeClient ameritradeClient);
 }

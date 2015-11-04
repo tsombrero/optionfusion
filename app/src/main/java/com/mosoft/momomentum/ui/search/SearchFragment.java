@@ -12,7 +12,8 @@ import android.widget.Toast;
 
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.cache.OptionChainProvider;
-import com.mosoft.momomentum.model.provider.amtd.OptionChain;
+import com.mosoft.momomentum.model.provider.Interfaces;
+import com.mosoft.momomentum.model.provider.amtd.AmeritradeOptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
 
 import javax.inject.Inject;
@@ -64,7 +65,7 @@ public class SearchFragment extends Fragment {
 
         optionChainProvider.get(symbol, new OptionChainProvider.OptionChainCallback() {
             @Override
-            public void call(OptionChain optionChain) {
+            public void call(Interfaces.OptionChain optionChain) {
                 if (optionChain != null)
                     ((Host) getActivity()).openResultsFragment(optionChain);
 
@@ -79,6 +80,6 @@ public class SearchFragment extends Fragment {
     }
 
     public interface Host {
-        void openResultsFragment(OptionChain optionChain);
+        void openResultsFragment(Interfaces.OptionChain optionChain);
     }
 }

@@ -12,6 +12,21 @@ public class MomentumApplication extends Application {
     private static Gson gson;
     private MomentumApplicationComponent applicationComponent;
 
+    public enum Provider {
+        AMERITRADE,
+        GOOGLE_FINANCE
+    }
+
+    private Provider provider;
+
+    public Provider getProvider() {
+        return provider;
+    }
+
+    public void setProvider(Provider provider) {
+        this.provider = provider;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();

@@ -1,7 +1,9 @@
 package com.mosoft.momomentum.client;
 
+import android.app.Application;
 import android.util.Log;
 
+import com.mosoft.momomentum.module.MomentumApplication;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -20,7 +22,7 @@ import retrofit.SimpleXmlConverterFactory;
 
 public class AmeritradeClientProvider {
 
-    public AmeritradeClient getClient() {
+    public AmeritradeClient getClient(MomentumApplication application) {
 
         OkHttpClient okHttpClient = new OkHttpClient();
         okHttpClient.interceptors().add(new LoggingInterceptor());
@@ -35,7 +37,11 @@ public class AmeritradeClientProvider {
                 .client(okHttpClient)
                 .build();
 
-        return new AmeritradeClient(retrofit.create(AmeritradeClient.RestInterface.class));
+        AmeritradeClient ret = new AmeritradeClient(retrofit.create(AmeritradeClient.RestInterface.class));
+
+        application.getComponent().inject(ret);
+
+        return ret;
     }
 
     public static class LoggingInterceptor implements Interceptor {
