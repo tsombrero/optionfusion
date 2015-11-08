@@ -15,7 +15,12 @@ import java.util.List;
 
 public class GoogOptionChain implements Interfaces.OptionChain {
 
-    ArrayList<GoogOptionDate> optionDates;
+    private ArrayList<GoogOptionDate> optionDates = new ArrayList<>();
+    private transient boolean succeeded;
+
+    public void addToChain(GoogOptionDate date) {
+        optionDates.add(date);
+    }
 
     @Override
     public String getSymbol() {
@@ -74,7 +79,7 @@ public class GoogOptionChain implements Interfaces.OptionChain {
 
     @Override
     public String toJson(Gson gson) {
-        return null;
+        return gson.toJson(this);
     }
 
     @Override
@@ -92,23 +97,26 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         return null;
     }
 
+    public void setSucceeded(boolean succeeded) {
+        this.succeeded = succeeded;
+    }
+
     public class GoogOptionQuote implements Interfaces.OptionQuote {
-        private String cid;
-        private String name;
         private String s;
         private String e;
         private String p;
-        private String c;
-        private String b;
-        private String a;
-        private String oi;
-        private String vol;
+//        private String c;
+        private double b;
+        private double a;
+//        private long oi;
+//        private String vol;
         private double strike;
-        private String expiry;
+
+        transient GoogExpiration expiration;
 
         @Override
         public String getOptionSymbol() {
-            return null;
+            return s;
         }
 
         @Override
@@ -138,7 +146,7 @@ public class GoogOptionChain implements Interfaces.OptionChain {
 
         @Override
         public int getDaysUntilExpiration() {
-            return 0;
+            return expiration.getDaysToExpiration();
         }
 
         @Override
@@ -148,12 +156,12 @@ public class GoogOptionChain implements Interfaces.OptionChain {
 
         @Override
         public double getAsk() {
-            return 0;
+            return a;
         }
 
         @Override
         public double getBid() {
-            return 0;
+            return b;
         }
 
         @Override
@@ -168,12 +176,12 @@ public class GoogOptionChain implements Interfaces.OptionChain {
 
         @Override
         public boolean hasBid() {
-            return false;
+            return b > 0;
         }
 
         @Override
         public boolean hasAsk() {
-            return false;
+            return a > 0;
         }
 
         @Override
@@ -183,7 +191,7 @@ public class GoogOptionChain implements Interfaces.OptionChain {
 
         @Override
         public LocalDate getExpiration() {
-            return null;
+            return expiration.getDate();
         }
 
         @Override
@@ -193,13 +201,20 @@ public class GoogOptionChain implements Interfaces.OptionChain {
 
         @Override
         public String toJson(Gson gson) {
-            return null;
+            return gson.toJson(this);
         }
     }
 
     public class GoogExpirations {
-        private List<GoogExpiration> expirations = new ArrayList<GoogExpiration>();
-        private String underlyingId;
+        public List<GoogExpiration> getExpirations() {
+            return expirations;
+        }
+
+        public String getUnderlyingPrice() {
+            return underlyingPrice;
+        }
+
+        private List<GoogExpiration> expirations = new ArrayList<>();
         private String underlyingPrice;
     }
 
@@ -207,7 +222,6 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         private GoogExpiration expiry;
         private List<GoogOptionQuote> puts = new ArrayList<>();
         private List<GoogOptionQuote> calls = new ArrayList<>();
-        private String underlyingId;
         private String underlyingPrice;
 
         @Override
@@ -232,7 +246,7 @@ public class GoogOptionChain implements Interfaces.OptionChain {
 
         @Override
         public String toJson(Gson gson) {
-            return null;
+            return gson.toJson(this);
         }
     }
 
@@ -240,6 +254,18 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         private Integer y;
         private Integer m;
         private Integer d;
+
+        public Integer getY() {
+            return y;
+        }
+
+        public Integer getM() {
+            return m;
+        }
+
+        public Integer getD() {
+            return d;
+        }
 
         private transient int daysToExpiration = -1;
 

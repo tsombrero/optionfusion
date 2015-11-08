@@ -2,6 +2,7 @@ package com.mosoft.momomentum.module;
 
 import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.client.AmeritradeClient;
+import com.mosoft.momomentum.client.GoogClient;
 import com.mosoft.momomentum.ui.MainActivity;
 import com.mosoft.momomentum.ui.login.LoginActivity;
 import com.mosoft.momomentum.ui.login.LoginFragment;
@@ -40,4 +41,6 @@ public interface MomentumApplicationComponent {
     void inject(StartFragment startFragment);
 
     void inject(AmeritradeClient ameritradeClient);
+
+    void inject(GoogClient ret);
 }

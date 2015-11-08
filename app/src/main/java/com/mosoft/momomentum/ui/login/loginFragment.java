@@ -46,7 +46,10 @@ public class LoginFragment extends Fragment {
     View progressView;
 
     @Inject
-    Lazy<ClientInterfaces.OptionChainClient> brokerageClient;
+    Lazy<ClientInterfaces.BrokerageClient> brokerageClientLazy;
+
+    @Inject
+    Lazy<ClientInterfaces.OptionChainClient> optionChainClientLazy;
 
     private static final String TAG = LoginFragment.class.getSimpleName();
 
@@ -66,16 +69,6 @@ public class LoginFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         MomentumApplication.from(getActivity()).getComponent().inject(this);
-
-
-        TestClass testClass = null;
-        try {
-            testClass = MomentumApplication.getGson().fromJson("{expiry:{y:2015,m:11,d:13}}", TestClass.class);
-        } catch (Exception e) {
-            Log.e(TAG, "Exception!", e);
-        }
-
-
 
         View ret = inflater.inflate(R.layout.activity_login, container, false);
         ButterKnife.bind(this, ret);
@@ -142,7 +135,7 @@ public class LoginFragment extends Fragment {
         if (!TextUtils.isEmpty(altpw))
             password = altpw;
 
-        brokerageClient.get().logIn(userId, password, new LoginCallback());
+        brokerageClientLazy.get().logIn(userId, password, new LoginCallback());
     }
 
     private boolean isPasswordValid(String password) {
@@ -202,7 +195,7 @@ public class LoginFragment extends Fragment {
         public void onFinally() {
             showProgress(false);
 
-            if (brokerageClient.get().isAuthenticated()) {
+            if (brokerageClientLazy.get().isAuthenticated()) {
                 getActivity().finish();
             } else {
                 passwordView.setError(getString(R.string.error_incorrect_password));

@@ -25,9 +25,12 @@ public class ClientInterfaces {
     }
 
     public interface OptionChainClient {
-        void logIn(String userId, String password, Callback<LoginResponse> callback);
-
         void getOptionChain(String symbol, Callback<OptionChain> callback);
+
+    }
+
+    public interface BrokerageClient {
+        void logIn(String userId, String password, Callback<LoginResponse> callback);
 
         void getAccounts(Callback<List<? extends Interfaces.Account>> callback);
 

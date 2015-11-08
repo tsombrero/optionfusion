@@ -30,8 +30,6 @@ public class Interfaces {
 
         double getStrike();
 
-        Double getUnderlyingSymbolAsk();
-
         int getDaysUntilExpiration();
 
         double getMultiplier();
@@ -54,6 +52,19 @@ public class Interfaces {
 
         boolean isStandard();
 
+        StockQuote getUnderlyingStockQuote();
+
+        String toJson(Gson gson);
+    }
+
+    public interface StockQuote {
+        String getSymbol();
+        String getDescription();
+        double getBid();
+        double getAsk();
+        double getLast();
+        double getOpen();
+        double getClose();
         String toJson(Gson gson);
     }
 
@@ -82,13 +93,7 @@ public class Interfaces {
     }
 
     public interface OptionChain extends ResponseBase {
-        String getSymbol();
-
-        double getLast();
-
-        double getAsk();
-
-        double getChange();
+        StockQuote getUnderlyingStockQuote();
 
         List<? extends OptionDate> getChainsByDate();
 
@@ -102,11 +107,7 @@ public class Interfaces {
 
         List<Spread> getAllSpreads(FilterSet filterSet);
 
-        String getEquityDescription();
-
         String toJson(Gson gson);
-
-        double getClose();
     }
 
     public interface Account {

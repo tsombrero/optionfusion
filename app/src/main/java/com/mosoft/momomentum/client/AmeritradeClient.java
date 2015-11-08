@@ -18,7 +18,7 @@ import retrofit.http.GET;
 import retrofit.http.POST;
 import retrofit.http.Query;
 
-public class AmeritradeClient implements ClientInterfaces.OptionChainClient {
+public class AmeritradeClient implements ClientInterfaces.OptionChainClient, ClientInterfaces.BrokerageClient {
 
     private RestInterface restInterface;
     private String sessionId;

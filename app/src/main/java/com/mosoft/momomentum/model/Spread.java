@@ -16,7 +16,7 @@ import java.util.Date;
 
 abstract public class Spread implements Parcelable {
     Interfaces.OptionQuote buy, sell;
-    Interfaces.OptionChain underlying;
+    Interfaces.StockQuote underlying;
 
     //TODO
     private static MomentumApplication.Provider provider = MomentumApplication.Provider.AMERITRADE;
@@ -33,7 +33,7 @@ abstract public class Spread implements Parcelable {
         }
     }
 
-    protected Spread(Interfaces.OptionQuote buy, Interfaces.OptionQuote sell, AmeritradeOptionChain underlying) {
+    protected Spread(Interfaces.OptionQuote buy, Interfaces.OptionQuote sell, Interfaces.StockQuote underlying) {
         if (buy == null || sell == null || underlying == null)
             throw new IllegalArgumentException("Quotes and Chain cannot be null");
 
