@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import org.joda.time.DateTimeConstants;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
@@ -75,14 +76,11 @@ public class Util {
                 .replace(".0%", "%");
     }
 
-    public static String getFormattedOptionDate(Date date) {
+    public static String getFormattedOptionDate(LocalDate date) {
         synchronized (calendar) {
-            calendar.setTimeInMillis(System.currentTimeMillis());
-            calendar.set(Calendar.DAY_OF_MONTH, 1);
-            calendar.set(Calendar.HOUR_OF_DAY, 0);
-            calendar.add(Calendar.MONTH, 6);
+            LocalDate nearDateLimit = LocalDate.now().plusMonths(6);
 
-            if (calendar.getTime().after(date)) {
+            if (date.isBefore(nearDateLimit)) {
                 return dateFormatNear.format(date);
             }
             return dateFormatFar.format(date);
@@ -95,8 +93,8 @@ public class Util {
         }
     }
 
-    public static int getDaysFromNow(Date date) {
-        return Days.daysBetween(new LocalDate(), new LocalDate(date.getTime())).getDays();
+    public static int getDaysFromNow(LocalDate date) {
+        return Days.daysBetween(new LocalDate(), date).getDays();
     }
 
     public static String formatDollarsCompact(Double strike) {
@@ -125,7 +123,7 @@ public class Util {
         return Util.formatDollarsCompact(limitLo) + " - " + Util.formatDollarsCompact(limitHi);
     }
 
-    public static String formatDateRange(Date startDate, Date endDate) {
+    public static String formatDateRange(LocalDate startDate, LocalDate endDate) {
         if (startDate == null && endDate == null) {
             return "All";
         }
@@ -136,6 +134,13 @@ public class Util {
             return "After " + getFormattedOptionDate(startDate);
         }
         return getFormattedOptionDate(startDate) + " - " + getFormattedOptionDate(endDate);
+    }
+
+    public static LocalDate roundToNearestFriday(LocalDate localDate) {
+        LocalDate t1 = localDate.withDayOfWeek(DateTimeConstants.FRIDAY);
+        if (t1.isBefore(localDate.minusDays(3)))       return t1.plusWeeks(1);
+        else if (t1.isAfter(localDate.plusDays(3)))    return t1.minusWeeks(1);
+        else return t1;
     }
 
     // sometimes there are too many strike prices, limit ticks

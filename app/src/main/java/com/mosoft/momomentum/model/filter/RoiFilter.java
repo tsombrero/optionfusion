@@ -25,7 +25,7 @@ public class RoiFilter extends Filter {
     }
 
     @Override
-    public boolean pass(AmeritradeOptionChain.OptionDate optionDate) {
+    public boolean pass(AmeritradeOptionChain.AmtdOptionDate optionDate) {
         return true;
     }
 

@@ -48,7 +48,7 @@ public class StrikeFilter extends Filter implements RangeBar.RangeBarDataProvide
     }
 
     @Override
-    public boolean pass(AmeritradeOptionChain.OptionDate optionDate) {
+    public boolean pass(AmeritradeOptionChain.AmtdOptionDate optionDate) {
         return true;
     }
 

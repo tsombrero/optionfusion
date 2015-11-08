@@ -22,6 +22,8 @@ import com.mosoft.momomentum.module.MomentumApplication;
 import com.mosoft.momomentum.util.Util;
 import com.wefika.flowlayout.FlowLayout;
 
+import org.joda.time.LocalDate;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -176,16 +178,16 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             return;
         }
 
-        final List<Date> dates = optionChainProvider.get(symbol).getExpirationDates();
-        Collections.sort(dates, new Comparator<Date>() {
+        final List<LocalDate> dates = optionChainProvider.get(symbol).getExpirationDates();
+        Collections.sort(dates, new Comparator<LocalDate>() {
             @Override
-            public int compare(Date lhs, Date rhs) {
-                return Long.compare(lhs.getTime(), rhs.getTime());
+            public int compare(LocalDate lhs, LocalDate rhs) {
+                return lhs.compareTo(rhs);
             }
         });
 
         ArrayList<String> dateStr = new ArrayList<>();
-        for (Date date : dates) {
+        for (LocalDate date : dates) {
             dateStr.add(Util.getFormattedOptionDate(date));
         }
 
@@ -202,9 +204,9 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
     }
 
     private class ExpirationRangeBarListener implements RangeBar.OnRangeBarChangeListener {
-        private final List<Date> dates;
+        private final List<LocalDate> dates;
 
-        ExpirationRangeBarListener(List<Date> dates) {
+        ExpirationRangeBarListener(List<LocalDate> dates) {
             this.dates = dates;
         }
 
@@ -218,11 +220,11 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             int leftPinIndex = rangeBar.getLeftIndex();
             int rightPinIndex = rangeBar.getRightIndex();
 
-            Date startDate = null;
+            LocalDate startDate = null;
             if (leftPinIndex > 0)
                 startDate = dates.get(leftPinIndex);
 
-            Date endDate = null;
+            LocalDate endDate = null;
             if (rightPinIndex < dates.size() - 1)
                 endDate = dates.get(rightPinIndex);
 

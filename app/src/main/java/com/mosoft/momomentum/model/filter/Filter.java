@@ -10,7 +10,7 @@ import com.mosoft.momomentum.model.provider.amtd.AmeritradeOptionChain;
 abstract public class Filter implements Parcelable {
     public abstract boolean pass(Spread spread);
 
-    public abstract boolean pass(AmeritradeOptionChain.OptionDate optionDate);
+    public abstract boolean pass(AmeritradeOptionChain.AmtdOptionDate optionDate);
 
     public abstract boolean pass(Interfaces.OptionQuote optionQuote);
 

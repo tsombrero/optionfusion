@@ -5,6 +5,8 @@ import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.module.MomentumApplication;
 
+import org.joda.time.LocalDate;
+
 import java.util.Date;
 import java.util.List;
 
@@ -17,7 +19,7 @@ public class Interfaces {
         CALL;
     }
 
-    public static interface OptionQuote {
+    public interface OptionQuote {
         String getOptionSymbol();
 
         String getDescription();
@@ -48,7 +50,7 @@ public class Interfaces {
 
         OptionType getOptionType();
 
-        Date getExpiration();
+        LocalDate getExpiration();
 
         boolean isStandard();
 
@@ -72,11 +74,11 @@ public class Interfaces {
 
         List<Spread> getAllSpreads(FilterSet filterSet);
 
-        Date getExpirationDate();
+        LocalDate getExpirationDate();
 
         List<Double> getStrikePrices();
 
-        String getJson(Gson gson);
+        String toJson(Gson gson);
     }
 
     public interface OptionChain extends ResponseBase {
@@ -88,15 +90,15 @@ public class Interfaces {
 
         double getChange();
 
-        List<OptionDate> getChainsByDate();
+        List<? extends OptionDate> getChainsByDate();
 
-        List<Date> getExpirationDates();
+        List<LocalDate> getExpirationDates();
 
         List<Double> getStrikePrices();
 
-        List<OptionQuote> getOptionCalls();
+        List<? extends OptionQuote> getOptionCalls();
 
-        List<OptionQuote> getOptionPuts();
+        List<? extends OptionQuote> getOptionPuts();
 
         List<Spread> getAllSpreads(FilterSet filterSet);
 

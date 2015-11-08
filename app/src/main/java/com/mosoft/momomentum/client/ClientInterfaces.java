@@ -24,7 +24,7 @@ public class ClientInterfaces {
         String getLoginTime();
     }
 
-    public interface BrokerageClient {
+    public interface OptionChainClient {
         void logIn(String userId, String password, Callback<LoginResponse> callback);
 
         void getOptionChain(String symbol, Callback<OptionChain> callback);

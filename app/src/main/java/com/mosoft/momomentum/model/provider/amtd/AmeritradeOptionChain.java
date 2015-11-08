@@ -7,6 +7,7 @@ import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.provider.Interfaces;
 
+import org.joda.time.LocalDate;
 import org.simpleframework.xml.Default;
 import org.simpleframework.xml.DefaultType;
 import org.simpleframework.xml.Element;
@@ -18,7 +19,6 @@ import org.simpleframework.xml.core.Commit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +28,7 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
     @Element(name = "option-chain-results", required = false)
     private Data data;
 
-    private List<Date> expirationDates;
+    private List<LocalDate> expirationDates;
     private List<Double> strikePrices;
 
     @Override
@@ -52,21 +52,19 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
     }
 
     @Override
-    public List<Interfaces.OptionDate> getChainsByDate() {
+    public List<AmtdOptionDate> getChainsByDate() {
         if (data == null)
             return Collections.EMPTY_LIST;
 
-        List<Interfaces.OptionDate> ret = new ArrayList<>();
-        ret.addAll(data.optionDates);
-        return ret;
+        return Collections.unmodifiableList(data.optionDates);
     }
 
     @Override
-    public synchronized List<Date> getExpirationDates() {
+    public synchronized List<LocalDate> getExpirationDates() {
         if (expirationDates == null) {
-            HashSet<Date> ret = new HashSet<>();
+            HashSet<LocalDate> ret = new HashSet<>();
             for (Interfaces.OptionDate optionDate : getChainsByDate()) {
-                Date d = optionDate.getExpirationDate();
+                LocalDate d = optionDate.getExpirationDate();
                 if (d != null)
                     ret.add(d);
             }
@@ -107,7 +105,7 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
     @Override
     public List<Spread> getAllSpreads(FilterSet filterSet) {
         List<Spread> ret = new ArrayList<>();
-        for (OptionDate optionDate : data.optionDates) {
+        for (AmtdOptionDate optionDate : data.optionDates) {
             ret.addAll(optionDate.getAllSpreads(filterSet));
         }
         return ret;
@@ -142,7 +140,7 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
 
     @Commit
     public void build() {
-        for (OptionDate optionDate : data.optionDates) {
+        for (AmtdOptionDate optionDate : data.optionDates) {
             optionDate.underlying = this;
             for (OptionStrike strike : optionDate.optionStrikes) {
                 if (strike.put != null) {
@@ -180,12 +178,12 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         private String time;
 
         @ElementList(name = "option-date", inline = true)
-        List<OptionDate> optionDates;
+        List<AmtdOptionDate> optionDates;
     }
 
     @Root(name = "option-date")
     @Default(value = DefaultType.FIELD, required = false)
-    public static class OptionDate implements Interfaces.OptionDate {
+    public static class AmtdOptionDate implements Interfaces.OptionDate {
         String date;
 
         @Override
@@ -245,7 +243,7 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         }
 
         @Override
-        public Date getExpirationDate() {
+        public LocalDate getExpirationDate() {
             for (OptionStrike strike : optionStrikes) {
                 if (strike.call != null)
                     return strike.call.getExpiration();
@@ -270,7 +268,7 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         }
 
         @Override
-        public String getJson(Gson gson) {
+        public String toJson(Gson gson) {
             return gson.toJson(this);
         }
     }
@@ -346,10 +344,13 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         @Transient
         transient private AmeritradeOptionChain underlyingSymbol;
         @Transient
-        transient private OptionDate optionDate;
+        transient private AmtdOptionDate optionDate;
         @Transient
         transient private Interfaces.OptionType optionType;
-        private boolean standard;
+        @Transient
+        transient private boolean standard;
+        @Transient
+        transient private LocalDate exp;
 
         // Getters
 
@@ -458,11 +459,14 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         }
 
         @Override
-        public Date getExpiration() {
-            int year = Integer.valueOf(optionDate.date.substring(0, 4));
-            int month = Integer.valueOf(optionDate.date.substring(4, 6));
-            int day = Integer.valueOf(optionDate.date.substring(6));
-            return new GregorianCalendar(year, month, day).getTime();
+        public LocalDate getExpiration() {
+            if (exp == null) {
+                int year = Integer.valueOf(optionDate.date.substring(0, 4));
+                int month = Integer.valueOf(optionDate.date.substring(4, 6));
+                int day = Integer.valueOf(optionDate.date.substring(6));
+                exp = new LocalDate(year, month, day);
+            }
+            return exp;
         }
 
         @Override

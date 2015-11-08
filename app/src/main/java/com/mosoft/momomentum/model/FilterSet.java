@@ -32,7 +32,7 @@ public class FilterSet implements Parcelable {
         return true;
     }
 
-    public boolean pass(AmeritradeOptionChain.OptionDate optionDate) {
+    public boolean pass(AmeritradeOptionChain.AmtdOptionDate optionDate) {
         if (optionDate == null)
             return false;
 

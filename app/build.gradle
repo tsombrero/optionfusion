@@ -55,9 +55,10 @@ dependencies {
     compile 'net.danlew:android.joda:2.8.2'
     compile 'com.google.code.gson:gson:2.4'
 
-    //network
-    compile 'com.squareup.retrofit:retrofit:2.0.0-beta1'
-    compile 'com.squareup.retrofit:converter-simplexml:2.0.0-beta1'
+    //retrofit
+    compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'
+    compile 'com.squareup.retrofit:converter-simplexml:2.0.0-beta2'
+    compile 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
 
     //injection
     compile 'javax.annotation:jsr250-api:1.0'

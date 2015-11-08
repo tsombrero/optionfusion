@@ -9,6 +9,8 @@ import com.mosoft.momomentum.model.provider.amtd.AmeritradeOptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
 import com.mosoft.momomentum.util.Util;
 
+import org.joda.time.LocalDate;
+
 import java.util.Comparator;
 import java.util.Date;
 
@@ -136,7 +138,7 @@ abstract public class Spread implements Parcelable {
         return getPriceChange_MaxProfit() / underlying.getLast();
     }
 
-    public Date getExpiresDate() {
+    public LocalDate getExpiresDate() {
         return buy.getExpiration();
     }
 

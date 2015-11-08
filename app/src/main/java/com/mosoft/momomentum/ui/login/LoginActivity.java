@@ -24,6 +24,7 @@ public class LoginActivity extends Activity implements StartFragment.Host {
         getFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, frag, "tag_start")
                 .commit();
+
     }
 
     @Override

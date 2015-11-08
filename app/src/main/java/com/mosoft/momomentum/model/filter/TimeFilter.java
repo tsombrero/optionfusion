@@ -8,22 +8,26 @@ import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.provider.amtd.AmeritradeOptionChain;
 import com.mosoft.momomentum.util.Util;
 
+import org.joda.time.DateTimeField;
+import org.joda.time.DateTimeFieldType;
+import org.joda.time.LocalDate;
+
 import java.util.Date;
 
 public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider {
-    private Date maxExpDate;
-    private Date minExpDate;
+    private LocalDate maxExpDate;
+    private LocalDate minExpDate;
 
     private int minDaysToExp = 0;
     private int maxDaysToExp = Integer.MAX_VALUE;
 
-    public static final TimeFilter EMPTY_FILTER = new TimeFilter(new Date(0), new Date(0));
+    public static final TimeFilter EMPTY_FILTER = new TimeFilter(new LocalDate(0), new LocalDate(0));
 
-    public TimeFilter(Date minExpDate, Date maxExpDate) {
+    public TimeFilter(LocalDate minExpDate, LocalDate maxExpDate) {
         if (maxExpDate == null && minExpDate == null)
             throw new IllegalArgumentException("No max or min date provided");
 
-        if (maxExpDate != null && minExpDate != null && maxExpDate.getTime() < minExpDate.getTime()) {
+        if (maxExpDate != null && minExpDate != null && maxExpDate.isBefore(minExpDate)) {
             throw new IllegalArgumentException("Max date is before min date");
         }
 
@@ -38,7 +42,7 @@ public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider 
     }
 
     public TimeFilter(Parcel parcel) {
-        this(new Date(parcel.readLong()), new Date(parcel.readLong()));
+        this(new LocalDate(parcel.readLong()), new LocalDate(parcel.readLong()));
     }
 
     @Override
@@ -47,7 +51,7 @@ public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider 
     }
 
     @Override
-    public boolean pass(AmeritradeOptionChain.OptionDate optionDate) {
+    public boolean pass(AmeritradeOptionChain.AmtdOptionDate optionDate) {
         return pass(optionDate.getDaysToExpiration());
     }
 
@@ -87,15 +91,15 @@ public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(FilterType.TIME.ordinal());
-        dest.writeLong(minExpDate.getTime());
-        dest.writeLong(maxExpDate.getTime());
+        dest.writeLong(minExpDate.toDate().getTime());
+        dest.writeLong(maxExpDate.toDate().getTime());
     }
 
-    public Date getMinExpDate() {
+    public LocalDate getMinExpDate() {
         return minExpDate;
     }
 
-    public Date getMaxExpDate() {
+    public LocalDate getMaxExpDate() {
         return maxExpDate;
     }
 

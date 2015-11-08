@@ -4,10 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Fragment;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,16 +46,37 @@ public class LoginFragment extends Fragment {
     View progressView;
 
     @Inject
-    Lazy<ClientInterfaces.BrokerageClient> brokerageClient;
+    Lazy<ClientInterfaces.OptionChainClient> brokerageClient;
+
+    private static final String TAG = LoginFragment.class.getSimpleName();
 
     public static Fragment newInstance() {
         return new LoginFragment();
+    }
+
+    public static class TestClass {
+        Ymd expiry;
+    }
+
+    public static class Ymd {
+        int y, m, d;
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         MomentumApplication.from(getActivity()).getComponent().inject(this);
+
+
+        TestClass testClass = null;
+        try {
+            testClass = MomentumApplication.getGson().fromJson("{expiry:{y:2015,m:11,d:13}}", TestClass.class);
+        } catch (Exception e) {
+            Log.e(TAG, "Exception!", e);
+        }
+
+
+
         View ret = inflater.inflate(R.layout.activity_login, container, false);
         ButterKnife.bind(this, ret);
 

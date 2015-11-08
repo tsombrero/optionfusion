@@ -11,12 +11,12 @@ import com.mosoft.momomentum.model.provider.Interfaces;
 public class OptionChainProvider extends LruCache<String, Interfaces.OptionChain> {
 
     private final Context context;
-    private final ClientInterfaces.BrokerageClient brokerageClient;
+    private final ClientInterfaces.OptionChainClient optionChainClient;
 
-    public OptionChainProvider(Context context, ClientInterfaces.BrokerageClient brokerageClient) {
+    public OptionChainProvider(Context context, ClientInterfaces.OptionChainClient optionChainClient) {
         super(10);
         this.context = context;
-        this.brokerageClient = brokerageClient;
+        this.optionChainClient = optionChainClient;
     }
 
     public void get(final String symbol, final OptionChainCallback callback) {
@@ -26,7 +26,7 @@ public class OptionChainProvider extends LruCache<String, Interfaces.OptionChain
             return;
         }
 
-        brokerageClient.getOptionChain(symbol, new ClientInterfaces.Callback<Interfaces.OptionChain>() {
+        optionChainClient.getOptionChain(symbol, new ClientInterfaces.Callback<Interfaces.OptionChain>() {
                     @Override
                     public void call(Interfaces.OptionChain oc) {
                         if (oc == null || !oc.succeeded()) {

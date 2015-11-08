@@ -5,22 +5,20 @@ import android.util.Log;
 import com.mosoft.momomentum.model.provider.Interfaces;
 import com.mosoft.momomentum.model.provider.amtd.AmeritradeLoginResponse;
 import com.mosoft.momomentum.model.provider.amtd.AmeritradeOptionChain;
-import com.mosoft.momomentum.module.MomentumApplication;
 
 import java.util.List;
-
-import javax.inject.Inject;
 
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
+import retrofit.Retrofit;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
 import retrofit.http.POST;
 import retrofit.http.Query;
 
-public class AmeritradeClient implements ClientInterfaces.BrokerageClient {
+public class AmeritradeClient implements ClientInterfaces.OptionChainClient {
 
     private RestInterface restInterface;
     private String sessionId;
@@ -39,7 +37,7 @@ public class AmeritradeClient implements ClientInterfaces.BrokerageClient {
         callable.enqueue(new Callback<AmeritradeLoginResponse>() {
 
             @Override
-            public void onResponse(Response<AmeritradeLoginResponse> response) {
+            public void onResponse(Response<AmeritradeLoginResponse> response, Retrofit retrofit) {
                 AmeritradeClient.this.response = response;
                 setSessionId(response.body().getSessionId());
                 callback.call(response.body());
@@ -57,7 +55,7 @@ public class AmeritradeClient implements ClientInterfaces.BrokerageClient {
         Call<AmeritradeOptionChain> callable = restInterface.getOptionChain(symbol);
         callable.enqueue(new Callback<AmeritradeOptionChain>(){
             @Override
-            public void onResponse(Response<AmeritradeOptionChain> response) {
+            public void onResponse(Response<AmeritradeOptionChain> response, Retrofit retrofit) {
                 callback.call(response.body());
             }
 
