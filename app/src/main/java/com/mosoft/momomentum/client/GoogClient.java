@@ -1,11 +1,15 @@
 package com.mosoft.momomentum.client;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.mosoft.momomentum.model.provider.Interfaces;
 import com.mosoft.momomentum.model.provider.goog.GoogOptionChain;
+import com.mosoft.momomentum.module.MomentumApplication;
 
 import java.io.IOException;
+
+import javax.inject.Inject;
 
 import retrofit.Call;
 import retrofit.Response;
@@ -15,15 +19,27 @@ import retrofit.http.Query;
 public class GoogClient implements ClientInterfaces.OptionChainClient {
 
     private final RestInterface restInterface;
+
+    //TODO decouple stockquote from optionchain
+    public void setStockQuoteClient(ClientInterfaces.StockQuoteClient stockQuoteClient) {
+        this.stockQuoteClient = stockQuoteClient;
+    }
+
+    ClientInterfaces.StockQuoteClient stockQuoteClient;
     private final static String TAG = GoogClient.class.getSimpleName();
 
-    public GoogClient(RestInterface restInterface) {
+    public GoogClient(RestInterface restInterface, ClientInterfaces.StockQuoteClient stockQuoteClient) {
         this.restInterface = restInterface;
+        this.stockQuoteClient = stockQuoteClient;
     }
 
     @Override
     public void getOptionChain(String symbol, ClientInterfaces.Callback<Interfaces.OptionChain> callback) {
         new OptionChainTask(callback).execute(symbol);
+    }
+
+    public Interfaces.StockQuote getStockQuote(String symbol) {
+        return stockQuoteClient.getStockQuote(symbol, null);
     }
 
     private class OptionChainTask extends AsyncTask<String, Void, GoogOptionChain> {
@@ -37,8 +53,17 @@ public class GoogClient implements ClientInterfaces.OptionChainClient {
         @Override
         protected GoogOptionChain doInBackground(String... params) {
             String symbol = params[0];
-            GoogOptionChain ret = new GoogOptionChain();
 
+            Interfaces.StockQuote quote = getStockQuote(symbol);
+
+            // TODO decouple quote from chain
+            if (quote == null) {
+                Log.e(TAG, "Failed getting option chain because quote is empty");
+                return null;
+            }
+
+            GoogOptionChain ret = new GoogOptionChain();
+            ret.setStockQuote(quote);
             try {
                 Response<GoogOptionChain.GoogExpirations> expirations = restInterface.getExpirations(symbol).execute();
                 for (GoogOptionChain.GoogExpiration expiration : expirations.body().getExpirations()) {

@@ -80,10 +80,11 @@ public class Util {
         synchronized (calendar) {
             LocalDate nearDateLimit = LocalDate.now().plusMonths(6);
 
+            //TODO don't use dateformat, use joda
             if (date.isBefore(nearDateLimit)) {
-                return dateFormatNear.format(date);
+                return dateFormatNear.format(date.toDate());
             }
-            return dateFormatFar.format(date);
+            return dateFormatFar.format(date.toDate());
         }
     }
 

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.provider.Interfaces;
+import com.mosoft.momomentum.module.MomentumApplication;
 import com.mosoft.momomentum.util.Util;
 
 import org.joda.time.Days;
@@ -18,28 +19,15 @@ public class GoogOptionChain implements Interfaces.OptionChain {
     private ArrayList<GoogOptionDate> optionDates = new ArrayList<>();
     private transient boolean succeeded;
 
+    private transient Interfaces.StockQuote stockQuote;
+
     public void addToChain(GoogOptionDate date) {
         optionDates.add(date);
     }
 
     @Override
-    public String getSymbol() {
-        return null;
-    }
-
-    @Override
-    public double getLast() {
-        return 0;
-    }
-
-    @Override
-    public double getAsk() {
-        return 0;
-    }
-
-    @Override
-    public double getChange() {
-        return 0;
+    public Interfaces.StockQuote getUnderlyingStockQuote() {
+        return stockQuote;
     }
 
     @Override
@@ -73,23 +61,13 @@ public class GoogOptionChain implements Interfaces.OptionChain {
     }
 
     @Override
-    public String getEquityDescription() {
-        return null;
-    }
-
-    @Override
     public String toJson(Gson gson) {
         return gson.toJson(this);
     }
 
     @Override
-    public double getClose() {
-        return 0;
-    }
-
-    @Override
     public boolean succeeded() {
-        return false;
+        return succeeded;
     }
 
     @Override
@@ -101,18 +79,26 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         this.succeeded = succeeded;
     }
 
+    public MomentumApplication.Provider getProvider() {
+        return MomentumApplication.Provider.AMERITRADE;
+    }
+
+    public void setStockQuote(Interfaces.StockQuote stockQuote) {
+        this.stockQuote = stockQuote;
+    }
+
     public class GoogOptionQuote implements Interfaces.OptionQuote {
         private String s;
         private String e;
         private String p;
 //        private String c;
-        private double b;
-        private double a;
+        private Double b;
+        private Double a;
 //        private long oi;
 //        private String vol;
-        private double strike;
+        private Double strike;
 
-        transient GoogExpiration expiration;
+        transient GoogOptionDate optionDate;
 
         @Override
         public String getOptionSymbol() {
@@ -140,13 +126,8 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         }
 
         @Override
-        public Double getUnderlyingSymbolAsk() {
-            return null;
-        }
-
-        @Override
         public int getDaysUntilExpiration() {
-            return expiration.getDaysToExpiration();
+            return optionDate.getDaysToExpiration();
         }
 
         @Override
@@ -191,7 +172,7 @@ public class GoogOptionChain implements Interfaces.OptionChain {
 
         @Override
         public LocalDate getExpiration() {
-            return expiration.getDate();
+            return optionDate.getExpirationDate();
         }
 
         @Override
@@ -200,8 +181,18 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         }
 
         @Override
+        public Interfaces.StockQuote getUnderlyingStockQuote() {
+            return optionDate.optionChain.getUnderlyingStockQuote();
+        }
+
+        @Override
         public String toJson(Gson gson) {
             return gson.toJson(this);
+        }
+
+        @Override
+        public MomentumApplication.Provider getProvider() {
+            return MomentumApplication.Provider.GOOGLE_FINANCE;
         }
     }
 
@@ -218,11 +209,66 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         private String underlyingPrice;
     }
 
+    public class GoogStockQuote implements Interfaces.StockQuote {
+        String t;
+        Double l_fix, s, c_fix, pcls_fix;
+
+        @Override
+        public String getSymbol() {
+            return t;
+        }
+
+        @Override
+        public String getDescription() {
+            return "no description";
+        }
+
+        @Override
+        public double getBid() {
+            return l_fix;
+        }
+
+        @Override
+        public double getAsk() {
+            return l_fix;
+        }
+
+        @Override
+        public double getLast() {
+            return l_fix;
+        }
+
+        @Override
+        public double getOpen() {
+            return l_fix - c_fix;
+        }
+
+        @Override
+        public double getClose() {
+            return pcls_fix;
+        }
+
+        @Override
+        public String toJson(Gson gson) {
+            return gson.toJson(this);
+        }
+
+        @Override
+        public MomentumApplication.Provider getProvider() {
+            return MomentumApplication.Provider.GOOGLE_FINANCE;
+        }
+    }
+
     public class GoogOptionDate implements Interfaces.OptionDate {
         private GoogExpiration expiry;
         private List<GoogOptionQuote> puts = new ArrayList<>();
         private List<GoogOptionQuote> calls = new ArrayList<>();
-        private String underlyingPrice;
+
+        private transient GoogOptionChain optionChain;
+
+        public GoogOptionChain getOptionChain() {
+            return optionChain;
+        }
 
         @Override
         public int getDaysToExpiration() {

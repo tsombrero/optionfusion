@@ -3,23 +3,24 @@ package com.mosoft.momomentum.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.Gson;
 import com.mosoft.momomentum.model.provider.ClassFactory;
 import com.mosoft.momomentum.model.provider.Interfaces;
-import com.mosoft.momomentum.model.provider.amtd.AmeritradeOptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
 import com.mosoft.momomentum.util.Util;
 
 import org.joda.time.LocalDate;
 
 import java.util.Comparator;
-import java.util.Date;
+
+import javax.inject.Inject;
 
 abstract public class Spread implements Parcelable {
     Interfaces.OptionQuote buy, sell;
     Interfaces.StockQuote underlying;
 
-    //TODO
-    private static MomentumApplication.Provider provider = MomentumApplication.Provider.AMERITRADE;
+    @Inject
+    Gson gson;
 
     public enum SpreadType {
         BULL_CALL,
@@ -54,7 +55,7 @@ abstract public class Spread implements Parcelable {
                 : SpreadType.BULL_PUT;
     }
 
-    public static Spread newSpread(Interfaces.OptionQuote buy, Interfaces.OptionQuote sell, AmeritradeOptionChain underlying) {
+    public static Spread newSpread(Interfaces.OptionQuote buy, Interfaces.OptionQuote sell, Interfaces.StockQuote underlying) {
         if (buy == null || sell == null)
             return null;
 
@@ -182,7 +183,9 @@ abstract public class Spread implements Parcelable {
         return sell.getStrike();
     }
 
-    public double getPrice_MaxLoss() { return buy.getStrike(); }
+    public double getPrice_MaxLoss() {
+        return buy.getStrike();
+    }
 
     public boolean isCall() {
         return buy.getOptionType() == Interfaces.OptionType.CALL;
@@ -242,23 +245,30 @@ abstract public class Spread implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(getBuy().toJson(MomentumApplication.getGson()));
-        dest.writeString(getSell().toJson(MomentumApplication.getGson()));
-        dest.writeString(underlying.toJson(MomentumApplication.getGson()));
+        dest.writeInt(getBuy().getProvider().ordinal());
+        dest.writeString(getBuy().toJson(gson));
+        dest.writeInt(getSell().getProvider().ordinal());
+        dest.writeString(getSell().toJson(gson));
+        dest.writeInt(underlying.getProvider().ordinal());
+        dest.writeString(underlying.toJson(gson));
     }
 
     public static final Parcelable.Creator<Spread> CREATOR = new SpreadCreator();
 
     public static class SpreadCreator implements Parcelable.Creator<Spread> {
         public Spread createFromParcel(Parcel in) {
-            Interfaces.OptionQuote buy = ClassFactory.OptionQuoteFromJson(MomentumApplication.getGson(), provider, in.readString());
-            Interfaces.OptionQuote sell = ClassFactory.OptionQuoteFromJson(MomentumApplication.getGson(), provider, in.readString());
-            AmeritradeOptionChain oc = ClassFactory.OptionChainFromJson(MomentumApplication.getGson(), provider, in.readString());
-            return Spread.newSpread(buy, sell, oc);
+            Interfaces.OptionQuote buy = ClassFactory.OptionQuoteFromJson(readProvider(in), in.readString());
+            Interfaces.OptionQuote sell = ClassFactory.OptionQuoteFromJson(readProvider(in), in.readString());
+            Interfaces.OptionChain oc = ClassFactory.OptionChainFromJson(readProvider(in), in.readString());
+            return Spread.newSpread(buy, sell, oc.getUnderlyingStockQuote());
         }
 
         public Spread[] newArray(int size) {
             return new Spread[size];
+        }
+
+        private MomentumApplication.Provider readProvider(Parcel in) {
+            return MomentumApplication.Provider.values()[in.readInt()];
         }
     }
 }

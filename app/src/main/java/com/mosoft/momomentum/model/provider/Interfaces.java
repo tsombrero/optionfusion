@@ -55,6 +55,8 @@ public class Interfaces {
         StockQuote getUnderlyingStockQuote();
 
         String toJson(Gson gson);
+
+        Provider getProvider();
     }
 
     public interface StockQuote {
@@ -66,16 +68,17 @@ public class Interfaces {
         double getOpen();
         double getClose();
         String toJson(Gson gson);
+        Provider getProvider();
     }
 
     public interface OptionStrike {
         boolean isStandard();
 
-        public OptionQuote getPut();
+        OptionQuote getPut();
 
-        public OptionQuote getCall();
+        OptionQuote getCall();
 
-        public double getStrikePrice();
+        double getStrikePrice();
 
         String getJson(Gson gson);
     }
@@ -108,6 +111,8 @@ public class Interfaces {
         List<Spread> getAllSpreads(FilterSet filterSet);
 
         String toJson(Gson gson);
+
+        Provider getProvider();
     }
 
     public interface Account {

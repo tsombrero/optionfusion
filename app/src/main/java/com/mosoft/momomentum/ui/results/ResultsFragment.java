@@ -16,7 +16,6 @@ import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.provider.Interfaces;
-import com.mosoft.momomentum.model.provider.amtd.AmeritradeOptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
 import com.mosoft.momomentum.ui.SharedViewHolders;
 import com.mosoft.momomentum.util.Util;
@@ -141,7 +140,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
 
     @Override
     public void onResultSelected(Spread spread, View headerLayout, View briefDetailsLayout) {
-        ((Host)getActivity()).showDetails(spread, this, headerLayout, briefDetailsLayout, stockInfoLayout);
+        ((Host) getActivity()).showDetails(spread, this, headerLayout, briefDetailsLayout, stockInfoLayout);
     }
 
     public interface Host {

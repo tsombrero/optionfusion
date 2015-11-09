@@ -31,4 +31,8 @@ public class AmtdResponseBase {
     public String getError() {
         return error;
     }
+
+    public MomentumApplication.Provider getProvider() {
+        return MomentumApplication.Provider.AMERITRADE;
+    }
 }

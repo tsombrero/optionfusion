@@ -13,7 +13,6 @@ import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.cache.OptionChainProvider;
 import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.provider.Interfaces;
-import com.mosoft.momomentum.model.provider.amtd.AmeritradeOptionChain;
 import com.mosoft.momomentum.module.MomentumApplication;
 import com.mosoft.momomentum.ui.SharedViewHolders;
 import com.mosoft.momomentum.ui.widgets.VerticalTextView;
@@ -135,7 +134,7 @@ public class TradeDetailsFragment extends Fragment {
         values.add(new PointValue((float) spread.getPrice_BreakEven(), 0f).setLabel(""));
         values.add(new PointValue((float) spread.getPrice_MaxReturn(), (float) spread.getMaxReturn()).setLabel(Util.formatDollars(spread.getMaxReturn()) + " / " + Util.formatPercentCompact(spread.getMaxPercentProfitAtExpiration())));
 
-        float lastPrice = (float) oc.getLast();
+        float lastPrice = (float) oc.getUnderlyingStockQuote().getLast();
 
         if (spread.isBullSpread()) {
             values.add(new PointValue(lastPrice * 100f, (float) spread.getMaxReturn()).setLabel(""));
@@ -227,8 +226,8 @@ public class TradeDetailsFragment extends Fragment {
         v.left = (float) (spread.getPrice_BreakEven() - xViewRange);
         v.right = (float) (spread.getPrice_BreakEven() + xViewRange);
 
-        v.left = (float) Math.max(0f, Math.min(oc.getLast() * 0.98f, v.left));
-        v.right = (float) Math.max(oc.getLast() * 1.02f, v.right);
+        v.left = (float) Math.max(0f, Math.min(oc.getUnderlyingStockQuote().getLast() * 0.98f, v.left));
+        v.right = (float) Math.max(oc.getUnderlyingStockQuote().getLast() * 1.02f, v.right);
 
         v.bottom = (float) Math.max(v.bottom, Math.max(0f, spread.getAsk()) * -1f);
 
@@ -236,7 +235,7 @@ public class TradeDetailsFragment extends Fragment {
         plChart.setMaximumViewport(v);
         plChart.setCurrentViewport(v);
 
-        labelX.setText(oc.getSymbol() + " SHARE PRICE");
+        labelX.setText(oc.getUnderlyingStockQuote().getSymbol() + " SHARE PRICE");
         labelY.setText("PROFIT AT EXP");
     }
 }

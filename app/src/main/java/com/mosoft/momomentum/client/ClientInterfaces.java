@@ -13,7 +13,8 @@ public class ClientInterfaces {
 
         public abstract void onError(int status, String message);
 
-        public void onFinally() {};
+        public void onFinally() {
+        }
     }
 
     public interface LoginResponse {
@@ -35,5 +36,9 @@ public class ClientInterfaces {
         void getAccounts(Callback<List<? extends Interfaces.Account>> callback);
 
         boolean isAuthenticated();
+    }
+
+    public interface StockQuoteClient {
+        Interfaces.StockQuote getStockQuote(String symbol, Callback<Interfaces.StockQuote> callback);
     }
 }

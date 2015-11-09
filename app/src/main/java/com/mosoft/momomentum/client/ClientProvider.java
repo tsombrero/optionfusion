@@ -26,10 +26,9 @@ public abstract class ClientProvider {
             Request request = chain.request();
 
             long t1 = System.nanoTime();
-            String requestLog = String.format("Sending request %s on %s%n%s",
+            String requestLog = String.format("Sending request %s on %s : %s",
                     request.url(), chain.connection(), request.headers());
-            // Log.d(String.format("Sending request %s on %s%n%s",
-            //        request.url(), chain.connection(), request.headers()));
+
             if (request.method().compareToIgnoreCase("post") == 0) {
                 requestLog = "\n" + requestLog + "\n" + bodyToString(request);
             }
@@ -68,10 +67,14 @@ public abstract class ClientProvider {
     }
 
     public interface BrokerageClientProvider {
-        ClientInterfaces.BrokerageClient getBrokerageClient(MomentumApplication application);
+        ClientInterfaces.BrokerageClient getBrokerageClient();
     }
 
     public interface OptionChainClientProvider {
-        ClientInterfaces.OptionChainClient getOptionChainClient(MomentumApplication application);
+        ClientInterfaces.OptionChainClient getOptionChainClient();
+    }
+
+    public interface StockQuoteClientProvider {
+        ClientInterfaces.StockQuoteClient getStockQuoteClient();
     }
 }

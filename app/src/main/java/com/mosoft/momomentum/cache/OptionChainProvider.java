@@ -12,6 +12,7 @@ public class OptionChainProvider extends LruCache<String, Interfaces.OptionChain
 
     private final Context context;
     private final ClientInterfaces.OptionChainClient optionChainClient;
+    private final String TAG = OptionChainProvider.class.getSimpleName();
 
     public OptionChainProvider(Context context, ClientInterfaces.OptionChainClient optionChainClient) {
         super(10);
@@ -29,7 +30,11 @@ public class OptionChainProvider extends LruCache<String, Interfaces.OptionChain
         optionChainClient.getOptionChain(symbol, new ClientInterfaces.Callback<Interfaces.OptionChain>() {
                     @Override
                     public void call(Interfaces.OptionChain oc) {
-                        if (oc == null || !oc.succeeded()) {
+                        if (oc == null) {
+                            Log.e(TAG, "Failed getting option chain: null");
+                            return;
+                        }
+                        if (!oc.succeeded()) {
                             Log.w("tag", "Failed: " + oc.getError());
                             callback.call(null);
                             return;

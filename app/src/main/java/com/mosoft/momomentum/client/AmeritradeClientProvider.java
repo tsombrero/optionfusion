@@ -11,36 +11,36 @@ import retrofit.SimpleXmlConverterFactory;
 
 public class AmeritradeClientProvider extends ClientProvider implements ClientProvider.OptionChainClientProvider, ClientProvider.BrokerageClientProvider {
 
-    private AmeritradeClient getClient(MomentumApplication application) {
+    private AmeritradeClient client;
 
-        OkHttpClient okHttpClient = new OkHttpClient();
-        okHttpClient.interceptors().add(new LoggingInterceptor());
+    private synchronized AmeritradeClient getClient() {
+        if (client == null) {
+            OkHttpClient okHttpClient = new OkHttpClient();
+            okHttpClient.interceptors().add(new LoggingInterceptor());
 
-        CookieManager cookieManager = new CookieManager();
-        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-        okHttpClient.setCookieHandler(cookieManager);
+            CookieManager cookieManager = new CookieManager();
+            cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+            okHttpClient.setCookieHandler(cookieManager);
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://apis.tdameritrade.com/apps/")
-                .addConverterFactory(SimpleXmlConverterFactory.createNonStrict())
-                .client(okHttpClient)
-                .build();
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl("https://apis.tdameritrade.com/apps/")
+                    .addConverterFactory(SimpleXmlConverterFactory.createNonStrict())
+                    .client(okHttpClient)
+                    .build();
 
-        AmeritradeClient ret = new AmeritradeClient(retrofit.create(AmeritradeClient.RestInterface.class));
+            client = new AmeritradeClient(retrofit.create(AmeritradeClient.RestInterface.class));
+        }
 
-        application.getComponent().inject(ret);
-
-        return ret;
-    }
-
-
-    @Override
-    public ClientInterfaces.BrokerageClient getBrokerageClient(MomentumApplication application) {
-        return getClient(application);
+        return client;
     }
 
     @Override
-    public ClientInterfaces.OptionChainClient getOptionChainClient(MomentumApplication application) {
-        return getClient(application);
+    public ClientInterfaces.BrokerageClient getBrokerageClient() {
+        return getClient();
+    }
+
+    @Override
+    public ClientInterfaces.OptionChainClient getOptionChainClient() {
+        return getClient();
     }
 }

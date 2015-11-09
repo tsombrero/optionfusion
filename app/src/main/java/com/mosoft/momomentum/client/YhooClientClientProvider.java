@@ -9,17 +9,12 @@ import com.squareup.okhttp.OkHttpClient;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
-
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 
-public class GoogClientProvider extends ClientProvider implements ClientProvider.OptionChainClientProvider {
+public class YhooClientClientProvider extends ClientProvider implements ClientProvider.StockQuoteClientProvider {
 
-    @Inject
     ClientInterfaces.StockQuoteClient stockQuoteClient;
-
-    ClientInterfaces.OptionChainClient optionChainClient;
 
     Gson gson = new GsonBuilder()
             .registerTypeAdapter(Double.class, new TypeAdapter<Double>() {
@@ -41,29 +36,20 @@ public class GoogClientProvider extends ClientProvider implements ClientProvider
 
 
     @Override
-    public ClientInterfaces.OptionChainClient getOptionChainClient() {
-        if (optionChainClient == null) {
-
+    public ClientInterfaces.StockQuoteClient getStockQuoteClient() {
+        if (stockQuoteClient == null) {
             OkHttpClient okHttpClient = new OkHttpClient();
             okHttpClient.interceptors().add(new LoggingInterceptor());
 
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("https://www.google.com/finance/")
+                    .baseUrl("http://query.yahooapis.com/v1/public/")
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .client(okHttpClient)
                     .build();
 
-            optionChainClient = new GoogClient(retrofit.create(GoogClient.RestInterface.class), stockQuoteClient);
+            stockQuoteClient = new YhooClient(retrofit.create(YhooClient.RestInterface.class));
         }
 
-        return optionChainClient;
-    }
-
-    public ClientInterfaces.OptionChainClient getOptionChainClient(ClientInterfaces.StockQuoteClient stockQuoteClient) {
-        getOptionChainClient();
-        if (optionChainClient != null)
-            ((GoogClient) optionChainClient).setStockQuoteClient(stockQuoteClient);
-
-        return optionChainClient;
+        return stockQuoteClient;
     }
 }

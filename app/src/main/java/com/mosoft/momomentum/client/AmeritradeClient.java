@@ -1,11 +1,14 @@
 package com.mosoft.momomentum.client;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.mosoft.momomentum.model.provider.Interfaces;
 import com.mosoft.momomentum.model.provider.amtd.AmeritradeLoginResponse;
 import com.mosoft.momomentum.model.provider.amtd.AmeritradeOptionChain;
+import com.mosoft.momomentum.model.provider.amtd.AmeritradeStockQuote;
 
+import java.io.IOException;
 import java.util.List;
 
 import retrofit.Call;
@@ -52,18 +55,53 @@ public class AmeritradeClient implements ClientInterfaces.OptionChainClient, Cli
 
     @Override
     public void getOptionChain(String symbol, final ClientInterfaces.Callback<Interfaces.OptionChain> callback) {
-        Call<AmeritradeOptionChain> callable = restInterface.getOptionChain(symbol);
-        callable.enqueue(new Callback<AmeritradeOptionChain>(){
-            @Override
-            public void onResponse(Response<AmeritradeOptionChain> response, Retrofit retrofit) {
-                callback.call(response.body());
-            }
+        new GetOptionChainTask(callback).execute(symbol);
+    }
 
-            @Override
-            public void onFailure(Throwable t) {
-                Log.e(TAG, "Failed", t);
+    private class GetOptionChainTask extends AsyncTask<String, Void, AmeritradeOptionChain> {
+
+        ClientInterfaces.Callback<Interfaces.OptionChain> callback;
+
+        public GetOptionChainTask(ClientInterfaces.Callback<Interfaces.OptionChain> callback) {
+            this.callback = callback;
+        }
+
+        @Override
+        protected void onPostExecute(AmeritradeOptionChain ameritradeOptionChain) {
+            callback.call(ameritradeOptionChain);
+        }
+
+        @Override
+        protected AmeritradeOptionChain doInBackground(String... params) {
+            String symbol = params[0];
+            try {
+                Response<AmeritradeStockQuote> quoteResponse = restInterface.getStockQuote(symbol).execute();
+                if (!checkRespoonse(quoteResponse))
+                    return null;
+
+                Response<AmeritradeOptionChain> chainResponse = restInterface.getOptionChain(symbol).execute();
+                if (!checkRespoonse(chainResponse))
+                    return null;
+
+                AmeritradeOptionChain chain = chainResponse.body();
+                AmeritradeStockQuote quote = quoteResponse.body();
+
+                chain.setStockQuote(quote);
+                return chain;
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        });
+            return null;
+        }
+    }
+
+    public boolean checkRespoonse(Response response) {
+        if (!response.isSuccess()) {
+            Log.w(TAG, "Failed : " + response.code() + " " + response.errorBody() + " " + response.message());
+            return false;
+        }
+
+        return true;
     }
 
     public void setSessionId(String sessionId) {
@@ -78,6 +116,10 @@ public class AmeritradeClient implements ClientInterfaces.OptionChainClient, Cli
         //https://apis.tdameritrade.com/apps/200/OptionChain?source=<#sourceID# >&symbolView=AMTD&expire=200709&quotes=true
         @GET("200/OptionChain?source=JKRR&quotes=true&range=ALL")
         Call<AmeritradeOptionChain> getOptionChain(@Query("symbol") String symbol);
+
+        // https://apis.tdameritrade.com/apps/100/Quote?source=<#sourceID#>&symbol=<#symbol#>
+        @GET("100/Quote?source=JKRR")
+        Call<AmeritradeStockQuote> getStockQuote(@Query("symbol") String symbol);
     }
 
     @Override

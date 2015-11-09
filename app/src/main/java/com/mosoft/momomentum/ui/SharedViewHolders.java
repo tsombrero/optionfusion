@@ -37,10 +37,10 @@ public class SharedViewHolders {
             if (oc == null)
                 return;
 
-            symbolView.setText(oc.getSymbol());
-            priceView.setText(Util.formatDollars(oc.getLast()));
-            equityDescriptionView.setText(oc.getEquityDescription());
-            view.setTransitionName(getTransitionName(oc.getSymbol()));
+            symbolView.setText(oc.getUnderlyingStockQuote().getSymbol());
+            priceView.setText(Util.formatDollars(oc.getUnderlyingStockQuote().getLast()));
+            equityDescriptionView.setText(oc.getUnderlyingStockQuote().getDescription());
+            view.setTransitionName(getTransitionName(oc.getUnderlyingStockQuote().getSymbol()));
         }
 
         static public String getTransitionName(String symbol) {

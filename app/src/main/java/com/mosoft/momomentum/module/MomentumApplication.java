@@ -9,7 +9,6 @@ import com.google.gson.GsonBuilder;
 
 public class MomentumApplication extends Application {
 
-    private static Gson gson;
     private MomentumApplicationComponent applicationComponent;
 
     public enum Provider {
@@ -46,14 +45,5 @@ public class MomentumApplication extends Application {
 
     public MomentumApplicationComponent getComponent() {
         return applicationComponent;
-    }
-
-    // We often need Gson where context is not available, and it's the same for everyone, so use this old-school singleton
-    // TODO figure out how to inject Gson without plumbing a context into everywhere that needs it
-    public static Gson getGson() {
-        if (gson == null)
-            gson = new GsonBuilder().create();
-
-        return gson;
     }
 }

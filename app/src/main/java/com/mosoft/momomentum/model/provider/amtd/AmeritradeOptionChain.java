@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.provider.Interfaces;
+import com.mosoft.momomentum.module.MomentumApplication;
 
 import org.joda.time.LocalDate;
 import org.simpleframework.xml.Default;
@@ -18,7 +19,6 @@ import org.simpleframework.xml.core.Commit;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,24 +31,19 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
     private List<LocalDate> expirationDates;
     private List<Double> strikePrices;
 
-    @Override
-    public String getSymbol() {
-        return data.symbol;
+    private AmeritradeStockQuote stockQuote;
+
+    public AmeritradeStockQuote getStockQuote() {
+        return stockQuote;
+    }
+
+    public void setStockQuote(AmeritradeStockQuote stockQuote) {
+        this.stockQuote = stockQuote;
     }
 
     @Override
-    public double getLast() {
-        return data.last;
-    }
-
-    @Override
-    public double getAsk() {
-        return data.ask;
-    }
-
-    @Override
-    public double getChange() {
-        return data.change;
+    public Interfaces.StockQuote getUnderlyingStockQuote() {
+        return stockQuote;
     }
 
     @Override
@@ -120,20 +115,9 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
     }
 
     @Override
-    public String getEquityDescription() {
-        return data.description;
-    }
-
-    @Override
     public String toJson(Gson gson) {
         return gson.toJson(this);
     }
-
-    @Override
-    public double getClose() {
-        return data.close;
-    }
-
 
     transient List<Interfaces.OptionQuote> callQuotes = new ArrayList<>();
     transient List<Interfaces.OptionQuote> putQuotes = new ArrayList<>();
@@ -141,10 +125,10 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
     @Commit
     public void build() {
         for (AmtdOptionDate optionDate : data.optionDates) {
-            optionDate.underlying = this;
+            optionDate.optionChain = this;
             for (OptionStrike strike : optionDate.optionStrikes) {
+                strike.optionDate = optionDate;
                 if (strike.put != null) {
-                    strike.put.underlyingSymbol = this;
                     strike.put.optionDate = optionDate;
                     strike.put.optionStrike = strike;
                     strike.put.optionType = Interfaces.OptionType.PUT;
@@ -152,7 +136,6 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
                     putQuotes.add(strike.put);
                 }
                 if (strike.call != null) {
-                    strike.call.underlyingSymbol = this;
                     strike.call.optionDate = optionDate;
                     strike.call.optionStrike = strike;
                     strike.call.optionType = Interfaces.OptionType.CALL;
@@ -198,7 +181,7 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         List<OptionStrike> optionStrikes;
 
         @Transient
-        transient AmeritradeOptionChain underlying;
+        transient AmeritradeOptionChain optionChain;
 
         @Override
         public List<Spread> getAllSpreads(FilterSet filterSet) {
@@ -211,6 +194,8 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
 
             OptionStrike lo = null;
             OptionStrike hi = null;
+
+            Interfaces.StockQuote underlying = optionChain.getUnderlyingStockQuote();
 
             // bull call spread
             while (i < optionStrikes.size() - 1) {
@@ -283,6 +268,9 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         @Element(name = "standard-option")
         private Boolean isStandard;
 
+        @Transient
+        public transient AmtdOptionDate optionDate;
+
         public OptionQuote getPut() {
             return put;
         }
@@ -342,8 +330,6 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         @Transient
         transient private OptionStrike optionStrike;
         @Transient
-        transient private AmeritradeOptionChain underlyingSymbol;
-        @Transient
         transient private AmtdOptionDate optionDate;
         @Transient
         transient private Interfaces.OptionType optionType;
@@ -380,11 +366,6 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
                 return 0d;
 
             return optionStrike.strikePrice;
-        }
-
-        @Override
-        public Double getUnderlyingSymbolAsk() {
-            return underlyingSymbol.getAsk();
         }
 
         @Override
@@ -475,8 +456,18 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         }
 
         @Override
+        public Interfaces.StockQuote getUnderlyingStockQuote() {
+            return optionDate.optionChain.stockQuote;
+        }
+
+        @Override
         public String toJson(Gson gson) {
             return gson.toJson(this);
+        }
+
+        @Override
+        public MomentumApplication.Provider getProvider() {
+            return MomentumApplication.Provider.AMERITRADE;
         }
     }
 }
