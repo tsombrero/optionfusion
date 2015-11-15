@@ -1,6 +1,7 @@
 package com.mosoft.momomentum.model.provider.yhoo;
 
 import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 import com.mosoft.momomentum.model.provider.Interfaces;
 import com.mosoft.momomentum.module.MomentumApplication;
 
@@ -104,49 +105,80 @@ import com.mosoft.momomentum.module.MomentumApplication;
 
 public class YhooStockQuote implements Interfaces.StockQuote {
 
+    private QueryData query;
+
+    private static class QueryData {
+        ResultsData results;
+    }
+
+    private static class ResultsData {
+        QuoteData quote;
+    }
+
+    private static class QuoteData {
+        String symbol;
+
+        @SerializedName("Name")
+        String name;
+
+        @SerializedName("Bid")
+        Double bid;
+
+        @SerializedName("Ask")
+        Double ask;
+
+        @SerializedName("LastTradePriceOnly")
+        Double last;
+
+        @SerializedName("Open")
+        Double open;
+
+        @SerializedName("PreviousClose")
+        Double close;
+    }
 
     @Override
     public String getSymbol() {
-        return null;
+        return query.results.quote.symbol;
     }
 
     @Override
     public String getDescription() {
-        return null;
+        return query.results.quote.name;
     }
 
     @Override
     public double getBid() {
-        return 0;
+        return query.results.quote.bid;
     }
 
     @Override
     public double getAsk() {
-        return 0;
+        return query.results.quote.ask;
     }
 
     @Override
     public double getLast() {
-        return 0;
+        return query.results.quote.last;
     }
 
     @Override
     public double getOpen() {
-        return 0;
+        return query.results.quote.open;
     }
 
     @Override
     public double getClose() {
-        return 0;
+        return query.results.quote.close;
     }
 
     @Override
     public String toJson(Gson gson) {
-        return null;
+        return gson.toJson(this);
     }
 
     @Override
     public MomentumApplication.Provider getProvider() {
-        return null;
+        return MomentumApplication.Provider.YAHOO;
     }
 }

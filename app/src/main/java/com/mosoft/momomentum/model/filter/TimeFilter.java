@@ -5,14 +5,9 @@ import android.os.Parcel;
 import com.mosoft.momomentum.model.provider.Interfaces;
 import com.mosoft.momomentum.ui.widgets.rangebar.RangeBar;
 import com.mosoft.momomentum.model.Spread;
-import com.mosoft.momomentum.model.provider.amtd.AmeritradeOptionChain;
 import com.mosoft.momomentum.util.Util;
 
-import org.joda.time.DateTimeField;
-import org.joda.time.DateTimeFieldType;
 import org.joda.time.LocalDate;
-
-import java.util.Date;
 
 public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider {
     private LocalDate maxExpDate;
@@ -51,7 +46,7 @@ public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider 
     }
 
     @Override
-    public boolean pass(AmeritradeOptionChain.AmtdOptionDate optionDate) {
+    public boolean pass(Interfaces.OptionDate optionDate) {
         return pass(optionDate.getDaysToExpiration());
     }
 

@@ -2,7 +2,6 @@ package com.mosoft.momomentum.client;
 
 import android.util.Log;
 
-import com.mosoft.momomentum.module.MomentumApplication;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -44,14 +43,17 @@ public abstract class ClientProvider {
 
             Log.d(getTag(), "response" + "\n" + responseLog + "\n" + bodyString);
 
-            FileOutputStream fos = new FileOutputStream(new File("/sdcard/netlog"));
-            fos.write(bodyString.getBytes());
-            fos.write("\\n\\n".getBytes());
+            try {
+                FileOutputStream fos = new FileOutputStream(new File("/sdcard/netlog"));
+                fos.write(bodyString.getBytes());
+                fos.write("\\n\\n".getBytes());
+            } catch (IOException e) {
+                Log.d(getTag(), "Failed writing net log", e);
+            }
 
             return response.newBuilder()
                     .body(ResponseBody.create(response.body().contentType(), bodyString))
                     .build();
-            //return response;
         }
     }
 

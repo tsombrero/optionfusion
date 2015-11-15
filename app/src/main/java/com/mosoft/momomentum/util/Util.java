@@ -12,7 +12,7 @@ import org.joda.time.LocalDate;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -194,4 +194,14 @@ public class Util {
         if (actionBar != null)
            actionBar.hide();
     }
+
+    public static double[] toArray(Collection<Double> doubles) {
+        double[] ret = new double[doubles.size()];
+        int i = 0;
+        for (Double val : doubles) {
+            ret[i++] = val;
+        }
+        return ret;
+    }
+
 }

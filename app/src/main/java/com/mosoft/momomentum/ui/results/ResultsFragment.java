@@ -122,9 +122,8 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
 
                 Log.i(TAG, "Closest matches:");
 
-                if (allSpreads.isEmpty()) {
-                    return allSpreads;
-                }
+                if (allSpreads == null) return Collections.EMPTY_LIST;
+                if (allSpreads.isEmpty()) return allSpreads;
 
                 Collections.sort(allSpreads, filterSet.getComparator());
 

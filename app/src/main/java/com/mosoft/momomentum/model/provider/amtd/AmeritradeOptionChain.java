@@ -7,6 +7,7 @@ import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.Spread;
 import com.mosoft.momomentum.model.provider.Interfaces;
 import com.mosoft.momomentum.module.MomentumApplication;
+import com.mosoft.momomentum.util.Util;
 
 import org.joda.time.LocalDate;
 import org.simpleframework.xml.Default;
@@ -76,10 +77,14 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
             // grab the list of prices from the first four and the last one
             Set<Double> priceSet = new HashSet<>();
             for (int i = 0; i < 4 && i < data.optionDates.size(); i++) {
-                priceSet.addAll(data.optionDates.get(i).getStrikePrices());
+                for (double val : data.optionDates.get(i).getStrikePrices()) {
+                    priceSet.add(val);
+                }
             }
 
-            priceSet.addAll(data.optionDates.get(data.optionDates.size() - 1).getStrikePrices());
+            for (double val : data.optionDates.get(data.optionDates.size() - 1).getStrikePrices()) {
+                priceSet.add(val);
+            }
 
             if (!priceSet.isEmpty())
                 strikePrices = new ArrayList<>(priceSet);
@@ -197,7 +202,6 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
 
             Interfaces.StockQuote underlying = optionChain.getUnderlyingStockQuote();
 
-            // bull call spread
             while (i < optionStrikes.size() - 1) {
                 hi = optionStrikes.get(i);
                 int j = i + 1;
@@ -212,7 +216,6 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
                 }
                 i++;
             }
-
             return ret;
         }
 
@@ -244,12 +247,12 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         }
 
         @Override
-        public List<Double> getStrikePrices() {
+        public double[] getStrikePrices() {
             List<Double> ret = new ArrayList<>();
             for (OptionStrike strike : optionStrikes) {
                 ret.add(strike.strikePrice);
             }
-            return ret;
+            return Util.toArray(ret);
         }
 
         @Override

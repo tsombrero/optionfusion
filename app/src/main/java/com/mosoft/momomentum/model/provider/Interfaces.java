@@ -3,14 +3,12 @@ package com.mosoft.momomentum.model.provider;
 import com.google.gson.Gson;
 import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.Spread;
-import com.mosoft.momomentum.module.MomentumApplication;
 
 import org.joda.time.LocalDate;
 
-import java.util.Date;
 import java.util.List;
 
-import static com.mosoft.momomentum.module.MomentumApplication.*;
+import static com.mosoft.momomentum.module.MomentumApplication.Provider;
 
 public class Interfaces {
 
@@ -90,7 +88,7 @@ public class Interfaces {
 
         LocalDate getExpirationDate();
 
-        List<Double> getStrikePrices();
+        double[] getStrikePrices();
 
         String toJson(Gson gson);
     }
