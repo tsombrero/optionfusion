@@ -1,5 +1,7 @@
 package com.mosoft.momomentum.model.provider.goog;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.mosoft.momomentum.model.FilterSet;
 import com.mosoft.momomentum.model.Spread;
@@ -310,10 +312,6 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         private transient GoogOptionChain optionChain;
         private transient double[] strikeArray;
 
-        public GoogOptionChain getOptionChain() {
-            return optionChain;
-        }
-
         @Override
         public int getDaysToExpiration() {
             return expiry.getDaysToExpiration();
@@ -321,6 +319,9 @@ public class GoogOptionChain implements Interfaces.OptionChain {
 
         @Override
         public List<Spread> getAllSpreads(FilterSet filterSet) {
+            if (!filterSet.pass(this))
+                return new ArrayList<>();
+
             List<Spread> ret = getSpreads(filterSet, calls);
             ret.addAll(getSpreads(filterSet, puts));
             return ret;
@@ -399,12 +400,17 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         private transient int daysToExpiration = -1;
 
         private int getDaysToExpiration() {
-            if (daysToExpiration < 0)
+            if (daysToExpiration <= 0) {
                 daysToExpiration = Days.daysBetween(new LocalDate(), getDate()).getDays();
+                if (daysToExpiration == 0) {
+                    Log.i("TACO", "TACO");
+                }
+            }
             return daysToExpiration;
         }
 
         private LocalDate getDate() {
+            Log.i("TACO", "TACO " + new LocalDate(y, m, d) + " rounded = " + Util.roundToNearestFriday(new LocalDate(y, m, d)));
             return Util.roundToNearestFriday(new LocalDate(y, m, d));
         }
     }
