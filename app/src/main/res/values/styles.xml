@@ -39,6 +39,9 @@
     // accent candidates
     <color name="material_light_blue_500">#ff03A9F4</color>
     <color name="material_orange_500">#FFFF9800</color>
+    <color name="material_orange_A700">#FFFF6D00</color>
+    <color name="material_green_A400">#00E676</color>
+    <color name="material_green_A700">#00C853</color>
 
     // handy colors
     <color name="material_blue_grey_500">#ff607D8B</color>
@@ -46,11 +49,17 @@
     <color name="material_blue_grey_800">#ff37474F</color>
     <color name="material_blue_grey_900">#ff263238</color>
 
+    <color name="material_blue_500">#ff2196f3</color>
     <color name="material_blue_700">#ff1976D2</color>
-    <color name="material_green_700">#ff388E3C</color>
 
-    <color name="material_green_900">#1B5E20</color>
-    <color name="material_red_900">#B71C1C</color>
+    <color name="material_green_500">#ff4caf50</color>
+    <color name="material_green_700">#ff388E3C</color>
+    <color name="material_green_900">#ff1B5E20</color>
+
+    <color name="material_red_900">#ffB71C1C</color>
+    <color name="material_indigo_500">#ff3f51b5</color>
+    <color name="material_indigo_700">#ff303F9F</color>
+
 
     // greys
     <color name="material_grey_900">#ff212121</color>
@@ -227,10 +236,18 @@
     </style>
 
     <style name="primaryText" parent="android:style/TextAppearance.Medium">
-        <item name="textColor">@color/primary_text</item>
+        <item name="android:textColor">@color/primary_text</item>
+    </style>
+
+    <style name="primaryText.Inverse">
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="secondaryText" parent="android:style/TextAppearance.Medium">
-        <item name="textColor">@color/secondary_text</item>
+        <item name="android:textColor">@color/secondary_text</item>
+    </style>
+
+    <style name="secondaryTextInverse" parent="secondaryText">
+        <item name="android:textColor">@android:color/white</item>
     </style>
 </resources>

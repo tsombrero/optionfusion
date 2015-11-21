@@ -1,9 +1,11 @@
 package com.mosoft.momomentum.ui.login;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import com.mosoft.momomentum.R;
 import com.mosoft.momomentum.module.MomentumApplication;
@@ -17,7 +19,11 @@ public class LoginActivity extends Activity implements StartFragment.Host {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         Fragment frag = StartFragment.newInstance();

@@ -3,101 +3,113 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
+                android:background="@color/material_indigo_700"
     >
 
+    <View
+        android:id="@+id/bottomBackground"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:background="@color/material_indigo_500"
+        android:layout_alignParentBottom="true" />
+
     <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/photo_arch"
-        android:scaleType="fitCenter"
+        android:layout_width="500dp"
+        android:layout_height="200dp"
+        android:layout_above="@id/bottomBackground"
+        android:scaleType="centerCrop"
+        android:src="@drawable/shape_spread_down_left"
+        android:tint="@color/material_green_A700"
+        />
+
+    <ImageView
+        android:id="@+id/spreadshape"
+        android:layout_width="500dp"
+        android:layout_height="200dp"
+        android:layout_above="@id/bottomBackground"
+        android:scaleType="fitXY"
+        android:background="@drawable/shape_spread_up_right"
+        android:src="@drawable/shape_spread_up_right"
+        android:tint="@color/material_indigo_500"
         />
 
     <TextView
-        android:id="@+id/spreadseeker"
+        android:id="@+id/txtVertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_above="@id/spreadshape"
         android:gravity="center"
-        android:text="Vertical"
-        android:textColor="@color/secondary_text_inverse"
-        android:textSize="36sp"
-        android:textStyle="bold"
+        android:layout_marginBottom="75dp"
+        android:text="Vertical Spread Sorter-Outer"
+        android:textColor="@color/primary_text_inverse"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-condensed-light"
+        android:textStyle="normal"
+        android:textAllCaps="false"
         />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/spreadseeker"
+        android:layout_above="@id/txtVertical"
         android:layout_marginBottom="15dp"
         android:gravity="center"
-        android:text="Momentum"
-        android:textColor="@color/secondary_text_inverse"
-        android:textSize="36sp"
+        android:textColor="@color/primary_text_inverse"
+        android:textStyle="normal"
+        android:textSize="48sp"
+        android:text="Option Fusion"
+        android:fontFamily="sans-serif-thin"
+        android:background="@android:color/transparent"
+        android:elegantTextHeight="true"
         />
 
-    <LinearLayout
-        style="@style/card"
+    <TextView
+        android:id="@+id/no_thanks"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_alignParentBottom="true"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        >
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="No, thanks"
+        android:textAppearance="@style/secondaryTextInverse"
+        android:textStyle="italic"
+        />
 
-        <TextView
-            style="@style/secondaryText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sign in for more accurate quotes"
-            android:layout_gravity="center"
-            />
+    <ImageView
+        android:id="@+id/logo_ameritrade"
+        android:layout_width="240dp"
+        android:layout_height="40dp"
+        android:layout_margin="4dp"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/no_thanks"
+        android:padding="8dp"
+        android:background="@android:color/white"
+        android:src="@drawable/logo_tdameritrade"
+        android:elevation="@dimen/widget_elevation_resting"
+        />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
+    <ImageView
+        android:id="@+id/logo_tradestation"
+        android:layout_width="240dp"
+        android:layout_height="40dp"
+        android:layout_margin="4dp"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/logo_ameritrade"
+        android:padding="8dp"
+        android:background="@android:color/white"
+        android:src="@drawable/logo_tradestation"
+        android:elevation="@dimen/widget_elevation_resting"
+        />
 
-            <ImageView
-                android:id="@+id/logo_ameritrade"
-                android:layout_width="wrap_content"
-                android:layout_height="70dp"
-                android:src="@drawable/logo_tdameritrade"
-                android:layout_weight="1"
-                android:padding="8dp"
-                />
-
-            <ImageView
-                android:id="@+id/logo_tradestation"
-                android:layout_width="wrap_content"
-                android:layout_height="70dp"
-                android:src="@drawable/logo_tradestation"
-                android:layout_weight="1"
-                android:padding="8dp"
-                />
-
-            <ImageView
-                android:id="@+id/logo_etrade"
-                android:layout_width="wrap_content"
-                android:layout_height="70dp"
-                android:src="@drawable/logo_etrade"
-                android:layout_weight="1"
-                android:padding="8dp"
-                />
-        </LinearLayout>
-
-
-        <TextView
-            android:id="@+id/no_thanks"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="No, thanks"
-            android:textAppearance="@style/secondaryText"
-            android:textStyle="italic"
-            android:layout_gravity="center"
-            />
-    </LinearLayout>
-
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/logo_tradestation"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:text="Sign in for more accurate quotes"
+        android:textAppearance="@style/secondaryTextInverse"
+        />
 
 </RelativeLayout>
