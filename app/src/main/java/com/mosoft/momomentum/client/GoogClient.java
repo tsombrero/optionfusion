@@ -92,6 +92,9 @@ public class GoogClient implements ClientInterfaces.OptionChainClient {
         // http://www.google.com/finance/option_chain?q=GOOG&expd=17&expm=1&expy=2015&output=json
         @GET("option_chain?output=json")
         Call<GoogOptionChain.GoogOptionDate> getChainForDate(@Query("q") String symbol, @Query("expy") int year, @Query("expm") int month, @Query("expd") int day);
+
+        // http://google.com/finance/match?matchtype=matchall&q=foo
+        // @GET SYMBOL LOOKUP
     }
 
 

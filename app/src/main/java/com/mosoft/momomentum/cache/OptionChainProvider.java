@@ -21,6 +21,9 @@ public class OptionChainProvider extends LruCache<String, Interfaces.OptionChain
     }
 
     public void get(final String symbol, final OptionChainCallback callback) {
+        if (symbol == null)
+            return;
+
         Interfaces.OptionChain ret = get(symbol);
         if (ret != null) {
             callback.call(ret);

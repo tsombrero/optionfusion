@@ -29,6 +29,7 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import dagger.Lazy;
 
 public class LoginFragment extends Fragment {
@@ -57,14 +58,6 @@ public class LoginFragment extends Fragment {
         return new LoginFragment();
     }
 
-    public static class TestClass {
-        Ymd expiry;
-    }
-
-    public static class Ymd {
-        int y, m, d;
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -79,7 +72,7 @@ public class LoginFragment extends Fragment {
         passwordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_ACTION_GO) {
                     attemptLogin();
                     return true;
                 }
@@ -90,11 +83,7 @@ public class LoginFragment extends Fragment {
         return ret;
     }
 
-    /**
-     * Attempts to sign in or register the account specified by the login form. If there are form
-     * errors (invalid email, missing fields, etc.), the errors are presented and no actual login
-     * attempt is made.
-     */
+    @OnClick(R.id.btn_login)
     public void attemptLogin() {
         // Reset errors.
         emailView.setError(null);

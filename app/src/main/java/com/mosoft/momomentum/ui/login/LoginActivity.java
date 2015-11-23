@@ -1,6 +1,5 @@
 package com.mosoft.momomentum.ui.login;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
@@ -19,9 +18,8 @@ public class LoginActivity extends Activity implements StartFragment.Host {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-        decorView.setSystemUiVisibility(uiOptions);
+        Util.goFullscreen(this);
+
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -29,8 +27,8 @@ public class LoginActivity extends Activity implements StartFragment.Host {
         Fragment frag = StartFragment.newInstance();
         getFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, frag, "tag_start")
+                .addToBackStack(null)
                 .commit();
-
     }
 
     @Override
@@ -51,7 +49,8 @@ public class LoginActivity extends Activity implements StartFragment.Host {
                 break;
             default:
                 startActivity(new Intent(this, MainActivity.class));
-                finish();
+                if (getFragmentManager().getBackStackEntryCount() > 1)
+                    getFragmentManager().popBackStack();
                 return;
         }
 
