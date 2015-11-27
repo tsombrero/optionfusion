@@ -16,7 +16,7 @@ android {
     buildToolsVersion "23.0.0"
 
     defaultConfig {
-        applicationId "com.mosoft.momomentum"
+        applicationId "com.mosoft.com.mosoft.optionfusion"
         minSdkVersion 21
         targetSdkVersion 23
         versionCode 1

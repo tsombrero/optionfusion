@@ -53,7 +53,7 @@
                     style="@style/DetailsLabel"
                     />
 
-                <com.mosoft.momomentum.ui.widgets.VerticalTextView
+                <com.mosoft.optionfusion.ui.widgets.VerticalTextView
                     android:id="@+id/label_yaxis"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"

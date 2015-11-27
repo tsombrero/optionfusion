@@ -27,8 +27,7 @@
         android:layout_width="500dp"
         android:layout_height="200dp"
         android:layout_above="@id/bottomBackground"
-        android:scaleType="fitXY"
-        android:background="@drawable/shape_spread_up_right"
+        android:scaleType="centerCrop"
         android:src="@drawable/shape_spread_up_right"
         android:tint="@color/material_indigo_500"
         />

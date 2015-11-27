@@ -180,7 +180,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/expiration_filter_label" />
 
-            <com.mosoft.momomentum.ui.widgets.rangebar.RangeBar
+            <com.mosoft.optionfusion.ui.widgets.rangebar.RangeBar
                 android:id="@+id/rangebar_expiration"
                 style="@style/rangebar"
                 android:layout_width="match_parent"
@@ -208,7 +208,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:text="Price Target for Bullish Trades" />
+                android:text="Break-even for Bullish Trades" />
 
             <TextView
                 android:id="@+id/strike_edit_bullish_text"
@@ -218,7 +218,7 @@
                 android:layout_below="@id/strike_edit_bullish_label"
                 />
 
-            <com.mosoft.momomentum.ui.widgets.rangebar.RangeBar
+            <com.mosoft.optionfusion.ui.widgets.rangebar.RangeBar
                 android:id="@+id/strike_edit_bullish"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -238,7 +238,7 @@
                 android:layout_below="@id/strike_edit_bullish"
                 android:layout_marginLeft="@dimen/activity_vertical_margin"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:text="Price Target for Bearish Trades" />
+                android:text="Break-even for Bearish Trades" />
 
             <TextView
                 android:id="@+id/strike_edit_bearish_text"
@@ -247,7 +247,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/strike_edit_bearish_label" />
 
-            <com.mosoft.momomentum.ui.widgets.rangebar.RangeBar
+            <com.mosoft.optionfusion.ui.widgets.rangebar.RangeBar
                 android:id="@+id/strike_edit_bearish"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
