@@ -22,9 +22,9 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = ApplicationModule.class)
-public interface MomentumApplicationComponent {
+public interface OptionFusionApplicationComponent {
 
-    void inject(MomentumApplication application);
+    void inject(OptionFusionApplication application);
 
     void inject(LoginActivity activity);
 

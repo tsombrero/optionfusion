@@ -6,9 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.mosoft.optionfusion.R;
-import com.mosoft.optionfusion.module.MomentumApplication;
+import com.mosoft.optionfusion.module.OptionFusionApplication;
 import com.mosoft.optionfusion.ui.MainActivity;
-import com.mosoft.optionfusion.util.Util;
 
 /**
  * A login screen that offers login via email/password.
@@ -17,8 +16,6 @@ public class LoginActivity extends Activity implements StartFragment.Host {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Util.goFullscreen(this);
-
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -33,12 +30,11 @@ public class LoginActivity extends Activity implements StartFragment.Host {
     @Override
     protected void onResume() {
         super.onResume();
-        Util.goFullscreen(this);
     }
 
     @Override
-    public void startLogin(MomentumApplication.Provider provider) {
-        MomentumApplication.from(this).setProvider(provider);
+    public void startLogin(OptionFusionApplication.Provider provider) {
+        OptionFusionApplication.from(this).setProvider(provider);
 
         Fragment frag;
 

@@ -4,9 +4,9 @@ import android.app.Application;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-public class MomentumApplication extends Application {
+public class OptionFusionApplication extends Application {
 
-    private MomentumApplicationComponent applicationComponent;
+    private OptionFusionApplicationComponent applicationComponent;
 
     public enum Provider {
         AMERITRADE,
@@ -31,17 +31,17 @@ public class MomentumApplication extends Application {
     }
 
     private void initializeInjector() {
-        applicationComponent = DaggerMomentumApplicationComponent.builder()
+        applicationComponent = DaggerOptionFusionApplicationComponent.builder()
                 .applicationModule(new ApplicationModule(this))
                 .build();
         applicationComponent.inject(this);
     }
 
-    public static MomentumApplication from(@NonNull Context context) {
-        return (MomentumApplication) context.getApplicationContext();
+    public static OptionFusionApplication from(@NonNull Context context) {
+        return (OptionFusionApplication) context.getApplicationContext();
     }
 
-    public MomentumApplicationComponent getComponent() {
+    public OptionFusionApplicationComponent getComponent() {
         return applicationComponent;
     }
 }

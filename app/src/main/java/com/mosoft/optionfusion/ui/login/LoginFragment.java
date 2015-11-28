@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import com.mosoft.optionfusion.R;
 import com.mosoft.optionfusion.client.ClientInterfaces;
-import com.mosoft.optionfusion.module.MomentumApplication;
+import com.mosoft.optionfusion.module.OptionFusionApplication;
 import com.mosoft.optionfusion.ui.MainActivity;
 
 import java.io.File;
@@ -60,7 +60,7 @@ public class LoginFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        MomentumApplication.from(getActivity()).getComponent().inject(this);
+        OptionFusionApplication.from(getActivity()).getComponent().inject(this);
 
         View ret = inflater.inflate(R.layout.activity_login, container, false);
         ButterKnife.bind(this, ret);

@@ -6,7 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.Gson;
 import com.mosoft.optionfusion.model.provider.ClassFactory;
 import com.mosoft.optionfusion.model.provider.Interfaces;
-import com.mosoft.optionfusion.module.MomentumApplication;
+import com.mosoft.optionfusion.module.OptionFusionApplication;
 import com.mosoft.optionfusion.util.Util;
 
 import org.joda.time.LocalDate;
@@ -267,8 +267,8 @@ abstract public class Spread implements Parcelable {
             return new Spread[size];
         }
 
-        private MomentumApplication.Provider readProvider(Parcel in) {
-            return MomentumApplication.Provider.values()[in.readInt()];
+        private OptionFusionApplication.Provider readProvider(Parcel in) {
+            return OptionFusionApplication.Provider.values()[in.readInt()];
         }
     }
 }

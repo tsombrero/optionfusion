@@ -18,7 +18,7 @@ import com.mosoft.optionfusion.model.filter.Filter;
 import com.mosoft.optionfusion.model.filter.RoiFilter;
 import com.mosoft.optionfusion.model.filter.StrikeFilter;
 import com.mosoft.optionfusion.model.filter.TimeFilter;
-import com.mosoft.optionfusion.module.MomentumApplication;
+import com.mosoft.optionfusion.module.OptionFusionApplication;
 import com.mosoft.optionfusion.util.Util;
 import com.wefika.flowlayout.FlowLayout;
 
@@ -97,7 +97,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     public FilterViewHolder(View itemView, Activity activity, ResultsAdapter.ResultsListener changeListener) {
         super(itemView, activity, changeListener);
-        MomentumApplication.from(context).getComponent().inject(this);
+        OptionFusionApplication.from(context).getComponent().inject(this);
         inflater = activity.getLayoutInflater();
         ButterKnife.bind(itemView);
     }

@@ -8,12 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.mosoft.optionfusion.R;
-import com.mosoft.optionfusion.module.MomentumApplication;
+import com.mosoft.optionfusion.module.OptionFusionApplication;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.mosoft.optionfusion.module.MomentumApplication.Provider.*;
+import static com.mosoft.optionfusion.module.OptionFusionApplication.Provider.*;
 
 public class StartFragment extends Fragment {
 
@@ -24,7 +24,7 @@ public class StartFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        MomentumApplication.from(getActivity()).getComponent().inject(this);
+        OptionFusionApplication.from(getActivity()).getComponent().inject(this);
         View ret = inflater.inflate(R.layout.splash, container, false);
         ButterKnife.bind(this, ret);
         return ret;
@@ -49,6 +49,6 @@ public class StartFragment extends Fragment {
 
 
     public interface Host {
-        void startLogin(MomentumApplication.Provider provider);
+        void startLogin(OptionFusionApplication.Provider provider);
     }
 }

@@ -3,7 +3,7 @@ package com.mosoft.optionfusion.model.provider.yhoo;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.mosoft.optionfusion.model.provider.Interfaces;
-import com.mosoft.optionfusion.module.MomentumApplication;
+import com.mosoft.optionfusion.module.OptionFusionApplication;
 
 /*
 
@@ -178,7 +178,7 @@ public class YhooStockQuote implements Interfaces.StockQuote {
     }
 
     @Override
-    public MomentumApplication.Provider getProvider() {
-        return MomentumApplication.Provider.YAHOO;
+    public OptionFusionApplication.Provider getProvider() {
+        return OptionFusionApplication.Provider.YAHOO;
     }
 }

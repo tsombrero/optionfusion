@@ -1,15 +1,16 @@
 <resources>
 
-    <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="AppTheme" parent="android:Theme.Material.Light">
         <item name="android:colorPrimary">@color/primary</item>
         <item name="android:colorPrimaryDark">@color/primary_dark</item>
         <item name="android:colorAccent">@color/accent</item>
+        <item name="android:textColorPrimary">@color/primary_text_inverse</item>
     </style>
 
-    <color name="primary">@color/material_deep_teal_500</color>
-    <color name="primary_dark">@color/material_deep_teal_700</color>
-    <color name="primary_light">@color/material_deep_teal_100</color>
-    <color name="accent">@color/material_light_blue_500</color>
+    <color name="primary">@color/material_indigo_500</color>
+    <color name="primary_dark">@color/material_indigo_800</color>
+    <color name="primary_light">@color/material_indigo_100</color>
+    <color name="accent">@color/material_green_A400</color>
     <color name="primary_text">@color/foreground_dark_grey</color>
     <color name="secondary_text">@color/foreground_middle_grey</color>
     <color name="icons">@color/primary_text</color>
@@ -57,8 +58,12 @@
     <color name="material_green_900">#ff1B5E20</color>
 
     <color name="material_red_900">#ffB71C1C</color>
+
+    <color name="material_indigo_100">#FFC5CAE9</color>
     <color name="material_indigo_500">#ff3f51b5</color>
     <color name="material_indigo_700">#ff303F9F</color>
+    <color name="material_indigo_800">#ff283593</color>
+    <color name="material_indigo_900">#ff1A237E</color>
 
 
     // greys

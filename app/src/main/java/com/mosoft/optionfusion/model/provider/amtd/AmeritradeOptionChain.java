@@ -6,7 +6,7 @@ import com.google.gson.Gson;
 import com.mosoft.optionfusion.model.FilterSet;
 import com.mosoft.optionfusion.model.Spread;
 import com.mosoft.optionfusion.model.provider.Interfaces;
-import com.mosoft.optionfusion.module.MomentumApplication;
+import com.mosoft.optionfusion.module.OptionFusionApplication;
 import com.mosoft.optionfusion.util.Util;
 
 import org.joda.time.LocalDate;
@@ -469,8 +469,8 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         }
 
         @Override
-        public MomentumApplication.Provider getProvider() {
-            return MomentumApplication.Provider.AMERITRADE;
+        public OptionFusionApplication.Provider getProvider() {
+            return OptionFusionApplication.Provider.AMERITRADE;
         }
     }
 }

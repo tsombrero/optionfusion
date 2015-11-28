@@ -8,7 +8,7 @@ import org.joda.time.LocalDate;
 
 import java.util.List;
 
-import static com.mosoft.optionfusion.module.MomentumApplication.Provider;
+import static com.mosoft.optionfusion.module.OptionFusionApplication.Provider;
 
 public class Interfaces {
 

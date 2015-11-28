@@ -6,7 +6,7 @@ import com.google.gson.Gson;
 import com.mosoft.optionfusion.model.FilterSet;
 import com.mosoft.optionfusion.model.Spread;
 import com.mosoft.optionfusion.model.provider.Interfaces;
-import com.mosoft.optionfusion.module.MomentumApplication;
+import com.mosoft.optionfusion.module.OptionFusionApplication;
 import com.mosoft.optionfusion.util.Util;
 
 import org.joda.time.Days;
@@ -176,8 +176,8 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         this.succeeded = succeeded;
     }
 
-    public MomentumApplication.Provider getProvider() {
-        return MomentumApplication.Provider.GOOGLE_FINANCE;
+    public OptionFusionApplication.Provider getProvider() {
+        return OptionFusionApplication.Provider.GOOGLE_FINANCE;
     }
 
     public void setStockQuote(Interfaces.StockQuote stockQuote) {
@@ -291,8 +291,8 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         }
 
         @Override
-        public MomentumApplication.Provider getProvider() {
-            return MomentumApplication.Provider.GOOGLE_FINANCE;
+        public OptionFusionApplication.Provider getProvider() {
+            return OptionFusionApplication.Provider.GOOGLE_FINANCE;
         }
     }
 

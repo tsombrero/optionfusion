@@ -13,7 +13,7 @@ import com.mosoft.optionfusion.R;
 import com.mosoft.optionfusion.cache.OptionChainProvider;
 import com.mosoft.optionfusion.model.Spread;
 import com.mosoft.optionfusion.model.provider.Interfaces;
-import com.mosoft.optionfusion.module.MomentumApplication;
+import com.mosoft.optionfusion.module.OptionFusionApplication;
 import com.mosoft.optionfusion.ui.SharedViewHolders;
 import com.mosoft.optionfusion.ui.widgets.VerticalTextView;
 import com.mosoft.optionfusion.util.Util;
@@ -93,7 +93,7 @@ public class TradeDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        MomentumApplication.from(getActivity()).getComponent().inject(this);
+        OptionFusionApplication.from(getActivity()).getComponent().inject(this);
         View ret = inflater.inflate(R.layout.fragment_full_trade_details, container, false);
         ButterKnife.bind(this, ret);
 

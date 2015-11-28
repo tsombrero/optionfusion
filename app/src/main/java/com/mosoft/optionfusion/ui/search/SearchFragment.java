@@ -13,7 +13,7 @@ import android.widget.Toast;
 import com.mosoft.optionfusion.R;
 import com.mosoft.optionfusion.cache.OptionChainProvider;
 import com.mosoft.optionfusion.model.provider.Interfaces;
-import com.mosoft.optionfusion.module.MomentumApplication;
+import com.mosoft.optionfusion.module.OptionFusionApplication;
 
 import javax.inject.Inject;
 
@@ -35,7 +35,7 @@ public class SearchFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        MomentumApplication.from(getActivity()).getComponent().inject(this);
+        OptionFusionApplication.from(getActivity()).getComponent().inject(this);
         View ret = inflater.inflate(R.layout.fragment_search, container, false);
         ButterKnife.bind(this, ret);
 

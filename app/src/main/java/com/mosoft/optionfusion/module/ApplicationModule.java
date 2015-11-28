@@ -37,7 +37,7 @@ public class ApplicationModule {
     // Note this is not a singleton because it's an abstracted provider; the underlying client providers are singletons
     @Provides
     ClientInterfaces.OptionChainClient provideOptionChainClient(Context context, AmeritradeClientProvider ameritradeClientProvider, ClientInterfaces.StockQuoteClient stockQuoteClient) {
-        switch(MomentumApplication.from(context).getProvider()) {
+        switch(OptionFusionApplication.from(context).getProvider()) {
             case AMERITRADE:
                 return ameritradeClientProvider.getOptionChainClient();
         }
@@ -47,7 +47,7 @@ public class ApplicationModule {
     // Note this is not a singleton because it's an abstracted provider; the underlying client providers are singletons
     @Provides
     ClientInterfaces.BrokerageClient provideBrokerageClient(Context context, AmeritradeClientProvider ameritradeClientProvider) {
-        switch(MomentumApplication.from(context).getProvider()) {
+        switch(OptionFusionApplication.from(context).getProvider()) {
             case AMERITRADE:
                 return ameritradeClientProvider.getBrokerageClient();
         }
@@ -57,7 +57,7 @@ public class ApplicationModule {
     // Note this is not a singleton because it's an abstracted provider; the underlying client providers are singletons
     @Provides
     ClientInterfaces.StockQuoteClient provideStockQuoteClient(Context context, AmeritradeClientProvider ameritradeClientProvider, YhooClientClientProvider yhooClientProvider) {
-        switch(MomentumApplication.from(context).getProvider()) {
+        switch(OptionFusionApplication.from(context).getProvider()) {
             case AMERITRADE:
                 //TODO
             default:

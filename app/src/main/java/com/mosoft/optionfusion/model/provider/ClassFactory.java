@@ -6,14 +6,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mosoft.optionfusion.model.provider.amtd.AmeritradeOptionChain;
 import com.mosoft.optionfusion.model.provider.goog.GoogOptionChain;
-import com.mosoft.optionfusion.module.MomentumApplication;
+import com.mosoft.optionfusion.module.OptionFusionApplication;
 
 public class ClassFactory {
     private static final String TAG = "Provider.ClassFactory";
 
     private static final Gson gson = new GsonBuilder().create();
 
-    public static Interfaces.OptionQuote OptionQuoteFromJson(MomentumApplication.Provider provider, String json) {
+    public static Interfaces.OptionQuote OptionQuoteFromJson(OptionFusionApplication.Provider provider, String json) {
         try {
             switch (provider) {
                 case AMERITRADE:
@@ -28,7 +28,7 @@ public class ClassFactory {
     }
 
 
-    public static Interfaces.OptionChain OptionChainFromJson(MomentumApplication.Provider provider, String json) {
+    public static Interfaces.OptionChain OptionChainFromJson(OptionFusionApplication.Provider provider, String json) {
         try {
             switch (provider) {
                 case AMERITRADE:

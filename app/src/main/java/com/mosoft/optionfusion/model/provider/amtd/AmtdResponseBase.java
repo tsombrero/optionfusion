@@ -1,7 +1,7 @@
 package com.mosoft.optionfusion.model.provider.amtd;
 
 
-import com.mosoft.optionfusion.module.MomentumApplication;
+import com.mosoft.optionfusion.module.OptionFusionApplication;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
@@ -31,7 +31,7 @@ public class AmtdResponseBase {
         return error;
     }
 
-    public MomentumApplication.Provider getProvider() {
-        return MomentumApplication.Provider.AMERITRADE;
+    public OptionFusionApplication.Provider getProvider() {
+        return OptionFusionApplication.Provider.AMERITRADE;
     }
 }
