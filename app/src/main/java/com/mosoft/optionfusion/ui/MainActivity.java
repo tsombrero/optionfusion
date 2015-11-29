@@ -12,49 +12,61 @@ import android.transition.TransitionInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.SearchView;
 
 import com.mosoft.optionfusion.R;
 import com.mosoft.optionfusion.model.Spread;
 import com.mosoft.optionfusion.model.provider.Interfaces;
+import com.mosoft.optionfusion.module.OptionFusionApplication;
 import com.mosoft.optionfusion.ui.results.ResultsFragment;
 import com.mosoft.optionfusion.ui.search.SearchFragment;
 import com.mosoft.optionfusion.ui.tradedetails.TradeDetailsFragment;
+import com.mosoft.optionfusion.ui.widgets.SymbolSearchView;
 
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends Activity implements SearchFragment.Host, ResultsFragment.Host {
+
+
+public class MainActivity extends Activity implements SearchFragment.Host, ResultsFragment.Host, SymbolSearchView.SymbolLookupListener {
+
+    private SymbolSearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        OptionFusionApplication.from(this).getComponent().inject(this);
+
         Fragment frag = SearchFragment.newInstance();
         getFragmentManager().beginTransaction()
+                .addToBackStack(null)
                 .add(R.id.fragment_container, frag, "tag_search")
                 .commit();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        //Search stuff
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchView = (SymbolSearchView) searchItem.getActionView();
+        searchView.setLookupListener(this);
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+//        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//
         return super.onOptionsItemSelected(item);
     }
 
@@ -97,6 +109,11 @@ public class MainActivity extends Activity implements SearchFragment.Host, Resul
         } else {
             finish();
         }
+    }
+
+    @Override
+    public void onSymbolClicked(String symbol) {
+
     }
 
     public class MySharedElementCallback extends SharedElementCallback {

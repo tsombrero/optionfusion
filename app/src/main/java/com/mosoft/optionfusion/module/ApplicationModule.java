@@ -37,17 +37,17 @@ public class ApplicationModule {
     // Note this is not a singleton because it's an abstracted provider; the underlying client providers are singletons
     @Provides
     ClientInterfaces.OptionChainClient provideOptionChainClient(Context context, AmeritradeClientProvider ameritradeClientProvider, ClientInterfaces.StockQuoteClient stockQuoteClient) {
-        switch(OptionFusionApplication.from(context).getProvider()) {
+        switch(OptionFusionApplication.from(context).getBackendProvider()) {
             case AMERITRADE:
                 return ameritradeClientProvider.getOptionChainClient();
         }
-        return new GoogClientProvider().getOptionChainClient(stockQuoteClient);
+        return new GoogClientProvider().getOptionChainClient();
     }
 
     // Note this is not a singleton because it's an abstracted provider; the underlying client providers are singletons
     @Provides
     ClientInterfaces.BrokerageClient provideBrokerageClient(Context context, AmeritradeClientProvider ameritradeClientProvider) {
-        switch(OptionFusionApplication.from(context).getProvider()) {
+        switch(OptionFusionApplication.from(context).getBackendProvider()) {
             case AMERITRADE:
                 return ameritradeClientProvider.getBrokerageClient();
         }
@@ -57,11 +57,21 @@ public class ApplicationModule {
     // Note this is not a singleton because it's an abstracted provider; the underlying client providers are singletons
     @Provides
     ClientInterfaces.StockQuoteClient provideStockQuoteClient(Context context, AmeritradeClientProvider ameritradeClientProvider, YhooClientClientProvider yhooClientProvider) {
-        switch(OptionFusionApplication.from(context).getProvider()) {
+        switch(OptionFusionApplication.from(context).getBackendProvider()) {
             case AMERITRADE:
                 //TODO
             default:
                 return yhooClientProvider.getStockQuoteClient();
+        }
+    }
+
+    @Provides
+    ClientInterfaces.SymbolLookupClient provideSymbolLookupClient(Context context, AmeritradeClientProvider ameritradeClientProvider, GoogClientProvider googClientProvider) {
+        switch (OptionFusionApplication.from(context).getBackendProvider()) {
+            case AMERITRADE:
+                //TODO
+            default:
+                return googClientProvider.getSymbolLookupClient();
         }
     }
 

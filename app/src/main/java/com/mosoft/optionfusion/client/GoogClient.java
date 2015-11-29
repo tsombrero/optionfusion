@@ -1,10 +1,13 @@
 package com.mosoft.optionfusion.client;
 
+import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.mosoft.optionfusion.model.provider.Interfaces;
 import com.mosoft.optionfusion.model.provider.goog.GoogOptionChain;
+import com.mosoft.optionfusion.model.provider.goog.GoogSymbolLookupResult;
 
 import java.io.IOException;
 
@@ -13,14 +16,9 @@ import retrofit.Response;
 import retrofit.http.GET;
 import retrofit.http.Query;
 
-public class GoogClient implements ClientInterfaces.OptionChainClient {
+public class GoogClient implements ClientInterfaces.OptionChainClient, ClientInterfaces.SymbolLookupClient {
 
     private final RestInterface restInterface;
-
-    //TODO decouple stockquote from optionchain
-    public void setStockQuoteClient(ClientInterfaces.StockQuoteClient stockQuoteClient) {
-        this.stockQuoteClient = stockQuoteClient;
-    }
 
     ClientInterfaces.StockQuoteClient stockQuoteClient;
     private final static String TAG = GoogClient.class.getSimpleName();
@@ -37,6 +35,21 @@ public class GoogClient implements ClientInterfaces.OptionChainClient {
 
     public Interfaces.StockQuote getStockQuote(String symbol) {
         return stockQuoteClient.getStockQuote(symbol, null);
+    }
+
+    @Override
+    public Cursor getSymbolsMatching(String query) {
+        try {
+            Response<GoogSymbolLookupResult> result = this.restInterface.getMatchesForQuery(query).execute();
+            if (result == null || result.body() == null)
+                return ClientInterfaces.SymbolLookupClient.EMPTY_CURSOR;
+
+            return result.body().getResultCursor();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ClientInterfaces.SymbolLookupClient.EMPTY_CURSOR;
     }
 
     private class OptionChainTask extends AsyncTask<String, Void, GoogOptionChain> {
@@ -90,8 +103,9 @@ public class GoogClient implements ClientInterfaces.OptionChainClient {
         @GET("option_chain?output=json")
         Call<GoogOptionChain.GoogOptionDate> getChainForDate(@Query("q") String symbol, @Query("expy") int year, @Query("expm") int month, @Query("expd") int day);
 
-        // http://google.com/finance/match?matchtype=matchall&q=foo
-        // @GET SYMBOL LOOKUP
+        // http://www.google.com/finance/match?matchtype=matchall&q=foo
+        @GET("match?matchtype=matchall&output=json")
+        Call<GoogSymbolLookupResult> getMatchesForQuery(@Query("q") String symbol);
     }
 
 

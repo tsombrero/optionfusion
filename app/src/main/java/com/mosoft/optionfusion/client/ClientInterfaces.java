@@ -1,5 +1,9 @@
 package com.mosoft.optionfusion.client;
 
+import android.database.Cursor;
+import android.database.CursorWrapper;
+import android.database.MatrixCursor;
+
 import com.mosoft.optionfusion.model.provider.Interfaces;
 import com.mosoft.optionfusion.model.provider.Interfaces.OptionChain;
 
@@ -40,5 +44,21 @@ public class ClientInterfaces {
 
     public interface StockQuoteClient {
         Interfaces.StockQuote getStockQuote(String symbol, Callback<Interfaces.StockQuote> callback);
+    }
+
+    public interface SymbolLookupClient {
+        enum SuggestionColumns {
+            _id, symbol, description;
+
+            static String[] names = new String[]{_id.name(), symbol.name(), description.name()};
+
+            public static String[] getNames() {
+                return names;
+            }
+        }
+
+        Cursor EMPTY_CURSOR = new CursorWrapper(new MatrixCursor(SuggestionColumns.getNames()));
+
+        Cursor getSymbolsMatching(String query);
     }
 }

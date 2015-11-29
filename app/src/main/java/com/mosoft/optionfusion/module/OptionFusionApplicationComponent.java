@@ -15,6 +15,7 @@ import com.mosoft.optionfusion.ui.results.FilterViewHolder;
 import com.mosoft.optionfusion.ui.results.ResultsFragment;
 import com.mosoft.optionfusion.ui.search.SearchFragment;
 import com.mosoft.optionfusion.ui.tradedetails.TradeDetailsFragment;
+import com.mosoft.optionfusion.ui.widgets.SymbolSearchView;
 
 import javax.inject.Singleton;
 
@@ -55,4 +56,6 @@ public interface OptionFusionApplicationComponent {
     void inject(YhooClientClientProvider yhooClientProvider);
 
     void inject(YhooClient yhooClient);
+
+    void inject(SymbolSearchView symbolSearchView);
 }

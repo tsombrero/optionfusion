@@ -79,4 +79,8 @@ public abstract class ClientProvider {
     public interface StockQuoteClientProvider {
         ClientInterfaces.StockQuoteClient getStockQuoteClient();
     }
+
+    public interface SymbolLookupClientProvider {
+        ClientInterfaces.SymbolLookupClient getSymbolLookupClient();
+    }
 }

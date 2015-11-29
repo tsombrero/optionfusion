@@ -16,7 +16,7 @@ public class OptionFusionApplication extends Application {
 
     private Provider provider;
 
-    public Provider getProvider() {
+    public Provider getBackendProvider() {
         return provider;
     }
 

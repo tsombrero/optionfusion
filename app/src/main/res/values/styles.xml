@@ -81,6 +81,9 @@
     <color name="foreground_light_grey">#39000000</color>
     <color name="foreground_lightest_grey">#24000000</color>
 
+    <color name="text_hint_inverse">#4CFFFFFF</color>
+    <color name="text_hint">@color/foreground_lightest_grey</color>
+
     <style name="ListHeader" parent="@android:style/TextAppearance.Medium">
         <item name="android:textColor">@color/primary_text_inverse</item>
         <item name="android:textStyle">bold</item>

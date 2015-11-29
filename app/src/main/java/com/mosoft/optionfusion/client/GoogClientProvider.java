@@ -14,12 +14,12 @@ import javax.inject.Inject;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 
-public class GoogClientProvider extends ClientProvider implements ClientProvider.OptionChainClientProvider {
+public class GoogClientProvider extends ClientProvider implements ClientProvider.OptionChainClientProvider, ClientProvider.SymbolLookupClientProvider {
 
     @Inject
     ClientInterfaces.StockQuoteClient stockQuoteClient;
 
-    ClientInterfaces.OptionChainClient optionChainClient;
+    GoogClient optionChainClient;
 
     Gson gson = new GsonBuilder()
             .registerTypeAdapter(Double.class, new TypeAdapter<Double>() {
@@ -42,8 +42,11 @@ public class GoogClientProvider extends ClientProvider implements ClientProvider
 
     @Override
     public ClientInterfaces.OptionChainClient getOptionChainClient() {
-        if (optionChainClient == null) {
+        return getDefaultClient();
+    }
 
+    private GoogClient getDefaultClient() {
+        if (optionChainClient == null) {
             OkHttpClient okHttpClient = new OkHttpClient();
             okHttpClient.interceptors().add(new LoggingInterceptor());
 
@@ -55,15 +58,10 @@ public class GoogClientProvider extends ClientProvider implements ClientProvider
 
             optionChainClient = new GoogClient(retrofit.create(GoogClient.RestInterface.class), stockQuoteClient);
         }
-
         return optionChainClient;
     }
 
-    public ClientInterfaces.OptionChainClient getOptionChainClient(ClientInterfaces.StockQuoteClient stockQuoteClient) {
-        getOptionChainClient();
-        if (optionChainClient != null)
-            ((GoogClient) optionChainClient).setStockQuoteClient(stockQuoteClient);
-
-        return optionChainClient;
+    public ClientInterfaces.SymbolLookupClient getSymbolLookupClient() {
+        return getDefaultClient();
     }
 }
