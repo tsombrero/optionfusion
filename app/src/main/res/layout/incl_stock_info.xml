@@ -9,7 +9,7 @@
     android:paddingBottom="@dimen/actionbar_padding_vertical"
     android:paddingLeft="@dimen/actionbar_padding_horizontal"
     android:paddingRight="@dimen/actionbar_padding_horizontal"
-    android:background="@color/header_inverse"
+    android:background="?android:colorPrimary"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:elevation="@dimen/actionbar_elevation"

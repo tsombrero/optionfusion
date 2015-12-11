@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.mosoft.optionfusion.R;
 import com.mosoft.optionfusion.model.Spread;
 import com.mosoft.optionfusion.model.provider.Interfaces;
+import com.mosoft.optionfusion.ui.widgets.AutoFitTextView;
 import com.mosoft.optionfusion.util.Util;
 
 import butterknife.Bind;
@@ -45,6 +46,35 @@ public class SharedViewHolders {
 
         static public String getTransitionName(String symbol) {
             return "stockinfo_" + symbol;
+        }
+    }
+
+    public static class StockQuoteViewHolder {
+        private final View view;
+
+        @Bind(R.id.symbol)
+        AutoFitTextView symbolView;
+
+        @Bind(R.id.price)
+        AutoFitTextView priceView;
+
+        @Bind(R.id.change)
+        AutoFitTextView changeView;
+
+        public StockQuoteViewHolder(View view) {
+            this.view = view;
+            ButterKnife.bind(this, view);
+        }
+
+        public void bind(Interfaces.StockQuote stockQuote) {
+            symbolView.setText(stockQuote.getSymbol());
+            priceView.setText(Util.formatDollars(stockQuote.getLast()));
+            changeView.setText(Util.formatDollars(stockQuote.getLast() - stockQuote.getOpen()));
+            view.setTransitionName(getTransitionName(stockQuote.getSymbol()));
+        }
+
+        static public String getTransitionName(String symbol) {
+            return "stockquote_" + symbol;
         }
     }
 

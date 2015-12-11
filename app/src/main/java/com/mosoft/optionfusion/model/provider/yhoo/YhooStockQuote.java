@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName;
 import com.mosoft.optionfusion.model.provider.Interfaces;
 import com.mosoft.optionfusion.module.OptionFusionApplication;
 
+import java.util.List;
+
 /*
 
 {
@@ -103,19 +105,26 @@ import com.mosoft.optionfusion.module.OptionFusionApplication;
 
  */
 
-public class YhooStockQuote implements Interfaces.StockQuote {
+public class YhooStockQuote {
 
     private QueryData query;
 
+    public List<QuoteData> getQuotes() {
+        return query.results.quotes;
+    }
+
     private static class QueryData {
+        @SerializedName("results")
         ResultsData results;
     }
 
-    private static class ResultsData {
-        QuoteData quote;
+    public static class ResultsData {
+        @SerializedName("quote")
+        List<QuoteData> quotes;
     }
 
-    private static class QuoteData {
+    public static class QuoteData implements Interfaces.StockQuote {
+        @SerializedName("symbol")
         String symbol;
 
         @SerializedName("Name")
@@ -135,50 +144,50 @@ public class YhooStockQuote implements Interfaces.StockQuote {
 
         @SerializedName("PreviousClose")
         Double close;
-    }
 
-    @Override
-    public String getSymbol() {
-        return query.results.quote.symbol;
-    }
+        @Override
+        public String getSymbol() {
+            return symbol;
+        }
 
-    @Override
-    public String getDescription() {
-        return query.results.quote.name;
-    }
+        @Override
+        public String getDescription() {
+            return name;
+        }
 
-    @Override
-    public double getBid() {
-        return query.results.quote.bid;
-    }
+        @Override
+        public double getBid() {
+            return bid;
+        }
 
-    @Override
-    public double getAsk() {
-        return query.results.quote.ask;
-    }
+        @Override
+        public double getAsk() {
+            return ask;
+        }
 
-    @Override
-    public double getLast() {
-        return query.results.quote.last;
-    }
+        @Override
+        public double getLast() {
+            return last;
+        }
 
-    @Override
-    public double getOpen() {
-        return query.results.quote.open;
-    }
+        @Override
+        public double getOpen() {
+            return open;
+        }
 
-    @Override
-    public double getClose() {
-        return query.results.quote.close;
-    }
+        @Override
+        public double getClose() {
+            return close;
+        }
 
-    @Override
-    public String toJson(Gson gson) {
-        return gson.toJson(this);
-    }
+        @Override
+        public String toJson(Gson gson) {
+            return gson.toJson(this);
+        }
 
-    @Override
-    public OptionFusionApplication.Provider getProvider() {
-        return OptionFusionApplication.Provider.YAHOO;
+        @Override
+        public OptionFusionApplication.Provider getProvider() {
+            return OptionFusionApplication.Provider.YAHOO;
+        }
     }
 }

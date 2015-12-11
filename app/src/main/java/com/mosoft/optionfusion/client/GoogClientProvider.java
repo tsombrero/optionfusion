@@ -16,7 +16,6 @@ import retrofit.Retrofit;
 
 public class GoogClientProvider extends ClientProvider implements ClientProvider.OptionChainClientProvider, ClientProvider.SymbolLookupClientProvider {
 
-    @Inject
     ClientInterfaces.StockQuoteClient stockQuoteClient;
 
     GoogClient optionChainClient;
@@ -39,6 +38,10 @@ public class GoogClientProvider extends ClientProvider implements ClientProvider
             })
             .create();
 
+
+    public GoogClientProvider(ClientInterfaces.StockQuoteClient stockQuoteClient) {
+        this.stockQuoteClient = stockQuoteClient;
+    }
 
     @Override
     public ClientInterfaces.OptionChainClient getOptionChainClient() {

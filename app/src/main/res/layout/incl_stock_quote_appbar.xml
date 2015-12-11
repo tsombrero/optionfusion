@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:id="@+id/stock_quote"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="@color/primary"
+              android:layout_marginTop="?android:attr/actionBarSize"
+    >
+
+    <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+        android:id="@+id/symbol"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_margin="5dp"
+        android:layout_gravity="left"
+        style="@style/stockQuoteLabel"
+        android:textColor="@android:color/white"
+        tools:text="ABCD"
+        />
+
+    <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+        android:id="@+id/price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_margin="5dp"
+        style="@style/stockQuoteData"
+        android:textColor="@android:color/white"
+        tools:text="$223441.11"
+        />
+
+    <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+        android:id="@+id/change"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        style="@style/stockQuoteDataInverse"
+        android:layout_margin="5dp"
+        android:gravity="center"
+        android:background="@drawable/price_text_background"
+        tools:text="+$223.11"
+        />
+
+</LinearLayout>

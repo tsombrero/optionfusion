@@ -12,32 +12,40 @@ import android.transition.TransitionInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.SearchView;
+import android.widget.ProgressBar;
 
 import com.mosoft.optionfusion.R;
+import com.mosoft.optionfusion.cache.OptionChainProvider;
 import com.mosoft.optionfusion.model.Spread;
 import com.mosoft.optionfusion.model.provider.Interfaces;
 import com.mosoft.optionfusion.module.OptionFusionApplication;
 import com.mosoft.optionfusion.ui.results.ResultsFragment;
 import com.mosoft.optionfusion.ui.search.SearchFragment;
 import com.mosoft.optionfusion.ui.tradedetails.TradeDetailsFragment;
-import com.mosoft.optionfusion.ui.widgets.SymbolSearchView;
 
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 
-public class MainActivity extends Activity implements SearchFragment.Host, ResultsFragment.Host, SymbolSearchView.SymbolLookupListener {
+public class MainActivity extends Activity implements SearchFragment.Host, ResultsFragment.Host {
 
-    private SymbolSearchView searchView;
+    @Bind(R.id.progress)
+    ProgressBar progressBar;
+
+    @Inject
+    OptionChainProvider optionChainProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         OptionFusionApplication.from(this).getComponent().inject(this);
+        ButterKnife.bind(this);
 
         Fragment frag = SearchFragment.newInstance();
         getFragmentManager().beginTransaction()
@@ -49,12 +57,6 @@ public class MainActivity extends Activity implements SearchFragment.Host, Resul
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-
-        //Search stuff
-        MenuItem searchItem = menu.findItem(R.id.action_search);
-        searchView = (SymbolSearchView) searchItem.getActionView();
-        searchView.setLookupListener(this);
-
         return true;
     }
 
@@ -71,12 +73,24 @@ public class MainActivity extends Activity implements SearchFragment.Host, Resul
     }
 
     @Override
-    public void openResultsFragment(Interfaces.OptionChain optionChain) {
-        Fragment fragment = ResultsFragment.newInstance(optionChain.getUnderlyingStockQuote().getSymbol());
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment, optionChain.getUnderlyingStockQuote().getSymbol())
-                .addToBackStack(null)
-                .commit();
+    public void openResultsFragment(String symbol) {
+        progressBar.setVisibility(View.VISIBLE);
+
+        optionChainProvider.get(symbol, new OptionChainProvider.OptionChainCallback() {
+            @Override
+            public void call(Interfaces.OptionChain optionChain) {
+                progressBar.setVisibility(View.GONE);
+
+                if (optionChain != null) {
+                    Fragment fragment = ResultsFragment.newInstance(optionChain.getUnderlyingStockQuote().getSymbol());
+                    getActionBar().setTitle(optionChain.getUnderlyingStockQuote().getDescription());
+                    getFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, fragment, optionChain.getUnderlyingStockQuote().getSymbol())
+                            .addToBackStack(null)
+                            .commit();
+                }
+            }
+        });
     }
 
     @Override
@@ -109,11 +123,6 @@ public class MainActivity extends Activity implements SearchFragment.Host, Resul
         } else {
             finish();
         }
-    }
-
-    @Override
-    public void onSymbolClicked(String symbol) {
-
     }
 
     public class MySharedElementCallback extends SharedElementCallback {

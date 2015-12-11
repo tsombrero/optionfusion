@@ -1,33 +1,38 @@
 <resources>
 
     <declare-styleable name="RangeBar">
-        <attr name="tickStart" format="float" />
-        <attr name="tickEnd" format="float" />
-        <attr name="tickInterval" format="float" />
-        <attr name="tickHeight" format="dimension" />
-        <attr name="tickColor" format="color" />
-        <attr name="barWeight" format="dimension" />
-        <attr name="barColor" format="reference|color" />
-        <attr name="textColor" format="reference|color" />
-        <attr name="pinColor" format="reference|color" />
-        <attr name="selectorSize" format="dimension" />
-        <attr name="pinPadding" format="dimension" />
-        <attr name="barPaddingBottom" format="dimension" />
-        <attr name="selectorColor" format="reference|color" />
-        <attr name="rangeBar" format="boolean" />
-        <attr name="connectingLineWeight" format="dimension" />
-        <attr name="connectingLineColor" format="reference|color" />
-        <attr name="pinScaleMin" format="float" />
-        <attr name="pinWidth" format="dimension" />
-        <attr name="pinHeight" format="dimension" />
-        <attr name="pinAlwaysVisible" format="boolean" />
+        <attr name="tickStart" format="float"/>
+        <attr name="tickEnd" format="float"/>
+        <attr name="tickInterval" format="float"/>
+        <attr name="tickHeight" format="dimension"/>
+        <attr name="tickColor" format="color"/>
+        <attr name="barWeight" format="dimension"/>
+        <attr name="barColor" format="reference|color"/>
+        <attr name="textColor" format="reference|color"/>
+        <attr name="pinColor" format="reference|color"/>
+        <attr name="selectorSize" format="dimension"/>
+        <attr name="pinPadding" format="dimension"/>
+        <attr name="barPaddingBottom" format="dimension"/>
+        <attr name="selectorColor" format="reference|color"/>
+        <attr name="rangeBar" format="boolean"/>
+        <attr name="connectingLineWeight" format="dimension"/>
+        <attr name="connectingLineColor" format="reference|color"/>
+        <attr name="pinScaleMin" format="float"/>
+        <attr name="pinWidth" format="dimension"/>
+        <attr name="pinHeight" format="dimension"/>
+        <attr name="pinAlwaysVisible" format="boolean"/>
         <attr name="endedness" format="enum">
-            <enum name="both" value="0" />
-            <enum name="left" value="1" />
-            <enum name="right" value="2" />
+            <enum name="both" value="0"/>
+            <enum name="left" value="1"/>
+            <enum name="right" value="2"/>
         </attr>
-        <attr name="showPin" format="boolean" />
-        <attr name="barColorLeft" format="reference|color" />
+        <attr name="showPin" format="boolean"/>
+        <attr name="barColorLeft" format="reference|color"/>
     </declare-styleable>
+
+    <declare-styleable name="priceChange">
+        <attr name="state_value_decreased" format="boolean" />
+    </declare-styleable>
+
 
 </resources>

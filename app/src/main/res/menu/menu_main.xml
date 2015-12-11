@@ -1,12 +1,4 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.mosoft.optionfusion.ui.MainActivity">
-
-    <item
-        android:id="@+id/action_search"
-        android:title="Find"
-        android:showAsAction="always"
-        android:actionViewClass="com.mosoft.optionfusion.ui.widgets.SymbolSearchView"
-        android:icon="@android:drawable/ic_menu_search"
-        />
 </menu>

@@ -2,11 +2,11 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:orientation="vertical"
               android:background="@color/subhead_medium_background"
+              android:orientation="vertical"
               tools:context="com.mosoft.optionfusion.ui.results.ResultsFragment">
 
-    <include layout="@layout/incl_stock_info"/>
+    <include layout="@layout/incl_stock_quote_appbar"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/list"

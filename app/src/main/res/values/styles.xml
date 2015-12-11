@@ -5,10 +5,11 @@
         <item name="android:colorPrimaryDark">@color/primary_dark</item>
         <item name="android:colorAccent">@color/accent</item>
         <item name="android:textColorPrimary">@color/primary_text_inverse</item>
+        <item name="android:windowActionBarOverlay">true</item>
     </style>
 
     <color name="primary">@color/material_indigo_500</color>
-    <color name="primary_dark">@color/material_indigo_800</color>
+    <color name="primary_dark">@color/material_indigo_700</color>
     <color name="primary_light">@color/material_indigo_100</color>
     <color name="accent">@color/material_green_A400</color>
     <color name="primary_text">@color/foreground_dark_grey</color>
@@ -258,4 +259,22 @@
     <style name="secondaryTextInverse" parent="secondaryText">
         <item name="android:textColor">@android:color/white</item>
     </style>
+
+    <style name="stockQuoteLabel" parent="primaryText">
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:gravity">left</item>
+    </style>
+
+    <style name="stockQuoteData" parent="stockQuoteLabel">
+        <item name="android:layout_gravity">right</item>
+        <item name="android:gravity">right</item>
+    </style>
+
+    <style name="stockQuoteDataInverse" parent="stockQuoteData">
+        <item name="android:textColor">@color/primary_text_inverse</item>
+    </style>
+
 </resources>

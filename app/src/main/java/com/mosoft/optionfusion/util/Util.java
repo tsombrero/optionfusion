@@ -31,7 +31,7 @@ public class Util {
             return String.format("$%.2f", val);
         }
 
-        return String.format("($%.2f)", val);
+        return String.format("$%.2f", val);
     }
 
     //TODO there's a formula for this!

@@ -41,7 +41,7 @@ public class ApplicationModule {
             case AMERITRADE:
                 return ameritradeClientProvider.getOptionChainClient();
         }
-        return new GoogClientProvider().getOptionChainClient();
+        return new GoogClientProvider(stockQuoteClient).getOptionChainClient();
     }
 
     // Note this is not a singleton because it's an abstracted provider; the underlying client providers are singletons
@@ -83,8 +83,8 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    GoogClientProvider provideGoogClientProvider() {
-        return new GoogClientProvider();
+    GoogClientProvider provideGoogClientProvider(ClientInterfaces.StockQuoteClient stockQuoteClient) {
+        return new GoogClientProvider(stockQuoteClient);
     }
 
     @Provides

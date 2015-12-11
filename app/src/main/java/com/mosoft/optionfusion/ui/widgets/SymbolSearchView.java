@@ -20,7 +20,6 @@ import com.mosoft.optionfusion.R;
 import com.mosoft.optionfusion.client.ClientInterfaces;
 import com.mosoft.optionfusion.client.ClientInterfaces.SymbolLookupClient.SuggestionColumns;
 import com.mosoft.optionfusion.module.OptionFusionApplication;
-import com.mosoft.optionfusion.ui.login.LoginActivity;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -75,7 +74,7 @@ public class SymbolSearchView extends SearchView implements SearchView.OnQueryTe
         applyToTextViews(new ButterKnife.Action() {
             @Override
             public void apply(View view, int index) {
-                TextView textView = (TextView)view;
+                TextView textView = (TextView) view;
                 textView.setTextColor(getContext().getResources().getColor(R.color.primary_text_inverse));
                 textView.setHintTextColor(getContext().getResources().getColor(R.color.text_hint_inverse));
 
@@ -248,11 +247,10 @@ public class SymbolSearchView extends SearchView implements SearchView.OnQueryTe
 
     private static <V extends View> Collection<V> gatherChildrenByClass(ViewGroup viewGroup, Class<V> clazz, Collection<V> childrenFound) {
 
-        for (int i = 0; i < viewGroup.getChildCount(); i++)
-        {
+        for (int i = 0; i < viewGroup.getChildCount(); i++) {
             final View child = viewGroup.getChildAt(i);
             if (clazz.isAssignableFrom(child.getClass())) {
-                childrenFound.add((V)child);
+                childrenFound.add((V) child);
             }
             if (child instanceof ViewGroup) {
                 gatherChildrenByClass((ViewGroup) child, clazz, childrenFound);

@@ -38,8 +38,8 @@ import lecho.lib.hellocharts.view.LineChartView;
 
 public class TradeDetailsFragment extends Fragment {
 
-    @Bind(R.id.stockInfo)
-    protected ViewGroup stockInfo;
+    @Bind(R.id.stock_quote)
+    protected ViewGroup stockQuote;
 
     @Bind(R.id.details_brief)
     protected ViewGroup briefDetailsLayout;
@@ -110,11 +110,11 @@ public class TradeDetailsFragment extends Fragment {
     public void initView() {
         oc = optionChainProvider.get(spread.getUnderlyingSymbol());
 
-        new SharedViewHolders.StockInfoHolder(stockInfo).bind(oc);
+        new SharedViewHolders.StockQuoteViewHolder(stockQuote).bind(oc.getUnderlyingStockQuote());
         new SharedViewHolders.BriefTradeDetailsHolder(briefDetailsLayout).bind(spread);
         new SharedViewHolders.TradeDetailsHeaderHolder(spreadHeaderLayout).bind(spread);
 
-        spreadHeaderLayout.setElevation(stockInfo.getElevation());
+        spreadHeaderLayout.setElevation(stockQuote.getElevation());
         spreadHeaderLayout.findViewById(R.id.item_menu).setVisibility(View.GONE);
 
         View buyLayout = getActivity().getLayoutInflater().inflate(R.layout.incl_option_quote, null);

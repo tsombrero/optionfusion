@@ -28,15 +28,13 @@ import javax.inject.Inject;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-import static com.mosoft.optionfusion.util.Util.TAG;
-
 public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsListener {
 
     @Bind(R.id.list)
     protected RecyclerView recyclerView;
 
-    @Bind(R.id.stockInfo)
-    protected ViewGroup stockInfoLayout;
+    @Bind(R.id.stock_quote)
+    protected ViewGroup stockQuoteLayout;
 
     @Inject
     OptionChainProvider optionChainProvider;
@@ -45,6 +43,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
     String symbol;
     ResultsAdapter resultsAdapter;
 
+    private static final String TAG = "ResultsFragment";
     private static final String ARG_SYMBOL = "symbol";
 
     public static ResultsFragment newInstance(String symbol) {
@@ -85,12 +84,16 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
         optionChainProvider.get(symbol, new OptionChainProvider.OptionChainCallback() {
             @Override
             public void call(Interfaces.OptionChain optionChain) {
-                new SharedViewHolders.StockInfoHolder(stockInfoLayout).bind(optionChain);
+                new SharedViewHolders.StockQuoteViewHolder(stockQuoteLayout).bind(optionChain.getUnderlyingStockQuote());
                 onChange(filterSet);
             }
         });
 
         Util.hideSoftKeyboard(getActivity());
+
+        getActivity().getActionBar().setHideOnContentScrollEnabled(true);
+        stockQuoteLayout.setElevation(getActivity().getActionBar().getElevation());
+
     }
 
     @Override
@@ -139,7 +142,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
 
     @Override
     public void onResultSelected(Spread spread, View headerLayout, View briefDetailsLayout) {
-        ((Host) getActivity()).showDetails(spread, this, headerLayout, briefDetailsLayout, stockInfoLayout);
+        ((Host) getActivity()).showDetails(spread, this, headerLayout, briefDetailsLayout, stockQuoteLayout);
     }
 
     public interface Host {

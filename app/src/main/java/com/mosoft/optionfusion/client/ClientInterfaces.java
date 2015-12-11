@@ -7,6 +7,7 @@ import android.database.MatrixCursor;
 import com.mosoft.optionfusion.model.provider.Interfaces;
 import com.mosoft.optionfusion.model.provider.Interfaces.OptionChain;
 
+import java.util.Collection;
 import java.util.List;
 
 
@@ -44,6 +45,7 @@ public class ClientInterfaces {
 
     public interface StockQuoteClient {
         Interfaces.StockQuote getStockQuote(String symbol, Callback<Interfaces.StockQuote> callback);
+        List<Interfaces.StockQuote> getStockQuotes(Collection<String> symbols, Callback<List<Interfaces.StockQuote>> callback);
     }
 
     public interface SymbolLookupClient {
