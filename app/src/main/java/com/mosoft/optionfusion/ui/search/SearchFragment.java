@@ -21,7 +21,7 @@ import javax.inject.Inject;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class SearchFragment extends Fragment implements SymbolSearchView.SymbolLookupListener {
+public class SearchFragment extends Fragment implements SymbolSearchView.SearchSubmitListener {
 
     @Bind(R.id.toolbar)
     Toolbar toolbar;
@@ -71,7 +71,7 @@ public class SearchFragment extends Fragment implements SymbolSearchView.SymbolL
     }
 
     @Override
-    public void onSymbolClicked(String symbol) {
+    public void onSearchSubmitted(String symbol) {
         ((Host) getActivity()).openResultsFragment(symbol);
     }
 
@@ -87,7 +87,7 @@ public class SearchFragment extends Fragment implements SymbolSearchView.SymbolL
         //Search stuff
         MenuItem searchItem = menu.findItem(R.id.action_search);
         searchView = (SymbolSearchView) searchItem.getActionView();
-        searchView.setLookupListener(this);
+        searchView.setSubmitListener(this);
         super.onCreateOptionsMenu(menu, inflater);
     }
 

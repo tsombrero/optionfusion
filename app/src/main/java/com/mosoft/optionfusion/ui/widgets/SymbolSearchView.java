@@ -38,7 +38,7 @@ public class SymbolSearchView extends SearchView implements SearchView.OnQueryTe
 
     private SuggestionCursorAdapter suggestionAdapter;
 
-    private SymbolLookupListener lookupListener;
+    private SearchSubmitListener submitListener;
 
     private static final String TAG = "SymbolSearchView";
 
@@ -92,7 +92,7 @@ public class SymbolSearchView extends SearchView implements SearchView.OnQueryTe
 
     @Override
     public boolean onSuggestionSelect(int position) {
-        if (lookupListener == null)
+        if (submitListener == null)
             return false;
 
         String symbol = null;
@@ -101,7 +101,7 @@ public class SymbolSearchView extends SearchView implements SearchView.OnQueryTe
             suggestionAdapter.getCursor().moveToPosition(position);
             symbol = suggestionAdapter.getCursor().getString(SuggestionColumns.symbol.ordinal());
         }
-        lookupListener.onSymbolClicked(symbol);
+        submitListener.onSearchSubmitted(symbol);
         return true;
     }
 
@@ -144,7 +144,10 @@ public class SymbolSearchView extends SearchView implements SearchView.OnQueryTe
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        return false;
+        if (submitListener != null)
+            submitListener.onSearchSubmitted(query);
+
+        return submitListener != null;
     }
 
     @Override
@@ -185,12 +188,12 @@ public class SymbolSearchView extends SearchView implements SearchView.OnQueryTe
         return true;
     }
 
-    public void setLookupListener(SymbolLookupListener lookupListener) {
-        this.lookupListener = lookupListener;
+    public void setSubmitListener(SearchSubmitListener submitListener) {
+        this.submitListener = submitListener;
     }
 
-    public interface SymbolLookupListener {
-        void onSymbolClicked(String symbol);
+    public interface SearchSubmitListener {
+        void onSearchSubmitted(String symbol);
     }
 
     LruCache<String, Cursor> cursorCache = new LruCache<String, Cursor>(20) {

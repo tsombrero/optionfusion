@@ -38,6 +38,9 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
     @Bind(R.id.stock_quote)
     protected ViewGroup stockQuoteLayout;
 
+    @Bind(R.id.toolbar)
+    android.support.v7.widget.Toolbar toolbar;
+
     @Inject
     OptionChainProvider optionChainProvider;
 
@@ -63,6 +66,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
         View ret = inflater.inflate(R.layout.fragment_results, container, false);
         ButterKnife.bind(this, ret);
 
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
 
         return ret;
