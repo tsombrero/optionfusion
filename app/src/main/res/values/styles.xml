@@ -8,6 +8,20 @@
         <item name="android:windowActionBarOverlay">true</item>
     </style>
 
+    <style name="Toolbar" parent="Base.ThemeOverlay.AppCompat.ActionBar">
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:background">@color/primary</item>
+        <item name="android:popupTheme">@style/Toolbar_Popup</item>
+    </style>
+
+    <style name="Toolbar_Popup" parent="Base.ThemeOverlay.AppCompat.ActionBar">
+        <item name="android:textColorPrimary">@color/primary_text</item>
+        <item name="android:background">@color/background</item>
+        <item name="android:layout_marginTop">@dimen/list_item_padding_vertical</item>
+    </style>
+
+
+    <color name="background">@android:color/white</color>
     <color name="primary">@color/material_indigo_500</color>
     <color name="primary_dark">@color/material_indigo_700</color>
     <color name="primary_light">@color/material_indigo_100</color>
@@ -102,6 +116,7 @@
         <item name="android:textAllCaps">true</item>
         <item name="android:paddingRight">@dimen/list_item_padding_horizontal</item>
         <item name="android:paddingLeft">@dimen/list_item_padding_horizontal</item>
+        <item name="android:background">@android:color/white</item>
     </style>
 
     <style name="DetailsLabel.Inverse">
@@ -132,6 +147,7 @@
         <item name="android:textAllCaps">true</item>
         <item name="android:paddingRight">@dimen/list_item_padding_horizontal</item>
         <item name="android:paddingLeft">@dimen/list_item_padding_horizontal</item>
+        <item name="android:background">@android:color/white</item>
     </style>
 
     <style name="SmallSubhead.Inverse">
@@ -246,18 +262,20 @@
 
     <style name="primaryText" parent="android:style/TextAppearance.Medium">
         <item name="android:textColor">@color/primary_text</item>
+        <item name="android:background">@color/background</item>
     </style>
 
     <style name="primaryText.Inverse">
-        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textColor">@color/background</item>
     </style>
 
     <style name="secondaryText" parent="android:style/TextAppearance.Medium">
         <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:background">@color/background</item>
     </style>
 
     <style name="secondaryTextInverse" parent="secondaryText">
-        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textColor">@color/background</item>
     </style>
 
     <style name="stockQuoteLabel" parent="primaryText">
@@ -275,6 +293,20 @@
 
     <style name="stockQuoteDataInverse" parent="stockQuoteData">
         <item name="android:textColor">@color/primary_text_inverse</item>
+    </style>
+
+    <style name="suggestion" parent="android:style/TextAppearance.Medium">
+        <item name="android:background">@color/background</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">@color/primary_text</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="suggestionSubtitle" parent="suggestion">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?android:textColorSecondary</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
 </resources>

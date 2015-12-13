@@ -30,8 +30,8 @@
 
         <activity
             android:name="com.mosoft.optionfusion.ui.MainActivity"
-            android:label="Find Spreads"
-            android:windowSoftInputMode="adjustResize|stateVisible">
+            android:label="@string/app_name"
+            android:windowSoftInputMode="adjustNothing|stateHidden">
         </activity>
 
     </application>

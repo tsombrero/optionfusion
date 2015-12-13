@@ -44,28 +44,6 @@ public class SearchFragment extends Fragment implements SymbolSearchView.SearchS
         return ret;
     }
 
-//    @OnEditorAction(R.id.edit_symbol)
-//    public boolean onEditorAction(int action) {
-//        switch (action) {
-//            case EditorInfo.IME_ACTION_DONE:
-//            case EditorInfo.IME_ACTION_GO:
-//            case EditorInfo.IME_ACTION_SEARCH:
-//                break;
-//            default:
-//                return false;
-//        }
-//
-//        final String symbol = editSymbolView.getText().toString();
-//
-//        if (TextUtils.isEmpty(symbol)) {
-//            Toast.makeText(getActivity(), "Enter a ticker symbol", Toast.LENGTH_SHORT);
-//            return true;
-//        }
-//
-//        ((Host) getActivity()).openResultsFragment(symbol);
-//        return true;
-//    }
-
     public static Fragment newInstance() {
         return new SearchFragment();
     }

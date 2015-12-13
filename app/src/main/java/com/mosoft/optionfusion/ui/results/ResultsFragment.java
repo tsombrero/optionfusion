@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import com.mosoft.optionfusion.R;
 import com.mosoft.optionfusion.cache.OptionChainProvider;
