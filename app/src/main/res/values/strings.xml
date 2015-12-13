@@ -17,4 +17,5 @@
     <string name="max_return_annualized">Max Return Annualized</string>
     <string name="min_position_cost">Min Cost of Position</string>
     <string name="max_position_cost">Max Cost of Position</string>
+    <string name="failed_getting_chain">Failed getting option chain</string>
 </resources>

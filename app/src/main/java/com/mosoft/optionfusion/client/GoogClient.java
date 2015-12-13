@@ -76,6 +76,10 @@ public class GoogClient implements ClientInterfaces.OptionChainClient, ClientInt
             ret.setStockQuote(quote);
             try {
                 Response<GoogOptionChain.GoogExpirations> expirations = restInterface.getExpirations(symbol).execute();
+
+                if (expirations == null || expirations.body() == null || expirations.body().getExpirations() == null)
+                    return null;
+
                 for (GoogOptionChain.GoogExpiration expiration : expirations.body().getExpirations()) {
                     Response<GoogOptionChain.GoogOptionDate> datechain = restInterface.getChainForDate(symbol, expiration.getY(), expiration.getM(), expiration.getD()).execute();
                     ret.addToChain(datechain.body());

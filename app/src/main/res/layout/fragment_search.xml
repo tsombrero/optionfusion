@@ -1,29 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
 
-    <com.mosoft.optionfusion.ui.widgets.SymbolSearchView
-        android:id="@+id/search"
+    >
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:iconifiedByDefault="false"
-        android:searchIcon="@android:drawable/ic_menu_search"
+        android:layout_height="?android:actionBarSize"
+        android:background="@color/primary"
         />
 
-    <EditText
-        android:id="@+id/edit_symbol"
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:hint="@string/symbol"
-        android:inputType="textCapCharacters|textNoSuggestions"
-        android:imeOptions="actionSearch"
-        android:maxLines="1"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        android:singleLine="true"/>
+        android:gravity="center"
+        android:text="hello"
+        />
 
 </LinearLayout>

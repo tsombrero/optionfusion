@@ -1,8 +1,9 @@
 package com.mosoft.optionfusion.ui.results;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.mosoft.optionfusion.R;
 import com.mosoft.optionfusion.cache.OptionChainProvider;
@@ -90,10 +92,6 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
         });
 
         Util.hideSoftKeyboard(getActivity());
-
-        getActivity().getActionBar().setHideOnContentScrollEnabled(true);
-        stockQuoteLayout.setElevation(getActivity().getActionBar().getElevation());
-
     }
 
     @Override

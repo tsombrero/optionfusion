@@ -1,12 +1,26 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/subhead_medium_background"
-              android:orientation="vertical"
-              tools:context="com.mosoft.optionfusion.ui.results.ResultsFragment">
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/subhead_medium_background"
+    android:orientation="vertical"
+    tools:context="com.mosoft.optionfusion.ui.results.ResultsFragment">
 
-    <include layout="@layout/incl_stock_quote_appbar"/>
+    <android.support.design.widget.AppBarLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        >
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_width="match_parent"
+            />
+
+        <include layout="@layout/incl_stock_quote_appbar"/>
+
+    </android.support.design.widget.AppBarLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/list"
@@ -15,4 +29,4 @@
         android:layout_weight="1"
         />
 
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

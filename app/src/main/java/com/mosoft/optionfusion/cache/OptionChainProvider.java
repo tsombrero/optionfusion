@@ -34,7 +34,7 @@ public class OptionChainProvider extends LruCache<String, Interfaces.OptionChain
                     @Override
                     public void call(Interfaces.OptionChain oc) {
                         if (oc == null || !oc.succeeded()) {
-                            Log.w(TAG, "Failed: " + oc == null ? "" : oc.getError());
+                            Log.w(TAG, "Failed: " + (oc == null ? "" : oc.getError()));
                             callback.call(null);
                             return;
                         }

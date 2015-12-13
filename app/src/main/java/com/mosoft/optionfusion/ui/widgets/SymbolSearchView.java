@@ -3,6 +3,8 @@ package com.mosoft.optionfusion.ui.widgets;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.support.v4.widget.CursorAdapter;
+import android.support.v7.widget.SearchView;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
@@ -12,8 +14,6 @@ import android.util.Log;
 import android.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
-import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.mosoft.optionfusion.R;
@@ -57,11 +57,6 @@ public class SymbolSearchView extends SearchView implements SearchView.OnQueryTe
         init();
     }
 
-    public SymbolSearchView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init();
-    }
-
     private void init() {
         OptionFusionApplication.from(getContext()).getComponent().inject(this);
 
@@ -97,6 +92,9 @@ public class SymbolSearchView extends SearchView implements SearchView.OnQueryTe
 
     @Override
     public boolean onSuggestionSelect(int position) {
+        if (lookupListener == null)
+            return false;
+
         String symbol = null;
 
         synchronized (suggestionAdapter) {

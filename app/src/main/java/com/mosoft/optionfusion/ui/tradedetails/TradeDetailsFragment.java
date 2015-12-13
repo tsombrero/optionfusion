@@ -1,6 +1,6 @@
 package com.mosoft.optionfusion.ui.tradedetails;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.graphics.DashPathEffect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
