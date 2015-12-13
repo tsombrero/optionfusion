@@ -257,12 +257,12 @@ public class GoogOptionChain implements Interfaces.OptionChain {
 
         @Override
         public boolean hasBid() {
-            return b > 0;
+            return b > 0.05D;
         }
 
         @Override
         public boolean hasAsk() {
-            return a > 0;
+            return a > 0.05D;
         }
 
         @Override

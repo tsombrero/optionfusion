@@ -23,6 +23,7 @@ import com.mosoft.optionfusion.module.OptionFusionApplication;
 import com.mosoft.optionfusion.ui.results.ResultsFragment;
 import com.mosoft.optionfusion.ui.search.SearchFragment;
 import com.mosoft.optionfusion.ui.tradedetails.TradeDetailsFragment;
+import com.mosoft.optionfusion.util.Util;
 
 import java.util.List;
 import java.util.Map;
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
 
     @Override
     public void openResultsFragment(final String symbol) {
+        Util.hideSoftKeyboard(this);
         progressBar.setVisibility(View.VISIBLE);
 
         optionChainProvider.get(symbol, new OptionChainProvider.OptionChainCallback() {

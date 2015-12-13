@@ -1,8 +1,8 @@
 package com.mosoft.optionfusion.ui.results;
 
-import android.support.v4.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -65,8 +65,10 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
         View ret = inflater.inflate(R.layout.fragment_results, container, false);
         ButterKnife.bind(this, ret);
 
-        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Vertical Spreads");
+
 
         return ret;
     }

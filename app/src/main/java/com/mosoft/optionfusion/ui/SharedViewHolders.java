@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 import com.mosoft.optionfusion.R;
 import com.mosoft.optionfusion.model.Spread;
@@ -61,16 +62,21 @@ public class SharedViewHolders {
         @Bind(R.id.change)
         AutoFitTextView changeView;
 
+        @Bind(R.id.arrow)
+        ViewFlipper arrowViewFlipper;
+
         public StockQuoteViewHolder(View view) {
             this.view = view;
             ButterKnife.bind(this, view);
         }
 
         public void bind(Interfaces.StockQuote stockQuote) {
+            Double change = stockQuote.getLast() - stockQuote.getOpen();
             symbolView.setText(stockQuote.getSymbol());
             priceView.setText(Util.formatDollars(stockQuote.getLast()));
-            changeView.setText(Util.formatDollars(stockQuote.getLast() - stockQuote.getOpen()));
+            changeView.setText(Util.formatDollars(change));
             view.setTransitionName(getTransitionName(stockQuote.getSymbol()));
+            arrowViewFlipper.setDisplayedChild(change > 0 ? 1 : 0);
         }
 
         static public String getTransitionName(String symbol) {
