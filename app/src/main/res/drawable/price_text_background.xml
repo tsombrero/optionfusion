@@ -3,14 +3,14 @@
           android:shape="rectangle">
     <item app:state_value_decreased="true">
         <shape android:shape="rectangle">
-            <corners android:radius="8dp"/>
+            <corners android:radius="3dp"/>
             <solid android:color="@color/rangebar_red"/>
         </shape>
     </item>
 
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="8dp"/>
+            <corners android:radius="3dp"/>
             <solid android:color="@color/rangebar_green"/>
         </shape>
     </item>

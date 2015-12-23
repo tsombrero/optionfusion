@@ -4,7 +4,7 @@
         android:viewportWidth="24.0"
         android:viewportHeight="24.0">
     <path
-        android:fillColor="#FF000000"
-        android:pathData="M2,19l10,-10 10,10z"/>
+        android:fillColor="@color/rangebar_green"
+        android:pathData="M2,17l10,-10 10,10z"/>
 
 </vector>

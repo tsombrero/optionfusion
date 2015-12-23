@@ -1,41 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout android:id="@+id/stock_quote"
+              xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
-              android:id="@+id/stock_quote"
-              android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              android:layout_marginTop="5dp"
+              android:orientation="horizontal">
 
-    <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
-        android:id="@+id/symbol"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_margin="5dp"
-        android:layout_gravity="left"
-        style="@style/stockQuoteLabel"
-        tools:text="ABCD"
-        />
+        android:orientation="vertical">
+
+        <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+            android:id="@+id/symbol"
+            style="@style/stockQuoteLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|top"
+            tools:text="ABCD"
+            />
+
+        <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+            android:id="@+id/description"
+            style="@style/stockQuoteLabelSubhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|top"
+            tools:text="The ABCD Company"
+            />
+
+    </LinearLayout>
 
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
         android:id="@+id/price"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:layout_margin="5dp"
         style="@style/stockQuoteData"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|top"
+        android:layout_margin="5dp"
         tools:text="$223441.11"
         />
 
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
         android:id="@+id/change"
+        style="@style/stockQuoteDataInverse"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        style="@style/stockQuoteDataInverse"
+        android:layout_gravity="right|top"
         android:layout_margin="5dp"
-        android:gravity="center"
         android:background="@drawable/price_text_background"
+        android:gravity="center"
         tools:text="+$223.11"
         />
 

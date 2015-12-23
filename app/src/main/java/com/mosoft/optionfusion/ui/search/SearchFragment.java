@@ -1,8 +1,13 @@
 package com.mosoft.optionfusion.ui.search;
 
+import android.content.Context;
+import android.preference.Preference;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -10,10 +15,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 
 import com.mosoft.optionfusion.R;
 import com.mosoft.optionfusion.cache.OptionChainProvider;
+import com.mosoft.optionfusion.model.provider.Interfaces.StockQuote;
 import com.mosoft.optionfusion.module.OptionFusionApplication;
+import com.mosoft.optionfusion.ui.results.ListViewHolders;
 import com.mosoft.optionfusion.ui.widgets.SymbolSearchView;
 
 import javax.inject.Inject;
@@ -25,6 +33,9 @@ public class SearchFragment extends Fragment implements SymbolSearchView.SearchS
 
     @Bind(R.id.toolbar)
     Toolbar toolbar;
+
+    @Bind(R.id.list)
+    RecyclerView recyclerView;
 
     SymbolSearchView searchView;
 
@@ -41,6 +52,10 @@ public class SearchFragment extends Fragment implements SymbolSearchView.SearchS
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
 
         setHasOptionsMenu(true);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        recyclerView.setAdapter(new ArrayAdapter<StockQuote>(getContext()));
+
         return ret;
     }
 
@@ -76,6 +91,32 @@ public class SearchFragment extends Fragment implements SymbolSearchView.SearchS
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private class StockQuoteAdapter extends RecyclerView.Adapter<ListViewHolders.BaseViewHolder> {
+
+        private final Context context;
+
+        public StockQuoteAdapter() {
+            context = getActivity();
+        }
+
+        public void update() {
+            getActivity().getPreferences()
+        }
+
+        @Override
+        public ListViewHolders.BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        }
+
+        @Override
+        public void onBindViewHolder(ListViewHolders.BaseViewHolder holder, int position) {
+        }
+
+        @Override
+        public int getItemCount() {
+            return 0;
+        }
     }
 }
 

@@ -148,6 +148,7 @@
         <item name="android:paddingRight">@dimen/list_item_padding_horizontal</item>
         <item name="android:paddingLeft">@dimen/list_item_padding_horizontal</item>
         <item name="android:background">@android:color/white</item>
+        <item name="android:singleLine">true</item>
     </style>
 
     <style name="SmallSubhead.Inverse">
@@ -277,11 +278,15 @@
         <item name="android:textColor">@color/background</item>
     </style>
 
-    <style name="stockQuoteLabel" parent="primaryText.Inverse">
+    <style name="stockQuoteLabel" parent="primaryText">
         <item name="android:singleLine">true</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:padding">5dp</item>
+        <item name="android:paddingLeft">5dp</item>
         <item name="android:gravity">left</item>
+    </style>
+
+    <style name="stockQuoteLabelSubhead" parent="suggestionSubtitle">
+        <item name="android:paddingLeft">5dp</item>
     </style>
 
     <style name="stockQuoteData" parent="stockQuoteLabel">
@@ -305,6 +310,7 @@
         <item name="android:textColor">?android:textColorSecondary</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
     </style>
 
 </resources>
