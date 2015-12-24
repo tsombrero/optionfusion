@@ -285,7 +285,7 @@
         <item name="android:gravity">left</item>
     </style>
 
-    <style name="stockQuoteLabelSubhead" parent="suggestionSubtitle">
+    <style name="stockQuoteLabelSubhead" parent="smallCaps">
         <item name="android:paddingLeft">5dp</item>
     </style>
 
@@ -299,18 +299,22 @@
     </style>
 
     <style name="suggestion" parent="android:style/TextAppearance.Medium">
-        <item name="android:background">@color/background</item>
+        <item name="android:background">?android:background</item>
         <item name="android:singleLine">true</item>
         <item name="android:textColor">@color/primary_text</item>
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="suggestionSubtitle" parent="suggestion">
+    <style name="suggestionSubtitle" parent="smallCaps">
+        <item name="android:background">?android:background</item>
+    </style>
+
+    <style name="smallCaps">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">?android:textColorSecondary</item>
+        <item name="android:singleLine">true</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:ellipsize">end</item>
-        <item name="android:singleLine">true</item>
     </style>
 
 </resources>

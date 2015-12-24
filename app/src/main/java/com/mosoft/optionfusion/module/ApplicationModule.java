@@ -2,6 +2,7 @@ package com.mosoft.optionfusion.module;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -107,5 +108,11 @@ public class ApplicationModule {
     @Singleton
     Gson provideGson() {
         return new GsonBuilder().create();
+    }
+
+    @Provides
+    @Singleton
+    SharedPreferences provideSharedPreferences(Context context) {
+        return context.getSharedPreferences("default", Context.MODE_PRIVATE);
     }
 }

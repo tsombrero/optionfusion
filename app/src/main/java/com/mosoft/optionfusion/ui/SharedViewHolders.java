@@ -2,6 +2,8 @@ package com.mosoft.optionfusion.ui;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -50,7 +52,7 @@ public class SharedViewHolders {
         }
     }
 
-    public static class StockQuoteViewHolder {
+    public static class StockQuoteViewHolder extends RecyclerView.ViewHolder {
         private final View view;
 
         @Bind(R.id.symbol)
@@ -63,10 +65,15 @@ public class SharedViewHolders {
         AutoFitTextView changeView;
 
         @Bind(R.id.arrow)
+        @Nullable
         ViewFlipper arrowViewFlipper;
 
-        public StockQuoteViewHolder(View view) {
-            this.view = view;
+        @Bind(R.id.description)
+        AutoFitTextView description;
+
+        public StockQuoteViewHolder(View itemView) {
+            super(itemView);
+            this.view = itemView;
             ButterKnife.bind(this, view);
         }
 
@@ -76,7 +83,10 @@ public class SharedViewHolders {
             priceView.setText(Util.formatDollars(stockQuote.getLast()));
             changeView.setText(Util.formatDollars(change));
             view.setTransitionName(getTransitionName(stockQuote.getSymbol()));
-            arrowViewFlipper.setDisplayedChild(change > 0 ? 1 : 0);
+            if (arrowViewFlipper != null)
+                arrowViewFlipper.setDisplayedChild(change > 0 ? 1 : 0);
+            if (description != null)
+                description.setText(stockQuote.getDescription());
         }
 
         static public String getTransitionName(String symbol) {

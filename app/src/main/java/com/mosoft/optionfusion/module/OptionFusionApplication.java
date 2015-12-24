@@ -4,14 +4,37 @@ import android.app.Application;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.google.gson.reflect.TypeToken;
+import com.mosoft.optionfusion.model.provider.amtd.AmeritradeStockQuote;
+import com.mosoft.optionfusion.model.provider.yhoo.YhooStockQuote;
+
+import java.lang.reflect.Type;
+import java.util.List;
+
 public class OptionFusionApplication extends Application {
 
     private OptionFusionApplicationComponent applicationComponent;
 
     public enum Provider {
+        _UNKNOWN,
         AMERITRADE,
         YAHOO,
-        GOOGLE_FINANCE
+        GOOGLE_FINANCE;
+
+        public Type getStockQuoteListType() {
+            switch (this) {
+
+                case AMERITRADE:
+                    return new TypeToken<List<AmeritradeStockQuote>>() {
+                    }.getType();
+                case YAHOO:
+                    return new TypeToken<List<YhooStockQuote>>() {
+                    }.getType();
+                case GOOGLE_FINANCE:
+                    break;
+            }
+            return null;
+        }
     }
 
     private Provider provider;
