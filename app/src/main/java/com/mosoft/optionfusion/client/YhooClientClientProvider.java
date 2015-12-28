@@ -32,7 +32,9 @@ public class YhooClientClientProvider extends ClientProvider implements ClientPr
             List<YhooStockQuote.QuoteData> vals = new ArrayList<>();
             if (json.isJsonArray()) {
                 for (JsonElement e : json.getAsJsonArray()) {
-                    vals.add((YhooStockQuote.QuoteData) ctx.deserialize(e, YhooStockQuote.QuoteData.class));
+                    YhooStockQuote.QuoteData q = ctx.deserialize(e, YhooStockQuote.QuoteData.class);
+                    if (q != null && q.getDescription() != null)
+                        vals.add(q);
                 }
             } else if (json.isJsonObject()) {
                 vals.add((YhooStockQuote.QuoteData) ctx.deserialize(json, YhooStockQuote.QuoteData.class));

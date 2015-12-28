@@ -7,16 +7,18 @@
     android:layout_height="match_parent"
     android:layout_marginTop="5dp"
     android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
     android:orientation="horizontal">
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
         android:layout_weight="1"
         android:orientation="vertical">
 
-        <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+        <TextView
             android:id="@+id/symbol"
             style="@style/stockQuoteLabel"
             android:layout_width="wrap_content"
@@ -24,7 +26,7 @@
             android:layout_gravity="left|top"
             tools:text="ABCD" />
 
-        <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+        <TextView
             android:id="@+id/description"
             style="@style/stockQuoteLabelSubhead"
             android:layout_width="wrap_content"
@@ -37,19 +39,21 @@
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
         android:id="@+id/price"
         style="@style/stockQuoteData"
-        android:layout_width="120dp"
+        android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:layout_gravity="right|top"
-        android:layout_margin="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
         tools:text="$223441.11" />
 
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
         android:id="@+id/change"
         style="@style/stockQuoteDataInverse"
-        android:layout_width="100dp"
+        android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:layout_gravity="right|top"
-        android:layout_margin="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
         android:background="@drawable/price_text_background"
         android:gravity="center"
         tools:text="+$223.11" />

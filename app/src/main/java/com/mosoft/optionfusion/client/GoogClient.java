@@ -1,22 +1,32 @@
 package com.mosoft.optionfusion.client;
 
 import android.database.Cursor;
-import android.database.MatrixCursor;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.mosoft.optionfusion.model.HistoricalQuote;
 import com.mosoft.optionfusion.model.provider.Interfaces;
 import com.mosoft.optionfusion.model.provider.goog.GoogOptionChain;
+import com.mosoft.optionfusion.model.provider.goog.GoogPriceHistory;
 import com.mosoft.optionfusion.model.provider.goog.GoogSymbolLookupResult;
+import com.squareup.okhttp.ResponseBody;
 
+import java.io.EOFException;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import retrofit.Call;
+import retrofit.Converter;
 import retrofit.Response;
 import retrofit.http.GET;
 import retrofit.http.Query;
 
-public class GoogClient implements ClientInterfaces.OptionChainClient, ClientInterfaces.SymbolLookupClient {
+public class GoogClient implements ClientInterfaces.OptionChainClient, ClientInterfaces.SymbolLookupClient, ClientInterfaces.PriceHistoryClient {
 
     private final RestInterface restInterface;
 
@@ -50,6 +60,64 @@ public class GoogClient implements ClientInterfaces.OptionChainClient, ClientInt
             e.printStackTrace();
         }
         return ClientInterfaces.SymbolLookupClient.EMPTY_CURSOR;
+    }
+
+    @Override
+    public void getPriceHistory(String symbol, Date start, ClientInterfaces.Callback<Interfaces.StockPriceHistory> callback) {
+        new PriceHistoryTask(callback, symbol, start).execute();
+
+    }
+
+    private class PriceHistoryTask extends AsyncTask<String, Void, GoogPriceHistory> {
+        private final ClientInterfaces.Callback<Interfaces.StockPriceHistory> callback;
+        private final String symbol;
+        private final Date start;
+
+        public PriceHistoryTask(ClientInterfaces.Callback<Interfaces.StockPriceHistory> callback, String symbol, Date start) {
+            this.callback = callback;
+            this.symbol = symbol;
+            this.start = start;
+        }
+
+        @Override
+        protected GoogPriceHistory doInBackground(String... params) {
+            String period;
+            long dateDiff = System.currentTimeMillis() - start.getTime();
+
+            int years = roundUp(dateDiff, TimeUnit.DAYS.toMillis(365), 0,1, 2, 3, 5, 10, 20, 40);
+
+            if (years == 0) {
+                int days = roundUp(dateDiff, TimeUnit.DAYS.toMillis(1), 1,2,3,5,10,15,30,60,90,120,240,480);
+                if (days == 0)
+                    days = 1;
+                period = String.format("%dd", days);
+            } else {
+                period = String.format("%dY", years);
+            }
+
+            Call<GoogPriceHistory> request = restInterface
+                    .getPriceHistory(
+                            symbol,
+                            period,
+                            Interfaces.StockPriceHistory.Interval.forStartDate(start).getIntervalInSeconds());
+
+            try {
+                Response<GoogPriceHistory> response = request.execute();
+                return response.body();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+    private int roundUp(long span, long msUnit, int ... multiples) {
+        long units = msUnit / span;
+        for (int multiple : multiples) {
+            if (units <= multiple)
+                return multiple;
+        }
+        return multiples[multiples.length - 1];
     }
 
     private class OptionChainTask extends AsyncTask<String, Void, GoogOptionChain> {
@@ -110,7 +178,13 @@ public class GoogClient implements ClientInterfaces.OptionChainClient, ClientInt
         // http://www.google.com/finance/match?matchtype=matchall&q=foo
         @GET("match?matchtype=matchall&output=json")
         Call<GoogSymbolLookupResult> getMatchesForQuery(@Query("q") String symbol);
-    }
 
+        //https://www.google.com/finance/getprices?q=MSFT&i=604800&p=40Y&f=d,c,v,o,h,l&df=cpct&auto=1
+        @GET("getprices?f=d,c,v,o,h,l&df=cpct&auto=1")
+        Call<GoogPriceHistory> getPriceHistory(@Query("q") String symbol, @Query("p") String period, @Query("i") long interval);
+
+        // https://www.google.com/finance/kd?output=json&keydevs=1&sort=date&recnews=0&s=MSFT
+//        Call<StockNews> getNews(@Query("s") String symbol);
+    }
 
 }

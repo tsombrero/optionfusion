@@ -8,6 +8,7 @@ import com.mosoft.optionfusion.model.provider.Interfaces;
 import com.mosoft.optionfusion.model.provider.Interfaces.OptionChain;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 
@@ -62,5 +63,9 @@ public class ClientInterfaces {
         Cursor EMPTY_CURSOR = new CursorWrapper(new MatrixCursor(SuggestionColumns.getNames()));
 
         Cursor getSymbolsMatching(String query);
+    }
+
+    public interface PriceHistoryClient {
+        void getPriceHistory(String symbol, Date start, Callback<Interfaces.StockPriceHistory> callback);
     }
 }

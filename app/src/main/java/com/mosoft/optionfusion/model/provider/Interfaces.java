@@ -2,11 +2,15 @@ package com.mosoft.optionfusion.model.provider;
 
 import com.google.gson.Gson;
 import com.mosoft.optionfusion.model.FilterSet;
+import com.mosoft.optionfusion.model.HistoricalQuote;
 import com.mosoft.optionfusion.model.Spread;
 
 import org.joda.time.LocalDate;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static com.mosoft.optionfusion.module.OptionFusionApplication.Provider;
 
@@ -121,6 +125,50 @@ public class Interfaces {
         String getDescription();
 
         String getAssociatedAccount();
+    }
+
+    public interface StockPriceHistory {
+        String getSymbol();
+
+        Interval getInterval();
+
+        Map<Long, HistoricalQuote> getPrices();
+
+        enum Interval {
+            MINUTE(TimeUnit.MINUTES.toSeconds(1)),
+            HOUR(TimeUnit.HOURS.toSeconds(1)),
+            DAY(TimeUnit.DAYS.toSeconds(1)),
+            WEEK(TimeUnit.DAYS.toSeconds(7));
+
+            long intervalInSeconds;
+
+            Interval(long intervalInSeconds) {
+                this.intervalInSeconds = intervalInSeconds;
+            }
+
+            public long getIntervalInSeconds() {
+                return intervalInSeconds;
+            }
+
+            public static Interval fromSeconds(final long intervalInSeconds) {
+                for (Interval interval : values()) {
+                    if (intervalInSeconds == interval.intervalInSeconds)
+                        return interval;
+                }
+                return null;
+            }
+
+            public static Interval forStartDate(final Date date) {
+                long dateDiff = System.currentTimeMillis() - date.getTime();
+                if (dateDiff < TimeUnit.DAYS.toMillis(3))
+                    return MINUTE;
+                if (dateDiff < TimeUnit.DAYS.toMillis(14))
+                    return HOUR;
+                if (dateDiff < TimeUnit.DAYS.toMillis(365))
+                    return DAY;
+                return WEEK;
+            }
+        }
     }
 
     public interface ResponseBase {

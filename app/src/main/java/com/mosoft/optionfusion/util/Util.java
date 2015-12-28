@@ -1,8 +1,6 @@
 package com.mosoft.optionfusion.util;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import org.joda.time.DateTimeConstants;
@@ -10,6 +8,7 @@ import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,14 +23,33 @@ public class Util {
     private static final DateFormat dateFormat = new SimpleDateFormat("MM/d/yy");
     private static final DateFormat dateFormatFar = new SimpleDateFormat("MMM yyyy");
     private static final DateFormat dateFormatNear = new SimpleDateFormat("d MMM");
+    private static final DecimalFormat dollarFormat = new DecimalFormat("$#,##0.00");
+    private static final DecimalFormat dollarFormatNoFraction = new DecimalFormat("$#,##0");
+    private static final DecimalFormat dollarChangeFormat = new DecimalFormat("#,##0.00");
+    private static final DecimalFormat dollarChangeFormatNoFraction = new DecimalFormat("#,##0");
+
     private static final GregorianCalendar calendar = new GregorianCalendar();
 
     public static String formatDollars(Double val) {
-        if (val >= 0) {
-            return String.format("$%.2f", val);
-        }
+        return dollarFormat.format(val);
+    }
 
-        return String.format("$%.2f", val);
+    public static String formatDollars(Double val, int roundIfAbove) {
+        if (val >= roundIfAbove)
+            return dollarFormatNoFraction.format(val);
+
+        return formatDollars(val);
+    }
+
+    public static String formatDollarChange(Double val) {
+        return dollarFormat.format(val);
+    }
+
+    public static String formatDollarChange(Double val, int roundIfAbove) {
+        if (val >= roundIfAbove)
+            return dollarFormatNoFraction.format(val);
+
+        return formatDollars(val);
     }
 
     //TODO there's a formula for this!
@@ -98,8 +116,8 @@ public class Util {
         return Days.daysBetween(new LocalDate(), date).getDays();
     }
 
-    public static String formatDollarsCompact(Double strike) {
-        return formatDollars(strike).replace(".00", "");
+    public static String formatDollarsCompact(Double val) {
+        return formatDollars(val).replace(".00", "");
     }
 
     public static String formatDollarRange(double limitLo, double limitHi) {
@@ -139,8 +157,8 @@ public class Util {
 
     public static LocalDate roundToNearestFriday(LocalDate localDate) {
         LocalDate t1 = localDate.withDayOfWeek(DateTimeConstants.FRIDAY);
-        if (t1.isBefore(localDate.minusDays(3)))       return t1.plusWeeks(1);
-        else if (t1.isAfter(localDate.plusDays(3)))    return t1.minusWeeks(1);
+        if (t1.isBefore(localDate.minusDays(3))) return t1.plusWeeks(1);
+        else if (t1.isAfter(localDate.plusDays(3))) return t1.minusWeeks(1);
         else return t1;
     }
 
@@ -176,7 +194,7 @@ public class Util {
     public static void hideSoftKeyboard(Activity activity) {
         if (activity.getCurrentFocus() == null)
             return;
-        
+
         InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
     }

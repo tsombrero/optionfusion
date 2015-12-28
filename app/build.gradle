@@ -16,7 +16,7 @@ android {
     buildToolsVersion "23.0.0"
 
     defaultConfig {
-        applicationId "com.mosoft.com.mosoft.optionfusion"
+        applicationId "com.mosoft.optionfusion"
         minSdkVersion 21
         targetSdkVersion 23
         versionCode 1
@@ -44,9 +44,9 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:23.1.0'
-    compile 'com.android.support:recyclerview-v7:23.0.1'
+    compile 'com.android.support:recyclerview-v7:23.1.0'
     compile 'com.android.support:multidex:1.0.0'
-    compile 'com.android.support:design:22.2.0'
+    compile 'com.android.support:design:23.1.0'
 
     // ui
     compile 'com.jakewharton:butterknife:7.0.1'

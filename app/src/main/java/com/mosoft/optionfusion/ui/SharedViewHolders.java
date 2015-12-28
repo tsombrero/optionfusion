@@ -56,20 +56,21 @@ public class SharedViewHolders {
         private final View view;
 
         @Bind(R.id.symbol)
-        AutoFitTextView symbolView;
+        TextView symbolView;
 
         @Bind(R.id.price)
-        AutoFitTextView priceView;
+        TextView priceView;
 
         @Bind(R.id.change)
-        AutoFitTextView changeView;
+        TextView changeView;
 
         @Bind(R.id.arrow)
         @Nullable
         ViewFlipper arrowViewFlipper;
 
         @Bind(R.id.description)
-        AutoFitTextView description;
+        @Nullable
+        TextView description;
 
         public StockQuoteViewHolder(View itemView) {
             super(itemView);
@@ -80,8 +81,8 @@ public class SharedViewHolders {
         public void bind(Interfaces.StockQuote stockQuote) {
             Double change = stockQuote.getLast() - stockQuote.getOpen();
             symbolView.setText(stockQuote.getSymbol());
-            priceView.setText(Util.formatDollars(stockQuote.getLast()));
-            changeView.setText(Util.formatDollars(change));
+            priceView.setText(Util.formatDollars(stockQuote.getLast(), 100000));
+            changeView.setText(Util.formatDollars(change, 100));
             view.setTransitionName(getTransitionName(stockQuote.getSymbol()));
             if (arrowViewFlipper != null)
                 arrowViewFlipper.setDisplayedChild(change > 0 ? 1 : 0);

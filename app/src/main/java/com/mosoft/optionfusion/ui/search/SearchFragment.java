@@ -117,7 +117,7 @@ public class SearchFragment extends Fragment implements SymbolSearchView.SearchS
     public Set<String> getRecentSymbols() {
         Set ret = sharedPreferences.getStringSet(PREFKEY_RECENTS, Collections.EMPTY_SET);
         if (ret.isEmpty()) {
-            ret = new HashSet<>(Arrays.asList("AAPL", "CSCO", "GOOG", "NFLX", "TSLA", "FB", "AMZN"));
+            ret = new HashSet<>(Arrays.asList("AAPL", "CSCO", "GOOG", "NFLX", "TSLA", "FB", "AMZN", "BRK-A"));
             sharedPreferences.edit().putStringSet(PREFKEY_RECENTS, ret).apply();
         }
         return ret;

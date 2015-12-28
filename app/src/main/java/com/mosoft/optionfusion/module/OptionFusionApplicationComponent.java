@@ -8,6 +8,7 @@ import com.mosoft.optionfusion.client.GoogClientProvider;
 import com.mosoft.optionfusion.client.YhooClient;
 import com.mosoft.optionfusion.client.YhooClientClientProvider;
 import com.mosoft.optionfusion.ui.MainActivity;
+import com.mosoft.optionfusion.ui.StockDetailsFragment;
 import com.mosoft.optionfusion.ui.login.LoginActivity;
 import com.mosoft.optionfusion.ui.login.LoginFragment;
 import com.mosoft.optionfusion.ui.login.StartFragment;
@@ -58,4 +59,6 @@ public interface OptionFusionApplicationComponent {
     void inject(YhooClient yhooClient);
 
     void inject(SymbolSearchView symbolSearchView);
+
+    void inject(StockDetailsFragment stockDetailsFragment);
 }
