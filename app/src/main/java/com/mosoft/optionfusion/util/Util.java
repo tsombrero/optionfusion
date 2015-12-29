@@ -208,4 +208,12 @@ public class Util {
         return ret;
     }
 
+    public static int roundUp(long msInput, long msUnit, int... multiples) {
+        long units = msUnit / msInput;
+        for (int multiple : multiples) {
+            if (units <= multiple)
+                return multiple;
+        }
+        return multiples[multiples.length - 1];
+    }
 }

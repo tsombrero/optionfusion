@@ -14,10 +14,11 @@ import android.view.ViewGroup;
 import com.mosoft.optionfusion.R;
 import com.mosoft.optionfusion.model.provider.Interfaces;
 import com.mosoft.optionfusion.module.OptionFusionApplication;
-import com.mosoft.optionfusion.ui.search.SearchFragment;
+import com.mosoft.optionfusion.ui.tradedetails.LineChartViewHolder;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import lecho.lib.hellocharts.view.LineChartView;
 
 public class StockDetailsFragment extends Fragment {
 
@@ -48,13 +49,6 @@ public class StockDetailsFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(new StockDetailsAdapter());
-        recyclerView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
         return ret;
     }
 
@@ -68,14 +62,30 @@ public class StockDetailsFragment extends Fragment {
 
     private class StockDetailsAdapter extends RecyclerView.Adapter {
 
+        private static final int HISTORY_CHART_VIEW_TYPE = 0;
+
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            switch (viewType) {
+                case HISTORY_CHART_VIEW_TYPE:
+                    return new LineChartViewHolder(new LineChartView(parent.getContext()));
+            }
             return null;
         }
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            switch (position) {
+                case 0:
+                    ((LineChartViewHolder) holder).bind(stockQuote.getSymbol());
+            }
+        }
 
+        @Override
+        public int getItemViewType(int position) {
+            if (position == 0)
+                return HISTORY_CHART_VIEW_TYPE;
+            return -1;
         }
 
         @Override

@@ -51,4 +51,18 @@ public class HistoricalQuote {
     public void setDate(long date) {
         this.date = date;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof HistoricalQuote) {
+            HistoricalQuote that = (HistoricalQuote)o;
+            return this.date == that.date
+                    && this.hi == that.hi
+                    && this.lo == that.lo
+                    && this.open == that.open
+                    && this.close == that.close
+                    && this.volume == that.volume;
+        }
+        return false;
+    }
 }

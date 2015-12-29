@@ -71,7 +71,7 @@ public class GoogPriceHistoryConverter implements Converter<ResponseBody, GoogPr
                 } else {
                     quote.setDate(runningTimestamp + (Integer.valueOf(date) * interval));
                 }
-                ret.getPrices().put(quote.getDate(), quote);
+                ret.addQuote(quote);
 
             } while (line != null);
             return ret;

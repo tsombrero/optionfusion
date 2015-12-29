@@ -3,23 +3,16 @@ package com.mosoft.optionfusion.model.provider.goog;
 import com.mosoft.optionfusion.model.HistoricalQuote;
 import com.mosoft.optionfusion.model.provider.Interfaces;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
 public class GoogPriceHistory implements Interfaces.StockPriceHistory {
 
     private String symbol;
     private Interval interval;
-    private Map<Long, HistoricalQuote> prices;
-
-    public GoogPriceHistory(String symbol, Interval interval, Map<Long, HistoricalQuote> prices) {
-        this.symbol = symbol;
-        this.interval = interval;
-        this.prices = prices;
-    }
+    private ArrayList<HistoricalQuote> prices;
 
     public GoogPriceHistory() {
-        prices = new HashMap<>();
+        prices = new ArrayList<>();
     }
 
     @Override
@@ -33,7 +26,26 @@ public class GoogPriceHistory implements Interfaces.StockPriceHistory {
     }
 
     @Override
-    public Map<Long, HistoricalQuote> getPrices() {
-        return prices;
+    public HistoricalQuote[] getPrices() {
+        return prices.toArray(new HistoricalQuote[]{});
+    }
+
+    @Override
+    public long getAgeOfLastEntryMs() {
+        if (prices.isEmpty())
+            return System.currentTimeMillis();
+
+        return System.currentTimeMillis() - prices.get(prices.size() - 1).getDate();
+    }
+
+    @Override
+    public void addQuote(HistoricalQuote quote) {
+        if (prices.isEmpty() || quote.getDate() > prices.get(prices.size() - 1).getDate())
+            prices.add(quote);
+
+        prices.remove(quote);
+        prices.add(quote);
+
+        return;
     }
 }

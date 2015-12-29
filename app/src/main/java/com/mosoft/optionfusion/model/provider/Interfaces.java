@@ -9,7 +9,6 @@ import org.joda.time.LocalDate;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.mosoft.optionfusion.module.OptionFusionApplication.Provider;
@@ -63,13 +62,21 @@ public class Interfaces {
 
     public interface StockQuote {
         String getSymbol();
+
         String getDescription();
+
         double getBid();
+
         double getAsk();
+
         double getLast();
+
         double getOpen();
+
         double getClose();
+
         String toJson(Gson gson);
+
         Provider getProvider();
     }
 
@@ -132,7 +139,11 @@ public class Interfaces {
 
         Interval getInterval();
 
-        Map<Long, HistoricalQuote> getPrices();
+        HistoricalQuote[] getPrices();
+
+        long getAgeOfLastEntryMs();
+
+        void addQuote(HistoricalQuote quote);
 
         enum Interval {
             MINUTE(TimeUnit.MINUTES.toSeconds(1)),
@@ -167,6 +178,21 @@ public class Interfaces {
                 if (dateDiff < TimeUnit.DAYS.toMillis(365))
                     return DAY;
                 return WEEK;
+            }
+
+            public long maxAgeBeforeStaleMs() {
+                switch (this) {
+
+                    case MINUTE:
+                        return TimeUnit.SECONDS.toMillis(30);
+                    case HOUR:
+                        return TimeUnit.MINUTES.toMillis(5);
+                    case DAY:
+                        return TimeUnit.HOURS.toMillis(1);
+                    case WEEK:
+                    default:
+                        return TimeUnit.DAYS.toMillis(1);
+                }
             }
         }
     }

@@ -4,24 +4,17 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.mosoft.optionfusion.model.HistoricalQuote;
 import com.mosoft.optionfusion.model.provider.Interfaces;
 import com.mosoft.optionfusion.model.provider.goog.GoogOptionChain;
 import com.mosoft.optionfusion.model.provider.goog.GoogPriceHistory;
 import com.mosoft.optionfusion.model.provider.goog.GoogSymbolLookupResult;
-import com.squareup.okhttp.ResponseBody;
+import com.mosoft.optionfusion.util.Util;
 
-import java.io.EOFException;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import retrofit.Call;
-import retrofit.Converter;
 import retrofit.Response;
 import retrofit.http.GET;
 import retrofit.http.Query;
@@ -84,10 +77,10 @@ public class GoogClient implements ClientInterfaces.OptionChainClient, ClientInt
             String period;
             long dateDiff = System.currentTimeMillis() - start.getTime();
 
-            int years = roundUp(dateDiff, TimeUnit.DAYS.toMillis(365), 0,1, 2, 3, 5, 10, 20, 40);
+            int years = Util.roundUp(dateDiff, TimeUnit.DAYS.toMillis(365), 0, 1, 2, 3, 5, 10, 20, 40);
 
             if (years == 0) {
-                int days = roundUp(dateDiff, TimeUnit.DAYS.toMillis(1), 1,2,3,5,10,15,30,60,90,120,240,480);
+                int days = Util.roundUp(dateDiff, TimeUnit.DAYS.toMillis(1), 1, 2, 3, 5, 10, 15, 30, 60, 90, 120, 240, 480);
                 if (days == 0)
                     days = 1;
                 period = String.format("%dd", days);
@@ -109,15 +102,6 @@ public class GoogClient implements ClientInterfaces.OptionChainClient, ClientInt
             }
             return null;
         }
-    }
-
-    private int roundUp(long span, long msUnit, int ... multiples) {
-        long units = msUnit / span;
-        for (int multiple : multiples) {
-            if (units <= multiple)
-                return multiple;
-        }
-        return multiples[multiples.length - 1];
     }
 
     private class OptionChainTask extends AsyncTask<String, Void, GoogOptionChain> {
