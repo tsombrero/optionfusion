@@ -13,5 +13,7 @@
     <dimen name="widget_elevation_resting">2dp</dimen>
     <dimen name="widget_elevation_raised">8dp</dimen>
     <dimen name="actionbar_elevation">4dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="fab_elevation">4dp</dimen>
 
 </resources>

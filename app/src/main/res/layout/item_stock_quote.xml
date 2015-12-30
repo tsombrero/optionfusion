@@ -1,54 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
+    android:id="@+id/stock_quote"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/stock_quote"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="5dp"
     android:background="?android:attr/selectableItemBackground"
     android:clickable="true"
-    android:orientation="horizontal">
+    >
 
-    <LinearLayout
-        android:layout_width="0dp"
+    <TextView
+        android:id="@+id/symbol"
+        style="@style/stockQuoteLabel"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/symbol"
-            style="@style/stockQuoteLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|top"
-            tools:text="ABCD" />
-
-        <TextView
-            android:id="@+id/description"
-            style="@style/stockQuoteLabelSubhead"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|top"
-            tools:text="The ABCD Company" />
-
-    </LinearLayout>
-
-    <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
-        android:id="@+id/price"
-        style="@style/stockQuoteData"
-        android:layout_width="80dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|top"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        tools:text="$223441.11" />
+        android:layout_gravity="left|top"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        tools:text="ABCD"/>
 
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
         android:id="@+id/change"
         style="@style/stockQuoteDataInverse"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:layout_gravity="right|top"
@@ -56,6 +32,32 @@
         android:layout_marginRight="5dp"
         android:background="@drawable/price_text_background"
         android:gravity="center"
-        tools:text="+$223.11" />
+        android:layout_alignParentRight="true"
+        android:layout_alignBaseline="@id/symbol"
+        android:clickable="true"
+        tools:text="-$223.11"/>
 
-</LinearLayout>
+    <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+        android:id="@+id/price"
+        style="@style/stockQuoteData"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|top"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_alignBaseline="@id/symbol"
+        android:layout_toLeftOf="@id/change"
+        tools:text="$223441.11"/>
+
+    <TextView
+        android:id="@+id/description"
+        style="@style/stockQuoteLabelSubhead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|top"
+        android:layout_below="@id/symbol"
+        android:layout_alignParentLeft="true"
+        tools:text="The ABCD Company"/>
+
+</RelativeLayout>
+

@@ -82,6 +82,10 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
         optionChainProvider.get(symbol, new OptionChainProvider.OptionChainCallback() {
             @Override
             public void call(Interfaces.OptionChain optionChain) {
+                if (progressBar.getVisibility() != View.VISIBLE) {
+                    return;
+                }
+
                 progressBar.setVisibility(View.GONE);
 
                 if (optionChain != null) {

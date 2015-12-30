@@ -8,6 +8,16 @@
         <item name="android:windowActionBarOverlay">true</item>
     </style>
 
+    <style name="DialogTheme" parent="AppTheme" >
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsFloating">false</item>
+    </style>
+
+    <style name="SearchViewTheme" parent="Widget.AppCompat.SearchView">
+        
+    </style>
+
     <style name="Toolbar" parent="Base.ThemeOverlay.AppCompat.ActionBar">
         <item name="android:textColorPrimary">@android:color/white</item>
         <item name="android:background">@color/primary</item>
@@ -166,6 +176,15 @@
         <item name="android:textColor">@color/primary_text</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">34sp</item>
+        <item name="android:paddingRight">@dimen/list_item_padding_horizontal</item>
+        <item name="android:paddingLeft">@dimen/list_item_padding_horizontal</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="Large">
+        <item name="android:textColor">@color/primary_text</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">22sp</item>
         <item name="android:paddingRight">@dimen/list_item_padding_horizontal</item>
         <item name="android:paddingLeft">@dimen/list_item_padding_horizontal</item>
         <item name="android:singleLine">true</item>

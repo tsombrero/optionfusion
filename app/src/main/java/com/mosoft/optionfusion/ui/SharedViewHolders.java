@@ -2,8 +2,10 @@ package com.mosoft.optionfusion.ui;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.view.TouchDelegate;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -17,6 +19,7 @@ import com.mosoft.optionfusion.util.Util;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class SharedViewHolders {
 
@@ -72,27 +75,76 @@ public class SharedViewHolders {
         @Nullable
         TextView description;
 
-        public StockQuoteViewHolder(View itemView) {
+        StockQuoteViewHolderListener stockQuoteViewHolderListener;
+        Interfaces.StockQuote stockQuote;
+
+        static boolean showChangeAsPercent;
+
+        public StockQuoteViewHolder(final View itemView, final StockQuoteViewHolderListener stockQuoteViewHolderListener) {
             super(itemView);
             this.view = itemView;
+            this.stockQuoteViewHolderListener = stockQuoteViewHolderListener;
             ButterKnife.bind(this, view);
+
+            itemView.post(new Runnable() {
+                @Override
+                public void run() {
+                    Rect changeViewHitRect = new Rect();
+                    changeView.getHitRect(changeViewHitRect);
+                    changeViewHitRect.top = 0;
+                    changeViewHitRect.bottom = itemView.getHeight();
+                    changeViewHitRect.left = changeView.getLeft() - 50;
+                    changeViewHitRect.right = itemView.getWidth();
+
+                    TouchDelegate touchDelegate = new TouchDelegate(changeViewHitRect, changeView);
+                    itemView.setTouchDelegate(touchDelegate);
+                }
+            });
+
+            if (stockQuoteViewHolderListener != null) {
+                changeView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showChangeAsPercent = !showChangeAsPercent;
+                        stockQuoteViewHolderListener.onTogglePriceChangeFormat();
+                    }
+                });
+
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        stockQuoteViewHolderListener.onSymbolSelected(stockQuote.getSymbol());
+                    }
+                });
+            }
         }
 
         public void bind(Interfaces.StockQuote stockQuote) {
-            Double change = stockQuote.getLast() - stockQuote.getOpen();
+            this.stockQuote = stockQuote;
+            Double change = stockQuote.getChange();
             symbolView.setText(stockQuote.getSymbol());
             priceView.setText(Util.formatDollars(stockQuote.getLast(), 100000));
-            changeView.setText(Util.formatDollars(change, 100));
-            view.setTransitionName(getTransitionName(stockQuote.getSymbol()));
+
+            if (showChangeAsPercent) {
+                changeView.setText(Util.formatPercent(stockQuote.getChangePercent()));
+            } else {
+                changeView.setText(Util.formatDollarChange(stockQuote.getChange()));
+            }
+            view.setTransitionName(getTransitionName());
             if (arrowViewFlipper != null)
                 arrowViewFlipper.setDisplayedChild(change > 0 ? 1 : 0);
             if (description != null)
                 description.setText(stockQuote.getDescription());
         }
 
-        static public String getTransitionName(String symbol) {
-            return "stockquote_" + symbol;
+        private String getTransitionName() {
+            return "stockquote_" + stockQuote.getSymbol();
         }
+    }
+
+    public interface StockQuoteViewHolderListener {
+        void onTogglePriceChangeFormat();
+        void onSymbolSelected(String symbol);
     }
 
     public static class TradeDetailsHeaderHolder {

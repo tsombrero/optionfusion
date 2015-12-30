@@ -78,6 +78,10 @@ public class Interfaces {
         String toJson(Gson gson);
 
         Provider getProvider();
+
+        Double getChange();
+
+        Double getChangePercent();
     }
 
     public interface OptionStrike {

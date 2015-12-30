@@ -116,4 +116,14 @@ public class AmeritradeStockQuote extends AmtdResponseBase implements Interfaces
     public String toJson(Gson gson) {
         return gson.toJson(this);
     }
+
+    @Override
+    public Double getChange() {
+        return getLast() - getOpen();
+    }
+
+    @Override
+    public Double getChangePercent() {
+        return getChange() / getOpen();
+    }
 }

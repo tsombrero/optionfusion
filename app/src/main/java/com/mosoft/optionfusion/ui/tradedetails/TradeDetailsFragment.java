@@ -110,7 +110,7 @@ public class TradeDetailsFragment extends Fragment {
     public void initView() {
         oc = optionChainProvider.get(spread.getUnderlyingSymbol());
 
-        new SharedViewHolders.StockQuoteViewHolder(stockQuote).bind(oc.getUnderlyingStockQuote());
+        new SharedViewHolders.StockQuoteViewHolder(stockQuote, null).bind(oc.getUnderlyingStockQuote());
         new SharedViewHolders.BriefTradeDetailsHolder(briefDetailsLayout).bind(spread);
         new SharedViewHolders.TradeDetailsHeaderHolder(spreadHeaderLayout).bind(spread);
 

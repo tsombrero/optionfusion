@@ -16,6 +16,7 @@ import com.mosoft.optionfusion.ui.results.FilterViewHolder;
 import com.mosoft.optionfusion.ui.results.ResultsFragment;
 import com.mosoft.optionfusion.ui.search.SearchFragment;
 import com.mosoft.optionfusion.ui.tradedetails.TradeDetailsFragment;
+import com.mosoft.optionfusion.ui.widgets.SymbolSearchTextView;
 import com.mosoft.optionfusion.ui.widgets.SymbolSearchView;
 
 import javax.inject.Singleton;
@@ -61,4 +62,6 @@ public interface OptionFusionApplicationComponent {
     void inject(SymbolSearchView symbolSearchView);
 
     void inject(StockDetailsFragment stockDetailsFragment);
+
+    void inject(SymbolSearchTextView symbolSearchTextView);
 }

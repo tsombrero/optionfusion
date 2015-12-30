@@ -183,10 +183,7 @@ public class AutoFitTextView extends TextView {
     @Override
     protected int[] onCreateDrawableState(int extraSpace) {
         if (getText() != null
-                && (
-                getText().toString().indexOf('-') >= 0
-                        || getText().toString().indexOf('(') >= 0)
-                ) {
+                && getText().toString().indexOf('-') >= 0) {
             final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
             mergeDrawableStates(drawableState, STATE_VALUE_DECREASED);
             return drawableState;

@@ -3,15 +3,15 @@ package com.mosoft.optionfusion.ui.search;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -22,7 +22,7 @@ import com.mosoft.optionfusion.client.ClientInterfaces;
 import com.mosoft.optionfusion.model.provider.Interfaces.StockQuote;
 import com.mosoft.optionfusion.module.OptionFusionApplication;
 import com.mosoft.optionfusion.ui.SharedViewHolders;
-import com.mosoft.optionfusion.ui.widgets.SymbolSearchView;
+import com.mosoft.optionfusion.ui.widgets.SymbolSearchTextView;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,10 +35,11 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class SearchFragment extends Fragment implements SymbolSearchView.SearchSubmitListener {
+public class SearchFragment extends Fragment implements SharedViewHolders.StockQuoteViewHolderListener {
 
-    private static final String PREFKEY_RECENTS = "recents";
+    private static final String PREFKEY_WATCHLIST = "recents";
 
     @Bind(R.id.toolbar)
     Toolbar toolbar;
@@ -46,7 +47,8 @@ public class SearchFragment extends Fragment implements SymbolSearchView.SearchS
     @Bind(R.id.list)
     RecyclerView recyclerView;
 
-    SymbolSearchView searchView;
+    @Bind(R.id.fab)
+    FloatingActionButton fab;
 
     @Inject
     OptionChainProvider optionChainProvider;
@@ -56,6 +58,7 @@ public class SearchFragment extends Fragment implements SymbolSearchView.SearchS
 
     @Inject
     ClientInterfaces.StockQuoteClient stockQuoteClient;
+    private StockQuoteAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -69,11 +72,12 @@ public class SearchFragment extends Fragment implements SymbolSearchView.SearchS
         setHasOptionsMenu(true);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(new StockQuoteAdapter());
+        adapter = new StockQuoteAdapter();
+        recyclerView.setAdapter(adapter);
         recyclerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                
+
             }
         });
 
@@ -85,7 +89,12 @@ public class SearchFragment extends Fragment implements SymbolSearchView.SearchS
     }
 
     @Override
-    public void onSearchSubmitted(String symbol) {
+    public void onTogglePriceChangeFormat() {
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onSymbolSelected(String symbol) {
         ((Host) getActivity()).openResultsFragment(symbol);
     }
 
@@ -93,32 +102,11 @@ public class SearchFragment extends Fragment implements SymbolSearchView.SearchS
         void openResultsFragment(String symbol);
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
-        inflater.inflate(R.menu.menu_search_fragment, menu);
-
-        //Search stuff
-        MenuItem searchItem = menu.findItem(R.id.action_search);
-        searchView = (SymbolSearchView) searchItem.getActionView();
-        searchView.setSubmitListener(this);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_search) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     public Set<String> getRecentSymbols() {
-        Set ret = sharedPreferences.getStringSet(PREFKEY_RECENTS, Collections.EMPTY_SET);
+        Set ret = sharedPreferences.getStringSet(PREFKEY_WATCHLIST, Collections.EMPTY_SET);
         if (ret.isEmpty()) {
             ret = new HashSet<>(Arrays.asList("AAPL", "CSCO", "GOOG", "NFLX", "TSLA", "FB", "AMZN", "BRK-A"));
-            sharedPreferences.edit().putStringSet(PREFKEY_RECENTS, ret).apply();
+            sharedPreferences.edit().putStringSet(PREFKEY_WATCHLIST, ret).apply();
         }
         return ret;
     }
@@ -157,7 +145,7 @@ public class SearchFragment extends Fragment implements SymbolSearchView.SearchS
         @Override
         public SharedViewHolders.StockQuoteViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_stock_quote, parent, false);
-            return new SharedViewHolders.StockQuoteViewHolder(v);
+            return new SharedViewHolders.StockQuoteViewHolder(v, SearchFragment.this);
         }
 
         @Override
@@ -168,6 +156,58 @@ public class SearchFragment extends Fragment implements SymbolSearchView.SearchS
         @Override
         public int getItemCount() {
             return stockQuoteList == null ? 0 : stockQuoteList.size();
+        }
+    }
+
+    @OnClick(R.id.fab)
+    public void onAddToWatchlist() {
+        AddToWatchlistFragment dialog = new AddToWatchlistFragment();
+        dialog.setSymbolSearchListener(new SymbolSearchTextView.SymbolSearchListener() {
+            @Override
+            public void onSymbolSearch(String symbol) {
+                Set<String> symbols = getRecentSymbols();
+                if (!symbols.contains(symbol)) {
+                    symbols.add(symbol);
+                    sharedPreferences.edit().putStringSet(PREFKEY_WATCHLIST, symbols).apply();
+                }
+                adapter.update();
+            }
+        });
+        dialog.show(getChildFragmentManager(), null);
+    }
+
+    public static class AddToWatchlistFragment extends DialogFragment implements SymbolSearchTextView.SymbolSearchListener {
+
+        private SymbolSearchTextView.SymbolSearchListener listener;
+
+        public void setSymbolSearchListener(SymbolSearchTextView.SymbolSearchListener listener) {
+            this.listener = listener;
+        }
+
+        @Bind(R.id.search)
+        SymbolSearchTextView symbolSearchTextView;
+
+        @Override
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            setStyle(DialogFragment.STYLE_NO_FRAME, R.style.DialogTheme);
+            super.onCreate(savedInstanceState);
+        }
+
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View v = inflater.inflate(R.layout.dialog_add_symbol, container, false);
+            ButterKnife.bind(this, v);
+
+            symbolSearchTextView.setSymbolSearchListener(this);
+
+            return v;
+        }
+
+        @Override
+        public void onSymbolSearch(String symbol) {
+            dismiss();
+            listener.onSymbolSearch(symbol);
         }
     }
 }

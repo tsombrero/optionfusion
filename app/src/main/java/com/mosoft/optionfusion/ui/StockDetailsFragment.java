@@ -45,7 +45,7 @@ public class StockDetailsFragment extends Fragment {
 
         setHasOptionsMenu(true);
 
-        new SharedViewHolders.StockQuoteViewHolder(stockQuoteLayout).bind(stockQuote);
+        new SharedViewHolders.StockQuoteViewHolder(stockQuoteLayout, null).bind(stockQuote);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(new StockDetailsAdapter());

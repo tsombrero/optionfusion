@@ -189,5 +189,15 @@ public class YhooStockQuote {
         public OptionFusionApplication.Provider getProvider() {
             return OptionFusionApplication.Provider.YAHOO;
         }
+
+        @Override
+        public Double getChange() {
+            return getLast() - getOpen();
+        }
+
+        @Override
+        public Double getChangePercent() {
+            return getChange() / getOpen();
+        }
     }
 }

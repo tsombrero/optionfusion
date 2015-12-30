@@ -35,21 +35,21 @@ public class Util {
     }
 
     public static String formatDollars(Double val, int roundIfAbove) {
-        if (val >= roundIfAbove)
+        if (Math.abs(val) >= roundIfAbove)
             return dollarFormatNoFraction.format(val);
 
         return formatDollars(val);
     }
 
     public static String formatDollarChange(Double val) {
-        return dollarFormat.format(val);
+        return dollarChangeFormat.format(val);
     }
 
     public static String formatDollarChange(Double val, int roundIfAbove) {
-        if (val >= roundIfAbove)
-            return dollarFormatNoFraction.format(val);
+        if (Math.abs(val) >= roundIfAbove)
+            return dollarChangeFormatNoFraction.format(val);
 
-        return formatDollars(val);
+        return dollarChangeFormat.format(val);
     }
 
     //TODO there's a formula for this!
@@ -68,6 +68,7 @@ public class Util {
     }
 
     public static String formatPercent(double pct) {
+
         if (pct > 100d)
             return String.format("%dx", (int) pct);
         if (pct > 1d)
@@ -76,7 +77,7 @@ public class Util {
             return String.format("%.1f%%", 100d * pct);
         if (pct > 0d)
             return String.format("%.2f%%", 100d * pct);
-        if (pct < 100d)
+        if (pct < -100d)
             return String.format("-%dx", (int) pct);
         if (pct < -1d)
             return String.format("-%d%%", (int) (-100d * pct));

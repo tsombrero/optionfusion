@@ -91,7 +91,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
         optionChainProvider.get(symbol, new OptionChainProvider.OptionChainCallback() {
             @Override
             public void call(Interfaces.OptionChain optionChain) {
-                new SharedViewHolders.StockQuoteViewHolder(stockQuoteLayout).bind(optionChain.getUnderlyingStockQuote());
+                new SharedViewHolders.StockQuoteViewHolder(stockQuoteLayout, null).bind(optionChain.getUnderlyingStockQuote());
                 onChange(filterSet);
             }
         });
