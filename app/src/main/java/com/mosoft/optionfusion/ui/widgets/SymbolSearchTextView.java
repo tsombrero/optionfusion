@@ -58,10 +58,11 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
     }
 
     private void init() {
-        OptionFusionApplication.from(getContext()).getComponent().inject(this);
+        if (!isInEditMode())
+            OptionFusionApplication.from(getContext()).getComponent().inject(this);
 
         setHint(getContext().getString(R.string.stock_search_hint));
-        setInputType(InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
+        setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         suggestionAdapter = new SuggestionCursorAdapter(getContext());
         setAdapter(suggestionAdapter);
         InputFilter filter = new InputFilter() {
@@ -69,7 +70,7 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
                                        Spanned dest, int dstart, int dend) {
                 for (int i = start; i < end; i++) {
                     if (!Character.isLetterOrDigit(source.charAt(i))
-                            && ".-".indexOf(source.charAt(i)) == -1) {
+                            && ".- ".indexOf(source.charAt(i)) == -1) {
                         return "";
                     }
                 }

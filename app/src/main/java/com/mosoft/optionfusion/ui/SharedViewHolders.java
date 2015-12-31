@@ -14,12 +14,10 @@ import android.widget.ViewFlipper;
 import com.mosoft.optionfusion.R;
 import com.mosoft.optionfusion.model.Spread;
 import com.mosoft.optionfusion.model.provider.Interfaces;
-import com.mosoft.optionfusion.ui.widgets.AutoFitTextView;
 import com.mosoft.optionfusion.util.Util;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class SharedViewHolders {
 
@@ -139,6 +137,17 @@ public class SharedViewHolders {
 
         private String getTransitionName() {
             return "stockquote_" + stockQuote.getSymbol();
+        }
+
+        public Interfaces.StockQuote getStockQuote() {
+            return stockQuote;
+        }
+
+        public String getSymbol() {
+            if (stockQuote != null)
+                return stockQuote.getSymbol();
+
+            return null;
         }
     }
 

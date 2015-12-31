@@ -7,13 +7,16 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.mosoft.optionfusion.R;
@@ -23,6 +26,7 @@ import com.mosoft.optionfusion.model.provider.Interfaces.StockQuote;
 import com.mosoft.optionfusion.module.OptionFusionApplication;
 import com.mosoft.optionfusion.ui.SharedViewHolders;
 import com.mosoft.optionfusion.ui.widgets.SymbolSearchTextView;
+import com.mosoft.optionfusion.util.Util;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -74,12 +78,33 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         adapter = new StockQuoteAdapter();
         recyclerView.setAdapter(adapter);
-        recyclerView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
             }
-        });
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                if (!(viewHolder instanceof SharedViewHolders.StockQuoteViewHolder))
+                    return;
+
+                String symbol = ((SharedViewHolders.StockQuoteViewHolder)viewHolder).getSymbol();
+
+                if (symbol == null)
+                    return;
+
+                Set<String> symbols = new HashSet<>(getRecentSymbols());
+                symbols.remove(symbol);
+                sharedPreferences.edit().putStringSet(PREFKEY_WATCHLIST, symbols).apply();
+                adapter.removeItem(viewHolder.getAdapterPosition());
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+
 
         return ret;
     }
@@ -121,6 +146,11 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
             update();
         }
 
+        public void removeItem(int index) {
+            notifyItemRemoved(index);
+            stockQuoteList.remove(index);
+        }
+
         public void update() {
             stockQuoteClient.getStockQuotes(getRecentSymbols(), new ClientInterfaces.Callback<List<StockQuote>>() {
                 @Override
@@ -160,12 +190,14 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
     }
 
     @OnClick(R.id.fab)
-    public void onAddToWatchlist() {
-        AddToWatchlistFragment dialog = new AddToWatchlistFragment();
+    public void onOpenAddToWatchlistDialog() {
+        Util.showSoftKeyboard(getActivity());
+
+        AddToWatchlistDialog dialog = new AddToWatchlistDialog();
         dialog.setSymbolSearchListener(new SymbolSearchTextView.SymbolSearchListener() {
             @Override
             public void onSymbolSearch(String symbol) {
-                Set<String> symbols = getRecentSymbols();
+                Set<String> symbols = new HashSet<>(getRecentSymbols());
                 if (!symbols.contains(symbol)) {
                     symbols.add(symbol);
                     sharedPreferences.edit().putStringSet(PREFKEY_WATCHLIST, symbols).apply();
@@ -173,10 +205,13 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
                 adapter.update();
             }
         });
-        dialog.show(getChildFragmentManager(), null);
+        dialog.setCancelable(true);
+        FragmentTransaction ft = getChildFragmentManager().beginTransaction();
+        ft.addToBackStack(null);
+        dialog.show(ft, null);
     }
 
-    public static class AddToWatchlistFragment extends DialogFragment implements SymbolSearchTextView.SymbolSearchListener {
+    public static class AddToWatchlistDialog extends DialogFragment implements SymbolSearchTextView.SymbolSearchListener {
 
         private SymbolSearchTextView.SymbolSearchListener listener;
 
@@ -200,15 +235,19 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
             ButterKnife.bind(this, v);
 
             symbolSearchTextView.setSymbolSearchListener(this);
-
+            symbolSearchTextView.requestFocus();
             return v;
         }
 
         @Override
         public void onSymbolSearch(String symbol) {
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(symbolSearchTextView.getWindowToken(), 0);
             dismiss();
             listener.onSymbolSearch(symbol);
         }
     }
+
+
 }
 

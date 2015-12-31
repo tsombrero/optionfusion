@@ -105,6 +105,7 @@
     <color name="foreground_dark_grey">#de000000</color>
     <color name="foreground_light_grey">#39000000</color>
     <color name="foreground_lightest_grey">#24000000</color>
+    <color name="foreground_ghost">#18000000</color>
 
     <color name="text_hint_inverse">#4CFFFFFF</color>
     <color name="text_hint">@color/foreground_lightest_grey</color>
@@ -334,6 +335,13 @@
         <item name="android:singleLine">true</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="listView">
+        <item name="android:layout_marginLeft">@dimen/activity_horizontal_margin</item>
+        <item name="android:layout_marginRight">@dimen/activity_horizontal_margin</item>
+        <item name="android:layout_marginTop">@dimen/activity_vertical_margin</item>
+        <item name="android:layout_marginBottom">@dimen/activity_vertical_margin</item>
     </style>
 
 </resources>
