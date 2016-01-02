@@ -2,6 +2,7 @@ package com.mosoft.optionfusion.ui;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -17,6 +18,7 @@ import com.mosoft.optionfusion.model.provider.Interfaces;
 import com.mosoft.optionfusion.util.Util;
 
 import butterknife.Bind;
+import butterknife.BindColor;
 import butterknife.ButterKnife;
 
 public class SharedViewHolders {
@@ -45,7 +47,7 @@ public class SharedViewHolders {
             symbolView.setText(oc.getUnderlyingStockQuote().getSymbol());
             priceView.setText(Util.formatDollars(oc.getUnderlyingStockQuote().getLast()));
             equityDescriptionView.setText(oc.getUnderlyingStockQuote().getDescription());
-            view.setTransitionName(getTransitionName(oc.getUnderlyingStockQuote().getSymbol()));
+//            view.setTransitionName(getTransitionName(oc.getUnderlyingStockQuote().getSymbol()));
         }
 
         static public String getTransitionName(String symbol) {
@@ -128,7 +130,7 @@ public class SharedViewHolders {
             } else {
                 changeView.setText(Util.formatDollarChange(stockQuote.getChange()));
             }
-            view.setTransitionName(getTransitionName());
+//            view.setTransitionName(getTransitionName());
             if (arrowViewFlipper != null)
                 arrowViewFlipper.setDisplayedChild(change > 0 ? 1 : 0);
             if (description != null)
@@ -180,9 +182,9 @@ public class SharedViewHolders {
 
             header.setBackgroundColor(color);
 
-            description.setText(String.format("%s %.2f/%.2f", spread.getSpreadType().toString(), spread.getBuy().getStrike(), spread.getSell().getStrike()));
+            description.setText(spread.getDescriptionNoExp());
 
-            header.setTransitionName(getTransitionName(spread));
+//            header.setTransitionName(getTransitionName(spread));
         }
 
         static public String getTransitionName(Spread spread) {
@@ -191,8 +193,6 @@ public class SharedViewHolders {
     }
 
     public static class OptionQuoteHolder {
-        private final Context context;
-
         @Bind(R.id.quantity)
         TextView textQuantity;
 
@@ -205,8 +205,7 @@ public class SharedViewHolders {
         @Bind(R.id.ask)
         TextView textAsk;
 
-        public OptionQuoteHolder(Context context, View view) {
-            this.context = context;
+        public OptionQuoteHolder(View view) {
             ButterKnife.bind(this, view);
         }
 
@@ -214,11 +213,39 @@ public class SharedViewHolders {
             textQuantity.setText(String.valueOf(qty));
             textDescription.setText(String.format("%s %s %s",
                     Util.getFormattedOptionDate(optionQuote.getExpiration()),
-                    Util.formatDollars(optionQuote.getStrike()),
+                    Util.formatDollarsCompact(optionQuote.getStrike()),
                     optionQuote.getOptionType().toString()
             ));
             textBid.setText(Util.formatDollars(optionQuote.getBid()));
             textAsk.setText(Util.formatDollars(optionQuote.getAsk()));
+        }
+    }
+
+    public static class OptionTradeBidAskHolder {
+        @Bind(R.id.bid)
+        TextView bid;
+
+        @Bind(R.id.ask)
+        TextView ask;
+
+        @Nullable
+        @Bind(R.id.option_description)
+        TextView textDescription;
+
+        @Nullable
+        @Bind(R.id.quantity)
+        TextView quantity;
+
+        @BindColor(R.color.primary)
+        int primary;
+
+        public OptionTradeBidAskHolder(View view) {
+            ButterKnife.bind(this, view);
+        }
+
+        public void bind(Spread spread) {
+            bid.setText(Util.formatDollars(spread.getBid()));
+            ask.setText(Util.formatDollars(spread.getAsk()));
         }
     }
 
@@ -272,7 +299,7 @@ public class SharedViewHolders {
 
             breakEvenPrice.setTextColor(color);
 
-            layout.setTransitionName(getTransitionName(spread));
+//            layout.setTransitionName(getTransitionName(spread));
         }
 
         static public String getTransitionName(Spread spread) {

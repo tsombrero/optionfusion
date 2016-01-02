@@ -4,7 +4,7 @@
         <item name="android:colorPrimary">@color/primary</item>
         <item name="android:colorPrimaryDark">@color/primary_dark</item>
         <item name="android:colorAccent">@color/accent</item>
-        <item name="android:textColorPrimary">@color/primary_text_inverse</item>
+        <item name="android:textColorPrimary">@color/primary_text</item>
         <item name="android:windowActionBarOverlay">true</item>
     </style>
 
@@ -122,25 +122,24 @@
     <style name="DetailsLabel" parent="@android:style/TextAppearance.Small">
         <item name="android:textColor">@color/secondary_text</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:singleLine">true</item>
         <item name="android:paddingTop">@dimen/list_item_padding_vertical</item>
         <item name="android:paddingBottom">@dimen/list_item_padding_vertical</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:paddingRight">@dimen/list_item_padding_horizontal</item>
         <item name="android:paddingLeft">@dimen/list_item_padding_horizontal</item>
-        <item name="android:background">@android:color/white</item>
+        <item name="android:layout_margin">1dp</item>
     </style>
 
     <style name="DetailsLabel.Inverse">
         <item name="android:textColor">@color/secondary_text_inverse</item>
-        <item name="android:background">@color/primary_dark</item>
+        <item name="android:background">@color/primary</item>
         <item name="android:gravity">center</item>
-        <item name="android:layout_margin">1dp</item>
     </style>
 
     <style name="DetailCellValue" parent="DetailsLabel">
         <item name="android:gravity">center</item>
         <item name="android:background">@android:color/white</item>
-        <item name="android:layout_margin">1dp</item>
     </style>
 
     <style name="DetailsLabel.Indented">
@@ -158,7 +157,6 @@
         <item name="android:textAllCaps">true</item>
         <item name="android:paddingRight">@dimen/list_item_padding_horizontal</item>
         <item name="android:paddingLeft">@dimen/list_item_padding_horizontal</item>
-        <item name="android:background">@android:color/white</item>
         <item name="android:singleLine">true</item>
     </style>
 
@@ -338,8 +336,8 @@
     </style>
 
     <style name="listView">
-        <item name="android:layout_marginLeft">@dimen/activity_horizontal_margin</item>
-        <item name="android:layout_marginRight">@dimen/activity_horizontal_margin</item>
+        <item name="android:layout_marginLeft">@dimen/card_horizontal_margin</item>
+        <item name="android:layout_marginRight">@dimen/card_horizontal_margin</item>
         <item name="android:layout_marginTop">@dimen/activity_vertical_margin</item>
         <item name="android:layout_marginBottom">@dimen/activity_vertical_margin</item>
     </style>

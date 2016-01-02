@@ -1,6 +1,7 @@
 package com.mosoft.optionfusion.model.filter;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.mosoft.optionfusion.model.Spread;
 import com.mosoft.optionfusion.model.provider.Interfaces;
@@ -54,4 +55,15 @@ public class RoiFilter extends Filter {
         dest.writeInt(FilterType.ROI.ordinal());
         dest.writeDouble(roi);
     }
+
+    public static final Parcelable.Creator<RoiFilter> CREATOR
+            = new Parcelable.Creator<RoiFilter>() {
+        public RoiFilter createFromParcel(Parcel in) {
+            return new RoiFilter(in);
+        }
+
+        public RoiFilter[] newArray(int size) {
+            return new RoiFilter[size];
+        }
+    };
 }

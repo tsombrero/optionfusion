@@ -100,6 +100,10 @@ abstract public class Spread implements Parcelable {
         return buy.getAsk() - sell.getBid();
     }
 
+    public Double getBid() {
+        return buy.getBid() - sell.getAsk();
+    }
+
     public Interfaces.OptionQuote getBuy() {
         return buy;
     }
@@ -271,4 +275,12 @@ abstract public class Spread implements Parcelable {
             return OptionFusionApplication.Provider.values()[in.readInt()];
         }
     }
+
+    public String getDescriptionNoExp() {
+        return String.format("%s %.2f/%.2f", getSpreadType().toString(), getBuy().getStrike(), getSell().getStrike());
+    }
+    public String getDescription() {
+        return String.format("%s %.2f/%.2f %s", getSpreadType().toString(), getBuy().getStrike(), getSell().getStrike(), Util.getFormattedOptionDate(getExpiresDate()));
+    }
+
 }

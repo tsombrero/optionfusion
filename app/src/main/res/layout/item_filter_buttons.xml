@@ -162,7 +162,7 @@
             style="@style/filtercard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <TextView
                 android:id="@+id/expiration_filter_label"
@@ -178,7 +178,8 @@
                 style="@style/RangebarValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/expiration_filter_label" />
+                android:layout_below="@id/expiration_filter_label"
+                android:text="test"/>
 
             <com.mosoft.optionfusion.ui.widgets.rangebar.RangeBar
                 android:id="@+id/rangebar_expiration"

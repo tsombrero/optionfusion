@@ -85,9 +85,16 @@ public class GoogOptionChain implements Interfaces.OptionChain {
     private ArrayList<GoogOptionDate> optionDates = new ArrayList<>();
     private transient boolean succeeded;
 
+    private static final String TAG = "GoogOptionChain";
+
     private transient Interfaces.StockQuote stockQuote;
 
     public void addToChain(GoogOptionDate date) {
+        if (date == null) {
+            Log.e(TAG, "Error : Null date");
+            return;
+        }
+
         for (GoogOptionQuote quote : date.calls) {
             quote.optionType = Interfaces.OptionType.CALL;
             quote.optionDate = date;

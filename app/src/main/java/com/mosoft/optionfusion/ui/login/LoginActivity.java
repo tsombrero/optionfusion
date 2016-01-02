@@ -1,9 +1,9 @@
 package com.mosoft.optionfusion.ui.login;
 
-import android.app.Activity;
-import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 
 import com.mosoft.optionfusion.R;
 import com.mosoft.optionfusion.module.OptionFusionApplication;
@@ -12,7 +12,7 @@ import com.mosoft.optionfusion.ui.MainActivity;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends Activity implements StartFragment.Host {
+public class LoginActivity extends FragmentActivity implements StartFragment.Host {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +21,7 @@ public class LoginActivity extends Activity implements StartFragment.Host {
         setContentView(R.layout.activity_main);
 
         Fragment frag = StartFragment.newInstance();
-        getFragmentManager().beginTransaction()
+        getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, frag, "tag_start")
                 .addToBackStack(null)
                 .commit();
@@ -44,12 +44,12 @@ public class LoginActivity extends Activity implements StartFragment.Host {
                 break;
             default:
                 startActivity(new Intent(this, MainActivity.class));
-                if (getFragmentManager().getBackStackEntryCount() > 1)
-                    getFragmentManager().popBackStack();
+                if (getSupportFragmentManager().getBackStackEntryCount() > 1)
+                    getSupportFragmentManager().popBackStack();
                 return;
         }
 
-        getFragmentManager().beginTransaction()
+        getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, frag, "tag_login")
                 .addToBackStack(null)
                 .commit();
@@ -57,8 +57,8 @@ public class LoginActivity extends Activity implements StartFragment.Host {
 
     @Override
     public void onBackPressed() {
-        if (getFragmentManager().getBackStackEntryCount() > 1) {
-            getFragmentManager().popBackStack();
+        if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
+            getSupportFragmentManager().popBackStack();
         } else {
             finish();
         }

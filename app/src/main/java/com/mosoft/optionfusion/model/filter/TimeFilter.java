@@ -1,6 +1,7 @@
 package com.mosoft.optionfusion.model.filter;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.mosoft.optionfusion.model.provider.Interfaces;
 import com.mosoft.optionfusion.ui.widgets.rangebar.RangeBar;
@@ -107,4 +108,15 @@ public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider 
     public Object getRightValue() {
         return getMaxExpDate();
     }
+
+    public static final Parcelable.Creator<TimeFilter> CREATOR
+            = new Parcelable.Creator<TimeFilter>() {
+        public TimeFilter createFromParcel(Parcel in) {
+            return new TimeFilter(in);
+        }
+
+        public TimeFilter[] newArray(int size) {
+            return new TimeFilter[size];
+        }
+    };
 }

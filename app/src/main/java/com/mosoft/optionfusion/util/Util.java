@@ -69,23 +69,16 @@ public class Util {
 
     public static String formatPercent(double pct) {
 
-        if (pct > 100d)
-            return String.format("%dx", (int) pct);
-        if (pct > 1d)
-            return String.format("%d%%", (int) (100d * pct));
-        if (pct > 0.1d)
-            return String.format("%.1f%%", 100d * pct);
-        if (pct > 0d)
-            return String.format("%.2f%%", 100d * pct);
-        if (pct < -100d)
-            return String.format("-%dx", (int) pct);
-        if (pct < -1d)
-            return String.format("-%d%%", (int) (-100d * pct));
-        if (pct < -0.1d)
-            return String.format("-%.2f%%", -100d * pct);
-        if (pct < 0d)
-            return String.format("-%.1f%%", -100d * pct);
+        double abspct = Math.abs(pct);
 
+        if (abspct > 100d)
+            return String.format("%dx", (int) pct);
+        if (abspct > 1d)
+            return String.format("%d%%", (int) (100d * pct));
+        if (abspct > 0.1d)
+            return String.format("%.1f%%", 100d * pct);
+        if (abspct > 0d)
+            return String.format("%.2f%%", 100d * pct);
         return "0";
     }
 

@@ -8,9 +8,8 @@
         android:id="@+id/quantity"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight=".5"
-        style="@style/DetailCellValue"
-        android:text="q"
+        android:layout_weight="0.5"
+        android:visibility="invisible"
         />
 
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
@@ -18,8 +17,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="2.7"
-        style="@style/DetailCellValue"
-        android:text="description"
+        style="@style/DetailsLabel"
+        android:text="Net:"
+        android:gravity="right"
         />
 
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
@@ -27,8 +27,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        style="@style/DetailCellValue"
-        android:text="bid"
+        style="@style/DetailsLabel.Inverse"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
         />
 
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
@@ -36,8 +37,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        style="@style/DetailCellValue"
-        android:text="ask"
+        style="@style/DetailsLabel.Inverse"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
         />
 
 </LinearLayout>

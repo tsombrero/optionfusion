@@ -8,10 +8,16 @@ import android.widget.Toast;
 import com.mosoft.optionfusion.client.ClientInterfaces;
 import com.mosoft.optionfusion.model.provider.Interfaces;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+
 public class StockQuoteProvider extends LruCache<String, Interfaces.StockQuote> {
     private final Context context;
     private final ClientInterfaces.StockQuoteClient stockQuoteClient;
     private final String TAG = OptionChainProvider.class.getSimpleName();
+
+    ArrayList<WeakReference<StockQuoteCallback>> stockQuoteListeners = new ArrayList<>();
+
 
     public StockQuoteProvider(Context context, ClientInterfaces.StockQuoteClient stockQuoteClient) {
         super(10);

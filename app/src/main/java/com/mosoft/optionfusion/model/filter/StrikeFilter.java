@@ -1,6 +1,7 @@
 package com.mosoft.optionfusion.model.filter;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.mosoft.optionfusion.model.provider.Interfaces;
 import com.mosoft.optionfusion.ui.widgets.rangebar.RangeBar;
@@ -100,6 +101,17 @@ public class StrikeFilter extends Filter implements RangeBar.RangeBarDataProvide
         return getMaxValue();
     }
 
+
+    public static final Parcelable.Creator<StrikeFilter> CREATOR
+            = new Parcelable.Creator<StrikeFilter>() {
+        public StrikeFilter createFromParcel(Parcel in) {
+            return new StrikeFilter(in);
+        }
+
+        public StrikeFilter[] newArray(int size) {
+            return new StrikeFilter[size];
+        }
+    };
 
 
 }

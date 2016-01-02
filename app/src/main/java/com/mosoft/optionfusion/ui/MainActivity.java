@@ -105,17 +105,17 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment, spread.toString())
-                .addSharedElement(detailsLayout, SharedViewHolders.BriefTradeDetailsHolder.getTransitionName(spread))
-                .addSharedElement(headerLayout, SharedViewHolders.TradeDetailsHeaderHolder.getTransitionName(spread))
-                .addSharedElement(stockInfoLayout, SharedViewHolders.StockInfoHolder.getTransitionName(spread.getUnderlyingSymbol()))
+//                .addSharedElement(detailsLayout, SharedViewHolders.BriefTradeDetailsHolder.getTransitionName(spread))
+//                .addSharedElement(headerLayout, SharedViewHolders.TradeDetailsHeaderHolder.getTransitionName(spread))
+//                .addSharedElement(stockInfoLayout, SharedViewHolders.StockInfoHolder.getTransitionName(spread.getUnderlyingSymbol()))
                 .addToBackStack(null)
                 .commit();
     }
 
     @Override
     public void onBackPressed() {
-        if (getFragmentManager().getBackStackEntryCount() > 1) {
-            getFragmentManager().popBackStack();
+        if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
+            getSupportFragmentManager().popBackStack();
         } else {
             finish();
         }
