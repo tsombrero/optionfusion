@@ -125,7 +125,7 @@ public class TradeDetailsFragment extends Fragment {
         new SharedViewHolders.OptionLegHolder(sellLayout).bind(-1, spread.getSell());
         tradeContainer.addView(sellLayout);
 
-        textMaxLoss.setText(Util.formatDollars(spread.getBuy().getStrike()));
+        textMaxLoss.setText((spread.isBullSpread() ? "Below " : "Above ") + Util.formatDollars(spread.getBuy().getStrike()));
 
         initTradeProfitChart();
 

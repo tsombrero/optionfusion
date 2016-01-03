@@ -60,8 +60,8 @@ public class StrikeFilter extends Filter implements RangeBar.RangeBarDataProvide
     @Override
     public String getPillText() {
         return (type == Type.BULLISH
-                ? "Bullish price target: "
-                : "Bearish price target: ")
+                ? "Strike for Bullish Spreads: "
+                : "Strike for Bearish Spreads: ")
                 + Util.formatDollarRange(limitLo, limitHi);
     }
 

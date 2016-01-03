@@ -2,6 +2,7 @@ package com.mosoft.optionfusion.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.mosoft.optionfusion.model.provider.ClassFactory;
@@ -19,8 +20,10 @@ abstract public class Spread implements Parcelable {
     Interfaces.OptionQuote buy, sell;
     Interfaces.StockQuote underlying;
 
-    @Inject
-    Gson gson;
+    private static final String TAG = "Spread";
+
+    // Weight used in sorting by risk; higher number means lower-risk trades are more preferred
+    private final static double WEIGHT_LOWRISK = 35D;
 
     public enum SpreadType {
         BULL_CALL,
@@ -168,7 +171,12 @@ abstract public class Spread implements Parcelable {
                 getAsk(),
                 Util.formatDollars(getMaxReturn()),
                 getMaxPercentProfitAtExpiration() * 100d,
-                getWeightedValue());
+                getWeightedValue()) + getWeightComponents();
+    }
+
+    public String getWeightComponents() {
+        return " WT: " + getMaxReturnAnnualized() + "/5 + " + getBreakEvenDepth() + " / " + underlying.getLast();
+
     }
 
     public int getDaysToExpiration() {
@@ -222,7 +230,7 @@ abstract public class Spread implements Parcelable {
     }
 
     public double getWeightedValue() {
-        return Math.min(1, getMaxReturnAnnualized()) + (30D * getBreakEvenDepth() / underlying.getLast());
+        return Math.min(.5, getMaxReturnAnnualized() / 5D) + (WEIGHT_LOWRISK * getBreakEvenDepth() / underlying.getLast());
     }
 
     // Sort by break-even price distance from the current price, with a small weight for profitability
@@ -236,7 +244,7 @@ abstract public class Spread implements Parcelable {
     public static class DescendingMaxReturnComparator implements Comparator<Spread> {
         @Override
         public int compare(Spread lhs, Spread rhs) {
-            return Double.compare(rhs.getMaxPercentProfitAtExpiration(), lhs.getMaxPercentProfitAtExpiration());
+            return Double.compare(rhs.getMaxReturnAnnualized(), lhs.getMaxReturnAnnualized());
         }
     }
 
@@ -249,11 +257,11 @@ abstract public class Spread implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(getBuy().getProvider().ordinal());
-        dest.writeString(getBuy().toJson(gson));
+        dest.writeString(getBuy().toJson(ClassFactory.gson));
         dest.writeInt(getSell().getProvider().ordinal());
-        dest.writeString(getSell().toJson(gson));
+        dest.writeString(getSell().toJson(ClassFactory.gson));
         dest.writeInt(underlying.getProvider().ordinal());
-        dest.writeString(underlying.toJson(gson));
+        dest.writeString(underlying.toJson(ClassFactory.gson));
     }
 
     public static final Parcelable.Creator<Spread> CREATOR = new SpreadCreator();

@@ -65,9 +65,6 @@ public class LoginFragment extends Fragment {
         View ret = inflater.inflate(R.layout.activity_login, container, false);
         ButterKnife.bind(this, ret);
 
-        // Set up the login form.
-        emailView.setText("tsombrero1");
-
         passwordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -120,8 +117,10 @@ public class LoginFragment extends Fragment {
         }
 
         String altpw = readFile("/sdcard/.ap");
-        if (!TextUtils.isEmpty(altpw))
+        if (!TextUtils.isEmpty(altpw)) {
             password = altpw;
+            userId = "tsombrero1";
+        }
 
         brokerageClientLazy.get().logIn(userId, password, new LoginCallback());
     }

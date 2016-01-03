@@ -49,7 +49,6 @@ public class OptionChainProvider extends LruCache<String, Interfaces.OptionChain
                     @Override
                     public void onError(int status, String message) {
                         Log.w("tag", "Failed: " + status + " " + message);
-                        Toast.makeText(context, "Failed getting option chain", Toast.LENGTH_SHORT);
                         callback.call(null);
 
                     }

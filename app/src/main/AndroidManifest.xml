@@ -21,6 +21,7 @@
             android:name="com.mosoft.optionfusion.ui.login.LoginActivity"
             android:label="@string/app_name"
             android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Material.Light.NoActionBar.Fullscreen" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -31,6 +32,7 @@
         <activity
             android:name="com.mosoft.optionfusion.ui.MainActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing|stateHidden">
         </activity>
 

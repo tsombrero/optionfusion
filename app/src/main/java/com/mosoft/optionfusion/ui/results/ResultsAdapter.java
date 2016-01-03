@@ -15,11 +15,13 @@ import java.util.List;
 
 public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseViewHolder> {
 
+    private final String symbol;
     private final Activity activity;
     List<ListItem> items;
     private final ResultsListener resultsListener;
 
-    public ResultsAdapter(FilterSet filterSet, List<Spread> spreads, Activity activity, ResultsListener resultsListener) {
+    public ResultsAdapter(FilterSet filterSet, String symbol, List<Spread> spreads, Activity activity, ResultsListener resultsListener) {
+        this.symbol = symbol;
         this.activity = activity;
         this.resultsListener = resultsListener;
 
@@ -27,13 +29,9 @@ public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseVie
     }
 
     public void update(FilterSet filterSet, List<Spread> spreads) {
-        if (spreads == null || spreads.isEmpty()) {
-            return;
-        }
-
         List<ListItem> newList = new ArrayList<>();
 
-        newList.add(new ListItem(filterSet, spreads.get(0).getUnderlyingSymbol()));
+        newList.add(new ListItem(filterSet, symbol));
 
         if (spreads != null) {
             for (Spread spread : spreads) {

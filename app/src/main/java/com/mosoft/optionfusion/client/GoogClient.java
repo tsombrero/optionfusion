@@ -145,6 +145,9 @@ public class GoogClient implements ClientInterfaces.OptionChainClient, ClientInt
 
         @Override
         protected void onPostExecute(GoogOptionChain chain) {
+            if (chain == null) {
+                callback.onError(400, "Error fetching option chain");
+            }
             callback.call(chain);
         }
     }

@@ -82,6 +82,7 @@
                 android:layout_below="@id/password"
                 android:layout_marginTop="16dp"
                 android:text="Remember my User ID"
+                android:enabled="false"
                 />
 
             <CheckBox
@@ -91,6 +92,7 @@
                 android:layout_below="@id/check_remember_me"
                 android:layout_marginTop="16dp"
                 android:text="Enable PIN login (lowers security). Your login credentials will be encrypted and stored on this device to allow login with a simple PIN."
+                android:enabled="false"
                 />
 
             <Button

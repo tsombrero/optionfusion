@@ -206,9 +206,9 @@
         <item name="android:textStyle">bold</item>
         <item name="android:paddingTop">@dimen/list_item_padding_vertical</item>
         <item name="android:paddingBottom">@dimen/list_item_padding_vertical</item>
-        <item name="android:paddingRight">@dimen/list_item_padding_horizontal</item>
-        <item name="android:paddingLeft">@dimen/list_item_padding_horizontal</item>
         <item name="android:gravity">center</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">none</item>
         <item name="android:layout_gravity">center_horizontal</item>
         <item name="android:layout_centerHorizontal">true</item>
     </style>

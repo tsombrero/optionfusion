@@ -301,6 +301,11 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         public OptionFusionApplication.Provider getProvider() {
             return OptionFusionApplication.Provider.GOOGLE_FINANCE;
         }
+
+        @Override
+        public String toString() {
+            return getDescription();
+        }
     }
 
     public class GoogExpirations {

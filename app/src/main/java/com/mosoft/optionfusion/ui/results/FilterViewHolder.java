@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -40,6 +41,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     private static final String TAG = FilterViewHolder.class.getSimpleName();
     private final LayoutInflater inflater;
+    private final Activity activity;
     private FilterSet filterSet;
 
     @Inject
@@ -93,13 +95,20 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
     @Bind(R.id.rangebar_expiration_text)
     TextView textExpiration;
 
+    @Bind(R.id.roi_edit_value)
+    EditText editRoiValue;
+
     private String symbol;
 
     public FilterViewHolder(View itemView, Activity activity, ResultsAdapter.ResultsListener changeListener) {
         super(itemView, activity, changeListener);
+        this.activity = activity;
         OptionFusionApplication.from(context).getComponent().inject(this);
         inflater = activity.getLayoutInflater();
         ButterKnife.bind(itemView);
+
+        rangeBarStrikeBearish.setTag(StrikeFilter.Type.BEARISH);
+        rangeBarStrikeBullish.setTag(StrikeFilter.Type.BULLISH);
     }
 
     public void bind(final ResultsAdapter.ListItem item) {
@@ -154,6 +163,8 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         }
 
         showEditFilter(btnRoi, editRoiLayout);
+        editRoiValue.requestFocus();
+        Util.showSoftKeyboard(activity);
     }
 
     @OnEditorAction(R.id.roi_edit_value)
@@ -167,6 +178,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             Log.w("Can't add filter", e);
         }
         resetButtons(true);
+        Util.hideSoftKeyboard(activity);
         return true;
     }
 
@@ -275,9 +287,6 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
         rangeBarListener.onRangeChangeListener(rangeBarStrikeBearish, null);
         rangeBarListener.onRangeChangeListener(rangeBarStrikeBullish, null);
-
-        rangeBarStrikeBearish.setTag(StrikeFilter.Type.BEARISH);
-        rangeBarStrikeBullish.setTag(StrikeFilter.Type.BULLISH);
 
         showEditFilter(btnStrike, editStrikeLayout);
     }

@@ -2,7 +2,6 @@ package com.mosoft.optionfusion.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
@@ -106,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
                             .addToBackStack(null)
                             .commit();
                 } else {
-                    Toast.makeText(MainActivity.this, getString(R.string.failed_getting_chain), Toast.LENGTH_SHORT);
+                    Toast.makeText(MainActivity.this, "Failed getting option chain", Toast.LENGTH_SHORT).show();
                 }
             }
         });

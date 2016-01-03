@@ -97,10 +97,6 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
         if (filterSet == null)
             filterSet = FilterSet.loadForSymbol(symbol, gson, sharedPreferences);
 
-        if (filterSet == null) {
-
-        }
-
         optionChainProvider.get(symbol, new OptionChainProvider.OptionChainCallback() {
             @Override
             public void call(Interfaces.OptionChain optionChain) {
@@ -125,14 +121,14 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
             @Override
             protected void onPostExecute(List<Spread> spreads) {
                 if (resultsAdapter == null) {
-                    resultsAdapter = new ResultsAdapter(filterSet, spreads, getActivity(), ResultsFragment.this);
+                    resultsAdapter = new ResultsAdapter(filterSet, symbol, spreads, getActivity(), ResultsFragment.this);
                     recyclerView.setAdapter(resultsAdapter);
                 } else {
                     resultsAdapter.update(filterSet, spreads);
                 }
 
                 if (spreads.isEmpty()) {
-                    Toast.makeText(getActivity(), "No results", Toast.LENGTH_SHORT);
+                    Toast.makeText(getActivity(), "No results", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -151,7 +147,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
                 int spreadCount = Math.min(40, allSpreads.size());
 
                 for (Spread spread : allSpreads.subList(0, spreadCount)) {
-                    Log.i(TAG, spread.toString() + "        " + spread.getBuy() + " / " + spread.getSell());
+                    Log.i(TAG, spread.toString() + "        " + spread.getBuy().getDescription() + " / " + spread.getSell().getDescription());
                 }
                 return allSpreads.subList(0, spreadCount);
             }

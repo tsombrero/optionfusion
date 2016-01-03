@@ -209,7 +209,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:text="Break-even for Bullish Trades" />
+                android:text="Include Options for Bullish Spreads" />
 
             <TextView
                 android:id="@+id/strike_edit_bullish_text"
@@ -239,7 +239,7 @@
                 android:layout_below="@id/strike_edit_bullish"
                 android:layout_marginLeft="@dimen/activity_vertical_margin"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:text="Break-even for Bearish Trades" />
+                android:text="Include Options for Bearish Spreads" />
 
             <TextView
                 android:id="@+id/strike_edit_bearish_text"

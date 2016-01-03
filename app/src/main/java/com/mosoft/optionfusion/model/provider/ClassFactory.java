@@ -11,7 +11,7 @@ import com.mosoft.optionfusion.module.OptionFusionApplication;
 public class ClassFactory {
     private static final String TAG = "Provider.ClassFactory";
 
-    private static final Gson gson = new GsonBuilder().create();
+    public static final Gson gson = new GsonBuilder().create();
 
     public static Interfaces.OptionQuote OptionQuoteFromJson(OptionFusionApplication.Provider provider, String json) {
         try {
