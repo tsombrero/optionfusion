@@ -2,7 +2,6 @@ package com.mosoft.optionfusion.ui;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -18,14 +17,12 @@ import com.mosoft.optionfusion.model.provider.Interfaces;
 import com.mosoft.optionfusion.util.Util;
 
 import butterknife.Bind;
-import butterknife.BindColor;
 import butterknife.ButterKnife;
 
 public class SharedViewHolders {
 
     public static class StockInfoHolder {
 
-        private final View view;
         @Bind(R.id.symbol)
         TextView symbolView;
 
@@ -36,7 +33,6 @@ public class SharedViewHolders {
         TextView equityDescriptionView;
 
         public StockInfoHolder(View view) {
-            this.view = view;
             ButterKnife.bind(this, view);
         }
 
@@ -47,7 +43,6 @@ public class SharedViewHolders {
             symbolView.setText(oc.getUnderlyingStockQuote().getSymbol());
             priceView.setText(Util.formatDollars(oc.getUnderlyingStockQuote().getLast()));
             equityDescriptionView.setText(oc.getUnderlyingStockQuote().getDescription());
-//            view.setTransitionName(getTransitionName(oc.getUnderlyingStockQuote().getSymbol()));
         }
 
         static public String getTransitionName(String symbol) {
@@ -155,6 +150,7 @@ public class SharedViewHolders {
 
     public interface StockQuoteViewHolderListener {
         void onTogglePriceChangeFormat();
+
         void onSymbolSelected(String symbol);
     }
 
@@ -184,7 +180,7 @@ public class SharedViewHolders {
 
             description.setText(spread.getDescriptionNoExp());
 
-//            header.setTransitionName(getTransitionName(spread));
+            header.setTransitionName(getTransitionName(spread));
         }
 
         static public String getTransitionName(Spread spread) {
@@ -192,60 +188,45 @@ public class SharedViewHolders {
         }
     }
 
-    public static class OptionQuoteHolder {
+    public static class OptionLegHolder {
+        @Bind(R.id.transaction_type)
+        TextView textTransactionType;
+
         @Bind(R.id.quantity)
         TextView textQuantity;
 
-        @Bind(R.id.option_description)
-        TextView textDescription;
+        @Bind(R.id.option_type)
+        TextView textOptionType;
 
-        @Bind(R.id.bid)
-        TextView textBid;
+        @Bind(R.id.option_strike)
+        TextView textOptionStrike;
 
-        @Bind(R.id.ask)
-        TextView textAsk;
+        @Bind(R.id.option_exp)
+        TextView textOptionExp;
 
-        public OptionQuoteHolder(View view) {
+        public OptionLegHolder(View view) {
             ButterKnife.bind(this, view);
         }
 
         public void bind(int qty, Interfaces.OptionQuote optionQuote) {
-            textQuantity.setText(String.valueOf(qty));
-            textDescription.setText(String.format("%s %s %s",
-                    Util.getFormattedOptionDate(optionQuote.getExpiration()),
-                    Util.formatDollarsCompact(optionQuote.getStrike()),
-                    optionQuote.getOptionType().toString()
-            ));
-            textBid.setText(Util.formatDollars(optionQuote.getBid()));
-            textAsk.setText(Util.formatDollars(optionQuote.getAsk()));
+            textTransactionType.setText(qty > 0 ? "Buy" : "Sell");
+            textQuantity.setText(String.valueOf(Math.abs(qty)));
+            textOptionType.setText(optionQuote.getOptionType().toString());
+            textOptionStrike.setText(Util.formatDollars(optionQuote.getStrike()));
+            textOptionExp.setText(Util.getFormattedOptionDate(optionQuote.getExpiration()));
         }
     }
 
     public static class OptionTradeBidAskHolder {
-        @Bind(R.id.bid)
-        TextView bid;
-
-        @Bind(R.id.ask)
-        TextView ask;
-
-        @Nullable
-        @Bind(R.id.option_description)
-        TextView textDescription;
-
-        @Nullable
-        @Bind(R.id.quantity)
-        TextView quantity;
-
-        @BindColor(R.color.primary)
-        int primary;
+        @Bind(R.id.bid_ask)
+        TextView bidAsk;
 
         public OptionTradeBidAskHolder(View view) {
             ButterKnife.bind(this, view);
         }
 
         public void bind(Spread spread) {
-            bid.setText(Util.formatDollars(spread.getBid()));
-            ask.setText(Util.formatDollars(spread.getAsk()));
+            bidAsk.setText(String.format("%s / %s", Util.formatDollars(spread.getBid()), Util.formatDollars(spread.getAsk())));
         }
     }
 
@@ -253,8 +234,8 @@ public class SharedViewHolders {
 
         private final Context context;
 
-        @Bind(R.id.askPrice)
-        TextView askPrice;
+        @Bind(R.id.bid_ask)
+        TextView textBidAsk;
 
         @Bind(R.id.breakEvenPrice)
         TextView breakEvenPrice;
@@ -286,7 +267,7 @@ public class SharedViewHolders {
                     Util.formatPercentCompact(Math.abs(spread.getPercentChange_MaxProfit()))    // some percent
             ));
 
-            askPrice.setText(Util.formatDollars(spread.getAsk()));
+            textBidAsk.setText(String.format("%s / %s", Util.formatDollars(spread.getBid()), Util.formatDollars(spread.getAsk())));
             breakEvenPrice.setText(Util.formatDollars(spread.getPrice_BreakEven()));
             daysToExp.setText(Util.getFormattedOptionDate(spread.getExpiresDate()) + " / " + String.valueOf(spread.getDaysToExpiration()) + " days");
             maxReturn.setText(Util.formatDollars(spread.getMaxReturn()) + " / " + Util.formatPercentCompact(spread.getMaxPercentProfitAtExpiration()));
@@ -299,7 +280,7 @@ public class SharedViewHolders {
 
             breakEvenPrice.setTextColor(color);
 
-//            layout.setTransitionName(getTransitionName(spread));
+            layout.setTransitionName(getTransitionName(spread));
         }
 
         static public String getTransitionName(Spread spread) {

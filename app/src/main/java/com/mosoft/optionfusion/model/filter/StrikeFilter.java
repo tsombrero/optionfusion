@@ -13,8 +13,8 @@ public class StrikeFilter extends Filter implements RangeBar.RangeBarDataProvide
     private final double limitLo;
     private final double limitHi;
 
-    public static final StrikeFilter EMPTY_BULLISH = new StrikeFilter(0, Double.MAX_VALUE, Type.BULLISH);
-    public static final StrikeFilter EMPTY_BEARISH = new StrikeFilter(0, Double.MAX_VALUE, Type.BEARISH);
+    transient public static final StrikeFilter EMPTY_BULLISH = new StrikeFilter(0, Double.MAX_VALUE, Type.BULLISH);
+    transient public static final StrikeFilter EMPTY_BEARISH = new StrikeFilter(0, Double.MAX_VALUE, Type.BEARISH);
 
     public Double getMinValue() {
         return limitLo;
@@ -69,6 +69,11 @@ public class StrikeFilter extends Filter implements RangeBar.RangeBarDataProvide
     public boolean shouldReplace(Filter filter) {
         return filter instanceof StrikeFilter &&
                 ((StrikeFilter) filter).type == this.type;
+    }
+
+    @Override
+    public FilterType getFilterType() {
+        return FilterType.STRIKE;
     }
 
     @Override

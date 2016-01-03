@@ -6,7 +6,7 @@
     <string name="submit">Go</string>
     <string name="formatPriceAtMaxReturn">Realized %s price</string>
     <string name="formatPriceAtBreakEven">Break Even Price</string>
-    <string name="spreadAsk">Max Loss</string>
+    <string name="bid_ask">Bid/Ask</string>
     <string name="timeToExp">Expires</string>
     <string name="maxReturn">Max Gain</string>
     <string name="annualized">Annualized</string>
@@ -14,7 +14,7 @@
     <string name="expires_after">Expires after</string>
     <string name="change_to_break_even">Change to Break Even</string>
     <string name="change_to_max_return">Change to Max Return</string>
-    <string name="max_return_annualized">Max Return Annualized</string>
+    <string name="max_return_annualized">Max Gain Annualized</string>
     <string name="min_position_cost">Min Cost of Position</string>
     <string name="max_position_cost">Max Cost of Position</string>
     <string name="failed_getting_chain">Failed getting option chain</string>

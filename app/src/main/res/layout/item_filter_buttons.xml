@@ -274,7 +274,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:text="Sort By Lowest Risk" />
+                android:text="Prefer Lower Risk" />
 
 
             <TextView
@@ -285,7 +285,7 @@
                 android:layout_below="@id/sort_low_risk"
                 android:layout_marginLeft="@dimen/activity_vertical_margin"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:text="Sort By Highest Return"
+                android:text="Prefer Highest Return"
                 android:layout_marginBottom="@dimen/list_item_padding_vertical"
                 />
 

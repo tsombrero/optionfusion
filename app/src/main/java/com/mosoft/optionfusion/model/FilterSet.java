@@ -1,20 +1,26 @@
 package com.mosoft.optionfusion.model;
 
+import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.Gson;
 import com.mosoft.optionfusion.model.filter.Filter;
+import com.mosoft.optionfusion.model.filter.RoiFilter;
 import com.mosoft.optionfusion.model.provider.Interfaces;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class FilterSet implements Parcelable {
 
     List<Filter> filters = new ArrayList<>();
 
-    Comparator<Spread> comparator = new Spread.DescendingBreakEvenDepthComparator();
+    Comparator<Spread> comparator = new Spread.AscendingRiskComparator();
     private int activeButton;
 
     public FilterSet() {
@@ -72,7 +78,7 @@ public class FilterSet implements Parcelable {
         if (filter == null)
             return;
 
-        for (int i = filters.size() - 1; i>=0; i--) {
+        for (int i = filters.size() - 1; i >= 0; i--) {
             if (filter.shouldReplace(filters.get(i)))
                 filters.remove(i);
         }
@@ -145,5 +151,44 @@ public class FilterSet implements Parcelable {
 
     public FilterSet(Parcel in) {
         filters = in.createTypedArrayList(Filter.CREATOR);
+    }
+
+    public static FilterSet loadForSymbol(String symbol, Gson gson, SharedPreferences sharedPreferences) {
+        FilterSet filterSet = null;
+        for (Filter.FilterType type : Filter.FilterType.values()) {
+            Set<String> jsonFilters = sharedPreferences.getStringSet(getPreferencesKey(symbol, type), null);
+            if (jsonFilters != null)
+                for (String jsonFilter : jsonFilters) {
+                    if (filterSet == null)
+                        filterSet = new FilterSet();
+                    filterSet.addFilter(Filter.fromJson(gson, type, jsonFilter));
+                }
+        }
+
+        if (filterSet == null) {
+            filterSet = new FilterSet();
+            filterSet.addFilter(new RoiFilter(.10));
+        }
+
+        return filterSet;
+    }
+
+    public void writeToPreferences(String symbol, Gson gson, SharedPreferences sharedPreferences) {
+        HashMap<Filter.FilterType, HashSet<String>> stringsByFilterType = new HashMap<>();
+        for (Filter filter : getFilters()) {
+            if (!stringsByFilterType.containsKey(filter.getFilterType()))
+                stringsByFilterType.put(filter.getFilterType(), new HashSet<String>());
+            stringsByFilterType.get(filter.getFilterType()).add(filter.toJson(gson));
+        }
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        for (Filter.FilterType filterType : Filter.FilterType.values()) {
+            editor.putStringSet(getPreferencesKey(symbol, filterType), stringsByFilterType.get(filterType));
+        }
+        editor.apply();
+    }
+
+    private static String getPreferencesKey(String symbol, Filter.FilterType filterType) {
+        return symbol + "_filters_" + filterType.name();
     }
 }

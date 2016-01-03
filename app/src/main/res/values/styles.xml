@@ -30,37 +30,37 @@
         <item name="android:layout_marginTop">@dimen/list_item_padding_vertical</item>
     </style>
 
-
     <color name="background">@android:color/white</color>
     <color name="primary">@color/material_indigo_500</color>
     <color name="primary_dark">@color/material_indigo_700</color>
-    <color name="primary_light">@color/material_indigo_100</color>
-    <color name="accent">@color/material_green_A400</color>
+    <color name="primary_light">@color/primary</color>
+    <color name="accent">@color/material_green_500</color>
+    <color name="accent_material_light">@color/material_deep_teal_500</color>
     <color name="primary_text">@color/foreground_dark_grey</color>
     <color name="secondary_text">@color/foreground_middle_grey</color>
     <color name="icons">@color/primary_text</color>
     <color name="divider">@color/foreground_lightest_grey</color>
 
     <color name="subhead_medium_background">@color/material_grey_300</color>
-    <color name="header_inverse">@color/material_deep_teal_500</color>
+    <color name="header_inverse">@color/primary</color>
 
     <color name="primary_text_inverse">@android:color/white</color>
     <color name="secondary_text_inverse">#B3FFFFFF</color>
 
-    <color name="button_normal">@color/material_deep_teal_700</color>
+    <color name="button_normal">@color/primary</color>
     <color name="button_disabled">@color/foreground_light_grey</color>
     <color name="button_pressed">@color/primary_light</color>
-    <color name="button_selected">@color/primary</color>
+    <color name="button_selected">@color/primary_dark</color>
 
-    <color name="bull_spread_background">@color/primary</color>
-    <color name="bear_spread_background">@color/material_blue_grey_500</color>
+    <color name="bull_spread_background">@color/material_green_700</color>
+    <color name="bear_spread_background">@color/primary</color>
 
     <color name="rangebar_green">@color/material_green_700</color>
     <color name="rangebar_red">@color/material_red_900</color>
 
-    <color name="material_deep_teal_100">#ffB2DFDB</color>
-    <color name="material_deep_teal_500">#ff009688</color>
-    <color name="material_deep_teal_700">#ff00796B</color>
+    <!--<color name="material_deep_teal_100">#ffB2DFDB</color>-->
+    <!--<color name="material_deep_teal_500">#ff009688</color>-->
+    <!--<color name="material_deep_teal_700">#ff00796B</color>-->
 
     // accent candidates
     <color name="material_light_blue_500">#ff03A9F4</color>
@@ -129,6 +129,7 @@
         <item name="android:paddingRight">@dimen/list_item_padding_horizontal</item>
         <item name="android:paddingLeft">@dimen/list_item_padding_horizontal</item>
         <item name="android:layout_margin">1dp</item>
+        <item name="android:ellipsize">none</item>
     </style>
 
     <style name="DetailsLabel.Inverse">
@@ -169,6 +170,13 @@
         <item name="android:textStyle">bold</item>
         <item name="android:paddingRight">@dimen/list_item_padding_horizontal</item>
         <item name="android:paddingLeft">@dimen/list_item_padding_horizontal</item>
+    </style>
+
+    <style name="DetailsValueCentered" parent="@style/DetailsValue">
+        <item name="android:gravity">center</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:paddingTop">5dp</item>
     </style>
 
     <style name="Largest">

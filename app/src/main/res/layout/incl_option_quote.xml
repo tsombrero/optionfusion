@@ -1,43 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="horizontal"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_height="match_parent"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:orientation="horizontal">
+
+    <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+        android:id="@+id/transaction_type"
+        style="@style/DetailCellValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="60"
+        tools:text="Sell"
+        />
 
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
         android:id="@+id/quantity"
+        style="@style/DetailCellValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight=".5"
-        style="@style/DetailCellValue"
-        android:text="q"
+        android:layout_weight="40"
+        tools:text="Qty"
         />
 
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
-        android:id="@+id/option_description"
+        android:id="@+id/option_type"
+        style="@style/DetailCellValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="2.7"
-        style="@style/DetailCellValue"
-        android:text="description"
+        android:layout_weight="60"
+        tools:text="Call"
         />
 
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
-        android:id="@+id/bid"
+        android:id="@+id/option_strike"
+        style="@style/DetailCellValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        style="@style/DetailCellValue"
-        android:text="bid"
+        android:layout_weight="80"
+        tools:text="$141.50"
         />
 
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
-        android:id="@+id/ask"
+        android:id="@+id/option_exp"
+        style="@style/DetailCellValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        style="@style/DetailCellValue"
-        android:text="ask"
+        android:layout_weight="80"
+        tools:text="Jan 2018"
         />
 
 </LinearLayout>

@@ -6,6 +6,16 @@ import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import com.mosoft.optionfusion.cache.OptionChainProvider;
 import com.mosoft.optionfusion.client.AmeritradeClientProvider;
 import com.mosoft.optionfusion.client.ClientInterfaces;
@@ -13,6 +23,13 @@ import com.mosoft.optionfusion.client.GoogClientProvider;
 import com.mosoft.optionfusion.client.YhooClientClientProvider;
 
 import net.danlew.android.joda.JodaTimeAndroid;
+
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.Date;
 
 import javax.inject.Singleton;
 
@@ -107,7 +124,23 @@ public class ApplicationModule {
     @Provides
     @Singleton
     Gson provideGson() {
-        return new GsonBuilder().create();
+        return new GsonBuilder()
+                .registerTypeAdapter(LocalDate.class, new DateTimeSerializer())
+                .registerTypeAdapter(LocalDate.class, new DateTimeDeserializer())
+                .create();
+    }
+
+    private class DateTimeSerializer implements JsonSerializer<LocalDate> {
+        public JsonElement serialize(LocalDate src, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(src.toString());
+        }
+    }
+
+    private class DateTimeDeserializer implements JsonDeserializer<LocalDate> {
+        public LocalDate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                throws JsonParseException {
+            return new LocalDate(json.getAsJsonPrimitive().getAsString());
+        }
     }
 
     @Provides
@@ -115,4 +148,6 @@ public class ApplicationModule {
     SharedPreferences provideSharedPreferences(Context context) {
         return context.getSharedPreferences("default", Context.MODE_PRIVATE);
     }
+
+
 }

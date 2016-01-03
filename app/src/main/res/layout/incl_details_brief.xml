@@ -11,13 +11,10 @@
 
     <TextView
         android:id="@+id/summary"
-        style="@style/DetailsValue"
+        style="@style/DetailsValueCentered"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:gravity="center"
-        android:paddingBottom="5dp"
-        android:paddingTop="5dp"
         />
 
     <TextView
@@ -30,12 +27,12 @@
         />
 
     <TextView
-        android:id="@+id/title_askPrice"
+        android:id="@+id/title_bid_ask"
         style="@style/DetailsLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/title_daysToExp"
-        android:text="@string/spreadAsk"
+        android:text="@string/bid_ask"
         />
 
     <TextView
@@ -43,7 +40,7 @@
         style="@style/DetailsLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/title_askPrice"
+        android:layout_below="@id/title_bid_ask"
         android:text="@string/maxReturn"
         />
 
@@ -57,11 +54,11 @@
         />
 
     <TextView
-        android:id="@+id/askPrice"
+        android:id="@+id/bid_ask"
         style="@style/DetailsValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/title_askPrice"
+        android:layout_alignBaseline="@id/title_bid_ask"
         android:layout_alignParentEnd="true"
         android:text="$10.44"
         />

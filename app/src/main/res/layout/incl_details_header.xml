@@ -21,19 +21,6 @@
         android:layout_weight="1"
         android:text="description"
         />
-
-    <ImageView
-        android:id="@+id/item_menu"
-        style="@style/ListHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_more_vert_24dp"
-        android:tint="@android:color/white"
-        android:tintMode="src_in"
-        android:layout_gravity="center_vertical"
-        android:alpha="0.54"
-        />
-
 </LinearLayout>
 
     

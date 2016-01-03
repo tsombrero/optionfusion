@@ -71,11 +71,14 @@ abstract public class Spread implements Parcelable {
         if (buy.getMultiplier() != sell.getMultiplier())
             return null;
 
-        if (!buy.hasAsk() || !sell.hasBid())
+        if (!buy.hasAsk() || !sell.hasBid() || buy.getStrike() < 0.5D || sell.getStrike() < 0.5D)
             return null;
 
         if (buy.getOptionType() == Interfaces.OptionType.CALL) {
             if (buy.getStrike() < sell.getStrike()) {
+                if (buy.getBid() - sell.getAsk() < 0.5d)
+                    return null;
+
                 //Bull Call Spread
                 return new BullCallSpread(buy, sell, underlying);
             }
@@ -85,6 +88,9 @@ abstract public class Spread implements Parcelable {
             }
         } else if (buy.getOptionType() == Interfaces.OptionType.PUT) {
             if (buy.getStrike() > sell.getStrike()) {
+                if (buy.getBid() - sell.getAsk() < 0.5d)
+                    return null;
+
                 //Bear Put Spread
                 return new BearPutSpread(buy, sell, underlying);
             }
@@ -154,7 +160,7 @@ abstract public class Spread implements Parcelable {
     abstract public double getBreakEvenDepth();
 
     public String toString() {
-        return String.format("%s $%.2f; dte:%d; spr:%.2f/%.2f ask:$%.2f MaxProfit: %s / %.1f%% weighted:%.3f",
+        return String.format("%s $%.2f; dte:%d; spr:%.2f/%.2f ask:$%.2f MaxProfit: %s / %.1f%% risk:%.3f",
                 underlying.getSymbol(),
                 underlying.getClose(),
                 buy.getDaysUntilExpiration(),
@@ -216,18 +222,11 @@ abstract public class Spread implements Parcelable {
     }
 
     public double getWeightedValue() {
-        return getBreakEvenDepth() * Math.max(0, getMaxPercentProfitAtExpiration());
+        return Math.min(1, getMaxReturnAnnualized()) + (30D * getBreakEvenDepth() / underlying.getLast());
     }
 
-    // Sort by break-even price distance from the current price
-    public static class DescendingBreakEvenDepthComparator implements Comparator<Spread> {
-        @Override
-        public int compare(Spread lhs, Spread rhs) {
-            return Double.compare(rhs.getBreakEvenDepth(), lhs.getBreakEvenDepth());
-        }
-    }
-
-    public static class DescendingWeightComparator implements Comparator<Spread> {
+    // Sort by break-even price distance from the current price, with a small weight for profitability
+    public static class AscendingRiskComparator implements Comparator<Spread> {
         @Override
         public int compare(Spread lhs, Spread rhs) {
             return Double.compare(rhs.getWeightedValue(), lhs.getWeightedValue());

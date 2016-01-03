@@ -36,12 +36,17 @@ public class RoiFilter extends Filter {
 
     @Override
     public String getPillText() {
-        return String.format("Potential Return: %s", Util.formatPercentCompact(roi));
+        return String.format("Potential Gain: %s", Util.formatPercentCompact(roi));
     }
 
     @Override
     public boolean shouldReplace(Filter filter) {
         return filter instanceof RoiFilter;
+    }
+
+    @Override
+    public FilterType getFilterType() {
+        return FilterType.ROI;
     }
 
     //Parcelable

@@ -1,43 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              android:orientation="horizontal">
+
+    <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+        android:id="@+id/transaction_type"
+        style="@style/DetailsLabel.Inverse"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="60"
+        android:text="Trans"
+        />
 
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
         android:id="@+id/quantity"
+        style="@style/DetailsLabel.Inverse"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="0.5"
-        style="@style/DetailsLabel.Inverse"
-        android:text="q"
+        android:layout_weight="40"
+        android:text="Qty"
         />
 
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
-        android:id="@+id/option_description"
+        android:id="@+id/option_type"
+        style="@style/DetailsLabel.Inverse"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="2.7"
-        style="@style/DetailsLabel.Inverse"
-        android:text="description"
+        android:layout_weight="60"
+        android:text="Type"
         />
 
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
-        android:id="@+id/bid"
+        android:id="@+id/option_strike"
+        style="@style/DetailsLabel.Inverse"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        style="@style/DetailsLabel.Inverse"
-        android:text="bid"
+        android:layout_weight="80"
+        android:text="Strike"
         />
 
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
-        android:id="@+id/ask"
+        android:id="@+id/option_exp"
+        style="@style/DetailsLabel.Inverse"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        style="@style/DetailsLabel.Inverse"
-        android:text="ask"
+        android:layout_weight="80"
+        android:text="Exp"
         />
 
 </LinearLayout>

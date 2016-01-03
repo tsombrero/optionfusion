@@ -3,6 +3,7 @@ package com.mosoft.optionfusion.model.filter;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.Gson;
 import com.mosoft.optionfusion.model.Spread;
 import com.mosoft.optionfusion.model.provider.Interfaces;
 
@@ -17,6 +18,23 @@ abstract public class Filter implements Parcelable {
 
     public abstract boolean shouldReplace(Filter filter);
 
+    public abstract FilterType getFilterType();
+
+    public String toJson(Gson gson) {
+        return gson.toJson(this);
+    }
+
+    public static Filter fromJson(Gson gson, FilterType filterType, String json) {
+        switch (filterType) {
+            case ROI:
+                return gson.fromJson(json, RoiFilter.class);
+            case TIME:
+                return gson.fromJson(json, TimeFilter.class);
+            case STRIKE:
+                return gson.fromJson(json, StrikeFilter.class);
+        }
+        return null;
+    }
 
     public static final Parcelable.Creator<Filter> CREATOR
             = new Parcelable.Creator<Filter>() {
@@ -27,6 +45,8 @@ abstract public class Filter implements Parcelable {
                     return new RoiFilter(in);
                 case TIME:
                     return new TimeFilter(in);
+                case STRIKE:
+                    return new StrikeFilter(in);
             }
             return null;
         }
@@ -38,6 +58,7 @@ abstract public class Filter implements Parcelable {
 
     public enum FilterType {
         ROI,
-        TIME
+        TIME,
+        STRIKE
     }
 }

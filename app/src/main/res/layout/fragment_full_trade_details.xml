@@ -30,6 +30,8 @@
             android:layout_margin="5dp"
             />
 
+        <include layout="@layout/incl_details_header"/>
+
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.widget.NestedScrollView
@@ -43,70 +45,77 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/card_horizontal_margin"
             android:layout_marginRight="@dimen/card_horizontal_margin"
+            android:layout_marginTop="@dimen/card_vertical_margin"
+            android:layout_marginBottom="@dimen/card_vertical_margin"
             android:orientation="vertical"
             >
 
             <include layout="@layout/incl_details_brief"/>
 
             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/title_max_loss_price"
+                    style="@style/DetailsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="100% loss price"
+                    />
+
+                <TextView
+                    android:id="@+id/max_loss_price"
+                    style="@style/DetailsValue"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:layout_weight="1"
+                    tools:text="$10.44"
+                    />
+
+            </LinearLayout>
+
+            <TextView
+                style="@style/DetailsValueCentered"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/list_item_padding_vertical"
+                android:text="Gain % at Expiration"
+                />
+
+            <lecho.lib.hellocharts.view.LineChartView
+                android:id="@+id/pl_chart"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginBottom="@dimen/card_vertical_margin"
+                android:layout_marginLeft="@dimen/card_horizontal_margin"
+                android:layout_marginRight="@dimen/card_horizontal_margin"
+                android:layout_marginTop="@dimen/card_vertical_margin"
+                android:paddingLeft="15dp"
+                android:paddingRight="5dp"
+                />
+
+
+            <TextView
+                style="@style/DetailsValueCentered"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/list_item_padding_vertical"
+                android:text="The Trade:"
+                />
+
+            <LinearLayout
                 android:id="@+id/trade_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginTop="@dimen/list_item_padding_vertical"
                 android:orientation="vertical">
 
                 <include layout="@layout/incl_option_quote_header"/>
             </LinearLayout>
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="150dp"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                >
-
-                <TextView
-                    android:id="@+id/label_xaxis"
-                    style="@style/DetailsLabel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentRight="true"
-                    android:gravity="center"
-                    android:paddingLeft="20dp"
-                    android:text="Xaxis"
-                    />
-
-                <com.mosoft.optionfusion.ui.widgets.VerticalTextView
-                    android:id="@+id/label_yaxis"
-                    style="@style/DetailsLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_above="@id/label_xaxis"
-                    android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="-8dp"
-                    android:gravity="center"
-                    android:rotation="180"
-                    android:text="Yaxis"
-                    />
-
-                <lecho.lib.hellocharts.view.LineChartView
-                    android:id="@+id/pl_chart"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_above="@+id/label_xaxis"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginBottom="@dimen/card_vertical_margin"
-                    android:layout_marginLeft="@dimen/card_horizontal_margin"
-                    android:layout_marginRight="@dimen/card_horizontal_margin"
-                    android:layout_marginTop="@dimen/card_vertical_margin"
-                    android:layout_toRightOf="@+id/label_yaxis"
-                    android:paddingLeft="8dp"
-                    />
-
-
-            </RelativeLayout>
 
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>

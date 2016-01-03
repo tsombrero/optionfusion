@@ -1,8 +1,8 @@
 package com.mosoft.optionfusion.ui.tradedetails;
 
-import android.support.v4.app.Fragment;
 import android.graphics.DashPathEffect;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -17,7 +17,7 @@ import com.mosoft.optionfusion.model.Spread;
 import com.mosoft.optionfusion.model.provider.Interfaces;
 import com.mosoft.optionfusion.module.OptionFusionApplication;
 import com.mosoft.optionfusion.ui.SharedViewHolders;
-import com.mosoft.optionfusion.ui.widgets.VerticalTextView;
+import com.mosoft.optionfusion.util.PercentAxisValueFormatter;
 import com.mosoft.optionfusion.util.Util;
 
 import java.util.ArrayList;
@@ -49,17 +49,17 @@ public class TradeDetailsFragment extends Fragment {
     @Bind(R.id.pl_chart)
     protected LineChartView plChart;
 
-    @Bind(R.id.label_xaxis)
-    protected TextView labelX;
-
-    @Bind(R.id.label_yaxis)
-    protected VerticalTextView labelY;
-
     @Bind(R.id.trade_container)
     protected LinearLayout tradeContainer;
 
     @Bind(R.id.toolbar)
     protected Toolbar toolbar;
+
+    @Bind(R.id.header)
+    protected LinearLayout heaader;
+
+    @Bind(R.id.max_loss_price)
+    protected TextView textMaxLoss;
 
     @BindColor(R.color.secondary_text)
     protected int axisColor;
@@ -118,34 +118,35 @@ public class TradeDetailsFragment extends Fragment {
         new SharedViewHolders.BriefTradeDetailsHolder(briefDetailsLayout).bind(spread);
 
         View buyLayout = getActivity().getLayoutInflater().inflate(R.layout.incl_option_quote, null);
-        new SharedViewHolders.OptionQuoteHolder(buyLayout).bind(1, spread.getBuy());
+        new SharedViewHolders.OptionLegHolder(buyLayout).bind(1, spread.getBuy());
         tradeContainer.addView(buyLayout);
 
         View sellLayout = getActivity().getLayoutInflater().inflate(R.layout.incl_option_quote, null);
-        new SharedViewHolders.OptionQuoteHolder(sellLayout).bind(-1, spread.getSell());
+        new SharedViewHolders.OptionLegHolder(sellLayout).bind(-1, spread.getSell());
         tradeContainer.addView(sellLayout);
 
-        View totalLayout = getActivity().getLayoutInflater().inflate(R.layout.incl_trade_quote_total, null);
-        new SharedViewHolders.OptionTradeBidAskHolder(totalLayout).bind(spread);
-        tradeContainer.addView(totalLayout);
+        textMaxLoss.setText(Util.formatDollars(spread.getBuy().getStrike()));
 
         initTradeProfitChart();
 
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(spread.getDescription());
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Trade Details");
+        new SharedViewHolders.TradeDetailsHeaderHolder(heaader).bind(spread);
     }
 
     private void initTradeProfitChart() {
         List<PointValue> values = new ArrayList<>();
-        values.add(new PointValue((float) spread.getPrice_MaxLoss(), -1f * (float) spread.getAsk()).setLabel(""));
+        values.add(new PointValue((float) spread.getPrice_MaxLoss(), -1f).setLabel(""));
         values.add(new PointValue((float) spread.getPrice_BreakEven(), 0f).setLabel(""));
-        values.add(new PointValue((float) spread.getPrice_MaxReturn(), (float) spread.getMaxReturn()).setLabel(Util.formatDollars(spread.getMaxReturn()) + " / " + Util.formatPercentCompact(spread.getMaxPercentProfitAtExpiration())));
+        values.add(new PointValue((float) spread.getPrice_MaxReturn(), (float) spread.getMaxPercentProfitAtExpiration()).setLabel(""));
 
         float lastPrice = (float) oc.getUnderlyingStockQuote().getLast();
 
         if (spread.isBullSpread()) {
-            values.add(new PointValue(lastPrice * 100f, (float) spread.getMaxReturn()).setLabel(""));
+            values.add(new PointValue(lastPrice * 100f, (float) spread.getMaxPercentProfitAtExpiration()).setLabel(""));
+            values.add(new PointValue(0f, -1f).setLabel(""));
         } else {
-            values.add(new PointValue(0f, (float) spread.getMaxReturn()).setLabel(""));
+            values.add(new PointValue(0f, (float) spread.getMaxPercentProfitAtExpiration()).setLabel(""));
+            values.add(new PointValue(lastPrice * 100f, -1f).setLabel(""));
         }
 
         Collections.sort(values, new Comparator<PointValue>() {
@@ -164,7 +165,6 @@ public class TradeDetailsFragment extends Fragment {
                 .setStrokeWidth(3)
                 .setHasLines(true);
 
-
         List<PointValue> zeroLineValues = new ArrayList<>();
         zeroLineValues.add(new PointValue(0, 0));
         zeroLineValues.add(new PointValue(values.get(values.size() - 1).getX() * 2f, 0));
@@ -179,8 +179,8 @@ public class TradeDetailsFragment extends Fragment {
                 .setAreaTransparency(0x30);
 
         List<PointValue> currentPriceValues = new ArrayList<>();
-        currentPriceValues.add(new PointValue(lastPrice, (float) (spread.getMaxReturn() * 2f)));
-        currentPriceValues.add(new PointValue(lastPrice, (float) (spread.getAsk() * -1f)));
+        currentPriceValues.add(new PointValue(lastPrice, (float) (spread.getMaxPercentProfitAtExpiration() * 2f)));
+        currentPriceValues.add(new PointValue(lastPrice, -1f));
         Line currentPriceLine = new Line(currentPriceValues)
                 .setColor(currentPriceColor)
                 .setFilled(false)
@@ -197,6 +197,7 @@ public class TradeDetailsFragment extends Fragment {
                 .setTextColor(axisTextColor)
                 .setHasSeparationLine(true)
                 .setFormatter(new SimpleAxisValueFormatter().setPrependedText("$".toCharArray()))
+                .setName(spread.getUnderlyingSymbol() + " price")
                 .setAutoGenerated(true);
 
         Axis yAxis = new Axis()
@@ -205,7 +206,7 @@ public class TradeDetailsFragment extends Fragment {
                 .setTextColor(axisTextColor)
                 .setHasSeparationLine(true)
                 .setAutoGenerated(true)
-                .setFormatter(new SimpleAxisValueFormatter().setAppendedText("%".toCharArray()));
+                .setFormatter(new PercentAxisValueFormatter());
 
         List<Line> lines = new ArrayList<>();
         lines.add(zeroLine);
@@ -224,7 +225,7 @@ public class TradeDetailsFragment extends Fragment {
         float xViewRange = (float) Math.abs((spread.getPrice_MaxReturn() - spread.getPrice_BreakEven()) * 2f);
         xViewRange = (float) Math.max(xViewRange, Math.abs(lastPrice - (spread.getPrice_BreakEven())) * 1.01f);
 
-        float yViewRange = (float) Math.abs(spread.getMaxReturn() * 1.2f);
+        float yViewRange = (float) Math.abs(spread.getMaxPercentProfitAtExpiration() * 1.2f);
 
         final Viewport v = new Viewport(plChart.getMaximumViewport());
         v.top = yViewRange;
@@ -240,8 +241,5 @@ public class TradeDetailsFragment extends Fragment {
         plChart.setMaxZoom(Float.MAX_VALUE);
         plChart.setMaximumViewport(v);
         plChart.setCurrentViewport(v);
-
-        labelX.setText(oc.getUnderlyingStockQuote().getSymbol() + " SHARE PRICE");
-        labelY.setText("% GAIN");
     }
 }

@@ -1,8 +1,12 @@
 package com.mosoft.optionfusion.ui;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.PorterDuff;
 import android.graphics.RectF;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
@@ -10,6 +14,7 @@ import android.support.v4.app.SharedElementCallback;
 import android.support.v7.app.AppCompatActivity;
 import android.transition.TransitionInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -30,6 +35,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import butterknife.Bind;
+import butterknife.BindColor;
 import butterknife.ButterKnife;
 
 
@@ -37,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
 
     @Bind(R.id.progress)
     ProgressBar progressBar;
+
+    @BindColor(R.color.accent)
+    int accentColor;
 
     @Inject
     OptionChainProvider optionChainProvider;
@@ -53,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
                 .addToBackStack(null)
                 .add(R.id.fragment_container, frag, "tag_search")
                 .commit();
+        progressBar.getIndeterminateDrawable().setColorFilter(accentColor, PorterDuff.Mode.SRC_IN);
     }
 
     @Override
@@ -62,8 +72,21 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.feedback:
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://plus.google.com/communities/117581253558561684569")));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     public void openResultsFragment(final String symbol) {
         Util.hideSoftKeyboard(this);
+
         progressBar.setVisibility(View.VISIBLE);
 
         optionChainProvider.get(symbol, new OptionChainProvider.OptionChainCallback() {
@@ -92,22 +115,22 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
     @Override
     public void showDetails(Spread spread, Fragment requestingFragment, View headerLayout, View detailsLayout, View stockInfoLayout) {
 
-        requestingFragment.setSharedElementReturnTransition(TransitionInflater.from(this).inflateTransition(R.transition.change_transform));
+//        requestingFragment.setSharedElementReturnTransition(TransitionInflater.from(this).inflateTransition(R.transition.change_transform));
+        requestingFragment.setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.change_transform));
         requestingFragment.setExitTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
-        requestingFragment.setEnterTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
+//        requestingFragment.setEnterTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
 
         Fragment fragment = TradeDetailsFragment.newInstance(spread);
         fragment.setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.change_transform));
         fragment.setEnterTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
-        fragment.setExitTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
+//        fragment.setExitTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
 
         fragment.setEnterSharedElementCallback(new MySharedElementCallback());
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment, spread.toString())
-//                .addSharedElement(detailsLayout, SharedViewHolders.BriefTradeDetailsHolder.getTransitionName(spread))
-//                .addSharedElement(headerLayout, SharedViewHolders.TradeDetailsHeaderHolder.getTransitionName(spread))
-//                .addSharedElement(stockInfoLayout, SharedViewHolders.StockInfoHolder.getTransitionName(spread.getUnderlyingSymbol()))
+                .addSharedElement(detailsLayout, SharedViewHolders.BriefTradeDetailsHolder.getTransitionName(spread))
+                .addSharedElement(headerLayout, SharedViewHolders.TradeDetailsHeaderHolder.getTransitionName(spread))
                 .addToBackStack(null)
                 .commit();
     }

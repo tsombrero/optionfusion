@@ -295,7 +295,7 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     @OnClick(R.id.sort_low_risk)
     public void onClickSortByRisk() {
-        filterSet.setComparator(new Spread.DescendingBreakEvenDepthComparator());
+        filterSet.setComparator(new Spread.AscendingRiskComparator());
         resultsListener.onChange(filterSet);
         resetButtons(true);
     }

@@ -16,6 +16,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginBottom="8dp"
+        android:progressTint="@color/material_green_500"
+        android:secondaryProgressTint="@color/foreground_dark_grey"
+        android:foregroundTint="@color/material_blue_500"
         android:visibility="gone"/>
 
 </FrameLayout>

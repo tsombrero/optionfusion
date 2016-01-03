@@ -1,5 +1,6 @@
 package com.mosoft.optionfusion.ui.results;
 
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.mosoft.optionfusion.R;
 import com.mosoft.optionfusion.cache.OptionChainProvider;
 import com.mosoft.optionfusion.model.FilterSet;
@@ -43,7 +45,13 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
     @Inject
     OptionChainProvider optionChainProvider;
 
-    FilterSet filterSet = new FilterSet();
+    @Inject
+    SharedPreferences sharedPreferences;
+
+    @Inject
+    Gson gson;
+
+    FilterSet filterSet;
     String symbol;
     ResultsAdapter resultsAdapter;
 
@@ -69,7 +77,6 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Vertical Spreads");
 
-
         return ret;
     }
 
@@ -87,6 +94,12 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
     }
 
     public void initView() {
+        if (filterSet == null)
+            filterSet = FilterSet.loadForSymbol(symbol, gson, sharedPreferences);
+
+        if (filterSet == null) {
+
+        }
 
         optionChainProvider.get(symbol, new OptionChainProvider.OptionChainCallback() {
             @Override
@@ -102,6 +115,8 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
     @Override
     public void onChange(final FilterSet filterSet) {
         this.filterSet = filterSet;
+
+        filterSet.writeToPreferences(symbol, gson, sharedPreferences);
 
         new AsyncTask<Void, Void, List<Spread>>() {
 
@@ -133,7 +148,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
 
                 Collections.sort(allSpreads, filterSet.getComparator());
 
-                int spreadCount = Math.min(10, allSpreads.size());
+                int spreadCount = Math.min(40, allSpreads.size());
 
                 for (Spread spread : allSpreads.subList(0, spreadCount)) {
                     Log.i(TAG, spread.toString() + "        " + spread.getBuy() + " / " + spread.getSell());

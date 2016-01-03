@@ -27,6 +27,8 @@ public class Util {
     private static final DecimalFormat dollarFormatNoFraction = new DecimalFormat("$#,##0");
     private static final DecimalFormat dollarChangeFormat = new DecimalFormat("#,##0.00");
     private static final DecimalFormat dollarChangeFormatNoFraction = new DecimalFormat("#,##0");
+    private static final DecimalFormat percentFormatBig = new DecimalFormat("@@@E0x");
+    private static final DecimalFormat percentFormat = new DecimalFormat("@@@%");
 
     private static final GregorianCalendar calendar = new GregorianCalendar();
 
@@ -68,18 +70,10 @@ public class Util {
     }
 
     public static String formatPercent(double pct) {
+        if (Math.abs(pct) < 100F)
+            return percentFormat.format(pct);
 
-        double abspct = Math.abs(pct);
-
-        if (abspct > 100d)
-            return String.format("%dx", (int) pct);
-        if (abspct > 1d)
-            return String.format("%d%%", (int) (100d * pct));
-        if (abspct > 0.1d)
-            return String.format("%.1f%%", 100d * pct);
-        if (abspct > 0d)
-            return String.format("%.2f%%", 100d * pct);
-        return "0";
+        return percentFormatBig.format(pct);
     }
 
     public static String formatPercentCompact(double pct) {

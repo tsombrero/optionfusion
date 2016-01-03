@@ -17,7 +17,7 @@ public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider 
     private int minDaysToExp = 0;
     private int maxDaysToExp = Integer.MAX_VALUE;
 
-    public static final TimeFilter EMPTY_FILTER = new TimeFilter(new LocalDate(0), new LocalDate(0));
+    public transient static final TimeFilter EMPTY_FILTER = new TimeFilter(new LocalDate(0), new LocalDate(0));
 
     public TimeFilter(LocalDate minExpDate, LocalDate maxExpDate) {
         if (maxExpDate == null && minExpDate == null)
@@ -73,6 +73,11 @@ public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider 
     @Override
     public boolean shouldReplace(Filter filter) {
         return filter instanceof TimeFilter;
+    }
+
+    @Override
+    public FilterType getFilterType() {
+        return FilterType.TIME;
     }
 
     private boolean pass(int daysToExp) {
