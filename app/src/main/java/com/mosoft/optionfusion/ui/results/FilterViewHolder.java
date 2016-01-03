@@ -254,8 +254,6 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     @OnClick(R.id.btn_strike)
     public void onClickStrikeFilter() {
-        Log.i(TAG, "TACO onClickStrikeFilter");
-
         if (editStrikeLayout.getVisibility() == View.VISIBLE) {
             resetButtons(true);
             return;

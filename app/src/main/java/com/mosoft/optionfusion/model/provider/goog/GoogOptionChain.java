@@ -414,15 +414,11 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         private int getDaysToExpiration() {
             if (daysToExpiration <= 0) {
                 daysToExpiration = Days.daysBetween(new LocalDate(), getDate()).getDays();
-                if (daysToExpiration == 0) {
-                    Log.i("TACO", "TACO");
-                }
             }
             return daysToExpiration;
         }
 
         private LocalDate getDate() {
-            Log.i("TACO", "TACO " + new LocalDate(y, m, d) + " rounded = " + Util.roundToNearestFriday(new LocalDate(y, m, d)));
             return Util.roundToNearestFriday(new LocalDate(y, m, d));
         }
     }
