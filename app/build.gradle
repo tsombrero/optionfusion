@@ -26,8 +26,8 @@ android {
         applicationId "com.mosoft.optionfusion"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "0.2a"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     configurations {

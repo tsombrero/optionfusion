@@ -36,7 +36,7 @@ public class RoiFilter extends Filter {
 
     @Override
     public String getPillText() {
-        return String.format("Potential Gain: %s", Util.formatPercentCompact(roi));
+        return String.format("Potential Gain: %s / year", Util.formatPercentCompact(roi));
     }
 
     @Override

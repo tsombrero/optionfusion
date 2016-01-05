@@ -18,10 +18,8 @@ import java.util.Set;
 
 public class FilterSet implements Parcelable {
 
-    private static final String SORT_MAX_RETURN = "_sort_max_return";
     List<Filter> filters = new ArrayList<>();
 
-    Comparator<Spread> comparator = new Spread.AscendingRiskComparator();
     private int activeButton;
 
     public FilterSet() {
@@ -111,12 +109,12 @@ public class FilterSet implements Parcelable {
         return removeFilter(getFilterMatching(match));
     }
 
-    public void setComparator(Comparator<Spread> comparator) {
-        this.comparator = comparator;
-    }
-
     public Comparator<Spread> getComparator() {
-        return comparator;
+        for (Filter filter : filters) {
+            if (filter.getFilterType() == Filter.FilterType.ROI)
+                return Spread.ASCENDING_RISK_COMPARATOR;
+        }
+        return Spread.DESCENDING_MAX_RETURN_COMPARATOR;
     }
 
     public int getActiveButton() {
@@ -171,10 +169,6 @@ public class FilterSet implements Parcelable {
             filterSet.addFilter(new RoiFilter(.10));
         }
 
-        if (sharedPreferences.getBoolean(symbol + SORT_MAX_RETURN, false)) {
-            filterSet.setComparator(new Spread.DescendingMaxReturnComparator());
-        }
-
         return filterSet;
     }
 
@@ -189,12 +183,6 @@ public class FilterSet implements Parcelable {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         for (Filter.FilterType filterType : Filter.FilterType.values()) {
             editor.putStringSet(getPreferencesKey(symbol, filterType), stringsByFilterType.get(filterType));
-        }
-
-        if (comparator instanceof Spread.DescendingMaxReturnComparator) {
-            editor.putBoolean(symbol + SORT_MAX_RETURN, true);
-        } else {
-            editor.remove(symbol + "_sort");
         }
 
         editor.apply();

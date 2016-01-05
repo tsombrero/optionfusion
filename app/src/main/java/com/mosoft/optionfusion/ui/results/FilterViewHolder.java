@@ -47,9 +47,6 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
     @Inject
     OptionChainProvider optionChainProvider;
 
-    @Bind(R.id.btn_sort)
-    ImageButton btnSorting;
-
     @Bind(R.id.btn_roi)
     ImageButton btnRoi;
 
@@ -82,9 +79,6 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     @Bind(R.id.strike_edit_bearish)
     RangeBar rangeBarStrikeBearish;
-
-    @Bind(R.id.sorting_edit_layout)
-    ViewGroup editSortingLayout;
 
     @Bind(R.id.strike_edit_bearish_text)
     TextView textStrikeBearish;
@@ -148,9 +142,6 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
                 break;
             case R.id.btn_roi:
                 onClickRoiFilter();
-                break;
-            case R.id.btn_sort:
-                onClickSortButton();
                 break;
         }
     }
@@ -289,31 +280,6 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         showEditFilter(btnStrike, editStrikeLayout);
     }
 
-
-    @OnClick(R.id.btn_sort)
-    public void onClickSortButton() {
-        if (editSortingLayout.getVisibility() == View.VISIBLE) {
-            resetButtons(true);
-            return;
-        }
-
-        showEditFilter(btnSorting, editSortingLayout);
-    }
-
-    @OnClick(R.id.sort_low_risk)
-    public void onClickSortByRisk() {
-        filterSet.setComparator(new Spread.AscendingRiskComparator());
-        resultsListener.onChange(filterSet);
-        resetButtons(true);
-    }
-
-    @OnClick(R.id.sort_high_return)
-    public void onClickSortHighReturn() {
-        filterSet.setComparator(new Spread.DescendingMaxReturnComparator());
-        resultsListener.onChange(filterSet);
-        resetButtons(true);
-    }
-
     private class StrikeRangeChangeListener implements RangeBar.OnRangeBarChangeListener {
 
         private final List<Double> strikes;
@@ -379,12 +345,12 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
     }
 
     private void resetButtons(boolean enabled) {
-        for (ImageButton btn : new ImageButton[]{btnSorting, btnRoi, btnStrike, btnTime}) {
+        for (ImageButton btn : new ImageButton[]{btnRoi, btnStrike, btnTime}) {
             btn.setEnabled(enabled);
             btn.setSelected(false);
         }
 
-        for (ViewGroup viewGroup : new ViewGroup[]{editRoiLayout, editTimeLayout, editStrikeLayout, editSortingLayout}) {
+        for (ViewGroup viewGroup : new ViewGroup[]{editRoiLayout, editTimeLayout, editStrikeLayout}) {
             viewGroup.setVisibility(View.GONE);
         }
 

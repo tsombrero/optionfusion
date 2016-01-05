@@ -2,8 +2,8 @@
 <manifest
     package="com.mosoft.optionfusion"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:versionCode="1"
-    android:versionName="0.1 alpha"
+    android:versionCode="2"
+    android:versionName="0.2a"
     >
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->

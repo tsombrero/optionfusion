@@ -22,6 +22,21 @@ abstract public class Spread implements Parcelable {
 
     private static final String TAG = "Spread";
 
+    // Sort by break-even price distance from the current price, with a small weight for profitability
+    public static final Comparator<Spread> ASCENDING_RISK_COMPARATOR = new Comparator<Spread>() {
+        @Override
+        public int compare(Spread lhs, Spread rhs) {
+            return Double.compare(rhs.getWeightedValue(), lhs.getWeightedValue());
+        }
+    };
+
+    public static final Comparator<Spread> DESCENDING_MAX_RETURN_COMPARATOR = new Comparator<Spread>() {
+        @Override
+        public int compare(Spread lhs, Spread rhs) {
+            return Double.compare(rhs.getMaxReturnAnnualized(), lhs.getMaxReturnAnnualized());
+        }
+    };
+
     // Weight used in sorting by risk; higher number means lower-risk trades are more preferred
     private final static double WEIGHT_LOWRISK = 35D;
 
@@ -231,21 +246,6 @@ abstract public class Spread implements Parcelable {
 
     public double getWeightedValue() {
         return Math.min(.5, getMaxReturnAnnualized() / 5D) + (WEIGHT_LOWRISK * getBreakEvenDepth() / underlying.getLast());
-    }
-
-    // Sort by break-even price distance from the current price, with a small weight for profitability
-    public static class AscendingRiskComparator implements Comparator<Spread> {
-        @Override
-        public int compare(Spread lhs, Spread rhs) {
-            return Double.compare(rhs.getWeightedValue(), lhs.getWeightedValue());
-        }
-    }
-
-    public static class DescendingMaxReturnComparator implements Comparator<Spread> {
-        @Override
-        public int compare(Spread lhs, Spread rhs) {
-            return Double.compare(rhs.getMaxReturnAnnualized(), lhs.getMaxReturnAnnualized());
-        }
     }
 
     // Parcelable

@@ -27,8 +27,8 @@ public class Util {
     private static final DecimalFormat dollarFormatNoFraction = new DecimalFormat("$#,##0");
     private static final DecimalFormat dollarChangeFormat = new DecimalFormat("#,##0.00");
     private static final DecimalFormat dollarChangeFormatNoFraction = new DecimalFormat("#,##0");
-    private static final DecimalFormat percentFormatBig = new DecimalFormat("@@@E0x");
-    private static final DecimalFormat percentFormat = new DecimalFormat("@@@%");
+    private static final DecimalFormat percentFormatBig = new DecimalFormat("@@E0x");
+    private static final DecimalFormat percentFormat = new DecimalFormat("@@%");
 
     private static final GregorianCalendar calendar = new GregorianCalendar();
 

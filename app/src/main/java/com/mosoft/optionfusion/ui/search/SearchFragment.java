@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import com.mosoft.optionfusion.BuildConfig;
 import com.mosoft.optionfusion.R;
 import com.mosoft.optionfusion.cache.OptionChainProvider;
 import com.mosoft.optionfusion.client.ClientInterfaces;
@@ -40,6 +41,7 @@ import javax.inject.Inject;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnEditorAction;
 
 public class SearchFragment extends Fragment implements SharedViewHolders.StockQuoteViewHolderListener {
 
@@ -71,6 +73,7 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
         View ret = inflater.inflate(R.layout.fragment_search, container, false);
         ButterKnife.bind(this, ret);
 
+        toolbar.setTitle("Option Fusion " + BuildConfig.VERSION_NAME);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
 
         setHasOptionsMenu(true);
@@ -244,7 +247,13 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(symbolSearchTextView.getWindowToken(), 0);
             dismiss();
-            listener.onSymbolSearch(symbol);
+            listener.onSymbolSearch(symbol.replace('.', '-'));
+        }
+
+        @OnEditorAction(R.id.search)
+        public boolean onSubmit() {
+            onSymbolSearch(symbolSearchTextView.getText().toString().toUpperCase());
+            return true;
         }
     }
 

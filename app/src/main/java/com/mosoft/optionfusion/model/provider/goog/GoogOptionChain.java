@@ -341,16 +341,19 @@ public class GoogOptionChain implements Interfaces.OptionChain {
 
         private List<Spread> getSpreads(FilterSet filterSet, List<GoogOptionQuote> putsOrCalls) {
             List<Spread> ret = new ArrayList<>();
-            Interfaces.OptionType type = putsOrCalls.get(0).getOptionType();
             int i = 0;
             while (i < putsOrCalls.size()) {
                 GoogOptionQuote a = putsOrCalls.get(i);
-                int j = i + 1;
-                while (j < putsOrCalls.size()) {
-                    GoogOptionQuote b = putsOrCalls.get(j);
-                    addIfPassFilters(ret, filterSet, Spread.newSpread(a, b, optionChain.getUnderlyingStockQuote()));
-                    addIfPassFilters(ret, filterSet, Spread.newSpread(b, a, optionChain.getUnderlyingStockQuote()));
-                    j++;
+                if ((a.getStrike() * 100D) % 50  == 0) {
+                    int j = i + 1;
+                    while (j < putsOrCalls.size()) {
+                        GoogOptionQuote b = putsOrCalls.get(j);
+                        if ((b.getStrike() * 100D) % 50 == 0) {
+                            addIfPassFilters(ret, filterSet, Spread.newSpread(a, b, optionChain.getUnderlyingStockQuote()));
+                            addIfPassFilters(ret, filterSet, Spread.newSpread(b, a, optionChain.getUnderlyingStockQuote()));
+                        }
+                        j++;
+                    }
                 }
                 i++;
             }
