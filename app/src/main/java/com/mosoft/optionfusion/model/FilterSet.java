@@ -18,6 +18,7 @@ import java.util.Set;
 
 public class FilterSet implements Parcelable {
 
+    private static final String SORT_MAX_RETURN = "_sort_max_return";
     List<Filter> filters = new ArrayList<>();
 
     Comparator<Spread> comparator = new Spread.AscendingRiskComparator();
@@ -170,6 +171,10 @@ public class FilterSet implements Parcelable {
             filterSet.addFilter(new RoiFilter(.10));
         }
 
+        if (sharedPreferences.getBoolean(symbol + SORT_MAX_RETURN, false)) {
+            filterSet.setComparator(new Spread.DescendingMaxReturnComparator());
+        }
+
         return filterSet;
     }
 
@@ -185,6 +190,13 @@ public class FilterSet implements Parcelable {
         for (Filter.FilterType filterType : Filter.FilterType.values()) {
             editor.putStringSet(getPreferencesKey(symbol, filterType), stringsByFilterType.get(filterType));
         }
+
+        if (comparator instanceof Spread.DescendingMaxReturnComparator) {
+            editor.putBoolean(symbol + SORT_MAX_RETURN, true);
+        } else {
+            editor.remove(symbol + "_sort");
+        }
+
         editor.apply();
     }
 

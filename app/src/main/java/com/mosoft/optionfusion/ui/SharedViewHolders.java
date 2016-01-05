@@ -218,7 +218,7 @@ public class SharedViewHolders {
     }
 
     public static class OptionTradeBidAskHolder {
-        @Bind(R.id.bid_ask)
+        @Bind(R.id.trade_cost)
         TextView bidAsk;
 
         public OptionTradeBidAskHolder(View view) {
@@ -234,8 +234,8 @@ public class SharedViewHolders {
 
         private final Context context;
 
-        @Bind(R.id.bid_ask)
-        TextView textBidAsk;
+        @Bind(R.id.trade_cost)
+        TextView textTradeCost;
 
         @Bind(R.id.breakEvenPrice)
         TextView breakEvenPrice;
@@ -267,7 +267,7 @@ public class SharedViewHolders {
                     Util.formatPercentCompact(Math.abs(spread.getPercentChange_MaxProfit()))    // some percent
             ));
 
-            textBidAsk.setText(String.format("%s / %s", Util.formatDollars(spread.getBid()), Util.formatDollars(spread.getAsk())));
+            textTradeCost.setText(Util.formatDollars(spread.getAsk()));
             breakEvenPrice.setText(Util.formatDollars(spread.getPrice_BreakEven()));
             daysToExp.setText(Util.getFormattedOptionDate(spread.getExpiresDate()) + " / " + String.valueOf(spread.getDaysToExpiration()) + " days");
             maxReturn.setText(Util.formatDollars(spread.getMaxReturn()) + " / " + Util.formatPercentCompact(spread.getMaxPercentProfitAtExpiration()));

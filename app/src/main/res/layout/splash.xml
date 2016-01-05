@@ -94,20 +94,21 @@
         android:layout_height="40dp"
         android:layout_margin="4dp"
         android:layout_centerHorizontal="true"
-        android:layout_above="@id/logo_ameritrade"
+        android:layout_below="@id/logo_ameritrade"
         android:padding="8dp"
         android:background="@android:color/white"
         android:src="@drawable/logo_tradestation"
         android:elevation="@dimen/widget_elevation_resting"
+        android:visibility="gone"
         />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/logo_tradestation"
+        android:layout_above="@id/logo_ameritrade"
         android:layout_marginBottom="16dp"
         android:gravity="center"
-        android:text="Sign in for more accurate quotes"
+        android:text="Sign in for more reliable quotes"
         android:textAppearance="@style/secondaryTextInverse"
         />
 

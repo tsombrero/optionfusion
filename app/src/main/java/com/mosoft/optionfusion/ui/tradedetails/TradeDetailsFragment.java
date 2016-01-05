@@ -125,6 +125,10 @@ public class TradeDetailsFragment extends Fragment {
         new SharedViewHolders.OptionLegHolder(sellLayout).bind(-1, spread.getSell());
         tradeContainer.addView(sellLayout);
 
+        View totalLayout = getActivity().getLayoutInflater().inflate(R.layout.incl_trade_quote_total, null);
+        new SharedViewHolders.OptionTradeBidAskHolder(totalLayout).bind(spread);
+        tradeContainer.addView(totalLayout);
+
         textMaxLoss.setText((spread.isBullSpread() ? "Below " : "Above ") + Util.formatDollars(spread.getBuy().getStrike()));
 
         initTradeProfitChart();

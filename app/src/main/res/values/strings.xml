@@ -19,4 +19,5 @@
     <string name="max_position_cost">Max Cost of Position</string>
     <string name="failed_getting_chain">Failed getting option chain</string>
     <string name="stock_search_hint">Symbol or Name</string>
+    <string name="title_trade_cost">Trade Cost (ask)</string>
 </resources>

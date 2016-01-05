@@ -15,7 +15,7 @@
         />
 
     <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
-        android:id="@+id/bid_ask"
+        android:id="@+id/trade_cost"
         style="@style/DetailsValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

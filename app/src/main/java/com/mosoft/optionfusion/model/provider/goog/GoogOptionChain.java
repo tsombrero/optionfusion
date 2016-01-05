@@ -304,7 +304,7 @@ public class GoogOptionChain implements Interfaces.OptionChain {
 
         @Override
         public String toString() {
-            return getDescription();
+            return getDescription() + String.format("b/a:$%.2f/$%.2f", getBid(), getAsk());
         }
     }
 

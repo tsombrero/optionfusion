@@ -109,7 +109,7 @@ abstract public class Spread implements Parcelable {
         return buy.getAsk() - sell.getBid();
     }
 
-    public Double getBid() {
+    public double getBid() {
         return buy.getBid() - sell.getAsk();
     }
 
@@ -163,12 +163,12 @@ abstract public class Spread implements Parcelable {
     abstract public double getBreakEvenDepth();
 
     public String toString() {
-        return String.format("%s $%.2f; dte:%d; spr:%.2f/%.2f ask:$%.2f MaxProfit: %s / %.1f%% risk:%.3f",
+        return String.format("%s $%.2f; dte:%d; spr:%.2f/%.2f b/a:$%.2f/%.2f MaxProfit: %s / %.1f%% risk:%.3f",
                 underlying.getSymbol(),
                 underlying.getClose(),
                 buy.getDaysUntilExpiration(),
                 buy.getStrike(), sell.getStrike(),
-                getAsk(),
+                getAsk(), getBid(),
                 Util.formatDollars(getMaxReturn()),
                 getMaxPercentProfitAtExpiration() * 100d,
                 getWeightedValue()) + getWeightComponents();

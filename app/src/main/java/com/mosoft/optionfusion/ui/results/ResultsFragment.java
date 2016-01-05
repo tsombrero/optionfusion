@@ -97,6 +97,8 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
         if (filterSet == null)
             filterSet = FilterSet.loadForSymbol(symbol, gson, sharedPreferences);
 
+
+
         optionChainProvider.get(symbol, new OptionChainProvider.OptionChainCallback() {
             @Override
             public void call(Interfaces.OptionChain optionChain) {
@@ -147,7 +149,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
                 int spreadCount = Math.min(40, allSpreads.size());
 
                 for (Spread spread : allSpreads.subList(0, spreadCount)) {
-                    Log.i(TAG, spread.toString() + "        " + spread.getBuy().getDescription() + " / " + spread.getSell().getDescription());
+                    Log.i(TAG, spread.toString() + "        " + spread.getBuy() + " / " + spread.getSell());
                 }
                 return allSpreads.subList(0, spreadCount);
             }

@@ -27,12 +27,12 @@
         />
 
     <TextView
-        android:id="@+id/title_bid_ask"
+        android:id="@+id/title_trade_cost"
         style="@style/DetailsLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/title_daysToExp"
-        android:text="@string/bid_ask"
+        android:text="@string/title_trade_cost"
         />
 
     <TextView
@@ -40,7 +40,7 @@
         style="@style/DetailsLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/title_bid_ask"
+        android:layout_below="@id/title_trade_cost"
         android:text="@string/maxReturn"
         />
 
@@ -54,11 +54,11 @@
         />
 
     <TextView
-        android:id="@+id/bid_ask"
+        android:id="@+id/trade_cost"
         style="@style/DetailsValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/title_bid_ask"
+        android:layout_alignBaseline="@id/title_trade_cost"
         android:layout_alignParentEnd="true"
         android:text="$10.44"
         />
@@ -71,11 +71,6 @@
         android:layout_alignBaseline="@id/title_maxReturn"
         android:layout_alignParentEnd="true"
         android:text="$123.32"
-        />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         />
 
     <TextView
