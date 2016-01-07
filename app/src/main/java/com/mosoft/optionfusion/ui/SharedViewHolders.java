@@ -62,10 +62,6 @@ public class SharedViewHolders {
         @Bind(R.id.change)
         TextView changeView;
 
-        @Bind(R.id.arrow)
-        @Nullable
-        ViewFlipper arrowViewFlipper;
-
         @Bind(R.id.description)
         @Nullable
         TextView description;
@@ -125,9 +121,6 @@ public class SharedViewHolders {
             } else {
                 changeView.setText(Util.formatDollarChange(stockQuote.getChange()));
             }
-//            view.setTransitionName(getTransitionName());
-            if (arrowViewFlipper != null)
-                arrowViewFlipper.setDisplayedChild(change > 0 ? 1 : 0);
             if (description != null)
                 description.setText(stockQuote.getDescription());
         }

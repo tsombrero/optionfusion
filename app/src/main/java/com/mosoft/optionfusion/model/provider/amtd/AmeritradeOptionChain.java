@@ -124,6 +124,12 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         return gson.toJson(this);
     }
 
+    private long lastUpdatedTimestamp = System.currentTimeMillis();
+    @Override
+    public long getLastUpdatedTimestamp() {
+        return lastUpdatedTimestamp;
+    }
+
     transient List<Interfaces.OptionQuote> callQuotes = new ArrayList<>();
     transient List<Interfaces.OptionQuote> putQuotes = new ArrayList<>();
 

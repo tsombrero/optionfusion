@@ -13,10 +13,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import com.mosoft.optionfusion.cache.OptionChainProvider;
+import com.mosoft.optionfusion.cache.StockQuoteProvider;
 import com.mosoft.optionfusion.client.AmeritradeClientProvider;
 import com.mosoft.optionfusion.client.ClientInterfaces;
 import com.mosoft.optionfusion.client.GoogClientProvider;
@@ -24,17 +22,30 @@ import com.mosoft.optionfusion.client.YhooClientClientProvider;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Date;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+
+/**
+ * Providers for Dagger2. There are some naming challenges. For example:
+ *
+ * StockQuoteProvider is a class that provides stock quotes from an im-memory cache. It's a singleton.
+ * This module contains the useful but unfortunate function provideStockQuoteProvider().
+ *
+ * There are multiple StockQuoteClient implementations, depending on how the user is authenticated. StockQuoteClients
+ * fetch stock quote data from REST services. They are singletons.
+ *
+ * The StockQuoteClientProvider will return the correct StockQuoteClient as needed. This module contains
+ * another useful but unfortunate function provideStockQuoteClientProvider().
+ *
+ * I think there's an intermediate layer here that can be factored out but let's worry about that later.
+ *
+ */
 
 @Module
 public class ApplicationModule {
@@ -55,7 +66,7 @@ public class ApplicationModule {
     // Note this is not a singleton because it's an abstracted provider; the underlying client providers are singletons
     @Provides
     ClientInterfaces.OptionChainClient provideOptionChainClient(Context context, AmeritradeClientProvider ameritradeClientProvider, ClientInterfaces.StockQuoteClient stockQuoteClient) {
-        switch(OptionFusionApplication.from(context).getBackendProvider()) {
+        switch (OptionFusionApplication.from(context).getBackendProvider()) {
             case AMERITRADE:
                 return ameritradeClientProvider.getOptionChainClient();
         }
@@ -65,7 +76,7 @@ public class ApplicationModule {
     // Note this is not a singleton because it's an abstracted provider; the underlying client providers are singletons
     @Provides
     ClientInterfaces.BrokerageClient provideBrokerageClient(Context context, AmeritradeClientProvider ameritradeClientProvider) {
-        switch(OptionFusionApplication.from(context).getBackendProvider()) {
+        switch (OptionFusionApplication.from(context).getBackendProvider()) {
             case AMERITRADE:
                 return ameritradeClientProvider.getBrokerageClient();
         }
@@ -75,7 +86,7 @@ public class ApplicationModule {
     // Note this is not a singleton because it's an abstracted provider; the underlying client providers are singletons
     @Provides
     ClientInterfaces.StockQuoteClient provideStockQuoteClient(Context context, AmeritradeClientProvider ameritradeClientProvider, YhooClientClientProvider yhooClientProvider) {
-        switch(OptionFusionApplication.from(context).getBackendProvider()) {
+        switch (OptionFusionApplication.from(context).getBackendProvider()) {
             case AMERITRADE:
                 //TODO
             default:
@@ -107,7 +118,9 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    YhooClientClientProvider provideYhooClientProvider() { return new YhooClientClientProvider(); }
+    YhooClientClientProvider provideYhooClientProvider() {
+        return new YhooClientClientProvider();
+    }
 
     @Provides
     @Singleton
@@ -149,5 +162,9 @@ public class ApplicationModule {
         return context.getSharedPreferences("default", Context.MODE_PRIVATE);
     }
 
-
+    @Provides
+    @Singleton
+    StockQuoteProvider provideStockQuoteProvider(Context context, ClientInterfaces.StockQuoteClient stockQuoteClient) {
+        return new StockQuoteProvider(context, stockQuoteClient);
+    }
 }

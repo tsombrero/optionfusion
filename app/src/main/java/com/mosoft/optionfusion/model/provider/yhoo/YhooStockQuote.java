@@ -145,6 +145,11 @@ public class YhooStockQuote {
         @SerializedName("PreviousClose")
         Double close;
 
+        @SerializedName("Change")
+        Double change;
+
+        private transient long lastUpdatedTimestamp = System.currentTimeMillis();
+
         @Override
         public String getSymbol() {
             return symbol;
@@ -181,6 +186,11 @@ public class YhooStockQuote {
         }
 
         @Override
+        public Double getChange() {
+            return change;
+        }
+
+        @Override
         public String toJson(Gson gson) {
             return gson.toJson(this);
         }
@@ -191,13 +201,13 @@ public class YhooStockQuote {
         }
 
         @Override
-        public Double getChange() {
-            return getLast() - getOpen();
+        public Double getChangePercent() {
+            return getChange() / (getLast() - getChange());
         }
 
         @Override
-        public Double getChangePercent() {
-            return getChange() / getOpen();
+        public long getLastUpdatedTimestamp() {
+            return lastUpdatedTimestamp;
         }
     }
 }

@@ -82,6 +82,8 @@ public class Interfaces {
         Double getChange();
 
         Double getChangePercent();
+
+        long getLastUpdatedTimestamp();
     }
 
     public interface OptionStrike {
@@ -126,6 +128,8 @@ public class Interfaces {
         String toJson(Gson gson);
 
         Provider getProvider();
+
+        long getLastUpdatedTimestamp();
     }
 
     public interface Account {

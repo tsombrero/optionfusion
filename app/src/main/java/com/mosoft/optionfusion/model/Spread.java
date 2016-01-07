@@ -180,7 +180,7 @@ abstract public class Spread implements Parcelable {
     public String toString() {
         return String.format("%s $%.2f; dte:%d; spr:%.2f/%.2f b/a:$%.2f/%.2f MaxProfit: %s / %.1f%% risk:%.3f",
                 underlying.getSymbol(),
-                underlying.getClose(),
+                underlying.getLast(),
                 buy.getDaysUntilExpiration(),
                 buy.getStrike(), sell.getStrike(),
                 getAsk(), getBid(),

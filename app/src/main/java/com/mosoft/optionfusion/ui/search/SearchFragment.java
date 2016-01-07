@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,13 +23,16 @@ import android.widget.Toast;
 import com.mosoft.optionfusion.BuildConfig;
 import com.mosoft.optionfusion.R;
 import com.mosoft.optionfusion.cache.OptionChainProvider;
+import com.mosoft.optionfusion.cache.StockQuoteProvider;
 import com.mosoft.optionfusion.client.ClientInterfaces;
+import com.mosoft.optionfusion.model.provider.Interfaces;
 import com.mosoft.optionfusion.model.provider.Interfaces.StockQuote;
 import com.mosoft.optionfusion.module.OptionFusionApplication;
 import com.mosoft.optionfusion.ui.SharedViewHolders;
 import com.mosoft.optionfusion.ui.widgets.SymbolSearchTextView;
 import com.mosoft.optionfusion.util.Util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -43,7 +47,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
 
-public class SearchFragment extends Fragment implements SharedViewHolders.StockQuoteViewHolderListener {
+public class SearchFragment extends Fragment implements SharedViewHolders.StockQuoteViewHolderListener, SwipeRefreshLayout.OnRefreshListener {
 
     private static final String PREFKEY_WATCHLIST = "recents";
 
@@ -63,7 +67,11 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
     SharedPreferences sharedPreferences;
 
     @Inject
-    ClientInterfaces.StockQuoteClient stockQuoteClient;
+    StockQuoteProvider stockQuoteProvider;
+
+    @Bind(R.id.swipe_refresh_layout)
+    SwipeRefreshLayout swipeRefreshLayout;
+
     private StockQuoteAdapter adapter;
 
     @Override
@@ -75,6 +83,8 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
 
         toolbar.setTitle("Option Fusion " + BuildConfig.VERSION_NAME);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+
+        swipeRefreshLayout.setOnRefreshListener(this);
 
         setHasOptionsMenu(true);
 
@@ -126,6 +136,12 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
         ((Host) getActivity()).openResultsFragment(symbol);
     }
 
+    @Override
+    public void onRefresh() {
+        if (adapter != null)
+            adapter.update();
+    }
+
     public interface Host {
         void openResultsFragment(String symbol);
     }
@@ -143,6 +159,7 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
 
         private final Context context;
         private List<StockQuote> stockQuoteList;
+        private boolean isUpdating;
 
         public StockQuoteAdapter() {
             context = getActivity();
@@ -155,10 +172,14 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
         }
 
         public void update() {
-            stockQuoteClient.getStockQuotes(getRecentSymbols(), new ClientInterfaces.Callback<List<StockQuote>>() {
+            if (isUpdating)
+                return;
+            isUpdating = true;
+
+            stockQuoteProvider.get(getRecentSymbols(), new StockQuoteProvider.StockQuoteCallback() {
                 @Override
                 public void call(List<StockQuote> stockQuotes) {
-                    stockQuoteList = stockQuotes;
+                    stockQuoteList = new ArrayList<>(stockQuotes);
                     Collections.sort(stockQuoteList, new Comparator<StockQuote>() {
                         @Override
                         public int compare(StockQuote lhs, StockQuote rhs) {
@@ -166,11 +187,15 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
                         }
                     });
                     notifyDataSetChanged();
+                    swipeRefreshLayout.setRefreshing(false);
+                    isUpdating = false;
                 }
 
                 @Override
                 public void onError(int status, String message) {
                     Toast.makeText(context, "Failed getting quotes (" + message + ")", Toast.LENGTH_SHORT);
+                    swipeRefreshLayout.setRefreshing(false);
+                    isUpdating = false;
                 }
             });
         }

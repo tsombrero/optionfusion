@@ -20,7 +20,7 @@ import retrofit.http.GET;
 import retrofit.http.Query;
 
 public class YhooClient implements ClientInterfaces.StockQuoteClient {
-    private final static String yqlStockQueryFormat = "select symbol,Name,Bid,Ask,LastTradePriceOnly,Open,PreviousClose from yahoo.finance.quotes where symbol in ('%s')";
+    private final static String yqlStockQueryFormat = "select symbol,Name,Bid,Ask,LastTradePriceOnly,Open,PreviousClose,Change from yahoo.finance.quotes where symbol in ('%s')";
     private final RestInterface restInterface;
     private final static String TAG = YhooClient.class.getSimpleName();
 

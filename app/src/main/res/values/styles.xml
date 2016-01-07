@@ -140,7 +140,7 @@
 
     <style name="DetailCellValue" parent="DetailsLabel">
         <item name="android:gravity">center</item>
-        <item name="android:background">@android:color/white</item>
+        <item name="android:background">@color/foreground_ghost</item>
     </style>
 
     <style name="DetailsLabel.Indented">

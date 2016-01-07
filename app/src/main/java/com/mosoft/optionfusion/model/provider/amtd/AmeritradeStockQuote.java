@@ -51,6 +51,8 @@ public class AmeritradeStockQuote extends AmtdResponseBase implements Interfaces
     @Element(name = "quote-list", required = false)
     private Data data;
 
+    private transient long lastUpdatedTimestamp = System.currentTimeMillis();
+
     @Root
     @Default(value = DefaultType.FIELD, required = false)
     private static class Data {
@@ -125,5 +127,10 @@ public class AmeritradeStockQuote extends AmtdResponseBase implements Interfaces
     @Override
     public Double getChangePercent() {
         return getChange() / getOpen();
+    }
+
+    @Override
+    public long getLastUpdatedTimestamp() {
+        return 0;
     }
 }
