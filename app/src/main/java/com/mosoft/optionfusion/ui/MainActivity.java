@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment, spread.toString())
                 .addSharedElement(detailsLayout, SharedViewHolders.BriefTradeDetailsHolder.getTransitionName(spread))
-                .addSharedElement(headerLayout, SharedViewHolders.TradeDetailsHeaderHolder.getTransitionName(spread))
+//                .addSharedElement(headerLayout, SharedViewHolders.TradeDetailsHeaderHolder.getTransitionName(spread))
                 .addToBackStack(null)
                 .commit();
     }

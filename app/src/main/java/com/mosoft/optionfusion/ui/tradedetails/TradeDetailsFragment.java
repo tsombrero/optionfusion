@@ -56,7 +56,7 @@ public class TradeDetailsFragment extends Fragment {
     protected Toolbar toolbar;
 
     @Bind(R.id.header)
-    protected LinearLayout heaader;
+    protected ViewGroup heaader;
 
     @Bind(R.id.max_loss_price)
     protected TextView textMaxLoss;

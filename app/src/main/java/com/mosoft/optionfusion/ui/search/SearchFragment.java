@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -47,7 +48,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
 
-public class SearchFragment extends Fragment implements SharedViewHolders.StockQuoteViewHolderListener, SwipeRefreshLayout.OnRefreshListener {
+public class SearchFragment extends Fragment implements SharedViewHolders.StockQuoteViewHolderListener, SwipeRefreshLayout.OnRefreshListener, AppBarLayout.OnOffsetChangedListener {
 
     private static final String PREFKEY_WATCHLIST = "recents";
 
@@ -59,6 +60,9 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
 
     @Bind(R.id.fab)
     FloatingActionButton fab;
+
+    @Bind(R.id.appbarLayout)
+    AppBarLayout appBarLayout;
 
     @Inject
     OptionChainProvider optionChainProvider;
@@ -118,8 +122,19 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
-
         return ret;
+    }
+
+    @Override
+    public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
+        if (swipeRefreshLayout == null)
+            return;
+
+        if (i == 0) {
+            swipeRefreshLayout.setEnabled(true);
+        } else {
+            swipeRefreshLayout.setEnabled(false);
+        }
     }
 
     public static Fragment newInstance() {
@@ -155,6 +170,20 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
         return ret;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (appBarLayout != null)
+            appBarLayout.addOnOffsetChangedListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (appBarLayout != null)
+            appBarLayout.removeOnOffsetChangedListener(this);
+    }
+
     private class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuoteViewHolder> {
 
         private final Context context;
@@ -179,6 +208,9 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
             stockQuoteProvider.get(getRecentSymbols(), new StockQuoteProvider.StockQuoteCallback() {
                 @Override
                 public void call(List<StockQuote> stockQuotes) {
+                    if (stockQuotes == null)
+                        return;
+
                     stockQuoteList = new ArrayList<>(stockQuotes);
                     Collections.sort(stockQuoteList, new Comparator<StockQuote>() {
                         @Override

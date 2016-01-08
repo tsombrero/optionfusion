@@ -33,7 +33,6 @@ public class ClientInterfaces {
 
     public interface OptionChainClient {
         void getOptionChain(String symbol, Callback<OptionChain> callback);
-
     }
 
     public interface BrokerageClient {

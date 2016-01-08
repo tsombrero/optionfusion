@@ -156,6 +156,12 @@ public class SharedViewHolders {
         @Bind(R.id.trade_description)
         TextView description;
 
+        @Bind(R.id.trade_expiration)
+        TextView expiration;
+
+        @Bind(R.id.trade_strikes)
+        TextView strikes;
+
         public TradeDetailsHeaderHolder(View view) {
             this.context = view.getContext();
             ButterKnife.bind(this, view);
@@ -171,9 +177,12 @@ public class SharedViewHolders {
 
             header.setBackgroundColor(color);
 
-            description.setText(spread.getDescriptionNoExp());
+            description.setText(spread.getSpreadType().toString());
+            expiration.setText(Util.getFormattedOptionDate(spread.getExpiresDate()));
+            strikes.setText(String.format("%.2f/%.2f", spread.getBuy().getStrike(), spread.getSell().getStrike()));
 
             header.setTransitionName(getTransitionName(spread));
+
         }
 
         static public String getTransitionName(Spread spread) {

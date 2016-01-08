@@ -11,6 +11,7 @@ import com.mosoft.optionfusion.model.provider.Interfaces;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -20,6 +21,8 @@ public class StockQuoteProvider extends LruCache<String, Interfaces.StockQuote> 
     private final String TAG = OptionChainProvider.class.getSimpleName();
 
     ArrayList<WeakReference<StockQuoteCallback>> stockQuoteListeners = new ArrayList<>();
+
+    HashMap<String, Long> timeLastRequested = new HashMap<>();
 
 
     public StockQuoteProvider(Context context, ClientInterfaces.StockQuoteClient stockQuoteClient) {
