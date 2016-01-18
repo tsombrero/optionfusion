@@ -114,22 +114,18 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
     @Override
     public void showDetails(Spread spread, Fragment requestingFragment, View headerLayout, View detailsLayout, View stockInfoLayout) {
 
-//        requestingFragment.setSharedElementReturnTransition(TransitionInflater.from(this).inflateTransition(R.transition.change_transform));
         requestingFragment.setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.change_transform));
         requestingFragment.setExitTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
-//        requestingFragment.setEnterTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
 
         Fragment fragment = TradeDetailsFragment.newInstance(spread);
         fragment.setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.change_transform));
         fragment.setEnterTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
-//        fragment.setExitTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
 
         fragment.setEnterSharedElementCallback(new MySharedElementCallback());
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment, spread.toString())
                 .addSharedElement(detailsLayout, SharedViewHolders.BriefTradeDetailsHolder.getTransitionName(spread))
-//                .addSharedElement(headerLayout, SharedViewHolders.TradeDetailsHeaderHolder.getTransitionName(spread))
                 .addToBackStack(null)
                 .commit();
     }
