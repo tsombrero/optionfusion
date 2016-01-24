@@ -14,21 +14,58 @@ apply plugin: 'com.neenbedankt.android-apt'
 android {
     signingConfigs {
         config {
-            keyAlias 'optionfusion'
-            keyPassword '4bikes@916'
-            storeFile file('/Users/jimkerr/Dropbox/Private/MomentumSupport/keystore.jks')
-            storePassword '4bikes@916'
         }
     }
+
+//    dexOptions {
+//        javaMaxHeapSize "4g"
+//    }
+
+    packagingOptions {
+        exclude 'com/google/appengine/repackaged/org/apache/commons/codec/language/bm/ash_approx_any.txt';
+        exclude 'com/google/appengine/repackaged/org/apache/commons/codec/language/bm/ash_approx_common.txt';
+        exclude 'com/google/appengine/repackaged/org/apache/commons/codec/language/bm/ash_approx_cyrillic.txt';
+        exclude 'com/google/appengine/repackaged/org/apache/commons/codec/language/bm/ash_approx_english.txt';
+        exclude 'com/google/appengine/repackaged/org/apache/commons/codec/language/bm/ash_approx_french.txt';
+        exclude 'com/google/appengine/repackaged/org/apache/commons/codec/language/bm/ash_approx_german.txt';
+        exclude 'com/google/appengine/repackaged/org/apache/commons/codec/language/bm/ash_approx_hebrew.txt';
+        exclude 'com/google/appengine/repackaged/org/apache/commons/codec/language/bm/ash_approx_hungarian.txt';
+        exclude 'com/google/appengine/repackaged/org/apache/commons/codec/language/bm/ash_approx_polish.txt';
+        exclude 'com/google/appengine/repackaged/org/apache/commons/codec/language/bm/ash_approx_romanian.txt';
+        exclude 'com/google/appengine/repackaged/org/apache/commons/codec/language/bm/ash_approx_russian.txt';
+        exclude 'com/google/appengine/repackaged/org/apache/commons/codec/language/bm/ash_approx_spanish.txt';
+        exclude 'com/google/appengine/repackaged/org/apache/commons/codec/language/bm/ash_exact_any.txt'
+
+    }
+
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
     defaultConfig {
-        applicationId "com.mosoft.optionfusion"
+        applicationId "com.mosoft.com.optionfusion"
         minSdkVersion 21
         targetSdkVersion 23
         versionCode 4
         versionName "0.4a"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled false
+
+        buildConfigField "String", "ROOT_URL",
+                "\"https://option-fusion-api.appspot.com/_ah/api/\""
+        /**
+         * Defines whether authentication is required or not. Only works once
+         * deployed on production AppEngine, not on local server.
+         */
+        buildConfigField "boolean", "SIGN_IN_REQUIRED", "true"
+        /**
+         * Substitute you own sender ID here. This is the project number you got
+         * from the API Console, as described in "Getting Started."
+         */
+        buildConfigField "String", "SENDER_ID", "\"386969647168\""
+        /**
+         * Web client ID from Google Cloud console.
+         */
+        buildConfigField "String", "WEB_CLIENT_ID", "\"foo\""
+
     }
     configurations {
         compile.exclude group: 'stax'
@@ -38,7 +75,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.config
         }
     }
     compileOptions {
@@ -76,12 +112,16 @@ dependencies {
     compile 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
     compile 'javax.annotation:jsr250-api:1.0'
     compile 'com.google.dagger:dagger:2.0.1'
-
+    
     // Added to resolve conflicts between the app build and the test build. The app build resolves
     // the jsr305 dependency to version 1.3.9, but in the test build the espresso-core dependency
     // resolves jsr305 to 2.0.1. Declaring a compile dependency on jsr305 2.0.1 will ensure 2.0.1 or
     // greater is used for both app and test builds.
     compile 'com.google.code.findbugs:jsr305:2.0.1'
 
+    compile 'com.google.android.gms:play-services-base:8.4.0'
+    compile 'com.google.android.gms:play-services-auth:8.4.0'
+    compile 'com.google.android.gms:play-services-gcm:8.4.0'
+    compile 'com.google.android.gms:play-services-analytics:8.4.0'
     compile project(path: ':backend', configuration: 'android-endpoints')
 }

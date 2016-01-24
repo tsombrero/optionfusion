@@ -5,7 +5,7 @@
               android:layout_width="match_parent"
               android:orientation="horizontal">
 
-    <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+    <com.optionfusion.ui.widgets.AutoFitTextView
         android:id="@+id/transaction_type"
         style="@style/DetailCellValue"
         android:layout_width="0dp"
@@ -14,7 +14,7 @@
         tools:text="Sell"
         />
 
-    <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+    <com.optionfusion.ui.widgets.AutoFitTextView
         android:id="@+id/quantity"
         style="@style/DetailCellValue"
         android:layout_width="0dp"
@@ -23,7 +23,7 @@
         tools:text="Qty"
         />
 
-    <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+    <com.optionfusion.ui.widgets.AutoFitTextView
         android:id="@+id/option_type"
         style="@style/DetailCellValue"
         android:layout_width="0dp"
@@ -32,7 +32,7 @@
         tools:text="Call"
         />
 
-    <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+    <com.optionfusion.ui.widgets.AutoFitTextView
         android:id="@+id/option_strike"
         style="@style/DetailCellValue"
         android:layout_width="0dp"
@@ -41,7 +41,7 @@
         tools:text="$141.50"
         />
 
-    <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+    <com.optionfusion.ui.widgets.AutoFitTextView
         android:id="@+id/option_exp"
         style="@style/DetailCellValue"
         android:layout_width="0dp"

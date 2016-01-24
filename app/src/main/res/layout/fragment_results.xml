@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/subhead_medium_background"
-    tools:context="com.mosoft.optionfusion.ui.results.ResultsFragment">
+    tools:context=".ui.results.ResultsFragment">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"

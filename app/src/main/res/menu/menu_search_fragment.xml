@@ -7,7 +7,7 @@
         android:id="@+id/action_search"
         android:title="Find"
         app:showAsAction="always"
-        app:actionViewClass="com.mosoft.optionfusion.ui.widgets.SymbolSearchView"
+        app:actionViewClass="com.optionfusion.ui.widgets.SymbolSearchView"
         android:icon="@android:drawable/ic_menu_search"
         />
 

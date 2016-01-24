@@ -21,8 +21,8 @@ import javax.inject.Named;
   name = "optionFusion",
   version = "v1",
   namespace = @ApiNamespace(
-    ownerDomain = "backend.optionfusion.com",
-    ownerName = "backend.optionfusion.com",
+    ownerDomain = "backend.com.optionfusion.com",
+    ownerName = "backend.com.optionfusion.com",
     packagePath=""
   )
 )
@@ -32,5 +32,7 @@ public class SymbolLookup {
     public final List<Symbol> getMatching(@Named("q") String searchString) {
         return Collections.singletonList(new Symbol("FOO", "Foobar & Co"));
     }
+
+
 
 }

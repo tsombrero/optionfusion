@@ -20,7 +20,7 @@
         android:layout_alignParentLeft="true"
         tools:text="ABCD"/>
 
-    <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+    <com.optionfusion.ui.widgets.AutoFitTextView
         android:id="@+id/change"
         style="@style/stockQuoteDataInverse"
         android:paddingLeft="5dp"
@@ -37,7 +37,7 @@
         android:clickable="true"
         tools:text="-$223.11"/>
 
-    <com.mosoft.optionfusion.ui.widgets.AutoFitTextView
+    <com.optionfusion.ui.widgets.AutoFitTextView
         android:id="@+id/price"
         style="@style/stockQuoteData"
         android:layout_width="120dp"

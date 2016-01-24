@@ -16,7 +16,7 @@
         android:layout_alignParentTop="true"
         android:text="Add to Watchlist" />
 
-    <com.mosoft.optionfusion.ui.widgets.SymbolSearchTextView
+    <com.optionfusion.ui.widgets.SymbolSearchTextView
         android:id="@+id/search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
