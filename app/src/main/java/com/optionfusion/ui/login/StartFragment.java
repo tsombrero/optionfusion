@@ -4,18 +4,25 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.optionfusion.R;
+import com.optionfusion.client.FusionClient;
+import com.optionfusion.client.GoogClient;
 import com.optionfusion.module.OptionFusionApplication;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -27,12 +34,17 @@ public class StartFragment extends Fragment implements GoogleApiClient.OnConnect
 
     private GoogleApiClient googleApiClient;
 
+    private static final String TAG = "StartFragment";
+
     public static Fragment newInstance() {
         return new StartFragment();
     }
 
     @Bind(R.id.sign_in_button)
     SignInButton signInButton;
+
+    @Inject
+    FusionClient fusionClient;
 
     @Nullable
     @Override
@@ -46,6 +58,7 @@ public class StartFragment extends Fragment implements GoogleApiClient.OnConnect
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .requestProfile()
+                .requestId()
                 .build();
 
         // Build a GoogleApiClient with access to the Google Sign-In API and the
@@ -55,8 +68,10 @@ public class StartFragment extends Fragment implements GoogleApiClient.OnConnect
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
-        signInButton.setSize(SignInButton.SIZE_STANDARD);
+        signInButton.setSize(SignInButton.SIZE_WIDE);
+        signInButton.setColorScheme(SignInButton.COLOR_LIGHT);
         signInButton.setScopes(gso.getScopeArray());
+
 
         return ret;
     }
@@ -65,6 +80,29 @@ public class StartFragment extends Fragment implements GoogleApiClient.OnConnect
     public void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            Log.i(TAG, result.toString());
+            handleSignInResult(result);
+        }
+    }
+
+    private void handleSignInResult(GoogleSignInResult result) {
+        if (result.isSuccess()) {
+            // Signed in successfully, show authenticated UI.
+            GoogleSignInAccount acct = result.getSignInAccount();
+            String dname = acct.getDisplayName();
+        } else {
+            Log.e(TAG, "Sign in failed");
+            // Signed out, show unauthenticated UI.
+        }
     }
 
 //    @OnClick({R.id.no_thanks, R.id.logo_ameritrade})

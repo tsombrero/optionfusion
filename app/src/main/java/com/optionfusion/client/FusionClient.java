@@ -3,6 +3,7 @@ package com.optionfusion.client;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
@@ -19,6 +20,8 @@ import java.io.IOException;
 public class FusionClient implements ClientInterfaces.SymbolLookupClient {
 
     OptionFusion optionFusionApi;
+
+    private GoogleSignInAccount account;
 
     private static final boolean SIGN_IN_REQUIRED = true;
     private static final String ROOT_URL = BuildConfig.ROOT_URL;
@@ -85,8 +88,9 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient {
      *
      * @return an appropriate HttpRequestInitializer.
      */
-    static HttpRequestInitializer getRequestInitializer() {
+    HttpRequestInitializer getRequestInitializer() {
         if (SIGN_IN_REQUIRED) {
+            return
             return null;
 //            return SignInActivity.getCredential();
         } else {
@@ -96,5 +100,13 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient {
                 }
             };
         }
+    }
+
+    public GoogleSignInAccount getAccount() {
+        return account;
+    }
+
+    public void setAccount(GoogleSignInAccount account) {
+        this.account = account;
     }
 }
