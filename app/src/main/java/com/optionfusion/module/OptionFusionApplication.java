@@ -20,7 +20,8 @@ public class OptionFusionApplication extends Application {
         _UNKNOWN,
         AMERITRADE,
         YAHOO,
-        GOOGLE_FINANCE;
+        GOOGLE_FINANCE,
+        OPTION_FUSION_BACKEND;
 
         public Type getStockQuoteListType() {
             switch (this) {

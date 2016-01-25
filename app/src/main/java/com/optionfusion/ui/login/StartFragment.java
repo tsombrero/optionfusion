@@ -11,15 +11,12 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.optionfusion.R;
-import com.optionfusion.client.FusionClient;
-import com.optionfusion.client.GoogClient;
+import com.optionfusion.client.FusionClientProvider;
 import com.optionfusion.module.OptionFusionApplication;
 
 import javax.inject.Inject;
@@ -32,8 +29,6 @@ public class StartFragment extends Fragment implements GoogleApiClient.OnConnect
 
     public static final int RC_SIGN_IN = 8000;
 
-    private GoogleApiClient googleApiClient;
-
     private static final String TAG = "StartFragment";
 
     public static Fragment newInstance() {
@@ -44,7 +39,7 @@ public class StartFragment extends Fragment implements GoogleApiClient.OnConnect
     SignInButton signInButton;
 
     @Inject
-    FusionClient fusionClient;
+    FusionClientProvider fusionClientProvider;
 
     @Nullable
     @Override
@@ -53,32 +48,15 @@ public class StartFragment extends Fragment implements GoogleApiClient.OnConnect
         View ret = inflater.inflate(R.layout.splash, container, false);
         ButterKnife.bind(this, ret);
 
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .requestProfile()
-                .requestId()
-                .build();
-
-        // Build a GoogleApiClient with access to the Google Sign-In API and the
-        // options specified by gso.
-        googleApiClient = new GoogleApiClient.Builder(getActivity())
-                .enableAutoManage(getActivity(), this)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
-
         signInButton.setSize(SignInButton.SIZE_WIDE);
         signInButton.setColorScheme(SignInButton.COLOR_LIGHT);
-        signInButton.setScopes(gso.getScopeArray());
-
 
         return ret;
     }
 
     @OnClick(R.id.sign_in_button)
     public void signIn() {
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
+        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(fusionClientProvider.getGoogleApiClient());
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
@@ -89,19 +67,9 @@ public class StartFragment extends Fragment implements GoogleApiClient.OnConnect
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            Log.i(TAG, result.toString());
-            handleSignInResult(result);
-        }
-    }
-
-    private void handleSignInResult(GoogleSignInResult result) {
-        if (result.isSuccess()) {
-            // Signed in successfully, show authenticated UI.
-            GoogleSignInAccount acct = result.getSignInAccount();
-            String dname = acct.getDisplayName();
-        } else {
-            Log.e(TAG, "Sign in failed");
-            // Signed out, show unauthenticated UI.
+            Log.d(TAG, result.toString());
+            fusionClientProvider.handleSignInResult(result);
+            getFragmentHost().startLogin(OptionFusionApplication.Provider.OPTION_FUSION_BACKEND);
         }
     }
 
@@ -118,7 +86,7 @@ public class StartFragment extends Fragment implements GoogleApiClient.OnConnect
 //    }
 
     private Host getFragmentHost() {
-        return (Host)getActivity();
+        return (Host) getActivity();
     }
 
     @Override

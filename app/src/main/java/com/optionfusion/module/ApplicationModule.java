@@ -34,18 +34,18 @@ import dagger.Provides;
 
 /**
  * Providers for Dagger2. There are some naming challenges. For example:
- *
- * StockQuoteProvider is a class that provides stock quotes from an im-memory cache. It's a singleton.
- * This module contains the useful but unfortunate function provideStockQuoteProvider().
- *
- * There are multiple StockQuoteClient implementations, depending on how the user is authenticated. StockQuoteClients
- * fetch stock quote data from REST services. They are singletons.
- *
- * The StockQuoteClientProvider will return the correct StockQuoteClient as needed. This module contains
- * another useful but unfortunate function provideStockQuoteClientProvider().
- *
- * I think there's an intermediate layer here that can be factored out but let's worry about that later.
- *
+ * <p/>
+ * StockQuoteProvider is a class that provides stock quotes from an im-memory cache. It's a
+ * singleton. This module contains the useful but unfortunate function provideStockQuoteProvider().
+ * <p/>
+ * There are multiple StockQuoteClient implementations, depending on how the user is authenticated.
+ * StockQuoteClients fetch stock quote data from REST services. They are singletons.
+ * <p/>
+ * The StockQuoteClientProvider will return the correct StockQuoteClient as needed. This module
+ * contains another useful but unfortunate function provideStockQuoteClientProvider().
+ * <p/>
+ * I think there's an intermediate layer here that can be factored out but let's worry about that
+ * later.
  */
 
 @Module
@@ -175,4 +175,5 @@ public class ApplicationModule {
     StockQuoteProvider provideStockQuoteProvider(Context context, ClientInterfaces.StockQuoteClient stockQuoteClient) {
         return new StockQuoteProvider(context, stockQuoteClient);
     }
+
 }
