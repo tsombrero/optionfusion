@@ -44,10 +44,15 @@ public class Util {
     }
 
     public static String formatDollarChange(Double val) {
+        if (val == null)
+            return "$0";
         return dollarChangeFormat.format(val);
     }
 
     public static String formatDollarChange(Double val, int roundIfAbove) {
+        if (val == null)
+            return "$0";
+
         if (Math.abs(val) >= roundIfAbove)
             return dollarChangeFormatNoFraction.format(val);
 

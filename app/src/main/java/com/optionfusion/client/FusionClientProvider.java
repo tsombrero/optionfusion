@@ -9,6 +9,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.optionfusion.util.Constants;
 
 public class FusionClientProvider extends ClientProvider implements ClientProvider.SymbolLookupClientProvider {
 
@@ -66,6 +67,7 @@ public class FusionClientProvider extends ClientProvider implements ClientProvid
                 .requestEmail()
                 .requestProfile()
                 .requestId()
+                .requestIdToken(Constants.WEB_CLIENT_ID)
                 .build();
 
         // Build a GoogleApiClient with access to the Google Sign-In API and the

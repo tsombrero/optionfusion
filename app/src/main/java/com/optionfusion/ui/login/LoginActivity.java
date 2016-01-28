@@ -24,6 +24,8 @@ public class LoginActivity extends FragmentActivity implements StartFragment.Hos
 
     private static final String TAG = "LoginActivity";
 
+    private static final boolean NEEDS_PERMISSIONS = false;
+
     @Inject
     FusionClientProvider fusionClientProvider;
 
@@ -46,6 +48,12 @@ public class LoginActivity extends FragmentActivity implements StartFragment.Hos
     protected void onResume() {
         super.onResume();
 
+        if (NEEDS_PERMISSIONS)
+            checkPermissions();
+
+    }
+
+    protected void checkPermissions() {
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.GET_ACCOUNTS);
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
