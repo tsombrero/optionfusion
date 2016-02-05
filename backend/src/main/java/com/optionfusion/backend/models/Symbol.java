@@ -12,7 +12,6 @@ public class Symbol {
     private String description;
 
     public Symbol(String symbol, String description) {
-
         this.symbol = symbol;
         this.description = description;
     }

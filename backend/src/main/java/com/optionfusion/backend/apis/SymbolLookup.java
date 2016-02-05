@@ -43,6 +43,4 @@ public class SymbolLookup {
         }
         return Collections.singletonList(new Symbol("FOO", "Foobar & Co " + user.getEmail() + " " + user.getNickname() + " " + user.getUserId() + " " + user.getAuthDomain()));
     }
-
-
 }
