@@ -1,15 +1,18 @@
 package com.optionfusion.gcutils;
 
-import com.google.appengine.api.datastore.*;
-import com.google.appengine.repackaged.com.google.api.client.util.store.DataStore;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
+import java.util.List;
 
 public class LookupEntryParser {
     private File csvFile;
@@ -23,8 +26,8 @@ public class LookupEntryParser {
     }
 
     public void parse() {
-        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-        Transaction txn = datastore.beginTransaction();
+//        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+//        Transaction txn = datastore.beginTransaction();
 
         long duration = System.currentTimeMillis();
 
@@ -32,7 +35,9 @@ public class LookupEntryParser {
             Reader in = new FileReader(csvFile);
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(in);
             for (CSVRecord record : records) {
-                System.out.println(record.get(Columns.Ticker) + " : " + record.get(Columns.Name) + " " + Arrays.toString(getKeywords(record.get(Columns.Name))));
+                String[] keywords = getKeywords(record.get(Columns.Name));
+                if (keywords.length == 0)
+                    System.out.println(record.get(Columns.Ticker) + " : '" + record.get(Columns.Name) + "' " + Arrays.toString(keywords));
 //                addRecord(datastore, record);
             }
 //            txn.commit();
@@ -57,15 +62,16 @@ public class LookupEntryParser {
 //            datastore.put(symbolLookup);
     }
 
+    private static final List<String> reject = Arrays.asList("", "inc", "corp", "co", "corporation", "ltd");
+
     private String[] getKeywords(String description) {
-        return description
-                .toLowerCase()
-                .replaceAll("[^A-Za-z0-9]", " ")
-                .replaceAll(" inc\\b", "")
-                .replaceAll(" corp\\b", "")
-                .replaceAll(" corporation\\b","")
-                .replaceAll(" ltd\\b", "")
-                .replaceAll(" co\\b", "")
-                .split(" +");
+        ArrayList<String> ret = new ArrayList(Arrays.asList(
+                description
+                        .toLowerCase()
+                        .replaceAll("[^A-Za-z0-9]", " ")
+                        .split(" +")));
+
+        ret.removeAll(reject);
+        return ret.toArray(new String[ret.size()]);
     }
 }

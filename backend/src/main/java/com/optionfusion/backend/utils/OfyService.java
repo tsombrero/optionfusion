@@ -3,7 +3,12 @@ package com.optionfusion.backend.utils;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
-import com.optionfusion.backend.models.Symbol;
+import com.optionfusion.backend.models.Equity;
+import com.optionfusion.backend.models.Option;
+import com.optionfusion.backend.models.Position;
+import com.optionfusion.backend.models.StockQuote;
+import com.optionfusion.backend.models.User;
+import com.optionfusion.backend.models.VerticalSpread;
 
 /**
  * Objectify service wrapper so we can statically register our persistence classes. More on
@@ -17,7 +22,12 @@ public final class OfyService {
     }
 
     static {
-        factory().register(Symbol.class);
+        factory().register(Equity.class);
+        factory().register(Option.class);
+        factory().register(Position.class);
+        factory().register(StockQuote.class);
+        factory().register(User.class);
+        factory().register(VerticalSpread.class);
     }
 
     /**

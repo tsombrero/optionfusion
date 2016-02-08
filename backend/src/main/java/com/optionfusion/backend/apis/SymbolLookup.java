@@ -10,7 +10,7 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.appengine.api.users.User;
-import com.optionfusion.backend.models.Symbol;
+import com.optionfusion.backend.models.Equity;
 import com.optionfusion.backend.utils.Constants;
 
 import java.util.Collections;
@@ -37,10 +37,10 @@ import javax.inject.Named;
 public class SymbolLookup {
 
     @ApiMethod(httpMethod = "GET")
-    public final List<Symbol> getMatching(@Named("q") String searchString, User user) {
+    public final List<Equity> getMatching(@Named("q") String searchString, User user) {
         if (user == null) {
-            return Collections.singletonList(new Symbol("FOO", "Foobar & Co [null]"));
+            return Collections.singletonList(new Equity("FOO", "Foobar & Co [null]"));
         }
-        return Collections.singletonList(new Symbol("FOO", "Foobar & Co " + user.getEmail() + " " + user.getNickname() + " " + user.getUserId() + " " + user.getAuthDomain()));
+        return Collections.singletonList(new Equity("FOO", "Foobar & Co " + user.getEmail() + " " + user.getNickname() + " " + user.getUserId() + " " + user.getAuthDomain()));
     }
 }
