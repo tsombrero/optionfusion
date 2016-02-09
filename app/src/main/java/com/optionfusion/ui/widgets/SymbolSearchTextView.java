@@ -110,6 +110,8 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
 
         @Override
         public int getCount() {
+            if (list == null)
+                return 0;
             return list.size();
         }
 
@@ -204,7 +206,12 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
             }
 
             try {
+                long duration = System.currentTimeMillis();
                 List<ClientInterfaces.SymbolLookupResult> ret = symbolQueryClient.getSymbolsMatching(key);
+                duration = System.currentTimeMillis() - duration;
+                if (duration > 500) {
+                    Log.i(TAG, "$PERF symbol lookup took " + duration + "ms");
+                }
 
                 if (ret == null || ret.size() == 0)
                     noResultKeys.add(key);

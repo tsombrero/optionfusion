@@ -1,9 +1,6 @@
 package com.optionfusion.client;
 
-import android.database.Cursor;
-import android.database.CursorWrapper;
-import android.database.MatrixCursor;
-
+import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.Interfaces.OptionChain;
 
@@ -53,6 +50,11 @@ public class ClientInterfaces {
         public SymbolLookupResult(String ticker, String description) {
             this.ticker = ticker;
             this.description = description;
+        }
+
+        public SymbolLookupResult(Equity equity) {
+            this.ticker = equity.getTicker();
+            this.description = equity.getDescription();
         }
 
         String ticker;

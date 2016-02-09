@@ -1,8 +1,6 @@
 package com.optionfusion.client;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.database.MatrixCursor;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
@@ -21,7 +19,7 @@ import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.com.backend.optionFusion.model.EquityCollection;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,19 +46,16 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient {
             if (matches == null)
                 return Collections.EMPTY_LIST;
 
-            MatrixCursor ret = new MatrixCursor(SuggestionColumns.getNames());
+            List<ClientInterfaces.SymbolLookupResult> ret = new ArrayList<>();
 
             for (Equity match : matches.getItems()) {
-                ret.newRow()
-                        .add(SuggestionColumns._id.name(), 0)
-                        .add(SuggestionColumns.symbol.name(), match.getTicker())
-                        .add(SuggestionColumns.description.name(), match.getDescription());
+                ret.add(new ClientInterfaces.SymbolLookupResult(match));
             }
             return ret;
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return ClientInterfaces.SymbolLookupClient.EMPTY_CURSOR;
+        return Collections.EMPTY_LIST;
     }
 
     /**
