@@ -3,7 +3,6 @@ package com.optionfusion.ui.widgets;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.support.v4.widget.CursorAdapter;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
@@ -14,12 +13,12 @@ import android.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 
 import com.optionfusion.R;
 import com.optionfusion.client.ClientInterfaces;
-import com.optionfusion.client.ClientInterfaces.SymbolLookupClient.SuggestionColumns;
 import com.optionfusion.module.OptionFusionApplication;
 
 import java.util.ArrayList;
@@ -36,7 +35,7 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
     @Inject
     ClientInterfaces.SymbolLookupClient symbolQueryClient;
 
-    private SuggestionCursorAdapter suggestionAdapter;
+    private SuggestionAdapter suggestionAdapter;
 
     private SymbolSearchListener symbolSearchListener;
 
@@ -65,7 +64,7 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
 
         setHint(getContext().getString(R.string.stock_search_hint));
         setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        suggestionAdapter = new SuggestionCursorAdapter(getContext());
+        suggestionAdapter = new SuggestionAdapter(getContext());
         setAdapter(suggestionAdapter);
         InputFilter filter = new InputFilter() {
             public CharSequence filter(CharSequence source, int start, int end,
@@ -89,37 +88,58 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
                     return;
 
                 synchronized (suggestionAdapter) {
-                    suggestionAdapter.getCursor().moveToPosition(position);
-                    String symbol = suggestionAdapter.getCursor().getString(SuggestionColumns.symbol.ordinal());
-                    symbolSearchListener.onSymbolSearch(symbol);
+                    String ticker = suggestionAdapter.getItem(position).getTicker();
+                    symbolSearchListener.onSymbolSearch(ticker);
                 }
             }
         });
     }
 
-    protected static class SuggestionCursorAdapter extends CursorAdapter {
-        private SuggestionCursorAdapter(Context context) {
-            super(context, ClientInterfaces.SymbolLookupClient.EMPTY_CURSOR, false);
+    protected static class SuggestionAdapter extends ArrayAdapter<ClientInterfaces.SymbolLookupResult> {
+
+        private List<ClientInterfaces.SymbolLookupResult> list = null;
+
+        public SuggestionAdapter(Context context) {
+            super(context, 0);
         }
 
         @Override
-        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        public ClientInterfaces.SymbolLookupResult getItem(int position) {
+            return list.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return list.size();
+        }
+
+        public void setList(List<ClientInterfaces.SymbolLookupResult> list) {
+            this.list = list;
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = newView(parent);
+            }
+
+            SuggestionItemViewHolder holder = (SuggestionItemViewHolder) convertView.getTag();
+            holder.description.setText(list.get(position).getDescription());
+            holder.ticker.setText(list.get(position).getTicker());
+            return convertView;
+        }
+
+        public View newView(ViewGroup parent) {
             View ret = View.inflate(parent.getContext(), R.layout.item_lookup_suggestion, null);
             ret.setTag(new SuggestionItemViewHolder(ret));
             return ret;
-        }
-
-        @Override
-        public void bindView(View view, Context context, Cursor cursor) {
-            SuggestionItemViewHolder holder = (SuggestionItemViewHolder) view.getTag();
-            holder.description.setText(cursor.getString(SuggestionColumns.description.ordinal()));
-            holder.symbol.setText(cursor.getString(SuggestionColumns.symbol.ordinal()));
         }
     }
 
     protected static class SuggestionItemViewHolder {
         @Bind(R.id.ticker)
-        TextView symbol;
+        TextView ticker;
 
         @Bind(R.id.description)
         TextView description;
@@ -141,25 +161,21 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
         if (cursorCache == null)
             return;
 
-        new AsyncTask<String, Void, Cursor>() {
+        new AsyncTask<String, Void, List<ClientInterfaces.SymbolLookupResult>>() {
 
             public String query;
 
             @Override
-            protected Cursor doInBackground(String... params) {
+            protected List<ClientInterfaces.SymbolLookupResult> doInBackground(String... params) {
                 query = params[0];
-                Cursor ret = cursorCache.get(query);
-                Log.d(TAG, "TACO Cached query " + query + " : " + cursorStringify(ret));
-                if (ret != null)
-                    ret.moveToPosition(-1);
+                List<ClientInterfaces.SymbolLookupResult> ret = cursorCache.get(query);
                 return ret;
             }
 
             @Override
-            protected void onPostExecute(Cursor cursor) {
+            protected void onPostExecute(List<ClientInterfaces.SymbolLookupResult> results) {
                 if (TextUtils.equals(query, getText())) {
-                    suggestionAdapter.swapCursor(cursor);
-                    suggestionAdapter.notifyDataSetChanged();
+                    suggestionAdapter.setList(results);
                 }
             }
         }.execute(text.toString());
@@ -173,11 +189,11 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
         void onSymbolSearch(String symbol);
     }
 
-    LruCache<String, Cursor> cursorCache = new LruCache<String, Cursor>(20) {
+    LruCache<String, List<ClientInterfaces.SymbolLookupResult>> cursorCache = new LruCache<String, List<ClientInterfaces.SymbolLookupResult>>(20) {
         List<String> noResultKeys = new ArrayList<>();
 
         @Override
-        protected Cursor create(String key) {
+        protected List<ClientInterfaces.SymbolLookupResult> create(String key) {
 
             if (TextUtils.isEmpty(key) || key.length() == 0)
                 return null;
@@ -188,27 +204,16 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
             }
 
             try {
-                Cursor ret = symbolQueryClient.getSymbolsMatching(key);
+                List<ClientInterfaces.SymbolLookupResult> ret = symbolQueryClient.getSymbolsMatching(key);
 
-                if (ret == null || ret.getCount() == 0)
+                if (ret == null || ret.size() == 0)
                     noResultKeys.add(key);
-
-                Log.i(TAG, "TACO : Remote query " + key + " : " + cursorStringify(ret));
 
                 return ret;
             } catch (Exception e) {
                 Log.i(TAG, "create: Failed", e);
             }
             return null;
-        }
-
-        @Override
-        protected void entryRemoved(boolean evicted, String key, Cursor oldValue, Cursor newValue) {
-            try {
-                if (oldValue != null)
-                    oldValue.close();
-            } catch (Exception e) {
-            }
         }
     };
 

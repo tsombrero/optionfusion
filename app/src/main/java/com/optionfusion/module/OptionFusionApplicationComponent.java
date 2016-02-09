@@ -19,7 +19,6 @@ import com.optionfusion.ui.results.ResultsFragment;
 import com.optionfusion.ui.search.SearchFragment;
 import com.optionfusion.ui.tradedetails.TradeDetailsFragment;
 import com.optionfusion.ui.widgets.SymbolSearchTextView;
-import com.optionfusion.ui.widgets.SymbolSearchView;
 
 import javax.inject.Singleton;
 
@@ -60,8 +59,6 @@ public interface OptionFusionApplicationComponent {
     void inject(YhooClientClientProvider yhooClientProvider);
 
     void inject(YhooClient yhooClient);
-
-    void inject(SymbolSearchView symbolSearchView);
 
     void inject(StockDetailsFragment stockDetailsFragment);
 

@@ -1,6 +1,5 @@
 package com.optionfusion.client;
 
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -11,7 +10,9 @@ import com.optionfusion.model.provider.goog.GoogSymbolLookupResult;
 import com.optionfusion.util.Util;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import retrofit.Call;
@@ -41,18 +42,18 @@ public class GoogClient implements ClientInterfaces.OptionChainClient, ClientInt
     }
 
     @Override
-    public Cursor getSymbolsMatching(String query) {
+    public List<ClientInterfaces.SymbolLookupResult> getSymbolsMatching(String query) {
         try {
             Response<GoogSymbolLookupResult> result = this.restInterface.getMatchesForQuery(query).execute();
             if (result == null || result.body() == null)
-                return ClientInterfaces.SymbolLookupClient.EMPTY_CURSOR;
+                return Collections.EMPTY_LIST;
 
-            return result.body().getResultCursor();
+            return result.body().getResultList();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return ClientInterfaces.SymbolLookupClient.EMPTY_CURSOR;
+        return Collections.EMPTY_LIST;
     }
 
     @Override

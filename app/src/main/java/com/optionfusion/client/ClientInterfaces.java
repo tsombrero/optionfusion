@@ -48,20 +48,27 @@ public class ClientInterfaces {
         List<Interfaces.StockQuote> getStockQuotes(Collection<String> symbols, Callback<List<Interfaces.StockQuote>> callback);
     }
 
-    public interface SymbolLookupClient {
-        enum SuggestionColumns {
-            _id, symbol, description;
+    public static class SymbolLookupResult {
 
-            static String[] names = new String[]{_id.name(), symbol.name(), description.name()};
-
-            public static String[] getNames() {
-                return names;
-            }
+        public SymbolLookupResult(String ticker, String description) {
+            this.ticker = ticker;
+            this.description = description;
         }
 
-        Cursor EMPTY_CURSOR = new CursorWrapper(new MatrixCursor(SuggestionColumns.getNames()));
+        String ticker;
+        String description;
 
-        Cursor getSymbolsMatching(String query);
+        public String getDescription() {
+            return description;
+        }
+
+        public String getTicker() {
+            return ticker;
+        }
+    }
+
+    public interface SymbolLookupClient {
+        List<SymbolLookupResult> getSymbolsMatching(String query);
     }
 
     public interface PriceHistoryClient {

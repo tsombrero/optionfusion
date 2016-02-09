@@ -21,6 +21,9 @@ import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.com.backend.optionFusion.model.EquityCollection;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class FusionClient implements ClientInterfaces.SymbolLookupClient {
 
@@ -38,12 +41,12 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient {
     }
 
     @Override
-    public Cursor getSymbolsMatching(String query) {
+    public List<ClientInterfaces.SymbolLookupResult> getSymbolsMatching(String query) {
         try {
             EquityCollection matches = getEndpoints().symbolLookup().getMatching(query).execute();
 
             if (matches == null)
-                return ClientInterfaces.SymbolLookupClient.EMPTY_CURSOR;
+                return Collections.EMPTY_LIST;
 
             MatrixCursor ret = new MatrixCursor(SuggestionColumns.getNames());
 

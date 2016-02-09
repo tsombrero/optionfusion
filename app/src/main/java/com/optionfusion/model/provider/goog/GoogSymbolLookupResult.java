@@ -1,12 +1,10 @@
 package com.optionfusion.model.provider.goog;
 
-import android.database.Cursor;
-import android.database.MatrixCursor;
-
 import com.google.gson.annotations.SerializedName;
 import com.optionfusion.client.ClientInterfaces;
-import com.optionfusion.client.ClientInterfaces.SymbolLookupClient.SuggestionColumns;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /*
@@ -33,20 +31,17 @@ import java.util.List;
 public class GoogSymbolLookupResult {
     private List<Match> matches;
 
-    public Cursor getResultCursor() {
+    public List<ClientInterfaces.SymbolLookupResult> getResultList() {
         if (matches == null)
-            return ClientInterfaces.SymbolLookupClient.EMPTY_CURSOR;
+            return Collections.EMPTY_LIST;
 
-        MatrixCursor ret = new MatrixCursor(SuggestionColumns.getNames());
+        List<ClientInterfaces.SymbolLookupResult> lookupResults = new ArrayList<>();
 
         for (Match match : matches) {
-            ret.newRow()
-                    .add(SuggestionColumns._id.name(), 0)
-                    .add(SuggestionColumns.symbol.name(), match.ticker)
-                    .add(SuggestionColumns.description.name(), match.description);
+            lookupResults.add(match.asSymbolLookupResult());
         }
 
-        return ret;
+        return lookupResults;
     }
 
     private static class Match {
@@ -55,7 +50,9 @@ public class GoogSymbolLookupResult {
 
         @SerializedName("t")
         String ticker;
+
+        ClientInterfaces.SymbolLookupResult asSymbolLookupResult() {
+            return new ClientInterfaces.SymbolLookupResult(ticker, description);
+        }
     }
-
-
 }
