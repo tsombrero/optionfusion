@@ -27,6 +27,7 @@ dependencies {
     compile 'com.google.appengine:appengine-endpoints-deps:1.9.31'
     compile 'javax.servlet:servlet-api:2.5'
     compile 'com.googlecode.objectify:objectify:5.1.5'
+    compile 'org.apache.commons:commons-csv:1.2'
 }
 
 appengine {

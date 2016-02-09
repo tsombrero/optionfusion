@@ -57,6 +57,8 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
         init();
     }
 
+    private final static String ALLOWED_NON_ALPHANUMERIC_CHARS = "&.- ";
+
     private void init() {
         if (!isInEditMode())
             OptionFusionApplication.from(getContext()).getComponent().inject(this);
@@ -70,7 +72,7 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
                                        Spanned dest, int dstart, int dend) {
                 for (int i = start; i < end; i++) {
                     if (!Character.isLetterOrDigit(source.charAt(i))
-                            && ".- ".indexOf(source.charAt(i)) == -1) {
+                            && ALLOWED_NON_ALPHANUMERIC_CHARS.indexOf(source.charAt(i)) == -1) {
                         return "";
                     }
                 }
@@ -78,7 +80,7 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
             }
         };
         setFilters(new InputFilter[]{filter});
-        setThreshold(2);
+        setThreshold(1);
 
         setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -116,7 +118,7 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
     }
 
     protected static class SuggestionItemViewHolder {
-        @Bind(R.id.symbol)
+        @Bind(R.id.ticker)
         TextView symbol;
 
         @Bind(R.id.description)
@@ -125,6 +127,13 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
         public SuggestionItemViewHolder(View view) {
             ButterKnife.bind(this, view);
         }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        if (cursorCache != null)
+            cursorCache.evictAll();
+        super.onDetachedFromWindow();
     }
 
     @Override
@@ -139,13 +148,19 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
             @Override
             protected Cursor doInBackground(String... params) {
                 query = params[0];
-                return cursorCache.get(query);
+                Cursor ret = cursorCache.get(query);
+                Log.d(TAG, "TACO Cached query " + query + " : " + cursorStringify(ret));
+                if (ret != null)
+                    ret.moveToPosition(-1);
+                return ret;
             }
 
             @Override
             protected void onPostExecute(Cursor cursor) {
-                if (TextUtils.equals(query, getText()))
-                    suggestionAdapter.changeCursor(cursor);
+                if (TextUtils.equals(query, getText())) {
+                    suggestionAdapter.swapCursor(cursor);
+                    suggestionAdapter.notifyDataSetChanged();
+                }
             }
         }.execute(text.toString());
     }
@@ -164,7 +179,7 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
         @Override
         protected Cursor create(String key) {
 
-            if (TextUtils.isEmpty(key) || key.length() < 2)
+            if (TextUtils.isEmpty(key) || key.length() == 0)
                 return null;
 
             for (String noResultKey : noResultKeys) {
@@ -177,6 +192,8 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
 
                 if (ret == null || ret.getCount() == 0)
                     noResultKeys.add(key);
+
+                Log.i(TAG, "TACO : Remote query " + key + " : " + cursorStringify(ret));
 
                 return ret;
             } catch (Exception e) {
@@ -194,4 +211,18 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
             }
         }
     };
+
+    private String cursorStringify(Cursor cursor) {
+        StringBuilder sb =  new StringBuilder("{");
+        if (cursor != null)
+            cursor.moveToPosition(-1);
+
+        while (cursor != null && cursor.moveToNext()) {
+            sb.append(cursor.getString(1)).append(", ");
+        }
+        sb.append("}");
+        if (cursor != null)
+            cursor.moveToPosition(-1);
+        return sb.toString();
+    }
 }

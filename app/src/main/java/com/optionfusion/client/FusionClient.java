@@ -17,8 +17,8 @@ import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
 import com.optionfusion.BuildConfig;
 import com.optionfusion.R;
 import com.optionfusion.com.backend.optionFusion.OptionFusion;
-import com.optionfusion.com.backend.optionFusion.model.Symbol;
-import com.optionfusion.com.backend.optionFusion.model.SymbolCollection;
+import com.optionfusion.com.backend.optionFusion.model.Equity;
+import com.optionfusion.com.backend.optionFusion.model.EquityCollection;
 
 import java.io.IOException;
 
@@ -40,17 +40,17 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient {
     @Override
     public Cursor getSymbolsMatching(String query) {
         try {
-            SymbolCollection matches = getEndpoints().symbolLookup().getMatching(query).execute();
+            EquityCollection matches = getEndpoints().symbolLookup().getMatching(query).execute();
 
             if (matches == null)
                 return ClientInterfaces.SymbolLookupClient.EMPTY_CURSOR;
 
             MatrixCursor ret = new MatrixCursor(SuggestionColumns.getNames());
 
-            for (Symbol match : matches.getItems()) {
+            for (Equity match : matches.getItems()) {
                 ret.newRow()
                         .add(SuggestionColumns._id.name(), 0)
-                        .add(SuggestionColumns.symbol.name(), match.getSymbol())
+                        .add(SuggestionColumns.symbol.name(), match.getTicker())
                         .add(SuggestionColumns.description.name(), match.getDescription());
             }
             return ret;

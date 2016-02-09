@@ -62,7 +62,7 @@ public class SymbolSearchView extends SearchView implements SearchView.OnQueryTe
 
         setOnSuggestionListener(this);
         setOnQueryTextListener(this);
-        setQueryHint(getContext().getString(R.string.symbol));
+        setQueryHint(getContext().getString(R.string.ticker));
         setInputType(InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
         suggestionAdapter = new SuggestionCursorAdapter(getContext());
         setSuggestionsAdapter(suggestionAdapter);
@@ -126,13 +126,13 @@ public class SymbolSearchView extends SearchView implements SearchView.OnQueryTe
         public void bindView(View view, Context context, Cursor cursor) {
             SuggestionItemViewHolder holder = (SuggestionItemViewHolder) view.getTag();
             holder.description.setText(cursor.getString(SuggestionColumns.description.ordinal()));
-            holder.symbol.setText(cursor.getString(SuggestionColumns.symbol.ordinal()));
+            holder.ticker.setText(cursor.getString(SuggestionColumns.symbol.ordinal()));
         }
     }
 
     protected static class SuggestionItemViewHolder {
-        @Bind(R.id.symbol)
-        TextView symbol;
+        @Bind(R.id.ticker)
+        TextView ticker;
 
         @Bind(R.id.description)
         TextView description;

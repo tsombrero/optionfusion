@@ -22,8 +22,8 @@ public class SharedViewHolders {
 
     public static class StockInfoHolder {
 
-        @Bind(R.id.symbol)
-        TextView symbolView;
+        @Bind(R.id.ticker)
+        TextView tickerView;
 
         @Bind(R.id.price)
         TextView priceView;
@@ -39,7 +39,7 @@ public class SharedViewHolders {
             if (oc == null)
                 return;
 
-            symbolView.setText(oc.getUnderlyingStockQuote().getSymbol());
+            tickerView.setText(oc.getUnderlyingStockQuote().getSymbol());
             priceView.setText(Util.formatDollars(oc.getUnderlyingStockQuote().getLast()));
             equityDescriptionView.setText(oc.getUnderlyingStockQuote().getDescription());
         }
@@ -52,8 +52,8 @@ public class SharedViewHolders {
     public static class StockQuoteViewHolder extends RecyclerView.ViewHolder {
         private final View view;
 
-        @Bind(R.id.symbol)
-        TextView symbolView;
+        @Bind(R.id.ticker)
+        TextView tickerView;
 
         @Bind(R.id.price)
         TextView priceView;
@@ -112,7 +112,7 @@ public class SharedViewHolders {
         public void bind(Interfaces.StockQuote stockQuote) {
             this.stockQuote = stockQuote;
             Double change = stockQuote.getChange();
-            symbolView.setText(stockQuote.getSymbol());
+            tickerView.setText(stockQuote.getSymbol());
             priceView.setText(Util.formatDollars(stockQuote.getLast(), 100000));
 
             if (showChangeAsPercent) {

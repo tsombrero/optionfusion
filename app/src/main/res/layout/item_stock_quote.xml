@@ -11,7 +11,7 @@
     >
 
     <TextView
-        android:id="@+id/symbol"
+        android:id="@+id/ticker"
         style="@style/stockQuoteLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -33,7 +33,7 @@
         android:background="@drawable/price_text_background"
         android:gravity="center"
         android:layout_alignParentRight="true"
-        android:layout_alignBaseline="@id/symbol"
+        android:layout_alignBaseline="@id/ticker"
         android:clickable="true"
         tools:text="-$223.11"/>
 
@@ -45,7 +45,7 @@
         android:layout_gravity="right|top"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_alignBaseline="@id/symbol"
+        android:layout_alignBaseline="@id/ticker"
         android:layout_toLeftOf="@id/change"
         tools:text="$223441.11"/>
 
@@ -55,7 +55,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="left|top"
-        android:layout_below="@id/symbol"
+        android:layout_below="@id/ticker"
         android:layout_alignParentLeft="true"
         tools:text="The ABCD Company"/>
 

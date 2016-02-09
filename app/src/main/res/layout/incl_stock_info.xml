@@ -16,7 +16,7 @@
     tools:showIn="@layout/fragment_results">
 
     <TextView
-        android:id="@+id/symbol"
+        android:id="@+id/ticker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="start"
@@ -42,7 +42,7 @@
         style="@style/SmallSubhead.Inverse"
         android:gravity="start"
         android:layout_marginTop="-8dp"
-        android:layout_below="@id/symbol"
+        android:layout_below="@id/ticker"
         android:layout_alignParentStart="true"
         />
 </RelativeLayout>

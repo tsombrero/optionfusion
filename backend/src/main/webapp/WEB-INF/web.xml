@@ -8,6 +8,7 @@
             <param-value>com.optionfusion.backend.apis.SymbolLookup</param-value>
         </init-param>
     </servlet>
+
     <servlet>
         <servlet-name>adminServlet</servlet-name>
         <servlet-class>com.optionfusion.backend.admin.AdminServlet</servlet-class>
@@ -16,6 +17,34 @@
         <servlet-name>adminServlet</servlet-name>
         <url-pattern>/admin</url-pattern>
     </servlet-mapping>
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>admin</web-resource-name>
+            <url-pattern>/admin</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>admin</role-name>
+        </auth-constraint>
+    </security-constraint>
+
+    <servlet>
+        <servlet-name>adminWorkerServlet</servlet-name>
+        <servlet-class>com.optionfusion.backend.admin.AdminWorkerServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>adminWorkerServlet</servlet-name>
+        <url-pattern>/adminworker</url-pattern>
+    </servlet-mapping>
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>adminworker</web-resource-name>
+            <url-pattern>/adminworker</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>admin</role-name>
+        </auth-constraint>
+    </security-constraint>
+
     <servlet-mapping>
         <servlet-name>SystemServiceServlet</servlet-name>
         <url-pattern>/_ah/spi/*</url-pattern>
@@ -23,4 +52,12 @@
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
+    <filter>
+        <filter-name>ObjectifyFilter</filter-name>
+        <filter-class>com.googlecode.objectify.ObjectifyFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>ObjectifyFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 </web-app>

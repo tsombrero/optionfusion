@@ -2,7 +2,7 @@
     <string name="app_name">Option Fusion</string>
     <string name="title_activity_main">Option Fusion</string>
     <string name="action_settings">Settings</string>
-    <string name="symbol">Symbol</string>
+    <string name="ticker">Symbol</string>
     <string name="submit">Go</string>
     <string name="formatPriceAtMaxReturn">Realized %s price</string>
     <string name="formatPriceAtBreakEven">Break Even Price</string>
