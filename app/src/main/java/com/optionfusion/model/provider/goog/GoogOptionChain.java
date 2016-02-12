@@ -161,6 +161,7 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         for (GoogOptionDate optionDate : optionDates) {
             ret.addAll(optionDate.getAllSpreads(filterSet));
         }
+        Log.d(TAG, "TACO there are " + ret.size() + " spreads for symbol " + stockQuote.getSymbol());
         return ret;
     }
 

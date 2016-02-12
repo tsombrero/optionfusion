@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 public class AdminServlet extends HttpServlet {
 
     public static final String LOOKUP_CSV_FILE_URI = "lookupCsvFile";
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp)

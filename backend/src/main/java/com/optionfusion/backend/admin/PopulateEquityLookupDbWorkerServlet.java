@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import static com.optionfusion.backend.admin.AdminServlet.LOOKUP_CSV_FILE_URI;
 import static com.optionfusion.backend.utils.OfyService.ofy;
 
-public class AdminWorkerServlet extends HttpServlet {
+public class PopulateEquityLookupDbWorkerServlet extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {

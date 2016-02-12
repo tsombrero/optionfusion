@@ -29,7 +29,7 @@
 
     <servlet>
         <servlet-name>adminWorkerServlet</servlet-name>
-        <servlet-class>com.optionfusion.backend.admin.AdminWorkerServlet</servlet-class>
+        <servlet-class>com.optionfusion.backend.admin.PopulateEquityLookupDbWorkerServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>adminWorkerServlet</servlet-name>

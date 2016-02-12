@@ -1,6 +1,7 @@
 package com.optionfusion.model.provider.amtd;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.optionfusion.model.FilterSet;
@@ -28,6 +29,8 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
 
     @Element(name = "option-chain-results", required = false)
     private Data data;
+
+    private static final String TAG = "AmeritradeOptionChain";
 
     private List<LocalDate> expirationDates;
     private List<Double> strikePrices;
@@ -108,6 +111,7 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         for (AmtdOptionDate optionDate : data.optionDates) {
             ret.addAll(optionDate.getAllSpreads(filterSet));
         }
+        Log.d(TAG, "TACO returning " + ret.size() + " spreads");
         return ret;
     }
 
