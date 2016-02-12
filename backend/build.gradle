@@ -28,6 +28,7 @@ dependencies {
     compile 'javax.servlet:servlet-api:2.5'
     compile 'com.googlecode.objectify:objectify:5.1.5'
     compile 'org.apache.commons:commons-csv:1.2'
+    compile 'com.google.protobuf:protobuf-java:2.6.1'
 }
 
 appengine {

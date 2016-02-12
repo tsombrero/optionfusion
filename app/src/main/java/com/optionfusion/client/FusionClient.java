@@ -109,7 +109,6 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient {
         boolean received401;
         String token;
 
-
         public void intercept(HttpRequest request) throws IOException {
             token = account.getIdToken();
             request.getHeaders().setAuthorization("Bearer " + token);
@@ -131,30 +130,6 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient {
             return false;
         }
 
-//        /** Sleeper. */
-//        private Sleeper sleeper = Sleeper.DEFAULT;
-//
-//        /**
-//         * Back-off policy which is used when an I/O exception is thrown inside {@link #getToken} or
-//         * {@code null} for none.
-//         */
-//        private BackOff backOff = new ExponentialBackOff();
-//        public String getToken() throws IOException, GoogleAuthException {
-//            while (true) {
-//                try {
-//                    return GoogleAuthUtil.getToken(context, account, Constants.EMAIL_SCOPE);
-//                } catch (IOException e) {
-//                    // network or server error, so retry using back-off policy
-//                    try {
-//                        if (backOff == null || !BackOffUtils.next(sleeper, backOff)) {
-//                            throw e;
-//                        }
-//                    } catch (InterruptedException e2) {
-//                        // ignore
-//                    }
-//                }
-//            }
-//        }
     }
 
     public GoogleSignInAccount getAccount() {

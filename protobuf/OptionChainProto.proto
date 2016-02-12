@@ -1,0 +1,44 @@
+package com.optionfusion.backend.protobuf;
+
+message OptionChain {
+	repeated OptionDateChain optionDates = 1;
+	required int64 timestamp = 2;
+	optional StockQuote stockquote = 3;
+}
+
+message OptionQuote {
+	required double strike = 1;
+	optional double bid = 2;
+	optional double ask = 3;
+	optional double last = 4;
+	optional int32 multiplier = 5 [default = 100]; 
+	enum OptionType {
+		PUT = 0;
+		CALL = 1;
+	}
+	required OptionType optionType = 6 [default = CALL];
+	optional int32 openInterest = 7;
+	optional double iv = 8;
+	optional double delta = 9;
+	optional double gamma = 10;
+	optional double theta = 11;
+	optional double vega = 12;
+}
+
+message OptionDateChain {
+	required int64 expiration = 1;
+	repeated OptionQuote options = 2;
+}
+
+message StockQuote {
+	optional int64 timestamp = 1;
+	required string symbol = 2;
+	optional int32 volume = 3;
+
+	optional double open = 5;
+	optional double close = 6;
+	optional double hi = 7;
+	optional double lo = 8;
+}
+
+
