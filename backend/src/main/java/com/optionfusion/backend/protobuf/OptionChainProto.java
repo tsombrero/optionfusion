@@ -1027,15 +1027,6 @@ public final class OptionChainProto {
     double getLast();
 
     /**
-     * <code>optional int32 multiplier = 5 [default = 100];</code>
-     */
-    boolean hasMultiplier();
-    /**
-     * <code>optional int32 multiplier = 5 [default = 100];</code>
-     */
-    int getMultiplier();
-
-    /**
      * <code>required .com.optionfusion.backend.protobuf.OptionQuote.OptionType optionType = 6 [default = CALL];</code>
      */
     boolean hasOptionType();
@@ -1097,6 +1088,24 @@ public final class OptionChainProto {
      * <code>optional double vega = 12;</code>
      */
     double getVega();
+
+    /**
+     * <code>optional int32 volume = 13;</code>
+     */
+    boolean hasVolume();
+    /**
+     * <code>optional int32 volume = 13;</code>
+     */
+    int getVolume();
+
+    /**
+     * <code>optional int32 multiplier = 14 [default = 100];</code>
+     */
+    boolean hasMultiplier();
+    /**
+     * <code>optional int32 multiplier = 14 [default = 100];</code>
+     */
+    int getMultiplier();
   }
   /**
    * Protobuf type {@code com.optionfusion.backend.protobuf.OptionQuote}
@@ -1170,50 +1179,55 @@ public final class OptionChainProto {
               last_ = input.readDouble();
               break;
             }
-            case 40: {
-              bitField0_ |= 0x00000010;
-              multiplier_ = input.readInt32();
-              break;
-            }
             case 48: {
               int rawValue = input.readEnum();
               com.optionfusion.backend.protobuf.OptionChainProto.OptionQuote.OptionType value = com.optionfusion.backend.protobuf.OptionChainProto.OptionQuote.OptionType.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(6, rawValue);
               } else {
-                bitField0_ |= 0x00000020;
+                bitField0_ |= 0x00000010;
                 optionType_ = value;
               }
               break;
             }
             case 56: {
-              bitField0_ |= 0x00000040;
+              bitField0_ |= 0x00000020;
               openInterest_ = input.readInt32();
               break;
             }
             case 65: {
-              bitField0_ |= 0x00000080;
+              bitField0_ |= 0x00000040;
               iv_ = input.readDouble();
               break;
             }
             case 73: {
-              bitField0_ |= 0x00000100;
+              bitField0_ |= 0x00000080;
               delta_ = input.readDouble();
               break;
             }
             case 81: {
-              bitField0_ |= 0x00000200;
+              bitField0_ |= 0x00000100;
               gamma_ = input.readDouble();
               break;
             }
             case 89: {
-              bitField0_ |= 0x00000400;
+              bitField0_ |= 0x00000200;
               theta_ = input.readDouble();
               break;
             }
             case 97: {
-              bitField0_ |= 0x00000800;
+              bitField0_ |= 0x00000400;
               vega_ = input.readDouble();
+              break;
+            }
+            case 104: {
+              bitField0_ |= 0x00000800;
+              volume_ = input.readInt32();
+              break;
+            }
+            case 112: {
+              bitField0_ |= 0x00001000;
+              multiplier_ = input.readInt32();
               break;
             }
           }
@@ -1398,28 +1412,13 @@ public final class OptionChainProto {
       return last_;
     }
 
-    public static final int MULTIPLIER_FIELD_NUMBER = 5;
-    private int multiplier_;
-    /**
-     * <code>optional int32 multiplier = 5 [default = 100];</code>
-     */
-    public boolean hasMultiplier() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
-    }
-    /**
-     * <code>optional int32 multiplier = 5 [default = 100];</code>
-     */
-    public int getMultiplier() {
-      return multiplier_;
-    }
-
     public static final int OPTIONTYPE_FIELD_NUMBER = 6;
     private com.optionfusion.backend.protobuf.OptionChainProto.OptionQuote.OptionType optionType_;
     /**
      * <code>required .com.optionfusion.backend.protobuf.OptionQuote.OptionType optionType = 6 [default = CALL];</code>
      */
     public boolean hasOptionType() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
      * <code>required .com.optionfusion.backend.protobuf.OptionQuote.OptionType optionType = 6 [default = CALL];</code>
@@ -1434,7 +1433,7 @@ public final class OptionChainProto {
      * <code>optional int32 openInterest = 7;</code>
      */
     public boolean hasOpenInterest() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
+      return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
      * <code>optional int32 openInterest = 7;</code>
@@ -1449,7 +1448,7 @@ public final class OptionChainProto {
      * <code>optional double iv = 8;</code>
      */
     public boolean hasIv() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
+      return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
      * <code>optional double iv = 8;</code>
@@ -1464,7 +1463,7 @@ public final class OptionChainProto {
      * <code>optional double delta = 9;</code>
      */
     public boolean hasDelta() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
+      return ((bitField0_ & 0x00000080) == 0x00000080);
     }
     /**
      * <code>optional double delta = 9;</code>
@@ -1479,7 +1478,7 @@ public final class OptionChainProto {
      * <code>optional double gamma = 10;</code>
      */
     public boolean hasGamma() {
-      return ((bitField0_ & 0x00000200) == 0x00000200);
+      return ((bitField0_ & 0x00000100) == 0x00000100);
     }
     /**
      * <code>optional double gamma = 10;</code>
@@ -1494,7 +1493,7 @@ public final class OptionChainProto {
      * <code>optional double theta = 11;</code>
      */
     public boolean hasTheta() {
-      return ((bitField0_ & 0x00000400) == 0x00000400);
+      return ((bitField0_ & 0x00000200) == 0x00000200);
     }
     /**
      * <code>optional double theta = 11;</code>
@@ -1509,7 +1508,7 @@ public final class OptionChainProto {
      * <code>optional double vega = 12;</code>
      */
     public boolean hasVega() {
-      return ((bitField0_ & 0x00000800) == 0x00000800);
+      return ((bitField0_ & 0x00000400) == 0x00000400);
     }
     /**
      * <code>optional double vega = 12;</code>
@@ -1518,12 +1517,41 @@ public final class OptionChainProto {
       return vega_;
     }
 
+    public static final int VOLUME_FIELD_NUMBER = 13;
+    private int volume_;
+    /**
+     * <code>optional int32 volume = 13;</code>
+     */
+    public boolean hasVolume() {
+      return ((bitField0_ & 0x00000800) == 0x00000800);
+    }
+    /**
+     * <code>optional int32 volume = 13;</code>
+     */
+    public int getVolume() {
+      return volume_;
+    }
+
+    public static final int MULTIPLIER_FIELD_NUMBER = 14;
+    private int multiplier_;
+    /**
+     * <code>optional int32 multiplier = 14 [default = 100];</code>
+     */
+    public boolean hasMultiplier() {
+      return ((bitField0_ & 0x00001000) == 0x00001000);
+    }
+    /**
+     * <code>optional int32 multiplier = 14 [default = 100];</code>
+     */
+    public int getMultiplier() {
+      return multiplier_;
+    }
+
     private void initFields() {
       strike_ = 0D;
       bid_ = 0D;
       ask_ = 0D;
       last_ = 0D;
-      multiplier_ = 100;
       optionType_ = com.optionfusion.backend.protobuf.OptionChainProto.OptionQuote.OptionType.CALL;
       openInterest_ = 0;
       iv_ = 0D;
@@ -1531,6 +1559,8 @@ public final class OptionChainProto {
       gamma_ = 0D;
       theta_ = 0D;
       vega_ = 0D;
+      volume_ = 0;
+      multiplier_ = 100;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1566,28 +1596,31 @@ public final class OptionChainProto {
         output.writeDouble(4, last_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeInt32(5, multiplier_);
-      }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
         output.writeEnum(6, optionType_.getNumber());
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
         output.writeInt32(7, openInterest_);
       }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeDouble(8, iv_);
       }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
         output.writeDouble(9, delta_);
       }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+      if (((bitField0_ & 0x00000100) == 0x00000100)) {
         output.writeDouble(10, gamma_);
       }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
         output.writeDouble(11, theta_);
       }
-      if (((bitField0_ & 0x00000800) == 0x00000800)) {
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
         output.writeDouble(12, vega_);
+      }
+      if (((bitField0_ & 0x00000800) == 0x00000800)) {
+        output.writeInt32(13, volume_);
+      }
+      if (((bitField0_ & 0x00001000) == 0x00001000)) {
+        output.writeInt32(14, multiplier_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1616,35 +1649,39 @@ public final class OptionChainProto {
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(5, multiplier_);
+          .computeEnumSize(6, optionType_.getNumber());
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(6, optionType_.getNumber());
+          .computeInt32Size(7, openInterest_);
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(7, openInterest_);
+          .computeDoubleSize(8, iv_);
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(8, iv_);
+          .computeDoubleSize(9, delta_);
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(9, delta_);
+          .computeDoubleSize(10, gamma_);
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(10, gamma_);
+          .computeDoubleSize(11, theta_);
       }
       if (((bitField0_ & 0x00000400) == 0x00000400)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(11, theta_);
+          .computeDoubleSize(12, vega_);
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(12, vega_);
+          .computeInt32Size(13, volume_);
+      }
+      if (((bitField0_ & 0x00001000) == 0x00001000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(14, multiplier_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1771,22 +1808,24 @@ public final class OptionChainProto {
         bitField0_ = (bitField0_ & ~0x00000004);
         last_ = 0D;
         bitField0_ = (bitField0_ & ~0x00000008);
-        multiplier_ = 100;
-        bitField0_ = (bitField0_ & ~0x00000010);
         optionType_ = com.optionfusion.backend.protobuf.OptionChainProto.OptionQuote.OptionType.CALL;
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000010);
         openInterest_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         iv_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000040);
         delta_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000080);
         gamma_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000200);
+        bitField0_ = (bitField0_ & ~0x00000100);
         theta_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000400);
+        bitField0_ = (bitField0_ & ~0x00000200);
         vega_ = 0D;
+        bitField0_ = (bitField0_ & ~0x00000400);
+        volume_ = 0;
         bitField0_ = (bitField0_ & ~0x00000800);
+        multiplier_ = 100;
+        bitField0_ = (bitField0_ & ~0x00001000);
         return this;
       }
 
@@ -1834,35 +1873,39 @@ public final class OptionChainProto {
         if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
           to_bitField0_ |= 0x00000010;
         }
-        result.multiplier_ = multiplier_;
+        result.optionType_ = optionType_;
         if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
           to_bitField0_ |= 0x00000020;
         }
-        result.optionType_ = optionType_;
+        result.openInterest_ = openInterest_;
         if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
           to_bitField0_ |= 0x00000040;
         }
-        result.openInterest_ = openInterest_;
+        result.iv_ = iv_;
         if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
           to_bitField0_ |= 0x00000080;
         }
-        result.iv_ = iv_;
+        result.delta_ = delta_;
         if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
           to_bitField0_ |= 0x00000100;
         }
-        result.delta_ = delta_;
+        result.gamma_ = gamma_;
         if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
           to_bitField0_ |= 0x00000200;
         }
-        result.gamma_ = gamma_;
+        result.theta_ = theta_;
         if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
           to_bitField0_ |= 0x00000400;
         }
-        result.theta_ = theta_;
+        result.vega_ = vega_;
         if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
           to_bitField0_ |= 0x00000800;
         }
-        result.vega_ = vega_;
+        result.volume_ = volume_;
+        if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
+          to_bitField0_ |= 0x00001000;
+        }
+        result.multiplier_ = multiplier_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1891,9 +1934,6 @@ public final class OptionChainProto {
         if (other.hasLast()) {
           setLast(other.getLast());
         }
-        if (other.hasMultiplier()) {
-          setMultiplier(other.getMultiplier());
-        }
         if (other.hasOptionType()) {
           setOptionType(other.getOptionType());
         }
@@ -1914,6 +1954,12 @@ public final class OptionChainProto {
         }
         if (other.hasVega()) {
           setVega(other.getVega());
+        }
+        if (other.hasVolume()) {
+          setVolume(other.getVolume());
+        }
+        if (other.hasMultiplier()) {
+          setMultiplier(other.getMultiplier());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -2078,44 +2124,12 @@ public final class OptionChainProto {
         return this;
       }
 
-      private int multiplier_ = 100;
-      /**
-       * <code>optional int32 multiplier = 5 [default = 100];</code>
-       */
-      public boolean hasMultiplier() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
-      }
-      /**
-       * <code>optional int32 multiplier = 5 [default = 100];</code>
-       */
-      public int getMultiplier() {
-        return multiplier_;
-      }
-      /**
-       * <code>optional int32 multiplier = 5 [default = 100];</code>
-       */
-      public Builder setMultiplier(int value) {
-        bitField0_ |= 0x00000010;
-        multiplier_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int32 multiplier = 5 [default = 100];</code>
-       */
-      public Builder clearMultiplier() {
-        bitField0_ = (bitField0_ & ~0x00000010);
-        multiplier_ = 100;
-        onChanged();
-        return this;
-      }
-
       private com.optionfusion.backend.protobuf.OptionChainProto.OptionQuote.OptionType optionType_ = com.optionfusion.backend.protobuf.OptionChainProto.OptionQuote.OptionType.CALL;
       /**
        * <code>required .com.optionfusion.backend.protobuf.OptionQuote.OptionType optionType = 6 [default = CALL];</code>
        */
       public boolean hasOptionType() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
        * <code>required .com.optionfusion.backend.protobuf.OptionQuote.OptionType optionType = 6 [default = CALL];</code>
@@ -2130,7 +2144,7 @@ public final class OptionChainProto {
         if (value == null) {
           throw new NullPointerException();
         }
-        bitField0_ |= 0x00000020;
+        bitField0_ |= 0x00000010;
         optionType_ = value;
         onChanged();
         return this;
@@ -2139,7 +2153,7 @@ public final class OptionChainProto {
        * <code>required .com.optionfusion.backend.protobuf.OptionQuote.OptionType optionType = 6 [default = CALL];</code>
        */
       public Builder clearOptionType() {
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000010);
         optionType_ = com.optionfusion.backend.protobuf.OptionChainProto.OptionQuote.OptionType.CALL;
         onChanged();
         return this;
@@ -2150,7 +2164,7 @@ public final class OptionChainProto {
        * <code>optional int32 openInterest = 7;</code>
        */
       public boolean hasOpenInterest() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
+        return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
        * <code>optional int32 openInterest = 7;</code>
@@ -2162,7 +2176,7 @@ public final class OptionChainProto {
        * <code>optional int32 openInterest = 7;</code>
        */
       public Builder setOpenInterest(int value) {
-        bitField0_ |= 0x00000040;
+        bitField0_ |= 0x00000020;
         openInterest_ = value;
         onChanged();
         return this;
@@ -2171,7 +2185,7 @@ public final class OptionChainProto {
        * <code>optional int32 openInterest = 7;</code>
        */
       public Builder clearOpenInterest() {
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         openInterest_ = 0;
         onChanged();
         return this;
@@ -2182,7 +2196,7 @@ public final class OptionChainProto {
        * <code>optional double iv = 8;</code>
        */
       public boolean hasIv() {
-        return ((bitField0_ & 0x00000080) == 0x00000080);
+        return ((bitField0_ & 0x00000040) == 0x00000040);
       }
       /**
        * <code>optional double iv = 8;</code>
@@ -2194,7 +2208,7 @@ public final class OptionChainProto {
        * <code>optional double iv = 8;</code>
        */
       public Builder setIv(double value) {
-        bitField0_ |= 0x00000080;
+        bitField0_ |= 0x00000040;
         iv_ = value;
         onChanged();
         return this;
@@ -2203,7 +2217,7 @@ public final class OptionChainProto {
        * <code>optional double iv = 8;</code>
        */
       public Builder clearIv() {
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000040);
         iv_ = 0D;
         onChanged();
         return this;
@@ -2214,7 +2228,7 @@ public final class OptionChainProto {
        * <code>optional double delta = 9;</code>
        */
       public boolean hasDelta() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
+        return ((bitField0_ & 0x00000080) == 0x00000080);
       }
       /**
        * <code>optional double delta = 9;</code>
@@ -2226,7 +2240,7 @@ public final class OptionChainProto {
        * <code>optional double delta = 9;</code>
        */
       public Builder setDelta(double value) {
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000080;
         delta_ = value;
         onChanged();
         return this;
@@ -2235,7 +2249,7 @@ public final class OptionChainProto {
        * <code>optional double delta = 9;</code>
        */
       public Builder clearDelta() {
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000080);
         delta_ = 0D;
         onChanged();
         return this;
@@ -2246,7 +2260,7 @@ public final class OptionChainProto {
        * <code>optional double gamma = 10;</code>
        */
       public boolean hasGamma() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
+        return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
        * <code>optional double gamma = 10;</code>
@@ -2258,7 +2272,7 @@ public final class OptionChainProto {
        * <code>optional double gamma = 10;</code>
        */
       public Builder setGamma(double value) {
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000100;
         gamma_ = value;
         onChanged();
         return this;
@@ -2267,7 +2281,7 @@ public final class OptionChainProto {
        * <code>optional double gamma = 10;</code>
        */
       public Builder clearGamma() {
-        bitField0_ = (bitField0_ & ~0x00000200);
+        bitField0_ = (bitField0_ & ~0x00000100);
         gamma_ = 0D;
         onChanged();
         return this;
@@ -2278,7 +2292,7 @@ public final class OptionChainProto {
        * <code>optional double theta = 11;</code>
        */
       public boolean hasTheta() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
+        return ((bitField0_ & 0x00000200) == 0x00000200);
       }
       /**
        * <code>optional double theta = 11;</code>
@@ -2290,7 +2304,7 @@ public final class OptionChainProto {
        * <code>optional double theta = 11;</code>
        */
       public Builder setTheta(double value) {
-        bitField0_ |= 0x00000400;
+        bitField0_ |= 0x00000200;
         theta_ = value;
         onChanged();
         return this;
@@ -2299,7 +2313,7 @@ public final class OptionChainProto {
        * <code>optional double theta = 11;</code>
        */
       public Builder clearTheta() {
-        bitField0_ = (bitField0_ & ~0x00000400);
+        bitField0_ = (bitField0_ & ~0x00000200);
         theta_ = 0D;
         onChanged();
         return this;
@@ -2310,7 +2324,7 @@ public final class OptionChainProto {
        * <code>optional double vega = 12;</code>
        */
       public boolean hasVega() {
-        return ((bitField0_ & 0x00000800) == 0x00000800);
+        return ((bitField0_ & 0x00000400) == 0x00000400);
       }
       /**
        * <code>optional double vega = 12;</code>
@@ -2322,7 +2336,7 @@ public final class OptionChainProto {
        * <code>optional double vega = 12;</code>
        */
       public Builder setVega(double value) {
-        bitField0_ |= 0x00000800;
+        bitField0_ |= 0x00000400;
         vega_ = value;
         onChanged();
         return this;
@@ -2331,8 +2345,72 @@ public final class OptionChainProto {
        * <code>optional double vega = 12;</code>
        */
       public Builder clearVega() {
-        bitField0_ = (bitField0_ & ~0x00000800);
+        bitField0_ = (bitField0_ & ~0x00000400);
         vega_ = 0D;
+        onChanged();
+        return this;
+      }
+
+      private int volume_ ;
+      /**
+       * <code>optional int32 volume = 13;</code>
+       */
+      public boolean hasVolume() {
+        return ((bitField0_ & 0x00000800) == 0x00000800);
+      }
+      /**
+       * <code>optional int32 volume = 13;</code>
+       */
+      public int getVolume() {
+        return volume_;
+      }
+      /**
+       * <code>optional int32 volume = 13;</code>
+       */
+      public Builder setVolume(int value) {
+        bitField0_ |= 0x00000800;
+        volume_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 volume = 13;</code>
+       */
+      public Builder clearVolume() {
+        bitField0_ = (bitField0_ & ~0x00000800);
+        volume_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int multiplier_ = 100;
+      /**
+       * <code>optional int32 multiplier = 14 [default = 100];</code>
+       */
+      public boolean hasMultiplier() {
+        return ((bitField0_ & 0x00001000) == 0x00001000);
+      }
+      /**
+       * <code>optional int32 multiplier = 14 [default = 100];</code>
+       */
+      public int getMultiplier() {
+        return multiplier_;
+      }
+      /**
+       * <code>optional int32 multiplier = 14 [default = 100];</code>
+       */
+      public Builder setMultiplier(int value) {
+        bitField0_ |= 0x00001000;
+        multiplier_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 multiplier = 14 [default = 100];</code>
+       */
+      public Builder clearMultiplier() {
+        bitField0_ = (bitField0_ & ~0x00001000);
+        multiplier_ = 100;
         onChanged();
         return this;
       }
@@ -4111,21 +4189,21 @@ public final class OptionChainProto {
       "ptionDates\030\001 \003(\01322.com.optionfusion.back" +
       "end.protobuf.OptionDateChain\022\021\n\ttimestam" +
       "p\030\002 \002(\003\022A\n\nstockquote\030\003 \001(\0132-.com.option" +
-      "fusion.backend.protobuf.StockQuote\"\261\002\n\013O" +
+      "fusion.backend.protobuf.StockQuote\"\301\002\n\013O" +
       "ptionQuote\022\016\n\006strike\030\001 \002(\001\022\013\n\003bid\030\002 \001(\001\022" +
-      "\013\n\003ask\030\003 \001(\001\022\014\n\004last\030\004 \001(\001\022\027\n\nmultiplier" +
-      "\030\005 \001(\005:\003100\022S\n\noptionType\030\006 \002(\01629.com.op" +
-      "tionfusion.backend.protobuf.OptionQuote.",
-      "OptionType:\004CALL\022\024\n\014openInterest\030\007 \001(\005\022\n" +
-      "\n\002iv\030\010 \001(\001\022\r\n\005delta\030\t \001(\001\022\r\n\005gamma\030\n \001(\001" +
-      "\022\r\n\005theta\030\013 \001(\001\022\014\n\004vega\030\014 \001(\001\"\037\n\nOptionT" +
-      "ype\022\007\n\003PUT\020\000\022\010\n\004CALL\020\001\"f\n\017OptionDateChai" +
-      "n\022\022\n\nexpiration\030\001 \002(\003\022?\n\007options\030\002 \003(\0132." +
-      ".com.optionfusion.backend.protobuf.Optio" +
-      "nQuote\"t\n\nStockQuote\022\021\n\ttimestamp\030\001 \001(\003\022" +
-      "\016\n\006symbol\030\002 \002(\t\022\016\n\006volume\030\003 \001(\005\022\014\n\004open\030" +
-      "\005 \001(\001\022\r\n\005close\030\006 \001(\001\022\n\n\002hi\030\007 \001(\001\022\n\n\002lo\030\010" +
-      " \001(\001"
+      "\013\n\003ask\030\003 \001(\001\022\014\n\004last\030\004 \001(\001\022S\n\noptionType" +
+      "\030\006 \002(\01629.com.optionfusion.backend.protob" +
+      "uf.OptionQuote.OptionType:\004CALL\022\024\n\014openI",
+      "nterest\030\007 \001(\005\022\n\n\002iv\030\010 \001(\001\022\r\n\005delta\030\t \001(\001" +
+      "\022\r\n\005gamma\030\n \001(\001\022\r\n\005theta\030\013 \001(\001\022\014\n\004vega\030\014" +
+      " \001(\001\022\016\n\006volume\030\r \001(\005\022\027\n\nmultiplier\030\016 \001(\005" +
+      ":\003100\"\037\n\nOptionType\022\007\n\003PUT\020\000\022\010\n\004CALL\020\001\"f" +
+      "\n\017OptionDateChain\022\022\n\nexpiration\030\001 \002(\003\022?\n" +
+      "\007options\030\002 \003(\0132..com.optionfusion.backen" +
+      "d.protobuf.OptionQuote\"t\n\nStockQuote\022\021\n\t" +
+      "timestamp\030\001 \001(\003\022\016\n\006symbol\030\002 \002(\t\022\016\n\006volum" +
+      "e\030\003 \001(\005\022\014\n\004open\030\005 \001(\001\022\r\n\005close\030\006 \001(\001\022\n\n\002" +
+      "hi\030\007 \001(\001\022\n\n\002lo\030\010 \001(\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -4150,7 +4228,7 @@ public final class OptionChainProto {
     internal_static_com_optionfusion_backend_protobuf_OptionQuote_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_com_optionfusion_backend_protobuf_OptionQuote_descriptor,
-        new java.lang.String[] { "Strike", "Bid", "Ask", "Last", "Multiplier", "OptionType", "OpenInterest", "Iv", "Delta", "Gamma", "Theta", "Vega", });
+        new java.lang.String[] { "Strike", "Bid", "Ask", "Last", "OptionType", "OpenInterest", "Iv", "Delta", "Gamma", "Theta", "Vega", "Volume", "Multiplier", });
     internal_static_com_optionfusion_backend_protobuf_OptionDateChain_descriptor =
       getDescriptor().getMessageTypes().get(2);
     internal_static_com_optionfusion_backend_protobuf_OptionDateChain_fieldAccessorTable = new

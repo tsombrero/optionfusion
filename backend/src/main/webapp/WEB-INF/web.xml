@@ -28,17 +28,35 @@
     </security-constraint>
 
     <servlet>
-        <servlet-name>adminWorkerServlet</servlet-name>
+        <servlet-name>equityLookupDataWorkerServlet</servlet-name>
         <servlet-class>com.optionfusion.backend.admin.PopulateEquityLookupDbWorkerServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>adminWorkerServlet</servlet-name>
-        <url-pattern>/adminworker</url-pattern>
+        <servlet-name>equityLookupDataWorkerServlet</servlet-name>
+        <url-pattern>/equitylookupdataworker</url-pattern>
     </servlet-mapping>
     <security-constraint>
         <web-resource-collection>
-            <web-resource-name>adminworker</web-resource-name>
-            <url-pattern>/adminworker</url-pattern>
+            <web-resource-name>equityLookupDataWorkerServlet</web-resource-name>
+            <url-pattern>/equitylookupdataworker</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>admin</role-name>
+        </auth-constraint>
+    </security-constraint>
+
+    <servlet>
+        <servlet-name>eodDataWorkerServlet</servlet-name>
+        <servlet-class>com.optionfusion.backend.admin.GetEodDataWorkerServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>eodDataWorkerServlet</servlet-name>
+        <url-pattern>/eoddataworker</url-pattern>
+    </servlet-mapping>
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>eodDataWorkerServlet</web-resource-name>
+            <url-pattern>/eoddataworker</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>admin</role-name>

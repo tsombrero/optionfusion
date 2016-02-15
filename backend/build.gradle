@@ -23,12 +23,16 @@ targetCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
     appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.31'
+    compile 'com.google.apis:google-api-services-compute:v1-rev94-1.21.0'
     compile 'com.google.appengine:appengine-endpoints:1.9.31'
     compile 'com.google.appengine:appengine-endpoints-deps:1.9.31'
-    compile 'javax.servlet:servlet-api:2.5'
-    compile 'com.googlecode.objectify:objectify:5.1.5'
-    compile 'org.apache.commons:commons-csv:1.2'
     compile 'com.google.protobuf:protobuf-java:2.6.1'
+    compile 'com.googlecode.objectify:objectify:5.1.5'
+    compile 'commons-codec:commons-codec:1.10'
+    compile 'org.apache.commons:commons-csv:1.2'
+    compile 'javax.servlet:servlet-api:2.5'
+    compile 'joda-time:joda-time:2.9.2'
+
 }
 
 appengine {

@@ -22,8 +22,11 @@ public class AdminServlet extends HttpServlet {
             throws IOException {
         Queue queue = QueueFactory.getDefaultQueue();
         if (req.getParameter(LOOKUP_CSV_FILE_URI) != null) {
-            TaskHandle t = queue.add(TaskOptions.Builder.withUrl("/adminworker").param(LOOKUP_CSV_FILE_URI, req.getParameter(LOOKUP_CSV_FILE_URI)));
-            resp.getWriter().println("Job added to queue: " + t.getName());
+            TaskHandle t = queue.add(TaskOptions.Builder.withUrl("/equitylookupdataworker").param(LOOKUP_CSV_FILE_URI, req.getParameter(LOOKUP_CSV_FILE_URI)));
+            resp.getWriter().println("Equity Lookup Data Job added to queue: " + t.getName());
+        } else if (req.getParameter(USERNAME) != null && req.getParameter(PASSWORD) != null) {
+            TaskHandle t = queue.add(TaskOptions.Builder.withUrl("/eoddataworker").param(USERNAME, req.getParameter(USERNAME)).param(PASSWORD, req.getParameter(PASSWORD)));
+            resp.getWriter().println("EOD Data Job added to queue: " + t.getName());
         }
         resp.getWriter().println("Tasks in progress: " + queue.fetchStatistics().getRequestsInFlight());
     }

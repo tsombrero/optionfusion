@@ -35,6 +35,12 @@
     <div><input type="submit" value="Submit Lookup CSV"/></div>
 </form>
 
+<form action="/admin" method="get">
+    <div><input type="text" name="username" size="40" value="tsombrero"/></div>
+    <div><input type="text" name="password" size="40" /></div>
+    <div><input type="submit" value="get EOD data"/></div>
+</form>
+
 <%
         }
     } else {
