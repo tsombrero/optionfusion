@@ -1,7 +1,10 @@
 package com.optionfusion.client;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
@@ -20,13 +23,19 @@ import com.optionfusion.com.backend.optionFusion.OptionFusion;
 import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.com.backend.optionFusion.model.EquityCollection;
 import com.optionfusion.com.backend.optionFusion.model.OptionChain;
+import com.optionfusion.db.DbHelper;
+import com.optionfusion.db.Schema;
+import com.optionfusion.db.Schema.Options;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.backend.FusionOptionChain;
+import com.optionfusion.module.OptionFusionApplication;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import javax.inject.Inject;
 
 public class FusionClient implements ClientInterfaces.SymbolLookupClient, ClientInterfaces.OptionChainClient {
 
@@ -38,9 +47,15 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
     private static final String ROOT_URL = BuildConfig.ROOT_URL;
 
+    private static final String TAG = "FusionClient";
+
+    @Inject
+    DbHelper dbHelper;
+
     public FusionClient(Context context, GoogleSignInAccount acct) {
         this.context = context;
         this.account = acct;
+        OptionFusionApplication.from(context).getComponent().inject(this);
     }
 
     @Override
@@ -65,27 +80,124 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
     @Override
     public void getOptionChain(final String symbol, final ClientInterfaces.Callback<Interfaces.OptionChain> callback) {
-        new AsyncTask<Void, Void, Void>() {
+        new AsyncTask<Void, Void, FusionOptionChain>() {
             @Override
-            protected Void doInBackground(Void... params) {
+            protected FusionOptionChain doInBackground(Void... params) {
                 try {
                     OptionChain chain = getEndpoints().optionDataApi().getEodChain(symbol).execute();
                     OptionChainProto.OptionChain protoChain = OptionChainProto.OptionChain.parseFrom(chain.decodeChainData());
+                    writeChainToDb(protoChain);
+
                     return new FusionOptionChain(protoChain);
 
-//            FusionOptionChain ret = new FusionOptionChain(chain);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 return null;
             }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                callback.call(null);
-            }
         }.execute();
     }
+
+    private void writeChainToDb(OptionChainProto.OptionChain protoChain) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        try {
+            db.beginTransaction();
+
+            for (OptionChainProto.OptionDateChain dateChain : protoChain.getOptionDatesList()) {
+                writeDateChainToDb(db, protoChain.getStockquote(), dateChain);
+            }
+
+            updateSpreads(db);
+
+            db.setTransactionSuccessful();
+        } finally {
+            if (db.inTransaction())
+                db.endTransaction();
+        }
+    }
+
+    private void updateSpreads(SQLiteDatabase db) {
+        StringBuilder sb = new StringBuilder("INSERT OR REPLACE INTO " + Schema.VerticalSpreads.getTableName())
+                .append(" (")
+                .append(TextUtils.join(",", Schema.getColumnNames(Schema.VerticalSpreads.values())))
+                .append(")");
+
+
+    }
+
+    // calculate column from
+    // SELECT * FROM Options buy JOIN Options sell
+    // WHERE buy.underlying_symbol = sell.underlying_symbol
+    //  AND buy.option_type = sell.option_type
+    //  AND buy.symbol != sell.symbol
+
+    private String appendClculatedColumnValue(Schema.VerticalSpreads spreadColumn) {
+        switch(spreadColumn) {
+
+            case BUY_SIDE:
+                return "buy.SYMBOL";
+            case SELL_SIDE:
+                return "sell.SYMBOL";
+            case IS_BULLISH:
+                return "";
+            case IS_PUT_SPREAD:
+                break;
+            case NET_ASK:
+                break;
+            case NET_BID:
+                break;
+            case EXPIRATION:
+                break;
+            case MAX_RETURN_ABSOLUTE:
+                break;
+            case MAX_RETURN_PERCENT:
+                break;
+            case MAX_RETURN_ANNUALIZED:
+                break;
+            case MAX_VALUE_AT_EXPIRATION:
+                break;
+            case PRICE_AT_BREAK_EVEN:
+                break;
+            case WEIGHTED_RISK:
+                break;
+            case BUFFER_TO_MAX_PROFIT:
+                break;
+            case BUFFER_TO_MAX_PROFIT_PERCENT:
+                break;
+            case BUFFER_TO_BREAK_EVEN:
+                break;
+            case BUFFER_TO_BREAK_EVEN_PERCENT:
+                break;
+            case TIMESTAMP_QUOTE:
+                break;
+            case TIMESTAMP_FETCH:
+                break;
+        }
+        return "";
+    }
+
+    private void writeDateChainToDb(SQLiteDatabase db, OptionChainProto.StockQuote stockQuote, OptionChainProto.OptionDateChain dateChain) {
+        long now = System.currentTimeMillis();
+
+        for (OptionChainProto.OptionQuote optionQuote : dateChain.getOptionsList()) {
+            Schema.ContentValueBuilder cv = new Schema.ContentValueBuilder();
+            cv.put(Options.SYMBOL, Options.getKey(stockQuote.getSymbol(), dateChain.getExpiration(), optionQuote.getOptionType(), optionQuote.getStrike()))
+                    .put(Options.SYMBOL_UNDERLYING, stockQuote.getSymbol())
+                    .put(Options.BID, optionQuote.getBid())
+                    .put(Options.ASK, optionQuote.getAsk())
+                    .put(Options.STRIKE, optionQuote.getStrike())
+                    .put(Options.EXPIRATION, dateChain.getExpiration())
+                    .put(Options.IV, optionQuote.getIv())
+                    .put(Options.OPTION_TYPE, optionQuote.getOptionType().ordinal())
+                    .put(Options.OPEN_INTEREST, optionQuote.getOpenInterest())
+                    .put(Options.TIMESTAMP_FETCH, now)
+                    .put(Options.TIMESTAMP_QUOTE, stockQuote.getTimestamp());
+
+            db.insertWithOnConflict(Options.getTableName(), "", cv.build(), SQLiteDatabase.CONFLICT_REPLACE);
+        }
+        Log.v(TAG, "Wrote date chain " + dateChain.getExpiration());
+    }
+
 
     private OptionFusion getEndpoints() {
 

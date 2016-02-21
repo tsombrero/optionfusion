@@ -8,18 +8,19 @@ import com.optionfusion.ui.widgets.rangebar.RangeBar;
 import com.optionfusion.model.Spread;
 import com.optionfusion.util.Util;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider {
-    private LocalDate maxExpDate;
-    private LocalDate minExpDate;
+    private DateTime maxExpDate;
+    private DateTime minExpDate;
 
     private int minDaysToExp = 0;
     private int maxDaysToExp = Integer.MAX_VALUE;
 
-    public transient static final TimeFilter EMPTY_FILTER = new TimeFilter(new LocalDate(0), new LocalDate(0));
+    public transient static final TimeFilter EMPTY_FILTER = new TimeFilter(new DateTime(0), new DateTime(0));
 
-    public TimeFilter(LocalDate minExpDate, LocalDate maxExpDate) {
+    public TimeFilter(DateTime minExpDate, DateTime maxExpDate) {
         if (maxExpDate == null && minExpDate == null)
             throw new IllegalArgumentException("No max or min date provided");
 
@@ -38,7 +39,7 @@ public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider 
     }
 
     public TimeFilter(Parcel parcel) {
-        this(new LocalDate(parcel.readLong()), new LocalDate(parcel.readLong()));
+        this(new DateTime(parcel.readLong()), new DateTime(parcel.readLong()));
     }
 
     @Override
@@ -96,11 +97,11 @@ public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider 
         dest.writeLong(maxExpDate.toDate().getTime());
     }
 
-    public LocalDate getMinExpDate() {
+    public DateTime getMinExpDate() {
         return minExpDate;
     }
 
-    public LocalDate getMaxExpDate() {
+    public DateTime getMaxExpDate() {
         return maxExpDate;
     }
 

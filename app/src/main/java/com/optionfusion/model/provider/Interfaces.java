@@ -50,7 +50,7 @@ public class Interfaces {
 
         OptionType getOptionType();
 
-        LocalDate getExpiration();
+        DateTime getExpiration();
 
         boolean isStandard();
 
@@ -114,7 +114,7 @@ public class Interfaces {
 
         List<? extends OptionDate> getChainsByDate();
 
-        List<LocalDate> getExpirationDates();
+        List<DateTime> getExpirationDates();
 
         List<Double> getStrikePrices();
 

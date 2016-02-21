@@ -7,9 +7,10 @@ import com.optionfusion.model.Spread;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.module.OptionFusionApplication;
 
-import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,11 +18,12 @@ import java.util.Set;
 public class FusionOptionChain implements Interfaces.OptionChain {
 
 
+    private final OptionChainProto.OptionChain protoChain;
     List<Double> strikePrices;
     List<FusionOptionDate> optionDates = new ArrayList<>();
 
     public FusionOptionChain(OptionChainProto.OptionChain protoChain) {
-
+        this.protoChain = protoChain;
         for (OptionChainProto.OptionDateChain dateChain : protoChain.getOptionDatesList()) {
             optionDates.add(new FusionOptionDate(dateChain));
         }
@@ -38,8 +40,8 @@ public class FusionOptionChain implements Interfaces.OptionChain {
     }
 
     @Override
-    public List<LocalDate> getExpirationDates() {
-
+    public List<DateTime> getExpirationDates() {
+        return Collections.EMPTY_LIST;
     }
 
     @Override

@@ -119,8 +119,8 @@ public class GoogOptionChain implements Interfaces.OptionChain {
     }
 
     @Override
-    public List<LocalDate> getExpirationDates() {
-        List<LocalDate> ret = new ArrayList<>();
+    public List<DateTime> getExpirationDates() {
+        List<DateTime> ret = new ArrayList<>();
         for (Interfaces.OptionDate optionDate : optionDates) {
             ret.add(optionDate.getExpirationDate());
         }
@@ -286,7 +286,7 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         }
 
         @Override
-        public LocalDate getExpiration() {
+        public DateTime getExpiration() {
             return optionDate.getExpirationDate();
         }
 
@@ -373,7 +373,6 @@ public class GoogOptionChain implements Interfaces.OptionChain {
             return expiry.getDate();
         }
 
-        @Override
         public double[] getStrikePrices() {
             if (strikeArray == null) {
                 Set<Double> strikes = new HashSet<>();
@@ -424,13 +423,13 @@ public class GoogOptionChain implements Interfaces.OptionChain {
 
         private int getDaysToExpiration() {
             if (daysToExpiration <= 0) {
-                daysToExpiration = Days.daysBetween(new LocalDate(), getDate()).getDays();
+                daysToExpiration = Days.daysBetween(DateTime.now(), getDate()).getDays();
             }
             return daysToExpiration;
         }
 
-        private LocalDate getDate() {
-            return Util.roundToNearestFriday(new LocalDate(y, m, d));
+        private DateTime getDate() {
+            return Util.roundToNearestFriday(Util.getEodDateTime(y,m,d));
         }
     }
 }

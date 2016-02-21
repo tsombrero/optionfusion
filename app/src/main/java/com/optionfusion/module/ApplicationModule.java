@@ -20,6 +20,8 @@ import com.optionfusion.client.ClientInterfaces;
 import com.optionfusion.client.FusionClientProvider;
 import com.optionfusion.client.GoogClientProvider;
 import com.optionfusion.client.YhooClientClientProvider;
+import com.optionfusion.db.DbHelper;
+import com.optionfusion.db.Schema;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -175,6 +177,12 @@ public class ApplicationModule {
     @Singleton
     StockQuoteProvider provideStockQuoteProvider(Context context, ClientInterfaces.StockQuoteClient stockQuoteClient) {
         return new StockQuoteProvider(context, stockQuoteClient);
+    }
+
+    @Provides
+    @Singleton
+    DbHelper provideDbHelper(Context context) {
+        return new DbHelper(context, Schema.DB_NAME, null, Schema.SCHEMA_VERSION);
     }
 
 }

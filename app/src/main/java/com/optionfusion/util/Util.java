@@ -3,7 +3,9 @@ package com.optionfusion.util;
 import android.app.Activity;
 import android.view.inputmethod.InputMethodManager;
 
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
@@ -87,9 +89,9 @@ public class Util {
                 .replace(".0%", "%");
     }
 
-    public static String getFormattedOptionDate(LocalDate date) {
+    public static String getFormattedOptionDate(DateTime date) {
         synchronized (calendar) {
-            LocalDate nearDateLimit = LocalDate.now().plusMonths(6);
+            DateTime nearDateLimit = DateTime.now().plusMonths(6);
 
             //TODO don't use dateformat, use joda
             if (date.isBefore(nearDateLimit)) {
@@ -105,8 +107,8 @@ public class Util {
         }
     }
 
-    public static int getDaysFromNow(LocalDate date) {
-        return Days.daysBetween(new LocalDate(), date).getDays();
+    public static int getDaysFromNow(DateTime date) {
+        return Days.daysBetween(DateTime.now(), date).getDays();
     }
 
     public static String formatDollarsCompact(Double val) {
@@ -135,7 +137,7 @@ public class Util {
         return Util.formatDollarsCompact(limitLo) + " - " + Util.formatDollarsCompact(limitHi);
     }
 
-    public static String formatDateRange(LocalDate startDate, LocalDate endDate) {
+    public static String formatDateRange(DateTime startDate, DateTime endDate) {
         if (startDate == null && endDate == null) {
             return "All";
         }
@@ -148,10 +150,10 @@ public class Util {
         return getFormattedOptionDate(startDate) + " - " + getFormattedOptionDate(endDate);
     }
 
-    public static LocalDate roundToNearestFriday(LocalDate localDate) {
-        LocalDate t1 = localDate.withDayOfWeek(DateTimeConstants.FRIDAY);
-        if (t1.isBefore(localDate.minusDays(3))) return t1.plusWeeks(1);
-        else if (t1.isAfter(localDate.plusDays(3))) return t1.minusWeeks(1);
+    public static DateTime roundToNearestFriday(DateTime date) {
+        DateTime t1 = date.withDayOfWeek(DateTimeConstants.FRIDAY);
+        if (t1.isBefore(date.minusDays(3))) return t1.plusWeeks(1);
+        else if (t1.isAfter(date.plusDays(3))) return t1.minusWeeks(1);
         else return t1;
     }
 
@@ -236,5 +238,10 @@ public class Util {
                 return multiple;
         }
         return multiples[multiples.length - 1];
+    }
+
+
+    public static DateTime getEodDateTime(int year, int month, int day) {
+        return new DateTime(year, month, day, 16, 0, DateTimeZone.forID("America/New_York"));
     }
 }

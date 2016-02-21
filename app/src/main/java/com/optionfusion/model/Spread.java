@@ -8,6 +8,7 @@ import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.util.Util;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import java.util.Comparator;
@@ -163,7 +164,7 @@ abstract public class Spread implements Parcelable {
         return getPriceChange_MaxProfit() / underlying.getLast();
     }
 
-    public LocalDate getExpiresDate() {
+    public DateTime getExpiresDate() {
         return buy.getExpiration();
     }
 

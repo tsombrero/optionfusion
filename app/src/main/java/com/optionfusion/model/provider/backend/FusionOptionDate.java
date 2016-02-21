@@ -36,8 +36,8 @@ public class FusionOptionDate implements Interfaces.OptionDate {
         if (!filterSet.pass(this))
             return Collections.EMPTY_LIST;
 
-        
 
+        return Collections.EMPTY_LIST;
     }
 
     @Override
@@ -50,5 +50,6 @@ public class FusionOptionDate implements Interfaces.OptionDate {
 
     @Override
     public String toJson(Gson gson) {
+        return null;
     }
 }

@@ -11,6 +11,7 @@ import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.util.Util;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.simpleframework.xml.Default;
 import org.simpleframework.xml.DefaultType;
@@ -33,7 +34,7 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
 
     private static final String TAG = "AmeritradeOptionChain";
 
-    private List<LocalDate> expirationDates;
+    private List<DateTime> expirationDates;
     private List<Double> strikePrices;
 
     private AmeritradeStockQuote stockQuote;
@@ -60,11 +61,11 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
     }
 
     @Override
-    public synchronized List<LocalDate> getExpirationDates() {
+    public synchronized List<DateTime> getExpirationDates() {
         if (expirationDates == null) {
-            HashSet<LocalDate> ret = new HashSet<>();
+            HashSet<DateTime> ret = new HashSet<>();
             for (Interfaces.OptionDate optionDate : getChainsByDate()) {
-                LocalDate d = optionDate.getExpirationDate();
+                DateTime d = optionDate.getExpirationDate();
                 if (d != null)
                     ret.add(d);
             }
@@ -257,7 +258,6 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
             return String.format("expiration: %d days (%d strikes)", daysToExpiration, optionStrikes.size());
         }
 
-        @Override
         public double[] getStrikePrices() {
             List<Double> ret = new ArrayList<>();
             for (OptionStrike strike : optionStrikes) {
@@ -350,7 +350,7 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         @Transient
         transient private boolean standard;
         @Transient
-        transient private LocalDate exp;
+        transient private DateTime exp;
 
         // Getters
 
@@ -454,12 +454,12 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         }
 
         @Override
-        public LocalDate getExpiration() {
+        public DateTime getExpiration() {
             if (exp == null) {
                 int year = Integer.valueOf(optionDate.date.substring(0, 4));
                 int month = Integer.valueOf(optionDate.date.substring(4, 6));
                 int day = Integer.valueOf(optionDate.date.substring(6));
-                exp = new LocalDate(year, month, day);
+                exp = Util.getEodDateTime(year, month, day);
             }
             return exp;
         }

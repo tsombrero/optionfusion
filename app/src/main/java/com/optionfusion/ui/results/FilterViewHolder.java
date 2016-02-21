@@ -22,6 +22,7 @@ import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.util.Util;
 import com.wefika.flowlayout.FlowLayout;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
@@ -179,16 +180,16 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             return;
         }
 
-        final List<LocalDate> dates = optionChainProvider.get(symbol).getExpirationDates();
-        Collections.sort(dates, new Comparator<LocalDate>() {
+        final List<DateTime> dates = optionChainProvider.get(symbol).getExpirationDates();
+        Collections.sort(dates, new Comparator<DateTime>() {
             @Override
-            public int compare(LocalDate lhs, LocalDate rhs) {
+            public int compare(DateTime lhs, DateTime rhs) {
                 return lhs.compareTo(rhs);
             }
         });
 
         ArrayList<String> dateStr = new ArrayList<>();
-        for (LocalDate date : dates) {
+        for (DateTime date : dates) {
             dateStr.add(Util.getFormattedOptionDate(date));
         }
 
@@ -205,9 +206,9 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
     }
 
     private class ExpirationRangeBarListener implements RangeBar.OnRangeBarChangeListener {
-        private final List<LocalDate> dates;
+        private final List<DateTime> dates;
 
-        ExpirationRangeBarListener(List<LocalDate> dates) {
+        ExpirationRangeBarListener(List<DateTime> dates) {
             this.dates = dates;
         }
 
@@ -221,11 +222,11 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             int leftPinIndex = rangeBar.getLeftIndex();
             int rightPinIndex = rangeBar.getRightIndex();
 
-            LocalDate startDate = null;
+            DateTime startDate = null;
             if (leftPinIndex > 0)
                 startDate = dates.get(leftPinIndex);
 
-            LocalDate endDate = null;
+            DateTime endDate = null;
             if (rightPinIndex < dates.size() - 1)
                 endDate = dates.get(rightPinIndex);
 
