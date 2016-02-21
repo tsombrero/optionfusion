@@ -26,6 +26,7 @@ dependencies {
     compile 'com.google.apis:google-api-services-compute:v1-rev94-1.21.0'
     compile 'com.google.appengine:appengine-endpoints:1.9.31'
     compile 'com.google.appengine:appengine-endpoints-deps:1.9.31'
+    compile 'com.google.gcloud:gcloud-java-storage:0.1.4'
     compile 'com.google.protobuf:protobuf-java:2.6.1'
     compile 'com.googlecode.objectify:objectify:5.1.5'
     compile 'commons-codec:commons-codec:1.10'
@@ -44,4 +45,5 @@ appengine {
         getClientLibsOnBuild = true
         getDiscoveryDocsOnBuild = true
     }
+    httpAddress = "0.0.0.0"
 }

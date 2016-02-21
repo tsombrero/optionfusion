@@ -1,45 +1,41 @@
 package com.optionfusion.backend.admin;
 
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.repackaged.com.google.common.util.Base64;
+import com.google.gcloud.storage.Blob;
+import com.google.gcloud.storage.BlobId;
+import com.google.gcloud.storage.Storage;
+import com.google.gcloud.storage.StorageOptions;
 import com.optionfusion.backend.models.OptionChain;
 import com.optionfusion.backend.protobuf.OptionChainProto;
 import com.optionfusion.backend.utils.Util;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormatterBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.nio.channels.Channels;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static com.optionfusion.backend.admin.AdminServlet.PASSWORD;
-import static com.optionfusion.backend.admin.AdminServlet.USERNAME;
 import static com.optionfusion.backend.protobuf.OptionChainProto.OptionQuote.OptionType.CALL;
 import static com.optionfusion.backend.protobuf.OptionChainProto.OptionQuote.OptionType.PUT;
 import static com.optionfusion.backend.utils.OfyService.ofy;
 
 public class GetEodDataWorkerServlet extends HttpServlet {
-
-    private static final String BASE_URI = "http://www.deltaneutral.com/dailydata/dbupdate/";
-    private static final String TEST_URI = "https://dl.dropboxusercontent.com/u/29448741/test.zip";
-    private static final String OPTIONS_FILENAME_PREFIX = "options_";
 
     // 2/10/2016 04:00:00 PM -0500
     private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormat.forPattern("M/d/yyyy hh:mm:ss aa Z");
@@ -50,30 +46,58 @@ public class GetEodDataWorkerServlet extends HttpServlet {
             throws IOException {
 
         try {
+            DateTime todayEod = Util.getEodDateTime();
 
-            String username = req.getParameter(USERNAME);
-            String password = req.getParameter(PASSWORD);
+            for (int i = 0; i < 90; i++) {
+                DateTime fetchDate = todayEod.minusDays(i);
+                if (fetchDate.isAfter(DateTime.now()))
+                    continue;
 
-            ZipInputStream in = new ZipInputStream(getRemoteFileInputStream(username, password, LocalDate.now()));
-
-            ZipEntry zipEntry = in.getNextEntry();
-
-            while (zipEntry != null) {
-                try {
-                    if (!zipEntry.getName().toLowerCase().startsWith(OPTIONS_FILENAME_PREFIX))
-                        continue;
-
-                    processOptionsFile(in);
+                if (chainsExistForDate(fetchDate, "AAPL"))
                     break;
-                } finally {
-                    zipEntry = in.getNextEntry();
-                }
+
+                processOptionsFileForDate(fetchDate);
             }
+
+
         } catch (Throwable e) {
             resp.getWriter().println("Failed");
             e.printStackTrace();
             throw e;
         }
+    }
+
+    private void processOptionsFileForDate(DateTime dateTime) throws IOException {
+        InputStream in = getRemoteFileInputStream(dateTime);
+
+        if (in == null) {
+            log("No options input data for date " + dateTime);
+            return;
+        }
+
+        Reader reader = new InputStreamReader(in);
+        Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader(OptionsColumns.getNamesArray()).parse(reader);
+
+        OptionChainBuilder optionChainBuilder = null;
+        String symbol = null;
+        String exchange = null;
+        for (CSVRecord record : records) {
+            symbol = record.get(OptionsColumns.UnderlyingSymbol);
+            exchange = record.get(OptionsColumns.Exchange);
+
+            if (!"*".equals(exchange)
+                    && !"W".equals(exchange)
+                    && !"Q".equals(exchange))
+                continue;
+
+            if (optionChainBuilder == null || !optionChainBuilder.getSymbol().equals(symbol)) {
+                if (optionChainBuilder != null)
+                    commitChain(optionChainBuilder.build());
+                optionChainBuilder = new OptionChainBuilder(newStockQuote(record));
+            }
+            optionChainBuilder.addRecord(record);
+        }
+        commitChain(optionChainBuilder.build());
     }
 
     enum OptionsColumns {
@@ -90,32 +114,21 @@ public class GetEodDataWorkerServlet extends HttpServlet {
 
     }
 
-    private void processOptionsFile(InputStream in) throws IOException {
-        Reader reader = new InputStreamReader(in);
-        Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader(OptionsColumns.getNamesArray()).parse(reader);
-
-        OptionChainBuilder optionChainBuilder = null;
-        String symbol = null;
-        for (CSVRecord record : records) {
-            symbol = record.get(OptionsColumns.UnderlyingSymbol);
-            if (optionChainBuilder == null || !optionChainBuilder.getSymbol().equals(symbol)) {
-                commitChain(optionChainBuilder.build());
-                optionChainBuilder = new OptionChainBuilder(record);
-            }
-            optionChainBuilder.addRecord(record);
-        }
-        commitChain(optionChainBuilder.build());
-    }
-
     private class OptionChainBuilder {
         Map<String, List<CSVRecord>> subchainsByExp = new HashMap<>();
         OptionChainProto.StockQuote stockQuote;
 
-        public OptionChainBuilder(CSVRecord record) {
-            stockQuote = newStockQuote(record);
+        public OptionChainBuilder(OptionChainProto.StockQuote stockQuote) {
+            this.stockQuote = stockQuote;
         }
 
         public void addRecord(CSVRecord record) {
+            if ("0".equals(record.get(OptionsColumns.OpenInterest)) && "0".equals(record.get(OptionsColumns.Volume)))
+                return;
+
+            if (Double.valueOf(record.get(OptionsColumns.Ask)) < 0.05D && Double.valueOf(record.get(OptionsColumns.Bid)) < 0.05D)
+                return;
+
             String exp = record.get(OptionsColumns.Expiration);
             if (!subchainsByExp.containsKey(exp)) {
                 subchainsByExp.put(exp, new ArrayList<CSVRecord>());
@@ -146,18 +159,30 @@ public class GetEodDataWorkerServlet extends HttpServlet {
         }
 
         private OptionChainProto.OptionQuote newOptionQuote(CSVRecord record) {
-            return OptionChainProto.OptionQuote.newBuilder()
-                    .setAsk(Double.valueOf(record.get(OptionsColumns.Ask)))
-                    .setBid(Double.valueOf(record.get(OptionsColumns.Bid)))
-                    .setDelta(Double.valueOf(record.get(OptionsColumns.Delta)))
-                    .setGamma(Double.valueOf(record.get(OptionsColumns.Gamma)))
-                    .setIv(Double.valueOf(record.get(OptionsColumns.IV)))
-                    .setLast(Double.valueOf(record.get(OptionsColumns.Last)))
-                    .setOpenInterest(Integer.valueOf(record.get(OptionsColumns.OpenInterest)))
-                    .setOptionType(record.get(OptionsColumns.Type).toUpperCase().startsWith("C") ? CALL : PUT)
-                    .setStrike(Double.valueOf(record.get(OptionsColumns.Strike)))
-                    .setVolume(Integer.valueOf(record.get(OptionsColumns.Volume)))
-                    .build();
+            OptionChainProto.OptionQuote.Builder builder =
+                    OptionChainProto.OptionQuote.newBuilder()
+                            .setAsk(Double.valueOf(record.get(OptionsColumns.Ask)))
+                            .setBid(Double.valueOf(record.get(OptionsColumns.Bid)))
+                            .setOptionType(record.get(OptionsColumns.Type).toUpperCase().startsWith("C") ? CALL : PUT)
+                            .setStrike(Double.valueOf(record.get(OptionsColumns.Strike)))
+
+                            .setOpenInterest(Integer.valueOf(record.get(OptionsColumns.OpenInterest)))
+                            .setLast(Double.valueOf(record.get(OptionsColumns.Last)))
+                            .setVolume(Integer.valueOf(record.get(OptionsColumns.Volume)));
+
+            Double val = Double.valueOf(record.get(OptionsColumns.Delta));
+            if (val != 0D)
+                builder.setDelta(val);
+
+            val = Double.valueOf(record.get(OptionsColumns.Gamma));
+            if (val != 0D)
+                builder.setGamma(val);
+
+            val = Double.valueOf(record.get(OptionsColumns.IV));
+            if (val != 0D)
+                builder.setIv(val);
+
+            return builder.build();
         }
 
         public String getSymbol() {
@@ -189,31 +214,44 @@ public class GetEodDataWorkerServlet extends HttpServlet {
         }
     }
 
-    private InputStream getRemoteFileInputStream(String username, String password, LocalDate date) throws IOException {
-        URL url = new URL(getFileUri(date));
-        HttpURLConnection uc = (HttpURLConnection) url.openConnection();
-        String userpass = username + ":" + password;
-        String basicAuth = "Basic " + new String(Base64.encode(userpass.getBytes(), 0, userpass.length(), Base64.getWebsafeAlphabet(), true));
-        uc.setRequestProperty("Authorization", basicAuth);
-        uc.setConnectTimeout(60000);
-        uc.setReadTimeout(120000);
-        uc.connect();
-        if (uc.getResponseCode() >= 400 && date.isAfter(LocalDate.now().minusDays(10))) {
-            return getRemoteFileInputStream(username, password, date.minusDays(1));
+    private InputStream getRemoteFileInputStream(DateTime date) throws IOException {
+        getFileName(date);
+        Storage storage = StorageOptions.defaultInstance().service();
+        BlobId blobId = BlobId.of("optionfusion_com", getFileName(date));
+        Blob blob = storage.get(blobId);
+
+        if (blob != null) {
+            try {
+                InputStream stream = Channels.newInputStream(blob.reader());
+                ZipInputStream zipInputStream = new ZipInputStream(stream);
+                zipInputStream.getNextEntry();
+                return zipInputStream;
+            } catch (Exception e) {
+                log(e.toString());
+            }
         }
-
-        return uc.getInputStream();
+        return null;
     }
 
-    public String getFileUri(LocalDate date) {
-        return TEST_URI;
-//        DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder()
-//                .appendYear(4, 4)
-//                .appendMonthOfYear(2)
-//                .appendDayOfMonth(2)
-//                .toFormatter();
-//
-//        return BASE_URI + "options_" + date.toString(dateTimeFormatter) + ".zip";
+    private boolean chainsExistForDate(DateTime date, String symbol) {
+        List<OptionChain> existingOptionChain = ofy().load().type(OptionChain.class)
+                .filter(Query.CompositeFilterOperator.and(
+                        new Query.FilterPredicate("symbol", Query.FilterOperator.EQUAL, symbol),
+                        new Query.FilterPredicate("timestamp", Query.FilterOperator.EQUAL, date.getMillis())
+                ))
+                .limit(1)
+                .list();
+
+        return !existingOptionChain.isEmpty();
     }
 
+    public String getFileName(DateTime date) {
+        DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder()
+                .appendYear(4, 4)
+                .appendMonthOfYear(2)
+                .appendDayOfMonth(2)
+                .toFormatter();
+
+        return "csv/options_" + date.toString(dateTimeFormatter) + ".csv.zip";
+    }
 }

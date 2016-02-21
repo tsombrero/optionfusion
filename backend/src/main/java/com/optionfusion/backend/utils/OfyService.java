@@ -5,6 +5,7 @@ import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
 import com.optionfusion.backend.models.Equity;
 import com.optionfusion.backend.models.Option;
+import com.optionfusion.backend.models.OptionChain;
 import com.optionfusion.backend.models.Position;
 import com.optionfusion.backend.models.StockQuote;
 import com.optionfusion.backend.models.User;
@@ -28,6 +29,7 @@ public final class OfyService {
         factory().register(StockQuote.class);
         factory().register(User.class);
         factory().register(VerticalSpread.class);
+        factory().register(OptionChain.class);
     }
 
     /**

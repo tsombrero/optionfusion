@@ -1,6 +1,7 @@
 package com.optionfusion.client;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
@@ -14,16 +15,20 @@ import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
 import com.optionfusion.BuildConfig;
 import com.optionfusion.R;
+import com.optionfusion.backend.protobuf.OptionChainProto;
 import com.optionfusion.com.backend.optionFusion.OptionFusion;
 import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.com.backend.optionFusion.model.EquityCollection;
+import com.optionfusion.com.backend.optionFusion.model.OptionChain;
+import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.model.provider.backend.FusionOptionChain;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class FusionClient implements ClientInterfaces.SymbolLookupClient {
+public class FusionClient implements ClientInterfaces.SymbolLookupClient, ClientInterfaces.OptionChainClient {
 
     OptionFusion optionFusionApi;
 
@@ -41,7 +46,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient {
     @Override
     public List<ClientInterfaces.SymbolLookupResult> getSymbolsMatching(String query) {
         try {
-            EquityCollection matches = getEndpoints().symbolLookup().getMatching(query).execute();
+            EquityCollection matches = getEndpoints().optionDataApi().getTickersMatching(query).execute();
 
             if (matches == null)
                 return Collections.EMPTY_LIST;
@@ -58,11 +63,30 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient {
         return Collections.EMPTY_LIST;
     }
 
-    /**
-     * *
-     *
-     * @return ShoppingAssistant endpoints to the GAE backend.
-     */
+    @Override
+    public void getOptionChain(final String symbol, final ClientInterfaces.Callback<Interfaces.OptionChain> callback) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    OptionChain chain = getEndpoints().optionDataApi().getEodChain(symbol).execute();
+                    OptionChainProto.OptionChain protoChain = OptionChainProto.OptionChain.parseFrom(chain.decodeChainData());
+                    return new FusionOptionChain(protoChain);
+
+//            FusionOptionChain ret = new FusionOptionChain(chain);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                callback.call(null);
+            }
+        }.execute();
+    }
+
     private OptionFusion getEndpoints() {
 
         if (optionFusionApi == null) {

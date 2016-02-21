@@ -9,6 +9,7 @@ import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.util.Util;
 
+import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
@@ -368,7 +369,7 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         }
 
         @Override
-        public LocalDate getExpirationDate() {
+        public DateTime getExpirationDate() {
             return expiry.getDate();
         }
 

@@ -35,7 +35,7 @@ public class LoginActivity extends FragmentActivity implements StartFragment.Hos
         setContentView(R.layout.activity_main);
         OptionFusionApplication.from(this).getComponent().inject(this);
 
-        fusionClientProvider.initGoogleApiClient(this);
+        fusionClientProvider.initGoogleApiClient();
 
         Fragment frag = StartFragment.newInstance();
         getSupportFragmentManager().beginTransaction()

@@ -5,6 +5,7 @@ import com.optionfusion.model.FilterSet;
 import com.optionfusion.model.HistoricalQuote;
 import com.optionfusion.model.Spread;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import java.util.Date;
@@ -103,9 +104,7 @@ public class Interfaces {
 
         List<Spread> getAllSpreads(FilterSet filterSet);
 
-        LocalDate getExpirationDate();
-
-        double[] getStrikePrices();
+        DateTime getExpirationDate();
 
         String toJson(Gson gson);
     }

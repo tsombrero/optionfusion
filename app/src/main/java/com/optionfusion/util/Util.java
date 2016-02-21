@@ -155,6 +155,8 @@ public class Util {
         else return t1;
     }
 
+    static final double intervals[] = new double[]{0.01d, 0.05d, 0.10d, .25d, 0.5d, 1d, 2d, 2.50d, 5d, 10d, 20d, 50d, 100d, 250d};
+
     // sometimes there are too many strike prices, limit ticks
     private static List<Double> limitStrikeTicks(List<Double> strikePrices) {
         double targetTicks = 20;
@@ -164,7 +166,6 @@ public class Util {
 
         double interval = (strikePrices.get(strikePrices.size() - 1) - strikePrices.get(0)) / targetTicks;
 
-        double intervals[] = new double[]{0.01d, 0.05d, 0.10d, .25d, 0.5d, 1d, 2d, 2.50d, 5d, 10d, 20d, 50d, 100d, 250d};
 
         for (int i = 0; i < intervals.length; i++) {
             if (intervals[i] > interval) {
@@ -181,6 +182,28 @@ public class Util {
             ret.add(strike);
         }
 
+        return ret;
+    }
+
+    public static List<Double> getStrikeTicks(Double lo, Double hi) {
+        double chosenInterval = 250d;
+        for (Double interval : intervals) {
+            if ((hi - lo) / interval > 25)
+                continue;
+
+            chosenInterval = interval;
+            break;
+        }
+
+        lo -= lo % chosenInterval;
+        hi += hi % chosenInterval;
+
+        List<Double> ret = new ArrayList<>();
+        double i = lo;
+        while (i <= hi) {
+            ret.add(new Double(i));
+            i += chosenInterval;
+        }
         return ret;
     }
 

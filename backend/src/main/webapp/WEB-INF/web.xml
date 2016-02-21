@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
-   <servlet>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee">
+    <servlet>
         <servlet-name>SystemServiceServlet</servlet-name>
         <servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
         <init-param>
             <param-name>services</param-name>
-            <param-value>com.optionfusion.backend.apis.SymbolLookup</param-value>
+            <param-value>
+                com.optionfusion.backend.apis.OptionDataApi
+            </param-value>
         </init-param>
     </servlet>
 
@@ -29,7 +31,8 @@
 
     <servlet>
         <servlet-name>equityLookupDataWorkerServlet</servlet-name>
-        <servlet-class>com.optionfusion.backend.admin.PopulateEquityLookupDbWorkerServlet</servlet-class>
+        <servlet-class>com.optionfusion.backend.admin.PopulateEquityLookupDbWorkerServlet
+        </servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>equityLookupDataWorkerServlet</servlet-name>

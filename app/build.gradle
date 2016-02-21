@@ -35,9 +35,10 @@ android {
         versionCode 4
         versionName "0.4a"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        multiDexEnabled false
+        multiDexEnabled true
         buildConfigField "String", "ROOT_URL",
                 "\"https://option-fusion-api.appspot.com/_ah/api/\""
+
         /**
          * Defines whether authentication is required or not. Only works once
          * deployed on production AppEngine, not on local server.
@@ -66,6 +67,9 @@ android {
         }
         debug {
             signingConfig signingConfigs.debugConfig
+
+            buildConfigField "String", "ROOT_URL",
+                    "\"http://192.168.1.143:8080/_ah/api\""
         }
     }
     compileOptions {
@@ -115,6 +119,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-auth:8.4.0'
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
     compile 'com.google.android.gms:play-services-analytics:8.4.0'
+    compile 'com.google.protobuf:protobuf-java:2.6.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

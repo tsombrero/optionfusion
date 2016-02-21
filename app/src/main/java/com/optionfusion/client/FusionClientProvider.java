@@ -11,7 +11,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.optionfusion.util.Constants;
 
-public class FusionClientProvider extends ClientProvider implements ClientProvider.SymbolLookupClientProvider {
+public class FusionClientProvider extends ClientProvider implements ClientProvider.SymbolLookupClientProvider, ClientProvider.OptionChainClientProvider {
 
     FusionClient client;
     Context context;
@@ -21,7 +21,8 @@ public class FusionClientProvider extends ClientProvider implements ClientProvid
     private SharedPreferences settings;
     private GoogleApiClient googleApiClient;
 
-    public FusionClientProvider() {
+    public FusionClientProvider(Context context) {
+        this.context = context;
     }
 
     @Override
@@ -56,9 +57,7 @@ public class FusionClientProvider extends ClientProvider implements ClientProvid
         client = null;
     }
 
-    public GoogleApiClient initGoogleApiClient(Context context) {
-        this.context = context;
-
+    public GoogleApiClient initGoogleApiClient() {
         settings = context.getSharedPreferences(TAG, 0);
 
         // Configure sign-in to request the user's ID, email address, and basic
@@ -82,5 +81,12 @@ public class FusionClientProvider extends ClientProvider implements ClientProvid
 
     public GoogleApiClient getGoogleApiClient() {
         return googleApiClient;
+    }
+
+    @Override
+    public ClientInterfaces.OptionChainClient getOptionChainClient() {
+        if (client == null)
+            client = new FusionClient(context, acct);
+        return client;
     }
 }

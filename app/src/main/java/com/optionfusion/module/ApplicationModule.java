@@ -71,7 +71,8 @@ public class ApplicationModule {
             case AMERITRADE:
                 return ameritradeClientProvider.getOptionChainClient();
         }
-        return new GoogClientProvider(stockQuoteClient).getOptionChainClient();
+        return new FusionClientProvider(context).getOptionChainClient();
+//        return new GoogClientProvider(stockQuoteClient).getOptionChainClient();
     }
 
     // Note this is not a singleton because it's an abstracted provider; the underlying client providers are singletons
@@ -114,8 +115,8 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    FusionClientProvider provideFusionClientProvider() {
-        return new FusionClientProvider();
+    FusionClientProvider provideFusionClientProvider(Context context) {
+        return new FusionClientProvider(context);
     }
 
     @Provides

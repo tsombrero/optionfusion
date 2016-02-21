@@ -41,6 +41,10 @@
     <div><input type="submit" value="get EOD data"/></div>
 </form>
 
+<form action="/eoddataworker" method="post">
+    <div><input type="submit" value="process EOD data"/></div>
+</form>
+
 <%
         }
     } else {

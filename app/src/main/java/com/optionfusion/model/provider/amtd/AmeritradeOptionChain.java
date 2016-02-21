@@ -10,6 +10,7 @@ import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.util.Util;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.simpleframework.xml.Default;
 import org.simpleframework.xml.DefaultType;
@@ -241,7 +242,7 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         }
 
         @Override
-        public LocalDate getExpirationDate() {
+        public DateTime getExpirationDate() {
             for (OptionStrike strike : optionStrikes) {
                 if (strike.call != null)
                     return strike.call.getExpiration();

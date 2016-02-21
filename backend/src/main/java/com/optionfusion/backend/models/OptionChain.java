@@ -4,6 +4,7 @@ import com.google.appengine.api.datastore.Blob;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.annotation.Serialize;
 import com.optionfusion.backend.protobuf.OptionChainProto;
 
 import java.util.Date;
@@ -20,7 +21,8 @@ public class OptionChain {
     @Index
     Date timestamp;
 
-    Blob data;
+    @Serialize(zip = true)
+    Blob chainData;
 
     public OptionChain() {
     }
@@ -28,6 +30,23 @@ public class OptionChain {
     public OptionChain(OptionChainProto.OptionChain protoChain) {
         timestamp = new Date(protoChain.getTimestamp());
         symbol = protoChain.getStockquote().getSymbol();
-        data = new Blob(protoChain.toByteArray());
+        chainData = new Blob(protoChain.toByteArray());
     }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public Blob getChainData() {
+        return chainData;
+    }
+
+    //
+//    public OptionChainProto.OptionChain getProtoBufChain() throws InvalidProtocolBufferException {
+//        return OptionChainProto.OptionChain.parseFrom(chainData.getBytes());
+//    }
 }

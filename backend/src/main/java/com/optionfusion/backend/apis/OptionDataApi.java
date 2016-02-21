@@ -15,7 +15,9 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.cmd.Query;
 import com.optionfusion.backend.models.Equity;
+import com.optionfusion.backend.models.OptionChain;
 import com.optionfusion.backend.utils.Constants;
+import com.optionfusion.backend.utils.Util;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +25,7 @@ import java.util.List;
 
 import javax.inject.Named;
 
+import static com.google.appengine.api.datastore.Query.FilterOperator.EQUAL;
 import static com.google.appengine.api.datastore.Query.FilterOperator.GREATER_THAN_OR_EQUAL;
 import static com.google.appengine.api.datastore.Query.FilterOperator.LESS_THAN;
 import static com.optionfusion.backend.utils.OfyService.ofy;
@@ -44,12 +47,12 @@ import static com.optionfusion.backend.utils.OfyService.ofy;
         )
 )
 
-public class SymbolLookup {
+public class OptionDataApi {
 
     private static final int MAX_RESULTS = 20;
 
     @ApiMethod(httpMethod = "GET")
-    public final List<Equity> getMatching(@Named("q") String searchString, User user) {
+    public final List<Equity> getTickersMatching(@Named("q") String searchString, User user) {
 
         ArrayList<Equity> ret = new ArrayList<>();
 
@@ -81,6 +84,28 @@ public class SymbolLookup {
         }
 
         return ret;
+    }
+
+    @ApiMethod(httpMethod = "GET")
+    public final OptionChain getEodChain(@Named("q") String ticker, User user) {
+
+        List<OptionChain> ret = ofy().load().type(OptionChain.class)
+//                .filter(buildFilterForLatestChain(ticker))
+                .filter(new FilterPredicate("symbol", EQUAL, ticker))
+                .order("-timestamp")
+                .limit(1)
+                .list();
+
+        if (!ret.isEmpty()) {
+            return ret.get(0);
+        }
+        return null;
+    }
+
+    Filter buildFilterForLatestChain(String ticker) {
+        return CompositeFilterOperator.and(
+                new FilterPredicate("symbol", EQUAL, ticker),
+                new FilterPredicate("timestamp", com.google.appengine.api.datastore.Query.FilterOperator.LESS_THAN_OR_EQUAL, Util.getEodDateTime().getMillis()));
     }
 
     Filter startsWithFilter(String field, String q) {
