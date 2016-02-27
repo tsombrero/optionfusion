@@ -100,6 +100,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
     private void writeChainToDb(OptionChainProto.OptionChain protoChain) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Log.i(TAG, "TACO Starting Transaction");
         try {
             db.beginTransaction();
 
@@ -114,66 +115,220 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             if (db.inTransaction())
                 db.endTransaction();
         }
+        Log.i(TAG, "TACO Transaction Committed");
     }
 
     private void updateSpreads(SQLiteDatabase db) {
+        ArrayList<String> colNames = new ArrayList<>();
+        ArrayList<String> colValues = new ArrayList<>();
+
+        for (Schema.VerticalSpreads col : Schema.VerticalSpreads.values()) {
+            colNames.add(col.name());
+            colValues.add(appendClculatedColumnValue(col));
+        }
+
         StringBuilder sb = new StringBuilder("INSERT OR REPLACE INTO " + Schema.VerticalSpreads.getTableName())
                 .append(" (")
-                .append(TextUtils.join(",", Schema.getColumnNames(Schema.VerticalSpreads.values())))
-                .append(")");
+                .append(TextUtils.join(",", colNames))
+                .append(") SELECT ")
+                .append(TextUtils.join(",", colValues))
+                .append(" FROM Options buy, Options sell where buy.option_type = sell.option_type " +
+                        " and buy.symbol_underlying = sell.symbol_underlying " +
+                        " and buy.symbol != sell.symbol " +
+                        " and buy.expiration == sell.expiration " +
+                        " and max_return_absolute >= 0.05 " +
+                        " and BUY_TO_SELL_PRICE_RATIO > 0.1;");
 
-
+        Log.i(TAG, "TACO Inserting spreads:");
+        db.execSQL(sb.toString());
+        Log.i(TAG, "TACO Done inserting spreads");
     }
 
-    // calculate column from
-    // SELECT * FROM Options buy JOIN Options sell
-    // WHERE buy.underlying_symbol = sell.underlying_symbol
-    //  AND buy.option_type = sell.option_type
-    //  AND buy.symbol != sell.symbol
-
+    // calculate columns that generate the obscene sql query
     private String appendClculatedColumnValue(Schema.VerticalSpreads spreadColumn) {
-        switch(spreadColumn) {
+        String sql = null;
+        switch (spreadColumn) {
 
-            case BUY_SIDE:
-                return "buy.SYMBOL";
-            case SELL_SIDE:
-                return "sell.SYMBOL";
+            case BUY_SYMBOL:
+                sql = "buy.SYMBOL";
+                break;
+            case SELL_SYMBOL:
+                sql = "sell.SYMBOL";
+                break;
+            case BUY_STRIKE:
+                sql = "buy." + Options.STRIKE;
+                break;
+            case SELL_STRIKE:
+                sql = "sell." + Options.STRIKE;
+                break;
             case IS_BULLISH:
-                return "";
-            case IS_PUT_SPREAD:
+                sql = "CASE when buy.strike < sell.strike THEN 1 ELSE 0 END";
+                break;
+            case BUY_TO_SELL_PRICE_RATIO:
+                sql = "CASE " +
+                        "WHEN buy.option_type == 'C' AND buy.strike < sell.strike THEN " +
+                        " sell.bid / buy.ask " +
+                        "WHEN buy.option_type == 'P' AND buy.strike > sell.strike THEN " +
+                        " sell.bid / buy.ask " +
+                        "WHEN buy.option_type == 'C' AND buy.strike > sell.strike THEN " +
+                        " buy.ask / sell.bid " +
+                        "ELSE" +
+                        " buy.ask / sell.bid " +
+                        "END";
+                break;
+            case IS_CREDIT:
+                sql = "CASE " +
+                        "when (buy.strike < sell.strike and buy.option_type == 'C') THEN 0 " +
+                        "when (buy.strike > sell.strike and buy.option_type == 'P') THEN 0 " +
+                        "ELSE 1 " +
+                        "END";
                 break;
             case NET_ASK:
-                break;
+                sql = "buy.ask - sell.bid";
             case NET_BID:
+                sql = "buy.bid - sell.ask";
                 break;
             case EXPIRATION:
+                sql = "buy." + Options.EXPIRATION;
+                break;
+            case DAYS_TO_EXPIRATION:
+                sql = "buy." + Options.DAYS_TO_EXPIRATION;
                 break;
             case MAX_RETURN_ABSOLUTE:
+                sql = "CASE  " +
+                        "WHEN buy.option_type == 'C' AND buy.strike > sell.strike THEN " +
+                        "sell.bid - buy.ask " +
+                        "WHEN buy.option_type == 'C' AND buy.strike < sell.strike THEN " +
+                        "sell.strike - buy.strike - buy.ask + sell.bid " +
+                        "WHEN buy.option_type == 'P' AND buy.strike > sell.strike THEN " +
+                        "buy.strike - sell.strike - buy.ask + sell.bid " +
+                        "ELSE " +
+                        "sell.bid - buy.ask " +
+                        "END";
                 break;
             case MAX_RETURN_PERCENT:
+                sql = "CASE " +
+                        "WHEN buy.option_type == 'C' AND buy.strike < sell.strike THEN " +
+                        "(sell.strike - buy.strike) / (buy.ask - sell.bid) " +
+                        "WHEN buy.option_type == 'P' AND buy.strike > sell.strike THEN " +
+                        "(sell.strike - buy.strike) / (buy.ask - sell.bid) " +
+                        "ELSE 1 " +
+                        "END ";
                 break;
-            case MAX_RETURN_ANNUALIZED:
+            case MAX_RETURN_DAILY:
+                sql = "CASE " +
+                        "WHEN buy.option_type == 'C' AND buy.strike < sell.strike THEN " +
+                        "(sell.strike - buy.strike - buy.ask + sell.bid) / sell.days_to_expiration " +
+                        "WHEN buy.option_type == 'P' AND buy.strike > sell.strike THEN " +
+                        "(buy.strike - sell.strike - buy.ask + sell.bid) / sell.days_to_expiration " +
+                        "WHEN buy.option_type == 'C' AND buy.strike > sell.strike THEN " +
+                        "(sell.bid - buy.ask) / sell.days_to_expiration " +
+                        "ELSE " +
+                        "(sell.bid - buy.ask) / sell.days_to_expiration " +
+                        "END";
                 break;
             case MAX_VALUE_AT_EXPIRATION:
+                sql = "CASE " +
+                        "when buy.option_type == 'C' AND buy.strike < sell.strike THEN " +
+                        "sell.strike - buy.strike " +
+                        "when buy.option_type == 'P' AND buy.strike > sell.strike THEN " +
+                        "buy.strike - sell.strike " +
+                        "ELSE 0 " +
+                        "END";
+                break;
+            case CAPITAL_AT_RISK:
+                sql = "CASE " +
+                        "when buy.option_type == 'C' AND buy.strike < sell.strike THEN " +
+                        "buy.ask - sell.bid " +
+                        "when buy.option_type == 'P' AND buy.strike > sell.strike THEN " +
+                        "buy.ask - sell.bid " +
+                        "when buy.option_type == 'C' AND buy.strike > sell.strike THEN " +
+                        "(buy.strike - sell.strike) - (sell.bid - buy.ask) " +
+                        "ELSE " +
+                        "(sell.strike - buy.strike) - (sell.bid - buy.ask) " +
+                        "END";
+                break;
+            case CAPITAL_AT_RISK_PERCENT:
+                sql = "CASE " +
+                        "when buy.option_type == 'C' AND buy.strike > sell.strike THEN " +
+                        "((buy.strike - sell.strike) - (sell.bid - buy.ask)) / (buy.ask - sell.bid) " +
+                        "when buy.option_type == 'P' AND buy.strike < sell.strike THEN " +
+                        "((sell.strike - buy.strike) - (buy.ask - sell.bid)) / (buy.ask - sell.bid) " +
+                        "ELSE 1 " +
+                        "END";
                 break;
             case PRICE_AT_BREAK_EVEN:
-                break;
+                sql = "CASE " +
+                        "when buy.option_type == 'C' AND buy.strike < sell.strike THEN " +
+                        "buy.strike + buy.ask - sell.bid " +
+                        "when buy.option_type == 'P' AND buy.strike > sell.strike THEN " +
+                        "buy.strike - buy.ask + sell.bid " +
+                        "when buy.option_type == 'C' AND buy.strike > sell.strike THEN " +
+                        "sell.strike + sell.bid - buy.ask " +
+                        "ELSE " +
+                        "sell.strike - sell.bid + buy.ask " +
+                        "END";
             case WEIGHTED_RISK:
+                sql = "CASE " +
+                        "when buy.option_type == 'C' AND buy.strike < sell.strike THEN " +
+                        "min(.5, ((sell.strike - buy.strike - buy.ask + sell.bid) / sell.days_to_expiration) * 72) + (35 * (buy.underlying_price - buy.strike + buy.ask - sell.bid) / sell.underlying_price) " +
+                        "when buy.option_type == 'P' AND buy.strike > sell.strike THEN " +
+                        "min(.5, ((buy.strike - sell.strike - buy.ask + sell.bid) / sell.days_to_expiration) * 72) + (35 * (buy.strike - buy.ask + sell.bid - buy.underlying_price) / sell.underlying_price) " +
+                        "when buy.option_type == 'C' AND buy.strike > sell.strike THEN " +
+                        "min(.5, ((sell.bid - buy.ask) / sell.days_to_expiration) * 72) + (35 * (buy.strike - buy.ask + sell.bid - buy.underlying_price) / sell.underlying_price) " +
+                        "ELSE " +
+                        "min(.5, ((sell.bid - buy.ask) / sell.days_to_expiration) * 72) + (35 * (buy.underlying_price - sell.strike + sell.bid - buy.ask) / sell.underlying_price) " +
+                        "END";
                 break;
             case BUFFER_TO_MAX_PROFIT:
+                sql = "CASE " +
+                        "when buy.strike > sell.strike THEN " +
+                        "sell.strike - buy.underlying_price " +
+                        "ELSE " +
+                        "buy.underlying_price - sell.strike " +
+                        "END ";
                 break;
             case BUFFER_TO_MAX_PROFIT_PERCENT:
+                sql = "CASE " +
+                        "when buy.strike > sell.strike THEN " +
+                        "(sell.strike - buy.underlying_price) / buy.underlying_price " +
+                        "ELSE " +
+                        "(buy.underlying_price - sell.strike) / buy.underlying_price " +
+                        "END";
                 break;
             case BUFFER_TO_BREAK_EVEN:
+                sql = "CASE " +
+                        "when buy.option_type == 'C' AND buy.strike < sell.strike THEN " +
+                        " buy.underlying_price - (buy.strike + buy.ask - sell.bid) " +
+                        "when buy.option_type == 'P' AND buy.strike > sell.strike THEN " +
+                        " (buy.strike - buy.ask + sell.bid) - buy.underlying_price " +
+                        "when buy.option_type == 'C' AND buy.strike > sell.strike THEN " +
+                        " (sell.strike + sell.bid - buy.ask) - sell.underlying_price " +
+                        "ELSE " +
+                        " buy.underlying_price - (sell.strike - sell.bid + buy.ask)  " +
+                        "END ";
                 break;
             case BUFFER_TO_BREAK_EVEN_PERCENT:
+                sql = "CASE " +
+                        "when buy.option_type == 'C' AND buy.strike < sell.strike THEN " +
+                        " (buy.underlying_price - (buy.strike + buy.ask - sell.bid)) / buy.underlying_price " +
+                        "when buy.option_type == 'P' AND buy.strike > sell.strike THEN " +
+                        " ((buy.strike - buy.ask + sell.bid) - buy.underlying_price) / buy.underlying_price " +
+                        "when buy.option_type == 'C' AND buy.strike > sell.strike THEN " +
+                        " ((sell.strike + sell.bid - buy.ask) - sell.underlying_price) / buy.underlying_price " +
+                        "ELSE " +
+                        " (buy.underlying_price - (sell.strike - sell.bid + buy.ask)) / buy.underlying_price " +
+                        "END";
                 break;
             case TIMESTAMP_QUOTE:
+                sql = "buy." + Options.TIMESTAMP_QUOTE;
                 break;
             case TIMESTAMP_FETCH:
+                sql = "buy." + Options.TIMESTAMP_FETCH;
                 break;
         }
-        return "";
+
+        return sql + " AS " + spreadColumn;
     }
 
     private void writeDateChainToDb(SQLiteDatabase db, OptionChainProto.StockQuote stockQuote, OptionChainProto.OptionDateChain dateChain) {
@@ -183,6 +338,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             Schema.ContentValueBuilder cv = new Schema.ContentValueBuilder();
             cv.put(Options.SYMBOL, Options.getKey(stockQuote.getSymbol(), dateChain.getExpiration(), optionQuote.getOptionType(), optionQuote.getStrike()))
                     .put(Options.SYMBOL_UNDERLYING, stockQuote.getSymbol())
+                    .put(Options.UNDERLYING_PRICE, stockQuote.getClose())
                     .put(Options.BID, optionQuote.getBid())
                     .put(Options.ASK, optionQuote.getAsk())
                     .put(Options.STRIKE, optionQuote.getStrike())

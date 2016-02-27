@@ -27,7 +27,7 @@ public class DbHelper extends SQLiteOpenHelper {
         createTable(db, Schema.Options.values());
         createTable(db, Schema.VerticalSpreads.values());
 
-        createUniqueIndex(db, Schema.VerticalSpreads.BUY_SIDE, Schema.VerticalSpreads.SELL_SIDE);
+        createUniqueIndex(db, Schema.VerticalSpreads.BUY_SYMBOL, Schema.VerticalSpreads.SELL_SYMBOL);
 
     }
 

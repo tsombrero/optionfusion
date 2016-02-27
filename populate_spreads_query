@@ -1,0 +1,162 @@
+drop table bigtable;
+
+create table bigtable as
+select 
+
+buy.ask - sell.bid AS NET_ASK,
+buy.bid - sell.ask AS NET_BID,
+
+CASE 
+when buy.option_type == "C" AND buy.strike < sell.strike THEN
+	sell.bid / buy.ask
+when buy.option_type == "P" AND buy.strike > sell.strike THEN
+	sell.bid / buy.ask
+when buy.option_type == "C" AND buy.strike > sell.strike THEN
+	buy.ask / sell.bid
+ELSE
+    buy.ask / sell.bid
+END AS RATIO,
+
+
+CASE 
+when buy.strike < sell.strike THEN 1 
+ELSE 0
+end AS IS_BULLISH,
+
+CASE
+when (buy.strike < sell.strike and buy.option_type == "C") THEN 0 
+when (buy.strike > sell.strike and buy.option_type == "P") THEN 0 
+ELSE 1
+END AS IS_CREDIT,
+
+CASE 
+when buy.option_type == "C" AND buy.strike > sell.strike THEN
+	sell.bid - buy.ask
+when buy.option_type == "C" AND buy.strike < sell.strike THEN
+	sell.strike - buy.strike - buy.ask + sell.bid	
+when buy.option_type == "P" AND buy.strike > sell.strike THEN
+	buy.strike - sell.strike - buy.ask + sell.bid	
+ELSE
+	sell.bid - buy.ask
+END AS MAX_RETURN_ABSOLUTE,
+
+CASE 
+when buy.option_type == "C" AND buy.strike < sell.strike THEN
+	(sell.strike - buy.strike) / (buy.ask - sell.bid)	
+when buy.option_type == "P" AND buy.strike > sell.strike THEN
+	(sell.strike - buy.strike) / (buy.ask - sell.bid)
+ELSE
+	1
+END AS MAX_RETURN_PERCENT,
+
+CASE 
+when buy.option_type == "C" AND buy.strike < sell.strike THEN
+	(sell.strike - buy.strike - buy.ask + sell.bid)	/ sell.days_to_expiration
+when buy.option_type == "P" AND buy.strike > sell.strike THEN
+	(buy.strike - sell.strike - buy.ask + sell.bid) / sell.days_to_expiration
+when buy.option_type == "C" AND buy.strike > sell.strike THEN
+	(sell.bid - buy.ask) / sell.days_to_expiration
+ELSE
+	(sell.bid - buy.ask) / sell.days_to_expiration
+END AS MAX_RETURN_DAILY,
+
+
+CASE 
+when buy.option_type == "C" AND buy.strike < sell.strike THEN
+	sell.strike - buy.strike
+when buy.option_type == "P" AND buy.strike > sell.strike THEN
+	buy.strike - sell.strike
+ELSE 0 
+END AS MAX_VALUE_AT_EXPIRATION,
+
+CASE
+when buy.option_type == "C" AND buy.strike < sell.strike THEN 
+	buy.ask - sell.bid
+when buy.option_type == "P" AND buy.strike > sell.strike THEN
+ 	buy.ask - sell.bid
+when buy.option_type == "C" AND buy.strike > sell.strike THEN
+	(buy.strike - sell.strike) - (sell.bid - buy.ask)
+ELSE
+	(sell.strike - buy.strike) - (sell.bid - buy.ask)
+END AS CAPITAL_AT_RISK,
+
+CASE
+when buy.option_type == "C" AND buy.strike > sell.strike THEN
+    ((buy.strike - sell.strike) - (sell.bid - buy.ask)) / (buy.ask - sell.bid)
+when buy.option_type == "P" AND buy.strike < sell.strike THEN
+	((sell.strike - buy.strike) - (buy.ask - sell.bid)) / (buy.ask - sell.bid)
+ELSE 1
+END AS CAPITAL_AT_RISK_PERCENT,
+
+CASE 
+when buy.option_type == "C" AND buy.strike < sell.strike THEN 
+	buy.strike + buy.ask - sell.bid
+when buy.option_type == "P" AND buy.strike > sell.strike THEN
+	buy.strike - buy.ask + sell.bid
+when buy.option_type == "C" AND buy.strike > sell.strike THEN
+	sell.strike + sell.bid - buy.ask
+ELSE
+	sell.strike - sell.bid + buy.ask
+END AS PRICE_AT_BREAK_EVEN,
+
+CASE 
+when buy.option_type == "C" AND buy.strike < sell.strike THEN
+	min(.5, ((sell.strike - buy.strike - buy.ask + sell.bid) / sell.days_to_expiration) * 72) + (35 * (buy.underlying_price - buy.strike + buy.ask - sell.bid) / sell.underlying_price)
+when buy.option_type == "P" AND buy.strike > sell.strike THEN
+	min(.5, ((buy.strike - sell.strike - buy.ask + sell.bid) / sell.days_to_expiration) * 72) + (35 * (buy.strike - buy.ask + sell.bid - buy.underlying_price) / sell.underlying_price)	
+when buy.option_type == "C" AND buy.strike > sell.strike THEN
+	min(.5, ((sell.bid - buy.ask) / sell.days_to_expiration) * 72) + (35 * (buy.strike - buy.ask + sell.bid - buy.underlying_price) / sell.underlying_price)
+ELSE
+	min(.5, ((sell.bid - buy.ask) / sell.days_to_expiration) * 72) + (35 * (buy.underlying_price - sell.strike + sell.bid - buy.ask) / sell.underlying_price)
+END AS WEIGHTED_RISK,
+
+CASE 
+when buy.strike > sell.strike THEN
+	sell.strike - buy.underlying_price
+ELSE
+	buy.underlying_price - sell.strike
+END AS BUFFER_TO_MAX_PROFIT,
+
+CASE 
+when buy.strike > sell.strike THEN
+	(sell.strike - buy.underlying_price) / buy.underlying_price
+ELSE
+	(buy.underlying_price - sell.strike) / buy.underlying_price
+END AS PERCENT_BUFFER_TO_MAX_PROFIT,
+
+CASE 
+when buy.option_type == "C" AND buy.strike < sell.strike THEN
+	buy.underlying_price - (buy.strike + buy.ask - sell.bid)
+when buy.option_type == "P" AND buy.strike > sell.strike THEN
+	(buy.strike - buy.ask + sell.bid) - buy.underlying_price
+when buy.option_type == "C" AND buy.strike > sell.strike THEN
+	(sell.strike + sell.bid - buy.ask) - sell.underlying_price
+ELSE
+	buy.underlying_price - (sell.strike - sell.bid + buy.ask) 
+END AS BUFFER_TO_BREAK_EVEN,
+
+CASE 
+when buy.option_type == "C" AND buy.strike < sell.strike THEN
+	(buy.underlying_price - (buy.strike + buy.ask - sell.bid)) / buy.underlying_price
+when buy.option_type == "P" AND buy.strike > sell.strike THEN
+	((buy.strike - buy.ask + sell.bid) - buy.underlying_price) / buy.underlying_price
+when buy.option_type == "C" AND buy.strike > sell.strike THEN
+	((sell.strike + sell.bid - buy.ask) - sell.underlying_price) / buy.underlying_price
+ELSE
+	(buy.underlying_price - (sell.strike - sell.bid + buy.ask)) / buy.underlying_price
+END AS PERCENT_BUFFER_TO_BREAK_EVEN,
+
+buy.TIMESTAMP_QUOTE,
+buy.TIMESTAMP_FETCH,
+
+buy.symbol AS BUY_SYMBOL, sell.symbol AS SELL_SYMBOL
+
+from Options buy, Options sell where buy.option_type = sell.option_type 
+	and buy.symbol_underlying = sell.symbol_underlying 
+	and buy.symbol != sell.symbol
+	and buy.expiration == sell.expiration
+	and max_return_absolute >= 0.05
+	and ratio > 0.05;
+
+select count(*) FROM bigtable;
+select * from bigtable order by max_return_daily desc limit 1;

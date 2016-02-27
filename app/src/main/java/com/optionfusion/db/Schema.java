@@ -18,8 +18,8 @@ import static com.optionfusion.db.Schema.DbConstraint.PRIMARY_KEY;
 
 public class Schema {
 
-    public final static int SCHEMA_VERSION = 1;
-    public static final String DB_NAME = "optionfusion";
+    public final static int SCHEMA_VERSION = 2;
+    public static final String DB_NAME = "optionfusion.db";
 
     enum DbConstraint {
         NOT_NULL, DEFAULT_0, PRIMARY_KEY, UNIQUE, NONE
@@ -64,10 +64,12 @@ public class Schema {
     public enum Options implements DbColumn {
         SYMBOL(TEXT, PRIMARY_KEY),
         SYMBOL_UNDERLYING(TEXT),
+        UNDERLYING_PRICE(REAL),
         BID(REAL),
         ASK(REAL),
         STRIKE(REAL),
         EXPIRATION(INTEGER),
+        DAYS_TO_EXPIRATION(INTEGER),
         IV(REAL),
         THEORETICAL_VALUE(REAL),
         OPTION_TYPE(INTEGER),
@@ -111,20 +113,26 @@ public class Schema {
 
 
     public enum VerticalSpreads implements DbColumn {
-        BUY_SIDE(TEXT),
-        SELL_SIDE(TEXT),
+        BUY_SYMBOL(TEXT),
+        SELL_SYMBOL(TEXT),
+        BUY_STRIKE(TEXT),
+        SELL_STRIKE(TEXT),
         IS_BULLISH(INTEGER),
-        IS_PUT_SPREAD(INTEGER),
+        IS_CREDIT(INTEGER),
         NET_ASK(REAL),
         NET_BID(REAL),
         EXPIRATION(INTEGER),
+        DAYS_TO_EXPIRATION(INTEGER),
 
         // calculations
+        BUY_TO_SELL_PRICE_RATIO(REAL),
         MAX_RETURN_ABSOLUTE(REAL),
         MAX_RETURN_PERCENT(REAL),
-        MAX_RETURN_ANNUALIZED(REAL),
+        MAX_RETURN_DAILY(REAL),
         MAX_VALUE_AT_EXPIRATION(REAL),
         PRICE_AT_BREAK_EVEN(REAL),
+        CAPITAL_AT_RISK(REAL),
+        CAPITAL_AT_RISK_PERCENT(REAL),
 
         // Used when sorting by risk; offers a smallish profitability factor
         WEIGHTED_RISK(REAL),
