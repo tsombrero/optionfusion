@@ -112,15 +112,9 @@ public class Interfaces {
     public interface OptionChain extends ResponseBase {
         StockQuote getUnderlyingStockQuote();
 
-        List<? extends OptionDate> getChainsByDate();
-
         List<DateTime> getExpirationDates();
 
         List<Double> getStrikePrices();
-
-        List<? extends OptionQuote> getOptionCalls();
-
-        List<? extends OptionQuote> getOptionPuts();
 
         List<Spread> getAllSpreads(FilterSet filterSet);
 

@@ -7,7 +7,12 @@ import com.google.gson.Gson;
 import com.optionfusion.model.Spread;
 import com.optionfusion.model.provider.Interfaces;
 
+import java.util.ArrayList;
+
 abstract public class Filter implements Parcelable {
+
+    public abstract void addDbSelection(ArrayList<String> selections, ArrayList<String> selectionArgs);
+
     public abstract boolean pass(Spread spread);
 
     public abstract boolean pass(Interfaces.OptionDate optionDate);

@@ -3,6 +3,7 @@ package com.optionfusion.model.filter;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.optionfusion.db.Schema;
 import com.optionfusion.model.Spread;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.util.Util;
@@ -17,6 +18,12 @@ public class RoiFilter extends Filter {
 
     public RoiFilter(Parcel parcel) {
         this(parcel.readDouble());
+    }
+
+    @Override
+    public String getDbSelection() {
+        //FIXME max_return_daily is for sorting, get the real annualized% into the db
+        return " ( " + Schema.VerticalSpreads.MAX_RETURN_DAILY + " >= " + (roi / 365D) + " ) ";
     }
 
     @Override

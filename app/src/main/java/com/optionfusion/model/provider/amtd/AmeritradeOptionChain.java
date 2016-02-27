@@ -52,7 +52,6 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         return stockQuote;
     }
 
-    @Override
     public List<AmtdOptionDate> getChainsByDate() {
         if (data == null)
             return Collections.EMPTY_LIST;
@@ -95,16 +94,6 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
                 strikePrices = new ArrayList<>(priceSet);
         }
         return strikePrices;
-    }
-
-    @Override
-    public List<Interfaces.OptionQuote> getOptionCalls() {
-        return callQuotes;
-    }
-
-    @Override
-    public List<Interfaces.OptionQuote> getOptionPuts() {
-        return putQuotes;
     }
 
     @Override

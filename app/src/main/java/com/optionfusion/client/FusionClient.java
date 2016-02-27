@@ -26,6 +26,7 @@ import com.optionfusion.com.backend.optionFusion.model.OptionChain;
 import com.optionfusion.db.DbHelper;
 import com.optionfusion.db.Schema;
 import com.optionfusion.db.Schema.Options;
+import com.optionfusion.model.Spread;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.backend.FusionOptionChain;
 import com.optionfusion.module.OptionFusionApplication;
@@ -271,14 +272,15 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             case WEIGHTED_RISK:
                 sql = "CASE " +
                         "when buy.option_type == 'C' AND buy.strike < sell.strike THEN " +
-                        "min(.5, ((sell.strike - buy.strike - buy.ask + sell.bid) / sell.days_to_expiration) * 72) + (35 * (buy.underlying_price - buy.strike + buy.ask - sell.bid) / sell.underlying_price) " +
+                        "min(.5, ((sell.strike - buy.strike - buy.ask + sell.bid) / sell.days_to_expiration) * 72) + ($WEIGHT_LOWRISK * (buy.underlying_price - buy.strike + buy.ask - sell.bid) / sell.underlying_price) " +
                         "when buy.option_type == 'P' AND buy.strike > sell.strike THEN " +
-                        "min(.5, ((buy.strike - sell.strike - buy.ask + sell.bid) / sell.days_to_expiration) * 72) + (35 * (buy.strike - buy.ask + sell.bid - buy.underlying_price) / sell.underlying_price) " +
+                        "min(.5, ((buy.strike - sell.strike - buy.ask + sell.bid) / sell.days_to_expiration) * 72) + ($WEIGHT_LOWRISK * (buy.strike - buy.ask + sell.bid - buy.underlying_price) / sell.underlying_price) " +
                         "when buy.option_type == 'C' AND buy.strike > sell.strike THEN " +
-                        "min(.5, ((sell.bid - buy.ask) / sell.days_to_expiration) * 72) + (35 * (buy.strike - buy.ask + sell.bid - buy.underlying_price) / sell.underlying_price) " +
+                        "min(.5, ((sell.bid - buy.ask) / sell.days_to_expiration) * 72) + ($WEIGHT_LOWRISK * (buy.strike - buy.ask + sell.bid - buy.underlying_price) / sell.underlying_price) " +
                         "ELSE " +
-                        "min(.5, ((sell.bid - buy.ask) / sell.days_to_expiration) * 72) + (35 * (buy.underlying_price - sell.strike + sell.bid - buy.ask) / sell.underlying_price) " +
-                        "END";
+                        "min(.5, ((sell.bid - buy.ask) / sell.days_to_expiration) * 72) + ($WEIGHT_LOWRISK * (buy.underlying_price - sell.strike + sell.bid - buy.ask) / sell.underlying_price) " +
+                        "END"
+                .replaceAll("$WEIGHT_LOWRISK", String.valueOf(Spread.WEIGHT_LOWRISK));
                 break;
             case BUFFER_TO_MAX_PROFIT:
                 sql = "CASE " +

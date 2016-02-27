@@ -113,6 +113,7 @@ public class Schema {
 
 
     public enum VerticalSpreads implements DbColumn {
+        UNDERLYING_SUMBOL(TEXT),
         BUY_SYMBOL(TEXT),
         SELL_SYMBOL(TEXT),
         BUY_STRIKE(TEXT),
@@ -199,5 +200,9 @@ public class Schema {
             names.add(e.name());
         }
         return names;
+    }
+
+    public static String[] getProjection(DbColumn ... columns) {
+        return getColumnNames(columns).toArray(new String[columns.length]);
     }
 }

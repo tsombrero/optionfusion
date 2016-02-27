@@ -1,80 +1,102 @@
 package com.optionfusion.model.provider.backend;
 
+import android.database.Cursor;
+import android.text.TextUtils;
+
 import com.google.gson.Gson;
 import com.optionfusion.backend.protobuf.OptionChainProto;
+import com.optionfusion.db.DbHelper;
+import com.optionfusion.db.Schema;
 import com.optionfusion.model.FilterSet;
 import com.optionfusion.model.Spread;
+import com.optionfusion.model.filter.Filter;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.module.OptionFusionApplication;
 
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class FusionOptionChain implements Interfaces.OptionChain {
 
+    List<Double> strikePriceTicks;
+    List<DateTime> expirationDates = new ArrayList<>();
 
-    private final OptionChainProto.OptionChain protoChain;
-    List<Double> strikePrices;
-    List<FusionOptionDate> optionDates = new ArrayList<>();
+    DbHelper dbHelper;
+
+    FusionStockQuote stockQuote;
+
 
     public FusionOptionChain(OptionChainProto.OptionChain protoChain) {
-        this.protoChain = protoChain;
+        stockQuote = new FusionStockQuote(protoChain.getStockquote());
+        getStrikePrices();
         for (OptionChainProto.OptionDateChain dateChain : protoChain.getOptionDatesList()) {
-            optionDates.add(new FusionOptionDate(dateChain));
+            expirationDates.add(new DateTime(dateChain.getExpiration()));
         }
     }
 
     @Override
     public Interfaces.StockQuote getUnderlyingStockQuote() {
-        return null;
-    }
-
-    @Override
-    public List<? extends Interfaces.OptionDate> getChainsByDate() {
-        return null;
+        return stockQuote;
     }
 
     @Override
     public List<DateTime> getExpirationDates() {
-        return Collections.EMPTY_LIST;
+        if (expirationDates == null) {
+
+        }
+        return expirationDates;
     }
 
     @Override
     public List<Double> getStrikePrices() {
-        if (strikePrices == null) {
+        if (strikePriceTicks == null) {
+            String sql = "select min(strike), max(strike) " +
+                    " FROM " + Schema.Options.getTableName() +
+                    " WHERE " + Schema.Options.SYMBOL_UNDERLYING + " =?";
 
-            Set<Double> strikes = new HashSet<>();
-            OptionChainProto.OptionDateChain firstDate = protoChain.getOptionDates(0);
-            OptionChainProto.OptionDateChain lastDate = protoChain.getOptionDates(protoChain.getOptionDatesCount() - 1);
+            Cursor c = dbHelper.getReadableDatabase()
+                    .rawQuery(sql, new String[]{getUnderlyingStockQuote().getSymbol()});
 
-            double lo = firstDate.getOptions(0).getStrike();
-            double hi = firstDate.getOptions(firstDate.getOptionsCount() - 1).getStrike();
-            lo = Math.min(lo, lastDate.getOptions(0).getStrike());
-            hi = Math.max(hi, lastDate.getOptions(lastDate.getOptionsCount() - 1).getStrike());
-
-            strikePrices = com.optionfusion.util.Util.getStrikeTicks(lo, hi);
+            Double minStrike = c.getDouble(0);
+            Double maxStrike = c.getDouble(1);
+            strikePriceTicks = com.optionfusion.util.Util.getStrikeTicks(minStrike, maxStrike);
         }
-        return strikePrices;
-    }
-
-    @Override
-    public List<? extends Interfaces.OptionQuote> getOptionCalls() {
-        return null;
-    }
-
-    @Override
-    public List<? extends Interfaces.OptionQuote> getOptionPuts() {
-        return null;
+        return strikePriceTicks;
     }
 
     @Override
     public List<Spread> getAllSpreads(FilterSet filterSet) {
-        return null;
+        //FIXME DB call on the main thread
+        String orderBy = Schema.VerticalSpreads.MAX_RETURN_DAILY + " DESC";
+        ArrayList<String> selections = new ArrayList<>();
+        ArrayList<String> selectionArgs = new ArrayList<>();
+
+        selections.add("(" + Schema.VerticalSpreads.UNDERLYING_SUMBOL + "=?)");
+        selectionArgs.add(getUnderlyingStockQuote().getSymbol());
+
+        for (Filter filter : filterSet.getFilters()) {
+            filter.addDbSelection(selections, selectionArgs);
+            if (filter.getFilterType() == Filter.FilterType.ROI) {
+                orderBy = Schema.VerticalSpreads.WEIGHTED_RISK + " ASC";
+            }
+        }
+
+        String selection = " WHERE " + TextUtils.join(" AND ", selections);
+
+        Cursor c = dbHelper.getReadableDatabase()
+                .query(Schema.VerticalSpreads.getTableName(),
+                        Schema.getProjection(Schema.VerticalSpreads.values()),
+                        selection, selectionArgs.toArray(new String[]{}),
+                        null, null, orderBy);
+
+        List<Spread> ret = new ArrayList<>();
+        while (c != null && c.moveToNext()) {
+            ret.add(Spread.newSpread(c));
+        }
+        return ret;
+
     }
 
     @Override

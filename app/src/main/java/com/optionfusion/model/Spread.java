@@ -1,5 +1,6 @@
 package com.optionfusion.model;
 
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -35,7 +36,7 @@ abstract public class Spread implements Parcelable {
     };
 
     // Weight used in sorting by risk; higher number means lower-risk trades are more preferred
-    private final static double WEIGHT_LOWRISK = 35D;
+    public final static double WEIGHT_LOWRISK = 35D;
 
     public enum SpreadType {
         BULL_CALL,
@@ -68,6 +69,10 @@ abstract public class Spread implements Parcelable {
         return buy.getStrike() > sell.getStrike()
                 ? SpreadType.BEAR_PUT
                 : SpreadType.BULL_PUT;
+    }
+
+    public static Spread newSpread(Cursor c) {
+        
     }
 
     public static Spread newSpread(Interfaces.OptionQuote buy, Interfaces.OptionQuote sell, Interfaces.StockQuote underlying) {
