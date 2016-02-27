@@ -8,6 +8,8 @@ import com.optionfusion.ui.widgets.rangebar.RangeBar;
 import com.optionfusion.model.Spread;
 import com.optionfusion.util.Util;
 
+import java.util.ArrayList;
+
 public class StrikeFilter extends Filter implements RangeBar.RangeBarDataProvider {
 
     private final double limitLo;
@@ -33,6 +35,11 @@ public class StrikeFilter extends Filter implements RangeBar.RangeBarDataProvide
         this.limitLo = limitLo;
         this.limitHi = limitHi;
         this.type = type;
+    }
+
+    @Override
+    public void addDbSelection(ArrayList<String> selections, ArrayList<String> selectionArgs) {
+        //TODO
     }
 
     @Override

@@ -114,11 +114,6 @@ public class GoogOptionChain implements Interfaces.OptionChain {
     }
 
     @Override
-    public List<? extends Interfaces.OptionDate> getChainsByDate() {
-        return Collections.unmodifiableList(optionDates);
-    }
-
-    @Override
     public List<DateTime> getExpirationDates() {
         List<DateTime> ret = new ArrayList<>();
         for (Interfaces.OptionDate optionDate : optionDates) {
@@ -136,24 +131,6 @@ public class GoogOptionChain implements Interfaces.OptionChain {
             }
         }
         return new ArrayList<>(ret);
-    }
-
-    @Override
-    public List<Interfaces.OptionQuote> getOptionCalls() {
-        ArrayList<Interfaces.OptionQuote> ret = new ArrayList<>();
-        for (GoogOptionDate optionDate : optionDates) {
-            ret.addAll(optionDate.calls);
-        }
-        return ret;
-    }
-
-    @Override
-    public List<Interfaces.OptionQuote> getOptionPuts() {
-        ArrayList<Interfaces.OptionQuote> ret = new ArrayList<>();
-        for (GoogOptionDate optionDate : optionDates) {
-            ret.addAll(optionDate.puts);
-        }
-        return ret;
     }
 
     @Override

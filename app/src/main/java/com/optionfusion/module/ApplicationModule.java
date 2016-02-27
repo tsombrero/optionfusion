@@ -182,7 +182,8 @@ public class ApplicationModule {
     @Provides
     @Singleton
     DbHelper provideDbHelper(Context context) {
-        return new DbHelper(context, Schema.DB_NAME, null, Schema.SCHEMA_VERSION);
+        String path = context.getDatabasePath(Schema.DB_NAME).getPath();
+        return new DbHelper(context, path, null, Schema.SCHEMA_VERSION);
     }
 
 }

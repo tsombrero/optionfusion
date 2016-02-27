@@ -1,9 +1,11 @@
 package com.optionfusion.db;
 
 import android.content.Context;
-import android.database.DatabaseErrorHandler;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+
+import org.sqlite.database.DatabaseErrorHandler;
+import org.sqlite.database.sqlite.SQLiteDatabase;
+import org.sqlite.database.sqlite.SQLiteOpenHelper;
+
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -13,6 +15,10 @@ import java.util.List;
 public class DbHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "DbHelper";
+
+    {
+        System.loadLibrary("sqliteX");
+    }
 
     public DbHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);

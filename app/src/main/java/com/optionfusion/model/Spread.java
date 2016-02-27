@@ -72,7 +72,8 @@ abstract public class Spread implements Parcelable {
     }
 
     public static Spread newSpread(Cursor c) {
-        
+        //TODO
+        return null;
     }
 
     public static Spread newSpread(Interfaces.OptionQuote buy, Interfaces.OptionQuote sell, Interfaces.StockQuote underlying) {

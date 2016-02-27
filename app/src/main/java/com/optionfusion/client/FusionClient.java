@@ -1,7 +1,6 @@
 package com.optionfusion.client;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
@@ -30,6 +29,8 @@ import com.optionfusion.model.Spread;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.backend.FusionOptionChain;
 import com.optionfusion.module.OptionFusionApplication;
+
+import org.sqlite.database.sqlite.SQLiteDatabase;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -269,6 +270,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                         "ELSE " +
                         "sell.strike - sell.bid + buy.ask " +
                         "END";
+                break;
             case WEIGHTED_RISK:
                 sql = "CASE " +
                         "when buy.option_type == 'C' AND buy.strike < sell.strike THEN " +

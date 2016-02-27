@@ -11,6 +11,8 @@ import com.optionfusion.util.Util;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
+import java.util.ArrayList;
+
 public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider {
     private DateTime maxExpDate;
     private DateTime minExpDate;
@@ -40,6 +42,11 @@ public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider 
 
     public TimeFilter(Parcel parcel) {
         this(new DateTime(parcel.readLong()), new DateTime(parcel.readLong()));
+    }
+
+    @Override
+    public void addDbSelection(ArrayList<String> selections, ArrayList<String> selectionArgs) {
+        //TODO
     }
 
     @Override

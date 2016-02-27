@@ -8,6 +8,8 @@ import com.optionfusion.model.Spread;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.util.Util;
 
+import java.util.ArrayList;
+
 public class RoiFilter extends Filter {
 
     private final Double roi;
@@ -21,9 +23,9 @@ public class RoiFilter extends Filter {
     }
 
     @Override
-    public String getDbSelection() {
+    public void addDbSelection(ArrayList<String> selections, ArrayList<String> selectionArgs) {
         //FIXME max_return_daily is for sorting, get the real annualized% into the db
-        return " ( " + Schema.VerticalSpreads.MAX_RETURN_DAILY + " >= " + (roi / 365D) + " ) ";
+        selections.add(" ( " + Schema.VerticalSpreads.MAX_RETURN_DAILY + " >= " + (roi / 365D) + " ) ");
     }
 
     @Override

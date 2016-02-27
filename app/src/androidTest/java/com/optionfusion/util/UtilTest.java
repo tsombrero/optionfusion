@@ -1,5 +1,6 @@
 package com.optionfusion.util;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
@@ -61,11 +62,11 @@ public class UtilTest {
     public void testGetFormattedOptionDate() throws Exception {
         Calendar calendar = Calendar.getInstance();
         calendar.set(2016, Calendar.JANUARY, 22);
-        LocalDate date = new LocalDate(calendar);
+        DateTime date = new DateTime(calendar);
 
         assertEquals("22 Jan", Util.getFormattedOptionDate(date));
         calendar.add(Calendar.YEAR, 1);
-        date = new LocalDate(calendar);
+        date = new DateTime(calendar);
         assertEquals("Jan 2017", Util.getFormattedOptionDate(date));
     }
 
@@ -79,8 +80,8 @@ public class UtilTest {
         Calendar calendarEnd = Calendar.getInstance();
         calendarEnd.set(2016, Calendar.MARCH, 25);
 
-        assertEquals("Before 25 Mar", Util.formatDateRange(null, new LocalDate(calendarEnd)));
-        assertEquals("After 25 Mar", Util.formatDateRange(new LocalDate(calendarEnd), null));
-        assertEquals("22 Jan - 25 Mar", Util.formatDateRange(new LocalDate(calendarStart), new LocalDate(calendarEnd)));
+        assertEquals("Before 25 Mar", Util.formatDateRange(null, new DateTime(calendarEnd)));
+        assertEquals("After 25 Mar", Util.formatDateRange(new DateTime(calendarEnd), null));
+        assertEquals("22 Jan - 25 Mar", Util.formatDateRange(new DateTime(calendarStart), new DateTime(calendarEnd)));
     }
 }
