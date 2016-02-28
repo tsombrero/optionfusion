@@ -61,6 +61,21 @@ static void math_pow(sqlite3_context *context, int argc, sqlite3_value **argv) {
     sqlite3_result_null(context);
 }
 
+static void math_periodic_gain(sqlite3_context *context, int argc, sqlite3_value **argv) {
+    if (argc == 3) {
+        double principal = sqlite3_value_double(argv[0]);
+        double final_value = sqlite3_value_double(argv[1]);
+        double number_of_days = sqlite3_value_double(argv[2]);
+        double days_in_period = sqlite3_value_double(argv[3]);
+
+	//  ((principal + gain) / principal) ^ (365/days) – 1
+        double result = pow(final_value / principal, days_in_period / number_of_days) - 1;        
+        sqlite3_result_double(context, result);
+        return;
+    }
+    sqlite3_result_null(context);
+}
+
 namespace android {
 
 /* Busy timeout in milliseconds.
