@@ -54,7 +54,7 @@ public class FusionOptionChain implements Interfaces.OptionChain {
         if (strikePriceTicks == null) {
             String sql = "select min(strike), max(strike) " +
                     " FROM " + Schema.Options.getTableName() +
-                    " WHERE " + Schema.Options.SYMBOL_UNDERLYING + " =?";
+                    " WHERE " + Schema.Options.UNDERLYING_SYMBOL + " =?";
 
             Cursor c = dbHelper.getReadableDatabase()
                     .rawQuery(sql, new String[]{getUnderlyingStockQuote().getSymbol()});
@@ -69,7 +69,7 @@ public class FusionOptionChain implements Interfaces.OptionChain {
     @Override
     public List<Spread> getAllSpreads(FilterSet filterSet) {
         //FIXME DB call on the main thread
-        String orderBy = Schema.VerticalSpreads.MAX_RETURN_DAILY + " DESC";
+        String orderBy = Schema.VerticalSpreads.MAX_RETURN_ANNUALIZED + " DESC";
         ArrayList<String> selections = new ArrayList<>();
         ArrayList<String> selectionArgs = new ArrayList<>();
 

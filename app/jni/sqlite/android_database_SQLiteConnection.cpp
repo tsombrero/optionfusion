@@ -61,15 +61,15 @@ static void math_pow(sqlite3_context *context, int argc, sqlite3_value **argv) {
     sqlite3_result_null(context);
 }
 
-static void math_periodic_gain(sqlite3_context *context, int argc, sqlite3_value **argv) {
-    if (argc == 3) {
+static void math_periodic_roi(sqlite3_context *context, int argc, sqlite3_value **argv) {
+    if (argc == 4) {
         double principal = sqlite3_value_double(argv[0]);
         double final_value = sqlite3_value_double(argv[1]);
-        double number_of_days = sqlite3_value_double(argv[2]);
-        double days_in_period = sqlite3_value_double(argv[3]);
+        int number_of_days = sqlite3_value_int(argv[2]);
+        int days_in_period = sqlite3_value_int(argv[3]);
 
 	//  ((principal + gain) / principal) ^ (365/days) – 1
-        double result = pow(final_value / principal, days_in_period / number_of_days) - 1;        
+        double result = pow(final_value / principal, (double)(((double)days_in_period) / ((double)number_of_days))) - 1.0;        
         sqlite3_result_double(context, result);
         return;
     }
@@ -200,6 +200,7 @@ static jlong nativeOpen(JNIEnv* env, jclass clazz, jstring pathStr, jint openFla
     // Custom Functions JK
 
     sqlite3_create_function(db, "pow", 2, SQLITE_UTF8, NULL, &math_pow, NULL, NULL);
+    sqlite3_create_function(db, "periodic_roi", 4, SQLITE_UTF8, NULL, &math_periodic_roi, NULL, NULL);
 
     //    
 

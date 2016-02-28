@@ -24,8 +24,7 @@ public class RoiFilter extends Filter {
 
     @Override
     public void addDbSelection(ArrayList<String> selections, ArrayList<String> selectionArgs) {
-        //FIXME max_return_daily is for sorting, get the real annualized% into the db
-        selections.add(" ( " + Schema.VerticalSpreads.MAX_RETURN_DAILY + " >= " + (roi / 365D) + " ) ");
+        selections.add(" ( " + Schema.VerticalSpreads.MAX_RETURN_ANNUALIZED + " >= " + roi + " ) ");
     }
 
     @Override

@@ -18,7 +18,7 @@ import static com.optionfusion.db.Schema.DbConstraint.PRIMARY_KEY;
 
 public class Schema {
 
-    public final static int SCHEMA_VERSION = 2;
+    public final static int SCHEMA_VERSION = 3;
     public static final String DB_NAME = "optionfusion.db";
 
     enum DbConstraint {
@@ -63,7 +63,7 @@ public class Schema {
 
     public enum Options implements DbColumn {
         SYMBOL(TEXT, PRIMARY_KEY),
-        SYMBOL_UNDERLYING(TEXT),
+        UNDERLYING_SYMBOL(TEXT),
         UNDERLYING_PRICE(REAL),
         BID(REAL),
         ASK(REAL),
@@ -72,7 +72,7 @@ public class Schema {
         DAYS_TO_EXPIRATION(INTEGER),
         IV(REAL),
         THEORETICAL_VALUE(REAL),
-        OPTION_TYPE(INTEGER),
+        OPTION_TYPE(TEXT),
         OPEN_INTEREST(INTEGER),
 
         TIMESTAMP_QUOTE(INTEGER),
@@ -116,8 +116,8 @@ public class Schema {
         UNDERLYING_SUMBOL(TEXT),
         BUY_SYMBOL(TEXT),
         SELL_SYMBOL(TEXT),
-        BUY_STRIKE(TEXT),
-        SELL_STRIKE(TEXT),
+        BUY_STRIKE(REAL),
+        SELL_STRIKE(REAL),
         IS_BULLISH(INTEGER),
         IS_CREDIT(INTEGER),
         NET_ASK(REAL),
@@ -129,7 +129,8 @@ public class Schema {
         BUY_TO_SELL_PRICE_RATIO(REAL),
         MAX_RETURN_ABSOLUTE(REAL),
         MAX_RETURN_PERCENT(REAL),
-        MAX_RETURN_DAILY(REAL),
+        MAX_RETURN_MONTHLY(REAL),
+        MAX_RETURN_ANNUALIZED(REAL),
         MAX_VALUE_AT_EXPIRATION(REAL),
         PRICE_AT_BREAK_EVEN(REAL),
         CAPITAL_AT_RISK(REAL),
