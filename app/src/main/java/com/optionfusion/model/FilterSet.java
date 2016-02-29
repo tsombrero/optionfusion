@@ -25,7 +25,7 @@ public class FilterSet implements Parcelable {
     public FilterSet() {
     }
 
-    public boolean pass(Spread spread) {
+    public boolean pass(PojoSpread spread) {
         if (spread == null)
             return false;
 
@@ -107,14 +107,6 @@ public class FilterSet implements Parcelable {
 
     public boolean removeFilterMatching(Filter match) {
         return removeFilter(getFilterMatching(match));
-    }
-
-    public Comparator<Spread> getComparator() {
-        for (Filter filter : filters) {
-            if (filter.getFilterType() == Filter.FilterType.ROI)
-                return Spread.ASCENDING_RISK_COMPARATOR;
-        }
-        return Spread.DESCENDING_MAX_RETURN_COMPARATOR;
     }
 
     public int getActiveButton() {

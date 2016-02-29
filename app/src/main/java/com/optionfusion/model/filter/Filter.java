@@ -4,8 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.Gson;
-import com.optionfusion.model.Spread;
 import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.model.provider.VerticalSpread;
 
 import java.util.ArrayList;
 
@@ -13,7 +13,7 @@ abstract public class Filter implements Parcelable {
 
     public abstract void addDbSelection(ArrayList<String> selections, ArrayList<String> selectionArgs);
 
-    public abstract boolean pass(Spread spread);
+    public abstract boolean pass(VerticalSpread spread);
 
     public abstract boolean pass(Interfaces.OptionDate optionDate);
 

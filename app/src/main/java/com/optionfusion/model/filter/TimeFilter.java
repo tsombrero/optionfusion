@@ -4,14 +4,15 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.ui.widgets.rangebar.RangeBar;
-import com.optionfusion.model.Spread;
 import com.optionfusion.util.Util;
 
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
+
+import static com.optionfusion.db.Schema.VerticalSpreads.DAYS_TO_EXPIRATION;
 
 public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider {
     private DateTime maxExpDate;
@@ -46,11 +47,13 @@ public class TimeFilter extends Filter implements RangeBar.RangeBarDataProvider 
 
     @Override
     public void addDbSelection(ArrayList<String> selections, ArrayList<String> selectionArgs) {
-        //TODO
+        selections.add("( " + DAYS_TO_EXPIRATION + " > ? AND " + DAYS_TO_EXPIRATION + " < ? )");
+        selectionArgs.add(String.valueOf(minDaysToExp));
+        selectionArgs.add(String.valueOf(maxDaysToExp));
     }
 
     @Override
-    public boolean pass(Spread spread) {
+    public boolean pass(VerticalSpread spread) {
         return pass(spread.getDaysToExpiration());
     }
 

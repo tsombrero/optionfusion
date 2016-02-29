@@ -4,8 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.optionfusion.db.Schema;
-import com.optionfusion.model.Spread;
 import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.util.Util;
 
 import java.util.ArrayList;
@@ -24,11 +24,11 @@ public class RoiFilter extends Filter {
 
     @Override
     public void addDbSelection(ArrayList<String> selections, ArrayList<String> selectionArgs) {
-        selections.add(" ( " + Schema.VerticalSpreads.MAX_RETURN_ANNUALIZED + " >= " + roi + " ) ");
+        selections.add(" ( " + Schema.VerticalSpreads.MAX_GAIN_ANNUALIZED + " >= " + roi + " ) ");
     }
 
     @Override
-    public boolean pass(Spread spread) {
+    public boolean pass(VerticalSpread spread) {
         return spread.getMaxReturnAnnualized() >= roi;
     }
 

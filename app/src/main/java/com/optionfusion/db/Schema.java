@@ -18,14 +18,14 @@ import static com.optionfusion.db.Schema.DbConstraint.PRIMARY_KEY;
 
 public class Schema {
 
-    public final static int SCHEMA_VERSION = 3;
+    public final static int SCHEMA_VERSION = 4;
     public static final String DB_NAME = "optionfusion.db";
 
     enum DbConstraint {
         NOT_NULL, DEFAULT_0, PRIMARY_KEY, UNIQUE, NONE
     }
 
-    enum DataType {
+    public enum DataType {
         TEXT, INTEGER, REAL
     }
 
@@ -113,7 +113,8 @@ public class Schema {
 
 
     public enum VerticalSpreads implements DbColumn {
-        UNDERLYING_SUMBOL(TEXT),
+        UNDERLYING_SYMBOL(TEXT),
+        UNDERLYING_PRICE(REAL),
         BUY_SYMBOL(TEXT),
         SELL_SYMBOL(TEXT),
         BUY_STRIKE(REAL),
@@ -126,24 +127,25 @@ public class Schema {
         DAYS_TO_EXPIRATION(INTEGER),
 
         // calculations
-        BUY_TO_SELL_PRICE_RATIO(REAL),
-        MAX_RETURN_ABSOLUTE(REAL),
-        MAX_RETURN_PERCENT(REAL),
-        MAX_RETURN_MONTHLY(REAL),
-        MAX_RETURN_ANNUALIZED(REAL),
+        PRICE_AT_MAX_GAIN(REAL),
+        PRICE_AT_MAX_LOSS(REAL),
+        MAX_GAIN_ABSOLUTE(REAL),
+        MAX_GAIN_PERCENT(REAL),
+        MAX_GAIN_MONTHLY(REAL),
+        MAX_GAIN_ANNUALIZED(REAL),
         MAX_VALUE_AT_EXPIRATION(REAL),
-        PRICE_AT_BREAK_EVEN(REAL),
         CAPITAL_AT_RISK(REAL),
         CAPITAL_AT_RISK_PERCENT(REAL),
 
         // Used when sorting by risk; offers a smallish profitability factor
-        WEIGHTED_RISK(REAL),
+        RISK_AVERSION_SCORE(REAL),
 
         // how much the price can change before cutting into max profit
-        BUFFER_TO_MAX_PROFIT(REAL),
-        BUFFER_TO_MAX_PROFIT_PERCENT(REAL),
+        BUFFER_TO_MAX_GAIN(REAL),
+        BUFFER_TO_MAX_GAIN_PERCENT(REAL),
 
         // how much the price can change before negative profit
+        PRICE_AT_BREAK_EVEN(REAL),
         BUFFER_TO_BREAK_EVEN(REAL),
         BUFFER_TO_BREAK_EVEN_PERCENT(REAL),
 

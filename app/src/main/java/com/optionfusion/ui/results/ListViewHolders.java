@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.optionfusion.R;
-import com.optionfusion.model.Spread;
+import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.ui.SharedViewHolders;
 
 import butterknife.Bind;
@@ -66,7 +66,7 @@ public class ListViewHolders {
         View spreadHeaderLayout;
 
         private final SharedViewHolders.TradeDetailsHeaderHolder tradeHeaderHolder;
-        private Spread spread;
+        private VerticalSpread spread;
         private final SharedViewHolders.BriefTradeDetailsHolder briefTradeDetailsHolder;
 
         public SpreadViewHolder(View itemView, Context context, ResultsAdapter.ResultsListener listener) {

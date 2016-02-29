@@ -1,5 +1,6 @@
 package com.optionfusion.client;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
@@ -25,8 +26,8 @@ import com.optionfusion.com.backend.optionFusion.model.OptionChain;
 import com.optionfusion.db.DbHelper;
 import com.optionfusion.db.Schema;
 import com.optionfusion.db.Schema.Options;
-import com.optionfusion.model.Spread;
 import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.model.provider.backend.FusionOptionChain;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.util.Util;
@@ -92,12 +93,17 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                     OptionChainProto.OptionChain protoChain = OptionChainProto.OptionChain.parseFrom(chain.decodeChainData());
                     writeChainToDb(protoChain);
 
-                    return new FusionOptionChain(protoChain);
+                    return new FusionOptionChain(protoChain, dbHelper);
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 return null;
+            }
+
+            @Override
+            protected void onPostExecute(FusionOptionChain fusionOptionChain) {
+                callback.call(fusionOptionChain);
             }
         }.execute();
     }
@@ -118,12 +124,26 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
             updateSpreads(db);
 
+            clearBidAsk(db, protoChain.getStockquote().getSymbol());
+
             db.setTransactionSuccessful();
         } finally {
             if (db.inTransaction())
                 db.endTransaction();
         }
         Log.i(TAG, "TACO Transaction Committed");
+    }
+
+    private void clearBidAsk(SQLiteDatabase db, String symbol) {
+        ContentValues cv = new Schema.ContentValueBuilder()
+                .put(Options.ASK, 0)
+                .put(Options.BID, 0)
+                .build();
+
+        db.update(Options.getTableName(),
+                cv,
+                Options.UNDERLYING_SYMBOL + "=?",
+                new String[]{symbol});
     }
 
     private void updateSpreads(SQLiteDatabase db) {
@@ -144,9 +164,9 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                         " and buy.underlying_symbol = sell.underlying_symbol " +
                         " and buy.symbol != sell.symbol " +
                         " and buy.expiration == sell.expiration " +
-                        " and max_return_absolute >= 0.05 " +
-                        " and BUY_TO_SELL_PRICE_RATIO > 0.1" +
-                        " and sell.open_interest > 0" +
+                        " and max_gain_absolute >= 0.05 " +
+                        " and sell.bid >= 0.05 and buy.bid >= 0.05 " +
+                        " and min(buy.ask, sell.bid) / max(buy.ask, sell.bid) > 0.1" +
                         ";");
 
         Log.i(TAG, "TACO Inserting spreads:");
@@ -158,8 +178,11 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     private String appendClculatedColumnValue(Schema.VerticalSpreads spreadColumn) {
         String sql = "0";
         switch (spreadColumn) {
-            case UNDERLYING_SUMBOL:
+            case UNDERLYING_SYMBOL:
                 sql = "buy." + Options.UNDERLYING_SYMBOL;
+                break;
+            case UNDERLYING_PRICE:
+                sql = "buy." + Options.UNDERLYING_PRICE;
                 break;
             case BUY_SYMBOL:
                 sql = "buy." + Options.SYMBOL;
@@ -176,17 +199,11 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             case IS_BULLISH:
                 sql = "CASE when buy.strike < sell.strike THEN 1 ELSE 0 END";
                 break;
-            case BUY_TO_SELL_PRICE_RATIO:
-                sql = "CASE " +
-                        "WHEN isBullCall THEN " +
-                        " sell.bid / buy.ask " +
-                        "WHEN isBearPut THEN " +
-                        " sell.bid / buy.ask " +
-                        "WHEN isBearCall THEN " +
-                        " buy.ask / sell.bid " +
-                        "WHEN isBullPut THEN " +
-                        " buy.ask / sell.bid " +
-                        "END";
+            case PRICE_AT_MAX_GAIN:
+                sql = "sell." + Options.STRIKE;
+                break;
+            case PRICE_AT_MAX_LOSS:
+                sql = "buy." + Options.STRIKE;
                 break;
             case IS_CREDIT:
                 sql = "CASE " +
@@ -206,7 +223,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             case DAYS_TO_EXPIRATION:
                 sql = "buy." + Options.DAYS_TO_EXPIRATION;
                 break;
-            case MAX_RETURN_ABSOLUTE:
+            case MAX_GAIN_ABSOLUTE:
                 sql = "CASE  " +
                         "WHEN isBullCall OR isBearPut THEN " +
                         " normal_max_value - net_ask " +
@@ -214,7 +231,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                         " net_ask * -1 " +
                         "END";
                 break;
-            case MAX_RETURN_PERCENT:
+            case MAX_GAIN_PERCENT:
                 sql = "CASE " +
                         "WHEN isBullCall OR isBearPut THEN " +
                         " (normal_max_value - net_ask) / net_ask " +
@@ -223,7 +240,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                         " (net_ask * -1) / (normal_max_value + net_ask) " +
                         "END";
                 break;
-            case MAX_RETURN_MONTHLY:
+            case MAX_GAIN_MONTHLY:
                 // periodic_roi(principal, final, days held, days in period)
                 sql = "CASE " +
                         "WHEN isBullCall OR isBearPut THEN " +
@@ -234,7 +251,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                         " periodic_roi(normal_max_value + net_ask, normal_max_value, buy.days_to_expiration, 30) " +
                         "END";
                 break;
-            case MAX_RETURN_ANNUALIZED:
+            case MAX_GAIN_ANNUALIZED:
                 // periodic_roi(principal, final, days held, days in period)
                 sql = "CASE " +
                         "WHEN isBullCall OR isBearPut THEN " +
@@ -280,7 +297,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                         " bullPut_breakEven " +
                         "END";
                 break;
-            case WEIGHTED_RISK:
+            case RISK_AVERSION_SCORE:
                 sql = "CASE " +
                         "when isBullCall THEN " +
                         "min(.5, periodic_roi(net_ask, normal_max_value, buy.days_to_expiration, 365) / 5.0) + (WEIGHT_LOWRISK * (buy.underlying_price - bullCall_breakEven) / sell.underlying_price) " +
@@ -292,7 +309,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                         "min(.5, periodic_roi(normal_max_value + net_ask, normal_max_value, buy.days_to_expiration, 365) / 5.0) + (WEIGHT_LOWRISK * (buy.underlying_price - bullPut_breakEven) / sell.underlying_price) " +
                         "END";
                 break;
-            case BUFFER_TO_MAX_PROFIT:
+            case BUFFER_TO_MAX_GAIN:
                 sql = "CASE " +
                         "when buy.strike > sell.strike THEN " +
                         " sell.strike - buy.underlying_price " +
@@ -300,7 +317,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                         " buy.underlying_price - sell.strike " +
                         "END ";
                 break;
-            case BUFFER_TO_MAX_PROFIT_PERCENT:
+            case BUFFER_TO_MAX_GAIN_PERCENT:
                 sql = "CASE " +
                         "when buy.strike > sell.strike THEN " +
                         "(sell.strike - buy.underlying_price) / buy.underlying_price " +
@@ -368,7 +385,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         isBullPut("buy.option_type == 'P' AND buy.strike < sell.strike"),
         net_ask("round(buy.ask - sell.bid, 4)"),
         net_bid("round(buy.bid - sell.ask, 4)"),
-        WEIGHT_LOWRISK(String.valueOf(Spread.WEIGHT_LOWRISK));
+        WEIGHT_LOWRISK(String.valueOf(VerticalSpread.WEIGHT_LOWRISK));
 
         String replacementText;
 
@@ -380,6 +397,9 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     private void writeDateChainToDb(SQLiteDatabase db, OptionChainProto.StockQuote stockQuote, OptionChainProto.OptionDateChain dateChain, long now) {
 
         for (OptionChainProto.OptionQuote optionQuote : dateChain.getOptionsList()) {
+            if (Util.getDaysFromNow(new DateTime(dateChain.getExpiration())) <= 1) {
+                continue;
+            }
             Schema.ContentValueBuilder cv = new Schema.ContentValueBuilder();
             cv.put(Options.SYMBOL, Options.getKey(stockQuote.getSymbol(), dateChain.getExpiration(), optionQuote.getOptionType(), optionQuote.getStrike()))
                     .put(Options.UNDERLYING_SYMBOL, stockQuote.getSymbol())
@@ -390,7 +410,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                     .put(Options.EXPIRATION, dateChain.getExpiration())
                     .put(Options.DAYS_TO_EXPIRATION, Math.max(1, Util.getDaysFromNow(new DateTime(dateChain.getExpiration()))))
                     .put(Options.IV, optionQuote.getIv())
-                    .put(Options.OPTION_TYPE, optionQuote.getOptionType().name().substring(0,1))
+                    .put(Options.OPTION_TYPE, optionQuote.getOptionType().name().substring(0, 1))
                     .put(Options.OPEN_INTEREST, optionQuote.getOpenInterest())
                     .put(Options.TIMESTAMP_FETCH, now)
                     .put(Options.TIMESTAMP_QUOTE, stockQuote.getTimestamp());

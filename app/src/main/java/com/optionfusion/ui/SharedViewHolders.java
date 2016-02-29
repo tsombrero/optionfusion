@@ -11,8 +11,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.optionfusion.R;
-import com.optionfusion.model.Spread;
 import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.util.Util;
 
 import butterknife.Bind;
@@ -166,7 +166,7 @@ public class SharedViewHolders {
             ButterKnife.bind(this, view);
         }
 
-        public void bind(Spread spread) {
+        public void bind(VerticalSpread spread) {
 
             Resources resources = context.getResources();
 
@@ -178,14 +178,14 @@ public class SharedViewHolders {
 
             description.setText(spread.getSpreadType().toString());
             expiration.setText(Util.getFormattedOptionDate(spread.getExpiresDate()));
-            strikes.setText(String.format("%.2f/%.2f", spread.getBuy().getStrike(), spread.getSell().getStrike()));
+            strikes.setText(String.format("%.2f/%.2f", spread.getBuyStrike(), spread.getSellStrike()));
 
             header.setTransitionName(getTransitionName(spread));
 
         }
 
-        static public String getTransitionName(Spread spread) {
-            return "header_" + spread.toString();
+        static public String getTransitionName(VerticalSpread spread) {
+            return "header_" + spread.getDescription();
         }
     }
 
@@ -226,7 +226,7 @@ public class SharedViewHolders {
             ButterKnife.bind(this, view);
         }
 
-        public void bind(Spread spread) {
+        public void bind(VerticalSpread spread) {
             bidAsk.setText(String.format("%s / %s", Util.formatDollars(spread.getBid()), Util.formatDollars(spread.getAsk())));
         }
     }
@@ -258,7 +258,7 @@ public class SharedViewHolders {
             ButterKnife.bind(this, view);
         }
 
-        public void bind(Spread spread) {
+        public void bind(VerticalSpread spread) {
             summary.setText(String.format("Returns %s/yr if %s is %s %s from the current price",
                     Util.formatPercentCompact(spread.getMaxReturnAnnualized()),             // Returns %s / yr
                     spread.getUnderlyingSymbol(),                                           // if %symbol
@@ -284,8 +284,8 @@ public class SharedViewHolders {
             layout.setTransitionName(getTransitionName(spread));
         }
 
-        static public String getTransitionName(Spread spread) {
-            return "details_" + spread;
+        static public String getTransitionName(VerticalSpread spread) {
+            return "details_" + spread.getDescription();
         }
     }
 

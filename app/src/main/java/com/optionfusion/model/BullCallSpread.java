@@ -1,8 +1,10 @@
 package com.optionfusion.model;
 
+import android.os.Parcelable;
+
 import com.optionfusion.model.provider.Interfaces;
 
-public class BullCallSpread extends Spread {
+public class BullCallSpread extends PojoSpread {
     protected BullCallSpread(Interfaces.OptionQuote buy, Interfaces.OptionQuote sell, Interfaces.StockQuote underlying) {
         super(buy, sell, underlying);
     }
@@ -21,4 +23,6 @@ public class BullCallSpread extends Spread {
     public double getBreakEvenDepth() {
         return underlying.getLast() - getPrice_BreakEven();
     }
+
+    public static final Parcelable.Creator<PojoSpread> CREATOR = new SpreadCreator();
 }

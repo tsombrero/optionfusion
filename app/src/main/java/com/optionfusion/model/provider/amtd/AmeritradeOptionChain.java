@@ -5,14 +5,13 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.optionfusion.model.FilterSet;
-import com.optionfusion.model.Spread;
+import com.optionfusion.model.PojoSpread;
 import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.util.Util;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDate;
 import org.simpleframework.xml.Default;
 import org.simpleframework.xml.DefaultType;
 import org.simpleframework.xml.Element;
@@ -97,8 +96,8 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
     }
 
     @Override
-    public List<Spread> getAllSpreads(FilterSet filterSet) {
-        List<Spread> ret = new ArrayList<>();
+    public List<VerticalSpread> getAllSpreads(FilterSet filterSet) {
+        List<VerticalSpread> ret = new ArrayList<>();
         for (AmtdOptionDate optionDate : data.optionDates) {
             ret.addAll(optionDate.getAllSpreads(filterSet));
         }
@@ -190,8 +189,8 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         transient AmeritradeOptionChain optionChain;
 
         @Override
-        public List<Spread> getAllSpreads(FilterSet filterSet) {
-            List<Spread> ret = new ArrayList<>();
+        public List<VerticalSpread> getAllSpreads(FilterSet filterSet) {
+            List<VerticalSpread> ret = new ArrayList<>();
 
             if (!filterSet.pass(this))
                 return ret;
@@ -209,10 +208,10 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
 
                 while (j < optionStrikes.size()) {
                     lo = optionStrikes.get(j);
-                    addIfPassFilters(ret, filterSet, Spread.newSpread(hi.call, lo.call, underlying));
-                    addIfPassFilters(ret, filterSet, Spread.newSpread(lo.call, hi.call, underlying));
-                    addIfPassFilters(ret, filterSet, Spread.newSpread(hi.put, lo.put, underlying));
-                    addIfPassFilters(ret, filterSet, Spread.newSpread(lo.put, hi.put, underlying));
+                    addIfPassFilters(ret, filterSet, PojoSpread.newSpread(hi.call, lo.call, underlying));
+                    addIfPassFilters(ret, filterSet, PojoSpread.newSpread(lo.call, hi.call, underlying));
+                    addIfPassFilters(ret, filterSet, PojoSpread.newSpread(hi.put, lo.put, underlying));
+                    addIfPassFilters(ret, filterSet, PojoSpread.newSpread(lo.put, hi.put, underlying));
                     j++;
                 }
                 i++;
@@ -220,7 +219,7 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
             return ret;
         }
 
-        private void addIfPassFilters(List<Spread> ret, FilterSet filters, Spread spread) {
+        private void addIfPassFilters(List<VerticalSpread> ret, FilterSet filters, PojoSpread spread) {
             if (spread == null
                     || spread.getMaxPercentProfitAtExpiration() < 0.001d
                     || !spread.getBuy().isStandard()

@@ -20,8 +20,8 @@ import android.widget.Toast;
 
 import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
-import com.optionfusion.model.Spread;
 import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.results.ResultsFragment;
 import com.optionfusion.ui.search.SearchFragment;
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
     }
 
     @Override
-    public void showDetails(Spread spread, Fragment requestingFragment, View headerLayout, View detailsLayout, View stockInfoLayout) {
+    public void showDetails(VerticalSpread spread, Fragment requestingFragment, View headerLayout, View detailsLayout, View stockInfoLayout) {
 
         requestingFragment.setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.change_transform));
         requestingFragment.setExitTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));

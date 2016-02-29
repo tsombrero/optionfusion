@@ -3,8 +3,8 @@ package com.optionfusion.model.provider.backend;
 import com.google.gson.Gson;
 import com.optionfusion.backend.protobuf.OptionChainProto;
 import com.optionfusion.model.FilterSet;
-import com.optionfusion.model.Spread;
 import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.model.provider.VerticalSpread;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -32,7 +32,7 @@ public class FusionOptionDate implements Interfaces.OptionDate {
     }
 
     @Override
-    public List<Spread> getAllSpreads(FilterSet filterSet) {
+    public List<VerticalSpread> getAllSpreads(FilterSet filterSet) {
         if (!filterSet.pass(this))
             return Collections.EMPTY_LIST;
 

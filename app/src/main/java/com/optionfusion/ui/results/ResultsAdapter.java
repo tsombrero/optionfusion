@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import com.optionfusion.R;
 import com.optionfusion.model.FilterSet;
-import com.optionfusion.model.Spread;
+import com.optionfusion.model.provider.VerticalSpread;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseVie
     List<ListItem> items;
     private final ResultsListener resultsListener;
 
-    public ResultsAdapter(FilterSet filterSet, String symbol, List<Spread> spreads, Activity activity, ResultsListener resultsListener) {
+    public ResultsAdapter(FilterSet filterSet, String symbol, List<VerticalSpread> spreads, Activity activity, ResultsListener resultsListener) {
         this.symbol = symbol;
         this.activity = activity;
         this.resultsListener = resultsListener;
@@ -28,13 +28,13 @@ public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseVie
         update(filterSet, spreads);
     }
 
-    public void update(FilterSet filterSet, List<Spread> spreads) {
+    public void update(FilterSet filterSet, List<VerticalSpread> spreads) {
         List<ListItem> newList = new ArrayList<>();
 
         newList.add(new ListItem(filterSet, symbol));
 
         if (spreads != null) {
-            for (Spread spread : spreads) {
+            for (VerticalSpread spread : spreads) {
                 newList.add(new ListItem(spread));
             }
         }
@@ -77,13 +77,13 @@ public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseVie
 
     public static class ListItem {
         String symbol;
-        Spread spread;
+        VerticalSpread spread;
         ListViewHolders.ViewType viewType;
         FilterSet filterSet;
         int layout;
         String labelText;
 
-        public ListItem(Spread spread) {
+        public ListItem(VerticalSpread spread) {
             this.spread = spread;
             layout = R.layout.item_spread_details;
             viewType = ListViewHolders.ViewType.SPREAD_DETAILS;
@@ -105,6 +105,6 @@ public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseVie
 
     public interface ResultsListener {
         void onChange(FilterSet filterSet);
-        void onResultSelected(Spread spread, View headerLayout, View detailsLayout);
+        void onResultSelected(VerticalSpread spread, View headerLayout, View detailsLayout);
     }
 }

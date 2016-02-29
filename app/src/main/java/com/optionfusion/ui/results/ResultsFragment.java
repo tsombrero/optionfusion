@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +16,12 @@ import com.google.gson.Gson;
 import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.model.FilterSet;
-import com.optionfusion.model.Spread;
 import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.SharedViewHolders;
 import com.optionfusion.util.Util;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -116,12 +114,12 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
 
         filterSet.writeToPreferences(symbol, gson, sharedPreferences);
 
-        new AsyncTask<Void, Void, List<Spread>>() {
+        new AsyncTask<Void, Void, List<VerticalSpread>>() {
 
             private Interfaces.OptionChain oc;
 
             @Override
-            protected void onPostExecute(List<Spread> spreads) {
+            protected void onPostExecute(List<VerticalSpread> spreads) {
                 if (resultsAdapter == null) {
                     resultsAdapter = new ResultsAdapter(filterSet, symbol, spreads, getActivity(), ResultsFragment.this);
                     recyclerView.setAdapter(resultsAdapter);
@@ -135,33 +133,35 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
             }
 
             @Override
-            protected List<Spread> doInBackground(Void... params) {
+            protected List<VerticalSpread> doInBackground(Void... params) {
                 oc = optionChainProvider.get(symbol);
-                List<Spread> allSpreads = oc.getAllSpreads(filterSet);
+                List<VerticalSpread> allSpreads = oc.getAllSpreads(filterSet);
+                return allSpreads;
 
-                Log.i(TAG, "Closest matches:");
-
-                if (allSpreads == null) return Collections.EMPTY_LIST;
-                if (allSpreads.isEmpty()) return allSpreads;
-
-                Collections.sort(allSpreads, filterSet.getComparator());
-
-                int spreadCount = Math.min(40, allSpreads.size());
-
-                for (Spread spread : allSpreads.subList(0, spreadCount)) {
-                    Log.i(TAG, spread.toString() + "        " + spread.getBuy() + " / " + spread.getSell());
-                }
-                return allSpreads.subList(0, spreadCount);
+//                Log.i(TAG, "Closest matches:");
+//
+//                if (allSpreads == null) return Collections.EMPTY_LIST;
+//
+//                if (allSpreads.isEmpty()) return allSpreads;
+//
+//                Collections.sort(allSpreads, filterSet.getComparator());
+//
+//                int spreadCount = Math.min(40, allSpreads.size());
+//
+//                for (Spread spread : allSpreads.subList(0, spreadCount)) {
+//                    Log.i(TAG, spread.toString() + "        " + spread.getBuy() + " / " + spread.getSell());
+//                }
+//                return allSpreads.subList(0, spreadCount);
             }
         }.execute();
     }
 
     @Override
-    public void onResultSelected(Spread spread, View headerLayout, View briefDetailsLayout) {
+    public void onResultSelected(VerticalSpread spread, View headerLayout, View briefDetailsLayout) {
         ((Host) getActivity()).showDetails(spread, this, headerLayout, briefDetailsLayout, stockQuoteLayout);
     }
 
     public interface Host {
-        void showDetails(Spread spread, Fragment requestingFragment, View detailsLayout, View headerLayout, View stockInfoLayout);
+        void showDetails(VerticalSpread spread, Fragment requestingFragment, View detailsLayout, View headerLayout, View stockInfoLayout);
     }
 }

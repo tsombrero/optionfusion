@@ -3,10 +3,8 @@ package com.optionfusion.model.provider;
 import com.google.gson.Gson;
 import com.optionfusion.model.FilterSet;
 import com.optionfusion.model.HistoricalQuote;
-import com.optionfusion.model.Spread;
 
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 
 import java.util.Date;
 import java.util.List;
@@ -102,7 +100,7 @@ public class Interfaces {
     public interface OptionDate {
         int getDaysToExpiration();
 
-        List<Spread> getAllSpreads(FilterSet filterSet);
+        List<VerticalSpread> getAllSpreads(FilterSet filterSet);
 
         DateTime getExpirationDate();
 
@@ -116,7 +114,7 @@ public class Interfaces {
 
         List<Double> getStrikePrices();
 
-        List<Spread> getAllSpreads(FilterSet filterSet);
+        List<VerticalSpread> getAllSpreads(FilterSet filterSet);
 
         String toJson(Gson gson);
 

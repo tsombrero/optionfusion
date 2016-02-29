@@ -107,6 +107,12 @@ public class Util {
         }
     }
 
+    public static String getFormattedOptionDateCompact(DateTime expiresDate) {
+        synchronized (dateFormat) {
+            return dateFormat.format(expiresDate.toDate());
+        }
+    }
+
     public static int getDaysFromNow(DateTime date) {
         return Days.daysBetween(DateTime.now(), date).getDays();
     }

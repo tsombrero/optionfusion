@@ -2,7 +2,6 @@ package com.optionfusion.ui.search;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -16,7 +15,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -113,7 +111,7 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
                 if (!(viewHolder instanceof SharedViewHolders.StockQuoteViewHolder))
                     return;
 
-                String symbol = ((SharedViewHolders.StockQuoteViewHolder)viewHolder).getSymbol();
+                String symbol = ((SharedViewHolders.StockQuoteViewHolder) viewHolder).getSymbol();
 
                 if (symbol == null)
                     return;
@@ -181,20 +179,6 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
         super.onResume();
         if (appBarLayout != null)
             appBarLayout.addOnOffsetChangedListener(this);
-
-        Cursor c = dbHelper.getReadableDatabase()
-                .rawQuery(
-                        "select periodic_roi(1.0, 1.5, 365, 365) AS annualized, " +
-                                " periodic_roi(1.0, 0.9, 365, 365) AS annualizedneg, " +
-                                " periodic_roi(1, 2, 10.0, 30.0) AS annualizedtesta, " +
-                                " periodic_roi(1.0, 0.9, 365.0, 365.0) AS annualizednegtestb "
-
-                        , null);
-        if (c.moveToFirst()) {
-            for (int i = 0; i<4; i++) {
-                Log.i(TAG, "SQL TEST " + c.getDouble(i));
-            }
-        }
     }
 
     @Override
@@ -333,7 +317,5 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
             return true;
         }
     }
-
-
 }
 

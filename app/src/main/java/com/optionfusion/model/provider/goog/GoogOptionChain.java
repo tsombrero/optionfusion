@@ -4,17 +4,16 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.optionfusion.model.FilterSet;
-import com.optionfusion.model.Spread;
+import com.optionfusion.model.PojoSpread;
 import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.util.Util;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
-import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -134,8 +133,8 @@ public class GoogOptionChain implements Interfaces.OptionChain {
     }
 
     @Override
-    public List<Spread> getAllSpreads(FilterSet filterSet) {
-        ArrayList<Spread> ret = new ArrayList<>();
+    public List<VerticalSpread> getAllSpreads(FilterSet filterSet) {
+        ArrayList<VerticalSpread> ret = new ArrayList<>();
         for (GoogOptionDate optionDate : optionDates) {
             ret.addAll(optionDate.getAllSpreads(filterSet));
         }
@@ -315,17 +314,17 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         }
 
         @Override
-        public List<Spread> getAllSpreads(FilterSet filterSet) {
+        public List<VerticalSpread> getAllSpreads(FilterSet filterSet) {
             if (!filterSet.pass(this))
                 return new ArrayList<>();
 
-            List<Spread> ret = getSpreads(filterSet, calls);
+            List<VerticalSpread> ret = getSpreads(filterSet, calls);
             ret.addAll(getSpreads(filterSet, puts));
             return ret;
         }
 
-        private List<Spread> getSpreads(FilterSet filterSet, List<GoogOptionQuote> putsOrCalls) {
-            List<Spread> ret = new ArrayList<>();
+        private List<VerticalSpread> getSpreads(FilterSet filterSet, List<GoogOptionQuote> putsOrCalls) {
+            List<VerticalSpread> ret = new ArrayList<>();
             int i = 0;
             while (i < putsOrCalls.size()) {
                 GoogOptionQuote a = putsOrCalls.get(i);
@@ -334,8 +333,8 @@ public class GoogOptionChain implements Interfaces.OptionChain {
                     while (j < putsOrCalls.size()) {
                         GoogOptionQuote b = putsOrCalls.get(j);
                         if ((b.getStrike() * 100D) % 50 == 0) {
-                            addIfPassFilters(ret, filterSet, Spread.newSpread(a, b, optionChain.getUnderlyingStockQuote()));
-                            addIfPassFilters(ret, filterSet, Spread.newSpread(b, a, optionChain.getUnderlyingStockQuote()));
+                            addIfPassFilters(ret, filterSet, PojoSpread.newSpread(a, b, optionChain.getUnderlyingStockQuote()));
+                            addIfPassFilters(ret, filterSet, PojoSpread.newSpread(b, a, optionChain.getUnderlyingStockQuote()));
                         }
                         j++;
                     }
@@ -369,7 +368,7 @@ public class GoogOptionChain implements Interfaces.OptionChain {
             return gson.toJson(this);
         }
 
-        private void addIfPassFilters(List<Spread> ret, FilterSet filters, Spread spread) {
+        private void addIfPassFilters(List<VerticalSpread> ret, FilterSet filters, PojoSpread spread) {
             if (spread == null
                     || spread.getMaxPercentProfitAtExpiration() < 0.001d)
                 return;

@@ -4,11 +4,14 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.ui.widgets.rangebar.RangeBar;
-import com.optionfusion.model.Spread;
 import com.optionfusion.util.Util;
 
 import java.util.ArrayList;
+
+import static com.optionfusion.db.Schema.VerticalSpreads.IS_BULLISH;
+import static com.optionfusion.db.Schema.VerticalSpreads.PRICE_AT_MAX_GAIN;
 
 public class StrikeFilter extends Filter implements RangeBar.RangeBarDataProvider {
 
@@ -39,11 +42,17 @@ public class StrikeFilter extends Filter implements RangeBar.RangeBarDataProvide
 
     @Override
     public void addDbSelection(ArrayList<String> selections, ArrayList<String> selectionArgs) {
-        //TODO
+
+        String str = "(" + IS_BULLISH + " = ? OR " + PRICE_AT_MAX_GAIN + " > ? AND " + PRICE_AT_MAX_GAIN + " < ? )";
+
+        selections.add(str);
+        selectionArgs.add(type == Type.BULLISH ? "0" : "1");
+        selectionArgs.add(String.valueOf(limitLo));
+        selectionArgs.add(String.valueOf(limitHi));
     }
 
     @Override
-    public boolean pass(Spread spread) {
+    public boolean pass(VerticalSpread spread) {
         Type spreadType = spread.isBullSpread() ? Type.BULLISH : Type.BEARISH;
         if (spreadType != type)
             return true;
