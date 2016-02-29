@@ -19,7 +19,7 @@ public class OptionChain {
     String symbol;
 
     @Index
-    Date timestamp;
+    Date quote_timestamp;
 
     @Serialize(zip = true)
     Blob chainData;
@@ -28,7 +28,7 @@ public class OptionChain {
     }
 
     public OptionChain(OptionChainProto.OptionChain protoChain) {
-        timestamp = new Date(protoChain.getTimestamp());
+        quote_timestamp = new Date(protoChain.getTimestamp());
         symbol = protoChain.getStockquote().getSymbol();
         chainData = new Blob(protoChain.toByteArray());
     }
@@ -37,8 +37,8 @@ public class OptionChain {
         return symbol;
     }
 
-    public Date getTimestamp() {
-        return timestamp;
+    public Date getQuote_timestamp() {
+        return quote_timestamp;
     }
 
     public Blob getChainData() {

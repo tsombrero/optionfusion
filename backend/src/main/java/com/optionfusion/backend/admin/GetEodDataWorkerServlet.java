@@ -22,6 +22,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.channels.Channels;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,30 +43,41 @@ public class GetEodDataWorkerServlet extends HttpServlet {
     private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormat.forPattern("M/d/yyyy hh:mm:ss aa Z");
     private static final DateTimeFormatter EXPIRATION_FORMATTER = DateTimeFormat.forPattern("MM/dd/yyyy");
 
+    public static final String PARAM_DAYS_TO_SEARCH = "DAYS_TO_SEARCH";
+
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 
+        log("Job Starting " + req.getRequestedSessionId());
+        int daysToSearch = 1;
+
+        String p = req.getParameter(PARAM_DAYS_TO_SEARCH);
+        if (p != null && p.length() > 0) {
+            daysToSearch = Math.max(daysToSearch, Integer.valueOf(p));
+        }
+
         try {
             DateTime todayEod = Util.getEodDateTime();
 
-            for (int i = 0; i < 90; i++) {
-                DateTime fetchDate = todayEod.minusDays(i);
-                if (fetchDate.isAfter(DateTime.now()))
+            for (int i = 0; i < daysToSearch; i++) {
+                DateTime quoteDate = todayEod.minusDays(i);
+                if (quoteDate.isAfter(DateTime.now()))
                     continue;
 
-                if (chainsExistForDate(fetchDate, "AAPL"))
-                    break;
+                if (chainsExistForDate(quoteDate, "ZX") || chainsExistForDate(quoteDate, "ZUMZ") || chainsExistForDate(quoteDate, "ZTS")) {
+                    log("Already processed options for date " + quoteDate);
+                    continue;
+                }
 
-                processOptionsFileForDate(fetchDate);
+                processOptionsFileForDate(quoteDate);
             }
-
-
         } catch (Throwable e) {
             resp.getWriter().println("Failed");
             e.printStackTrace();
             throw e;
         }
+        log("Job Finished");
     }
 
     private void processOptionsFileForDate(DateTime dateTime) throws IOException {
@@ -91,13 +104,15 @@ public class GetEodDataWorkerServlet extends HttpServlet {
                 continue;
 
             if (optionChainBuilder == null || !optionChainBuilder.getSymbol().equals(symbol)) {
-                if (optionChainBuilder != null)
+                if (optionChainBuilder != null) {
                     commitChain(optionChainBuilder.build());
+                }
                 optionChainBuilder = new OptionChainBuilder(newStockQuote(record));
             }
             optionChainBuilder.addRecord(record);
         }
         commitChain(optionChainBuilder.build());
+        log("Processed options for date " + dateTime);
     }
 
     enum OptionsColumns {
@@ -141,8 +156,12 @@ public class GetEodDataWorkerServlet extends HttpServlet {
                     .setStockquote(stockQuote)
                     .setTimestamp(stockQuote.getTimestamp());
 
-            for (String exp : subchainsByExp.keySet()) {
-                ret.addOptionDates(newOptionDateChain(subchainsByExp.get(exp)));
+            ArrayList<String> exps = new ArrayList<>(subchainsByExp.keySet());
+            Collections.sort(exps);
+
+            for (String exp : exps) {
+                OptionChainProto.OptionDateChain dateChain = newOptionDateChain(subchainsByExp.get(exp));
+                ret.addOptionDates(dateChain);
             }
 
             return ret.build();
@@ -204,13 +223,15 @@ public class GetEodDataWorkerServlet extends HttpServlet {
         List<OptionChain> existingOptionChain = ofy().load().type(OptionChain.class)
                 .filter(Query.CompositeFilterOperator.and(
                         new Query.FilterPredicate("symbol", Query.FilterOperator.EQUAL, currentChain.getStockquote().getSymbol()),
-                        new Query.FilterPredicate("timestamp", Query.FilterOperator.EQUAL, currentChain.getTimestamp())
+                        new Query.FilterPredicate("quote_timestamp", Query.FilterOperator.EQUAL, new Date(currentChain.getTimestamp()))
                 ))
                 .limit(1)
                 .list();
 
         if (existingOptionChain.isEmpty()) {
             ofy().save().entity(new OptionChain(currentChain)).now();
+        } else {
+            log("Duplicate record found, skipping commit");
         }
     }
 
@@ -237,7 +258,7 @@ public class GetEodDataWorkerServlet extends HttpServlet {
         List<OptionChain> existingOptionChain = ofy().load().type(OptionChain.class)
                 .filter(Query.CompositeFilterOperator.and(
                         new Query.FilterPredicate("symbol", Query.FilterOperator.EQUAL, symbol),
-                        new Query.FilterPredicate("timestamp", Query.FilterOperator.EQUAL, date.getMillis())
+                        new Query.FilterPredicate("quote_timestamp", Query.FilterOperator.EQUAL, date.toDate())
                 ))
                 .limit(1)
                 .list();

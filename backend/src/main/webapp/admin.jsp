@@ -36,13 +36,8 @@
 </form>
 
 <form action="/admin" method="get">
-    <div><input type="text" name="username" size="40" value="tsombrero"/></div>
-    <div><input type="text" name="password" size="40" /></div>
+    <div>Days to fetch: <input type="text" name="DAYS_TO_SEARCH" size="10" value="5"/></div>
     <div><input type="submit" value="get EOD data"/></div>
-</form>
-
-<form action="/eoddataworker" method="post">
-    <div><input type="submit" value="process EOD data"/></div>
 </form>
 
 <%

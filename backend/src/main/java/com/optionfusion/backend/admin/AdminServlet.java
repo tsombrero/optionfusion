@@ -24,8 +24,8 @@ public class AdminServlet extends HttpServlet {
         if (req.getParameter(LOOKUP_CSV_FILE_URI) != null) {
             TaskHandle t = queue.add(TaskOptions.Builder.withUrl("/equitylookupdataworker").param(LOOKUP_CSV_FILE_URI, req.getParameter(LOOKUP_CSV_FILE_URI)));
             resp.getWriter().println("Equity Lookup Data Job added to queue: " + t.getName());
-        } else if (req.getParameter(USERNAME) != null && req.getParameter(PASSWORD) != null) {
-            TaskHandle t = queue.add(TaskOptions.Builder.withUrl("/eoddataworker").param(USERNAME, req.getParameter(USERNAME)).param(PASSWORD, req.getParameter(PASSWORD)));
+        } else if (req.getParameter(GetEodDataWorkerServlet.PARAM_DAYS_TO_SEARCH) != null) {
+            TaskHandle t = queue.add(TaskOptions.Builder.withUrl("/eoddataworker").param(GetEodDataWorkerServlet.PARAM_DAYS_TO_SEARCH, req.getParameter(GetEodDataWorkerServlet.PARAM_DAYS_TO_SEARCH)));
             resp.getWriter().println("EOD Data Job added to queue: " + t.getName());
         }
         resp.getWriter().println("Tasks in progress: " + queue.fetchStatistics().getRequestsInFlight());

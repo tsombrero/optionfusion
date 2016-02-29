@@ -8,7 +8,7 @@ import com.optionfusion.backend.models.Option;
 import com.optionfusion.backend.models.OptionChain;
 import com.optionfusion.backend.models.Position;
 import com.optionfusion.backend.models.StockQuote;
-import com.optionfusion.backend.models.User;
+import com.optionfusion.backend.models.FusionUser;
 import com.optionfusion.backend.models.VerticalSpread;
 
 /**
@@ -27,7 +27,7 @@ public final class OfyService {
         factory().register(Option.class);
         factory().register(Position.class);
         factory().register(StockQuote.class);
-        factory().register(User.class);
+        factory().register(FusionUser.class);
         factory().register(VerticalSpread.class);
         factory().register(OptionChain.class);
     }
