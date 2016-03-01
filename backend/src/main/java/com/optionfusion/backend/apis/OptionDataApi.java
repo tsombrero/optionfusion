@@ -12,24 +12,15 @@ import com.google.api.server.spi.config.ApiNamespace;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
-import com.google.appengine.api.oauth.OAuthRequestException;
-import com.google.appengine.api.oauth.OAuthService;
-import com.google.appengine.api.oauth.OAuthServiceFactory;
-import com.google.appengine.api.oauth.OAuthServiceFailureException;
 import com.google.appengine.api.users.User;
-import com.google.appengine.repackaged.com.google.common.base.Ticker;
-import com.googlecode.objectify.cmd.Query;
 import com.optionfusion.backend.models.Equity;
 import com.optionfusion.backend.models.FusionUser;
 import com.optionfusion.backend.models.OptionChain;
 import com.optionfusion.backend.utils.Constants;
-import com.optionfusion.backend.utils.Util;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.inject.Named;
@@ -130,12 +121,7 @@ public class OptionDataApi {
         //TODO create a new User object with some default stuff
         FusionUser fusionUser = new FusionUser(user.getUserId(), user.getEmail(), user.getNickname());
 
-    }
-
-    private static Filter buildFilterForLatestChain(String ticker) {
-        return CompositeFilterOperator.and(
-                new FilterPredicate("symbol", EQUAL, ticker),
-                new FilterPredicate("quote_timestamp", com.google.appengine.api.datastore.Query.FilterOperator.LESS_THAN_OR_EQUAL, Util.getEodDateTime().getMillis()));
+        return fusionUser;
     }
 
     private static Filter startsWithFilter(String field, String q) {

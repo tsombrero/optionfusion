@@ -1,6 +1,5 @@
 package com.optionfusion.backend.models;
 
-import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 
@@ -18,8 +17,7 @@ public class FusionUser {
     Long id;
 
     String userId;
-    ArrayList<Ref<Equity>> watchlist = new ArrayList<>();
-    ArrayList<Ref<Position>> favorites = new ArrayList<>();
+    ArrayList<String> watchlistTickers = new ArrayList<>();
     String email;
     String displayName;
     Date joinDate, lastLogin;
@@ -71,16 +69,13 @@ public class FusionUser {
         this.lastLogin = lastLogin;
     }
 
-    public ArrayList<Ref<Equity>> getWatchlist() {
-        return watchlist;
-    }
-
-    public ArrayList<Ref<Position>> getFavorites() {
-        return favorites;
+    public ArrayList<String> getWatchlistTickers() {
+        return watchlistTickers;
     }
 
     public void addEquityToWatchlist(Equity equity) {
-        if (watchlist.contains(equity))
+        if (!watchlistTickers.contains(equity.getTicker()))
+            watchlistTickers.add(equity.getTicker());
     }
 
     public void addPositionToFavorite(Position position) {
