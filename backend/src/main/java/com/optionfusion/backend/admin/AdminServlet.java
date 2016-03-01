@@ -14,8 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 public class AdminServlet extends HttpServlet {
 
     public static final String LOOKUP_CSV_FILE_URI = "lookupCsvFile";
-    public static final String USERNAME = "username";
-    public static final String PASSWORD = "password";
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -25,6 +23,7 @@ public class AdminServlet extends HttpServlet {
             TaskHandle t = queue.add(TaskOptions.Builder.withUrl("/equitylookupdataworker").param(LOOKUP_CSV_FILE_URI, req.getParameter(LOOKUP_CSV_FILE_URI)));
             resp.getWriter().println("Equity Lookup Data Job added to queue: " + t.getName());
         } else if (req.getParameter(GetEodDataWorkerServlet.PARAM_DAYS_TO_SEARCH) != null) {
+            queue = QueueFactory.getQueue("eoddataqueue");
             TaskHandle t = queue.add(TaskOptions.Builder.withUrl("/eoddataworker").param(GetEodDataWorkerServlet.PARAM_DAYS_TO_SEARCH, req.getParameter(GetEodDataWorkerServlet.PARAM_DAYS_TO_SEARCH)));
             resp.getWriter().println("EOD Data Job added to queue: " + t.getName());
         }

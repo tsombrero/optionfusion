@@ -103,6 +103,9 @@ public class GetEodDataWorkerServlet extends HttpServlet {
                     && !"Q".equals(exchange))
                 continue;
 
+            if (symbol.startsWith("D"))
+                break;
+
             if (optionChainBuilder == null || !optionChainBuilder.getSymbol().equals(symbol)) {
                 if (optionChainBuilder != null) {
                     commitChain(optionChainBuilder.build());
@@ -231,7 +234,7 @@ public class GetEodDataWorkerServlet extends HttpServlet {
         if (existingOptionChain.isEmpty()) {
             ofy().save().entity(new OptionChain(currentChain)).now();
         } else {
-            log("Duplicate record found, skipping commit");
+//            log("Duplicate record found, skipping commit");
         }
     }
 
