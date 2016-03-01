@@ -118,7 +118,7 @@ public class PopulateEquityLookupDbWorkerServlet extends HttpServlet {
     private static final List<String> reject = Arrays.asList("", "inc", "corp", "co", "corporation", "ltd");
 
     private ArrayList<String> getKeywords(String description) {
-        ArrayList<String> ret = new ArrayList(Arrays.asList(
+        ArrayList<String> ret = new ArrayList<>(Arrays.asList(
                 description
                         .toLowerCase()
                         .replaceAll("'", "")

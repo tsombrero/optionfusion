@@ -103,9 +103,6 @@ public class GetEodDataWorkerServlet extends HttpServlet {
                     && !"Q".equals(exchange))
                 continue;
 
-            if (symbol.startsWith("D"))
-                break;
-
             if (optionChainBuilder == null || !optionChainBuilder.getSymbol().equals(symbol)) {
                 if (optionChainBuilder != null) {
                     commitChain(optionChainBuilder.build());
