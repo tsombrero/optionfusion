@@ -6,6 +6,7 @@ import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
@@ -20,6 +21,11 @@ import android.widget.Toast;
 
 import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
+import com.optionfusion.client.ClientInterfaces;
+import com.optionfusion.client.ClientProvider;
+import com.optionfusion.client.FusionClient;
+import com.optionfusion.client.FusionClientProvider;
+import com.optionfusion.com.backend.optionFusion.model.FusionUser;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
@@ -32,10 +38,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 import butterknife.Bind;
 import butterknife.BindColor;
 import butterknife.ButterKnife;
+import dagger.Lazy;
 
 
 public class MainActivity extends AppCompatActivity implements SearchFragment.Host, ResultsFragment.Host {
@@ -45,6 +53,9 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
 
     @BindColor(R.color.accent)
     int accentColor;
+
+    @Inject
+    ClientInterfaces.AccountClient fusionClient;
 
     @Inject
     OptionChainProvider optionChainProvider;
@@ -62,6 +73,12 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
                 .add(R.id.fragment_container, frag, "tag_search")
                 .commit();
         progressBar.getIndeterminateDrawable().setColorFilter(accentColor, PorterDuff.Mode.SRC_IN);
+        new AsyncTask<Void, Void, FusionUser>(){
+            @Override
+            protected FusionUser doInBackground(Void... params) {
+                return fusionClient.getAccountUser();
+            }
+        }.execute();
     }
 
     @Override

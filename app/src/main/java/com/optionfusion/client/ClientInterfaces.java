@@ -1,6 +1,7 @@
 package com.optionfusion.client;
 
 import com.optionfusion.com.backend.optionFusion.model.Equity;
+import com.optionfusion.com.backend.optionFusion.model.FusionUser;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.Interfaces.OptionChain;
 
@@ -75,5 +76,9 @@ public class ClientInterfaces {
 
     public interface PriceHistoryClient {
         void getPriceHistory(String symbol, Date start, Callback<Interfaces.StockPriceHistory> callback);
+    }
+
+    public interface AccountClient {
+        FusionUser getAccountUser();
     }
 }

@@ -11,15 +11,25 @@ import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.oauth.OAuthRequestException;
 import com.google.appengine.api.users.User;
+import com.googlecode.objectify.Key;
 import com.optionfusion.backend.models.Equity;
 import com.optionfusion.backend.models.FusionUser;
 import com.optionfusion.backend.models.OptionChain;
+import com.optionfusion.backend.models.StockQuote;
 import com.optionfusion.backend.utils.Constants;
+import com.optionfusion.backend.utils.TextUtils;
+
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -88,45 +98,132 @@ public class OptionDataApi {
     }
 
     @ApiMethod(httpMethod = "GET")
-    public final OptionChain getEodChain(@Named("q") String ticker, User user) {
+    public final OptionChain getEodChain(@Named("q") String ticker, User user) throws OAuthRequestException {
 
-        if (user != null) {
-            log.info("User e=" + user.getEmail() + ":n=" + user.getNickname() + ":id=" + user.getUserId() + ":fid=" + user.getFederatedIdentity() + ":ad=" + user.getAuthDomain() + " requested eod chain " + ticker);
-        } else {
-            log.info("Null user requested eod chain " + ticker);
+        ensureLoggedIn(user);
+
+        OptionChain ret = ofy().load().type(OptionChain.class)
+                .filter(new FilterPredicate(OptionChain.SYMBOL, EQUAL, ticker))
+                .order("-" + OptionChain.QUOTE_TIMESTAMP)
+                .first()
+                .now();
+
+        return ret;
+    }
+
+    @ApiMethod(httpMethod = "POST")
+    public final FusionUser loginUser(FusionUser fusionUserIn, User user) throws OAuthRequestException {
+
+        ensureLoggedIn(user);
+
+        FusionUser ret = ofy().load().type(FusionUser.class)
+                .filter(new FilterPredicate("email", FilterOperator.EQUAL, user.getEmail()))
+                .first()
+                .now();
+
+        if (ret == null) {
+            ret = new FusionUser(user.getEmail(), fusionUserIn.getDisplayName());
+            createWatchlist(ret);
         }
 
-        List<OptionChain> ret = ofy().load().type(OptionChain.class)
-                .filter(new FilterPredicate("symbol", EQUAL, ticker))
-                .order("-quote_timestamp")
-                .limit(1)
-                .list();
+        ret.setLastLogin(new Date());
 
-        if (!ret.isEmpty()) {
-            return ret.get(0);
-        }
-        return null;
+        if (!TextUtils.isEmpty(fusionUserIn.getDisplayName()))
+            ret.setDisplayName(fusionUserIn.getDisplayName());
+
+        if (ret.getJoinDate() == null)
+            ret.setJoinDate(ret.getLastLogin());
+
+        ofy().save().entity(ret).now();
+
+        return ret;
     }
 
     @ApiMethod(httpMethod = "GET")
-    public final FusionUser getUserData(User user) {
-        List<FusionUser> ret = ofy().load().type(FusionUser.class)
-                .filter(new FilterPredicate("email", com.google.appengine.api.datastore.Query.FilterOperator.EQUAL, user.getUserId()))
-                .limit(1)
-                .list();
-        if (!ret.isEmpty()) {
-            //TODO update the last-login time
-            return ret.get(0);
-        }
-        //TODO create a new User object with some default stuff
-        FusionUser fusionUser = new FusionUser(user.getUserId(), user.getEmail(), user.getNickname());
+    private List<Equity> getEquityList(@Named("tickers") String tickers, User user) throws OAuthRequestException {
 
-        return fusionUser;
+        ensureLoggedIn(user);
+
+        Collection<Equity> ret = getEquityList(tickers.split(","));
+
+        for (Equity equity : ret) {
+            // Ensure all the equities have well-formed stockquotes
+            if (equity.getEodStockQuote() == null || equity.getEodStockQuote().getPreviousClose() == 0d) {
+                populateEodStockQuote(equity);
+            }
+        }
+
+        return new ArrayList<>(ret);
+    }
+
+    @ApiMethod(httpMethod = "GET")
+    public final List<Equity> getEquityQuotes(User user) throws OAuthRequestException {
+
+        ensureLoggedIn(user);
+
+        FusionUser fuser = ofy().load().key(Key.create(FusionUser.class, user.getEmail())).now();
+
+        if (fuser == null)
+            throw new OAuthRequestException("Authenticated user not found in datastore");
+
+        return getEquityList(fuser.getWatchlistTickers());
+    }
+
+    private void populateEodStockQuote(Equity equity) {
+        List<StockQuote> quotes = ofy().load().type(StockQuote.class).ancestor(equity).order("-" + StockQuote.DATA_TIMESTAMP).limit(2).list();
+        if (quotes == null || quotes.isEmpty())
+            return;
+
+        StockQuote newStockQuote = quotes.get(0);
+
+        if (equity.getEodStockQuote().getDataTimestamp() < newStockQuote.getDataTimestamp()) {
+            if (newStockQuote.getPreviousClose() == 0d && quotes.size() > 1)
+                newStockQuote.setPreviousClose(quotes.get(1).getClose());
+
+            equity.setEodStockQuote(newStockQuote);
+
+            ofy().save().entity(equity);
+        }
+    }
+
+    private void createWatchlist(FusionUser fusionUser) {
+        Collection<Equity> equityList = getEquityList(new String[]{"AAPL", "AMZN", "CSCO", "FB", "GOOG", "NFLX", "TSLA"});
+        for (Equity equity : equityList) {
+            fusionUser.addEquityToWatchlist(equity);
+        }
+    }
+
+    private Equity getEquity(String ticker) {
+        return ofy().load().key(Key.create(Equity.class, ticker)).now();
+    }
+
+    private Collection<Equity> getEquityList(String[] tickers) {
+        return getEquityList(Arrays.asList(tickers));
+    }
+
+    private List<Equity> getEquityList(List<String> tickers) {
+        List<Key<Equity>> keyList = new ArrayList<>();
+
+        for (String ticker : tickers) {
+            keyList.add(Key.create(Equity.class, ticker));
+        }
+
+        return new ArrayList<>(ofy().load().keys(keyList).values());
+    }
+
+    private StockQuote getStockQuote(String ticker, DateTime dateTime) {
+        Key<Equity> equityKey = Key.create(Equity.class, ticker);
+        return ofy().load().key(Key.create(equityKey, StockQuote.class, dateTime.getMillis())).now();
     }
 
     private static Filter startsWithFilter(String field, String q) {
         return CompositeFilterOperator.and(
                 new FilterPredicate(field, GREATER_THAN_OR_EQUAL, q),
                 new FilterPredicate(field, LESS_THAN, q + Character.MAX_VALUE));
+    }
+
+    private void ensureLoggedIn(User user) throws OAuthRequestException {
+        if (user == null)
+            throw new OAuthRequestException("Please authenticate first");
     }
 }

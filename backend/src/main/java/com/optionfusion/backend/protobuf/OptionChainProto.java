@@ -1090,13 +1090,13 @@ public final class OptionChainProto {
     double getVega();
 
     /**
-     * <code>optional int32 volume = 13;</code>
+     * <code>optional int64 volume = 13;</code>
      */
     boolean hasVolume();
     /**
-     * <code>optional int32 volume = 13;</code>
+     * <code>optional int64 volume = 13;</code>
      */
-    int getVolume();
+    long getVolume();
 
     /**
      * <code>optional int32 multiplier = 14 [default = 100];</code>
@@ -1222,7 +1222,7 @@ public final class OptionChainProto {
             }
             case 104: {
               bitField0_ |= 0x00000800;
-              volume_ = input.readInt32();
+              volume_ = input.readInt64();
               break;
             }
             case 112: {
@@ -1518,17 +1518,17 @@ public final class OptionChainProto {
     }
 
     public static final int VOLUME_FIELD_NUMBER = 13;
-    private int volume_;
+    private long volume_;
     /**
-     * <code>optional int32 volume = 13;</code>
+     * <code>optional int64 volume = 13;</code>
      */
     public boolean hasVolume() {
       return ((bitField0_ & 0x00000800) == 0x00000800);
     }
     /**
-     * <code>optional int32 volume = 13;</code>
+     * <code>optional int64 volume = 13;</code>
      */
-    public int getVolume() {
+    public long getVolume() {
       return volume_;
     }
 
@@ -1559,7 +1559,7 @@ public final class OptionChainProto {
       gamma_ = 0D;
       theta_ = 0D;
       vega_ = 0D;
-      volume_ = 0;
+      volume_ = 0L;
       multiplier_ = 100;
     }
     private byte memoizedIsInitialized = -1;
@@ -1617,7 +1617,7 @@ public final class OptionChainProto {
         output.writeDouble(12, vega_);
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
-        output.writeInt32(13, volume_);
+        output.writeInt64(13, volume_);
       }
       if (((bitField0_ & 0x00001000) == 0x00001000)) {
         output.writeInt32(14, multiplier_);
@@ -1677,7 +1677,7 @@ public final class OptionChainProto {
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(13, volume_);
+          .computeInt64Size(13, volume_);
       }
       if (((bitField0_ & 0x00001000) == 0x00001000)) {
         size += com.google.protobuf.CodedOutputStream
@@ -1822,7 +1822,7 @@ public final class OptionChainProto {
         bitField0_ = (bitField0_ & ~0x00000200);
         vega_ = 0D;
         bitField0_ = (bitField0_ & ~0x00000400);
-        volume_ = 0;
+        volume_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000800);
         multiplier_ = 100;
         bitField0_ = (bitField0_ & ~0x00001000);
@@ -2351,34 +2351,34 @@ public final class OptionChainProto {
         return this;
       }
 
-      private int volume_ ;
+      private long volume_ ;
       /**
-       * <code>optional int32 volume = 13;</code>
+       * <code>optional int64 volume = 13;</code>
        */
       public boolean hasVolume() {
         return ((bitField0_ & 0x00000800) == 0x00000800);
       }
       /**
-       * <code>optional int32 volume = 13;</code>
+       * <code>optional int64 volume = 13;</code>
        */
-      public int getVolume() {
+      public long getVolume() {
         return volume_;
       }
       /**
-       * <code>optional int32 volume = 13;</code>
+       * <code>optional int64 volume = 13;</code>
        */
-      public Builder setVolume(int value) {
+      public Builder setVolume(long value) {
         bitField0_ |= 0x00000800;
         volume_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int32 volume = 13;</code>
+       * <code>optional int64 volume = 13;</code>
        */
       public Builder clearVolume() {
         bitField0_ = (bitField0_ & ~0x00000800);
-        volume_ = 0;
+        volume_ = 0L;
         onChanged();
         return this;
       }
@@ -3231,13 +3231,13 @@ public final class OptionChainProto {
         getSymbolBytes();
 
     /**
-     * <code>optional int32 volume = 3;</code>
+     * <code>optional int64 volume = 3;</code>
      */
     boolean hasVolume();
     /**
-     * <code>optional int32 volume = 3;</code>
+     * <code>optional int64 volume = 3;</code>
      */
-    int getVolume();
+    long getVolume();
 
     /**
      * <code>optional double open = 5;</code>
@@ -3340,7 +3340,7 @@ public final class OptionChainProto {
             }
             case 24: {
               bitField0_ |= 0x00000004;
-              volume_ = input.readInt32();
+              volume_ = input.readInt64();
               break;
             }
             case 41: {
@@ -3461,17 +3461,17 @@ public final class OptionChainProto {
     }
 
     public static final int VOLUME_FIELD_NUMBER = 3;
-    private int volume_;
+    private long volume_;
     /**
-     * <code>optional int32 volume = 3;</code>
+     * <code>optional int64 volume = 3;</code>
      */
     public boolean hasVolume() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional int32 volume = 3;</code>
+     * <code>optional int64 volume = 3;</code>
      */
-    public int getVolume() {
+    public long getVolume() {
       return volume_;
     }
 
@@ -3538,7 +3538,7 @@ public final class OptionChainProto {
     private void initFields() {
       timestamp_ = 0L;
       symbol_ = "";
-      volume_ = 0;
+      volume_ = 0L;
       open_ = 0D;
       close_ = 0D;
       hi_ = 0D;
@@ -3568,7 +3568,7 @@ public final class OptionChainProto {
         output.writeBytes(2, getSymbolBytes());
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeInt32(3, volume_);
+        output.writeInt64(3, volume_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeDouble(5, open_);
@@ -3601,7 +3601,7 @@ public final class OptionChainProto {
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(3, volume_);
+          .computeInt64Size(3, volume_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
@@ -3740,7 +3740,7 @@ public final class OptionChainProto {
         bitField0_ = (bitField0_ & ~0x00000001);
         symbol_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
-        volume_ = 0;
+        volume_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000004);
         open_ = 0D;
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -3984,34 +3984,34 @@ public final class OptionChainProto {
         return this;
       }
 
-      private int volume_ ;
+      private long volume_ ;
       /**
-       * <code>optional int32 volume = 3;</code>
+       * <code>optional int64 volume = 3;</code>
        */
       public boolean hasVolume() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional int32 volume = 3;</code>
+       * <code>optional int64 volume = 3;</code>
        */
-      public int getVolume() {
+      public long getVolume() {
         return volume_;
       }
       /**
-       * <code>optional int32 volume = 3;</code>
+       * <code>optional int64 volume = 3;</code>
        */
-      public Builder setVolume(int value) {
+      public Builder setVolume(long value) {
         bitField0_ |= 0x00000004;
         volume_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int32 volume = 3;</code>
+       * <code>optional int64 volume = 3;</code>
        */
       public Builder clearVolume() {
         bitField0_ = (bitField0_ & ~0x00000004);
-        volume_ = 0;
+        volume_ = 0L;
         onChanged();
         return this;
       }
@@ -4196,13 +4196,13 @@ public final class OptionChainProto {
       "uf.OptionQuote.OptionType:\004CALL\022\024\n\014openI",
       "nterest\030\007 \001(\005\022\n\n\002iv\030\010 \001(\001\022\r\n\005delta\030\t \001(\001" +
       "\022\r\n\005gamma\030\n \001(\001\022\r\n\005theta\030\013 \001(\001\022\014\n\004vega\030\014" +
-      " \001(\001\022\016\n\006volume\030\r \001(\005\022\027\n\nmultiplier\030\016 \001(\005" +
+      " \001(\001\022\016\n\006volume\030\r \001(\003\022\027\n\nmultiplier\030\016 \001(\005" +
       ":\003100\"\037\n\nOptionType\022\007\n\003PUT\020\000\022\010\n\004CALL\020\001\"f" +
       "\n\017OptionDateChain\022\022\n\nexpiration\030\001 \002(\003\022?\n" +
       "\007options\030\002 \003(\0132..com.optionfusion.backen" +
       "d.protobuf.OptionQuote\"t\n\nStockQuote\022\021\n\t" +
       "timestamp\030\001 \001(\003\022\016\n\006symbol\030\002 \002(\t\022\016\n\006volum" +
-      "e\030\003 \001(\005\022\014\n\004open\030\005 \001(\001\022\r\n\005close\030\006 \001(\001\022\n\n\002" +
+      "e\030\003 \001(\003\022\014\n\004open\030\005 \001(\001\022\r\n\005close\030\006 \001(\001\022\n\n\002" +
       "hi\030\007 \001(\001\022\n\n\002lo\030\010 \001(\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =

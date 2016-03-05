@@ -22,6 +22,7 @@ import com.optionfusion.backend.protobuf.OptionChainProto;
 import com.optionfusion.com.backend.optionFusion.OptionFusion;
 import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.com.backend.optionFusion.model.EquityCollection;
+import com.optionfusion.com.backend.optionFusion.model.FusionUser;
 import com.optionfusion.com.backend.optionFusion.model.OptionChain;
 import com.optionfusion.db.DbHelper;
 import com.optionfusion.db.Schema;
@@ -42,7 +43,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class FusionClient implements ClientInterfaces.SymbolLookupClient, ClientInterfaces.OptionChainClient {
+public class FusionClient implements ClientInterfaces.SymbolLookupClient, ClientInterfaces.OptionChainClient, ClientInterfaces.AccountClient {
 
     OptionFusion optionFusionApi;
 
@@ -420,6 +421,19 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         Log.v(TAG, "Wrote date chain " + dateChain.getExpiration());
     }
 
+    @Override
+    public FusionUser getAccountUser() {
+        try {
+            FusionUser user = new FusionUser();
+            user.setDisplayName(account.getDisplayName());
+            FusionUser ret = getEndpoints().optionDataApi().loginUser(user).execute();
+            Log.i(TAG, ret.toString());
+            return ret;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     private OptionFusion getEndpoints() {
 

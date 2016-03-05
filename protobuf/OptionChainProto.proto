@@ -22,7 +22,7 @@ message OptionQuote {
 	optional double gamma = 10;
 	optional double theta = 11;
 	optional double vega = 12;
-	optional int32 volume = 13;
+	optional int64 volume = 13;
 	optional int32 multiplier = 14 [default = 100]; 
 }
 
@@ -34,7 +34,7 @@ message OptionDateChain {
 message StockQuote {
 	optional int64 timestamp = 1;
 	required string symbol = 2;
-	optional int32 volume = 3;
+	optional int64 volume = 3;
 
 	optional double open = 5;
 	optional double close = 6;

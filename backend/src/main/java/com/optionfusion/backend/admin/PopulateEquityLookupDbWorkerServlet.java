@@ -2,10 +2,10 @@ package com.optionfusion.backend.admin;
 
 import com.google.appengine.api.datastore.Query;
 import com.google.common.base.Strings;
+import com.googlecode.objectify.Key;
+import com.opencsv.CSVReader;
 import com.optionfusion.backend.models.Equity;
-
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
+import com.optionfusion.backend.utils.TextUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,8 +37,8 @@ public class PopulateEquityLookupDbWorkerServlet extends HttpServlet {
                 URL lookupCsvFile = new URL(lookupFileParam);
                 InputStream inputStream = lookupCsvFile.openStream();
                 Reader in = new InputStreamReader(inputStream);
-                Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(in);
-                for (CSVRecord record : records) {
+                CSVReader records = new CSVReader(in);
+                for (String[] record : records) {
                     addRecord(record, resp);
                 }
             } catch (Exception e) {
@@ -52,9 +52,9 @@ public class PopulateEquityLookupDbWorkerServlet extends HttpServlet {
         Ticker, Name
     }
 
-    private void addRecord(CSVRecord record, HttpServletResponse resp) throws IOException {
+    private void addRecord(String[] record, HttpServletResponse resp) throws IOException {
         String description = getDescription(record);
-        String ticker = record.get(Columns.Ticker);
+        String ticker = record[Columns.Ticker.ordinal()];
 
         if (Strings.isNullOrEmpty(description)) {
             resp.getWriter().println("ERROR no description for ticker " + ticker);
@@ -68,13 +68,16 @@ public class PopulateEquityLookupDbWorkerServlet extends HttpServlet {
         if (keywords.size() == 0)
             resp.getWriter().println(ticker + " : '" + description + " keywords:[]");
 
-        Equity equity = new Equity(ticker, description, keywords);
-
-        List<Equity> oldEquity = ofy().load().type(Equity.class).filter(new Query.FilterPredicate("ticker", Query.FilterOperator.EQUAL, equity.getTicker())).limit(1).list();
-        if (oldEquity.isEmpty())
+        Equity oldEquity = ofy().load().key(Key.create(Equity.class, ticker)).now();
+        if (oldEquity == null) {
+            Equity equity = new Equity(ticker, description, keywords);
             ofy().save().entity(equity).now();
+        } else if (!TextUtils.equals(description, oldEquity.getDescription())) {
+            oldEquity.setDescription(description);
+            oldEquity.setKeywords(keywords);
+            ofy().save().entity(oldEquity).now();
+        }
     }
-
 
     //$FIXUP find a csv that doesn't suck or make a rest call to "http://www.google.com/finance/match?matchtype=matchall&q=T"
     static Map<String, String> descriptionFixupMap = new HashMap<>();
@@ -105,11 +108,11 @@ public class PopulateEquityLookupDbWorkerServlet extends HttpServlet {
         DescriptionFixup foo = DescriptionFixup.BGS;
     }
 
-    private String getDescription(CSVRecord record) {
-        String ret = record.get(Columns.Name);
+    private String getDescription(String[] record) {
+        String ret = record[Columns.Name.ordinal()];
 
         if (Strings.isNullOrEmpty(ret)) {
-            String symbol = record.get(Columns.Ticker).toUpperCase().trim();
+            String symbol = record[Columns.Ticker.ordinal()].toUpperCase().trim();
             ret = descriptionFixupMap.get(symbol);
         }
         return ret;

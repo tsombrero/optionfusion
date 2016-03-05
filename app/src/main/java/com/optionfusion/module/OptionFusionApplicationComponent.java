@@ -4,6 +4,7 @@ import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.client.AmeritradeClient;
 import com.optionfusion.client.AmeritradeClientProvider;
 import com.optionfusion.client.FusionClient;
+import com.optionfusion.client.FusionClientProvider;
 import com.optionfusion.client.GoogClient;
 import com.optionfusion.client.GoogClientProvider;
 import com.optionfusion.client.YhooClient;
@@ -65,6 +66,8 @@ public interface OptionFusionApplicationComponent {
     void inject(SymbolSearchTextView symbolSearchTextView);
 
     void inject(GoogleLoginFragment googleLoginFragment);
+
+    void inject(FusionClientProvider fusionClientProvider);
 
     void inject(FusionClient fusionClient);
 }

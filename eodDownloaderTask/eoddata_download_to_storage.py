@@ -6,9 +6,16 @@ import zipfile
 from contextlib import closing
 from datetime import datetime, timedelta
 
+import httplib2
 import requests
 from gcloud import storage
+from googleapiclient import discovery
+from oauth2client.client import GoogleCredentials
 from requests.auth import HTTPBasicAuth
+import google.appengine.ext
+from google.appengine.ext import taskqueue
+
+OPTION_FUSION_API = "option-fusion-api"
 
 _client = None
 _tempdir = tempfile.mkdtemp(prefix='zipstorage')
@@ -108,14 +115,34 @@ def new_gs_blob(filename):
 def get_gs_bucket():
     return _client.get_bucket(os.getenv("OPTIONSDATA_BUCKET_NAME", "optionfusion_com"))
 
+def shut_down_instance():
+    credentials = GoogleCredentials.get_application_default()
+    compute = discovery.build('compute', 'v1', credentials=credentials)
+    compute.instances().stop(project=OPTION_FUSION_API, zone="us-central1-b", instance="instance-3").execute()
+
+def tickle_eoddata_processor():
+    credentials = GoogleCredentials.get_application_default()
+    http = httplib2.Http()
+    http = credentials.authorize(http)
+    api_root = 'https://option-fusion-api.appspot.com/admin?DAYS_TO_SEARCH=5'
+    http.request(uri=api_root,
+                 headers={'Content-Type': 'application/json; charset=UTF-8'})
+
+def tickle_eoddata_processor_taskqueue():
+    credentials = GoogleCredentials.get_application_default()
+    taskqueue
 
 def main():
     print "starting..."
     global _client
-    _client = storage.Client(project='option-fusion-api')
+    _client = storage.Client(project=OPTION_FUSION_API)
     download_files()
+    print "tickling servlet..."
+    tickle_eoddata_processor()
     print "cleaning up..."
     shutil.rmtree(_tempdir)
+    print "shutting down..."
+    shut_down_instance()
     print "done"
 
 

@@ -19,4 +19,10 @@ public class Util {
         return DateTime.now(DateTimeZone.forID("America/New_York"))
                 .withTime(16, 0, 0, 0);
     }
+
+    public static DateTime getEodDateTime(DateTime dateTime) {
+        return dateTime
+                .withTime(16, 0, 0, 0)
+                .withZoneRetainFields(DateTimeZone.forID("America/New_York"));
+    }
 }

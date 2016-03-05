@@ -12,6 +12,9 @@ import java.util.Date;
 @Entity
 public class OptionChain {
 
+    public static final String QUOTE_TIMESTAMP = "quote_timestamp";
+    public static final String SYMBOL = "symbol";
+
     @Id
     Long id;
 

@@ -2,39 +2,35 @@ package com.optionfusion.backend.models;
 
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 public class FusionUser {
 
-    public static final String USER_ID = "userId";
     public static final String EMAIL = "email";
     public static final String DISPLAY_NAME = "displayName";
 
     @Id
-    Long id;
-
-    String userId;
-    ArrayList<String> watchlistTickers = new ArrayList<>();
     String email;
+
+    List<String> watchlistTickers = new ArrayList<>();
+
+    @Index
     String displayName;
-    Date joinDate, lastLogin;
 
+    Date joinDate;
+    Date lastLogin;
 
-    public FusionUser(String userId, String email, String displayName) {
-        this.userId = userId;
+    public FusionUser() {
+    }
+
+    public FusionUser(String email, String displayName) {
         this.email = email;
         this.displayName = displayName;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public String getEmail() {
@@ -69,7 +65,7 @@ public class FusionUser {
         this.lastLogin = lastLogin;
     }
 
-    public ArrayList<String> getWatchlistTickers() {
+    public List<String> getWatchlistTickers() {
         return watchlistTickers;
     }
 

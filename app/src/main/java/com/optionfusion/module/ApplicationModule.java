@@ -3,6 +3,7 @@ package com.optionfusion.module;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -68,17 +69,17 @@ public class ApplicationModule {
 
     // Note this is not a singleton because it's an abstracted provider; the underlying client providers are singletons
     @Provides
-    ClientInterfaces.OptionChainClient provideOptionChainClient(Context context, AmeritradeClientProvider ameritradeClientProvider, ClientInterfaces.StockQuoteClient stockQuoteClient) {
+    ClientInterfaces.OptionChainClient provideOptionChainClient(Context context, AmeritradeClientProvider ameritradeClientProvider, FusionClientProvider fusionClientProvider, ClientInterfaces.StockQuoteClient stockQuoteClient) {
         switch (OptionFusionApplication.from(context).getBackendProvider()) {
             case AMERITRADE:
                 return ameritradeClientProvider.getOptionChainClient();
         }
-        return new FusionClientProvider(context).getOptionChainClient();
-//        return new GoogClientProvider(stockQuoteClient).getOptionChainClient();
+        return fusionClientProvider.getOptionChainClient();
     }
 
     // Note this is not a singleton because it's an abstracted provider; the underlying client providers are singletons
     @Provides
+    @Nullable
     ClientInterfaces.BrokerageClient provideBrokerageClient(Context context, AmeritradeClientProvider ameritradeClientProvider) {
         switch (OptionFusionApplication.from(context).getBackendProvider()) {
             case AMERITRADE:
@@ -105,9 +106,14 @@ public class ApplicationModule {
                 //TODO
             default:
                 return fusionClientProvider.getSymbolLookupClient();
-//                return googClientProvider.getSymbolLookupClient();
         }
     }
+
+    @Provides
+    ClientInterfaces.AccountClient provideAccountClient(Context context, FusionClientProvider fusionClientProvider) {
+        return fusionClientProvider.getAccountClient();
+    }
+
 
     @Provides
     @Singleton

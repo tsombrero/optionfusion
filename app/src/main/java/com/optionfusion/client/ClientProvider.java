@@ -2,6 +2,7 @@ package com.optionfusion.client;
 
 import android.util.Log;
 
+import com.optionfusion.com.backend.optionFusion.model.FusionUser;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -82,5 +83,9 @@ public abstract class ClientProvider {
 
     public interface SymbolLookupClientProvider {
         ClientInterfaces.SymbolLookupClient getSymbolLookupClient();
+    }
+
+    public interface AccountClientProvider {
+        ClientInterfaces.AccountClient getAccountClient();
     }
 }
