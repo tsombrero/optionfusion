@@ -25,7 +25,11 @@ import com.optionfusion.BuildConfig;
 import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.cache.StockQuoteProvider;
+import com.optionfusion.client.ClientInterfaces;
+import com.optionfusion.client.ClientProvider;
+import com.optionfusion.client.FusionClient;
 import com.optionfusion.db.DbHelper;
+import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.Interfaces.StockQuote;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.SharedViewHolders;
@@ -46,6 +50,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
+import dagger.Lazy;
 
 public class SearchFragment extends Fragment implements SharedViewHolders.StockQuoteViewHolderListener, SwipeRefreshLayout.OnRefreshListener, AppBarLayout.OnOffsetChangedListener {
 
@@ -71,6 +76,9 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
 
     @Inject
     StockQuoteProvider stockQuoteProvider;
+
+    @Inject
+    Lazy<ClientInterfaces.AccountClient> accountClient;
 
     @Inject
     DbHelper dbHelper;
@@ -116,9 +124,10 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
                 if (symbol == null)
                     return;
 
-                Set<String> symbols = new HashSet<>(getRecentSymbols());
-                symbols.remove(symbol);
-                sharedPreferences.edit().putStringSet(PREFKEY_WATCHLIST, symbols).apply();
+                //TODO
+//                Set<String> symbols = adapter.getSymbols();
+//                symbols.remove(symbol);
+//                sharedPreferences.edit().putStringSet(PREFKEY_WATCHLIST, symbols).apply();
                 adapter.removeItem(viewHolder.getAdapterPosition());
             }
         };
@@ -165,15 +174,6 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
         void openResultsFragment(String symbol);
     }
 
-    public Set<String> getRecentSymbols() {
-        Set ret = sharedPreferences.getStringSet(PREFKEY_WATCHLIST, Collections.EMPTY_SET);
-        if (ret.isEmpty()) {
-            ret = new HashSet<>(Arrays.asList("AAPL", "CSCO", "GOOG", "NFLX", "TSLA", "FB", "AMZN", "BRK-A"));
-            sharedPreferences.edit().putStringSet(PREFKEY_WATCHLIST, ret).apply();
-        }
-        return ret;
-    }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -209,7 +209,7 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
                 return;
             isUpdating = true;
 
-            stockQuoteProvider.get(getRecentSymbols(), new StockQuoteProvider.StockQuoteCallback() {
+            stockQuoteProvider.get(accountClient.get().getAccountUser().getWatchlistTickers(), new StockQuoteProvider.StockQuoteCallback() {
                 @Override
                 public void call(List<StockQuote> stockQuotes) {
                     if (stockQuotes == null)
@@ -261,7 +261,7 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
         dialog.setSymbolSearchListener(new SymbolSearchTextView.SymbolSearchListener() {
             @Override
             public void onSymbolSearch(String symbol) {
-                Set<String> symbols = new HashSet<>(getRecentSymbols());
+                Set<String> symbols = new HashSet<>(); //TODO populate with current set
                 if (!symbols.contains(symbol)) {
                     symbols.add(symbol);
                     sharedPreferences.edit().putStringSet(PREFKEY_WATCHLIST, symbols).apply();

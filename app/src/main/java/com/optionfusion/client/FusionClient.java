@@ -16,6 +16,7 @@ import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
+import com.google.api.client.util.StringUtils;
 import com.optionfusion.BuildConfig;
 import com.optionfusion.R;
 import com.optionfusion.backend.protobuf.OptionChainProto;
@@ -30,6 +31,7 @@ import com.optionfusion.db.Schema.Options;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.model.provider.backend.FusionOptionChain;
+import com.optionfusion.model.provider.backend.FusionStockQuote;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.util.Util;
 
@@ -38,14 +40,17 @@ import org.sqlite.database.sqlite.SQLiteDatabase;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
 
-public class FusionClient implements ClientInterfaces.SymbolLookupClient, ClientInterfaces.OptionChainClient, ClientInterfaces.AccountClient {
+public class FusionClient implements ClientInterfaces.SymbolLookupClient, ClientInterfaces.OptionChainClient, ClientInterfaces.AccountClient, ClientInterfaces.StockQuoteClient {
 
     OptionFusion optionFusionApi;
+
+    FusionUser fusionUser;
 
     private GoogleSignInAccount account;
 
@@ -108,6 +113,77 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             }
         }.execute();
     }
+
+    @Override
+    public Interfaces.StockQuote getStockQuote(final String symbol, final ClientInterfaces.Callback<Interfaces.StockQuote> callback) {
+        if (callback == null) {
+            List<Interfaces.StockQuote> quote = getStockQuotes(Collections.singletonList(symbol));
+            if (quote == null || quote.isEmpty())
+                return null;
+            return quote.get(0);
+        }
+
+        new AsyncTask<Void, Void, Interfaces.StockQuote>(){
+            @Override
+            protected Interfaces.StockQuote doInBackground(Void... params) {
+                List<Interfaces.StockQuote> quote = getStockQuotes(Collections.singletonList(symbol));
+                if (quote == null || quote.isEmpty())
+                    return null;
+                return quote.get(0);
+            }
+
+            @Override
+            protected void onPostExecute(Interfaces.StockQuote stockQuote) {
+                callback.call(stockQuote);
+            }
+        };
+
+        return null;
+    }
+
+    @Override
+    public List<Interfaces.StockQuote> getStockQuotes(final Collection<String> symbols, final ClientInterfaces.Callback<List<Interfaces.StockQuote>> callback) {
+        if (callback == null) {
+            return getStockQuotes(symbols);
+        }
+
+        new AsyncTask<Void, Void, List<Interfaces.StockQuote>>(){
+            @Override
+            protected List<Interfaces.StockQuote> doInBackground(Void... params) {
+                return getStockQuotes(symbols);
+            }
+
+            @Override
+            protected void onPostExecute(List<Interfaces.StockQuote> stockQuote) {
+                callback.call(stockQuote);
+            }
+        }.execute();
+
+        return null;
+    }
+
+    private List<Interfaces.StockQuote> getStockQuotes(Collection<String> symbols) {
+
+        String param = null;
+        List<Interfaces.StockQuote> ret = new ArrayList<>();
+
+        if (symbols != null)
+            param = TextUtils.join(",", symbols);
+
+        try {
+            EquityCollection e = getEndpoints().optionDataApi().getEquityQuotes(param).execute();
+            if (e == null)
+                return null;
+
+            for (Equity equity : e.getItems()) {
+                ret.add(new FusionStockQuote(equity));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ret;
+    }
+
 
     private void writeChainToDb(OptionChainProto.OptionChain protoChain) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -423,17 +499,24 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
     @Override
     public FusionUser getAccountUser() {
-        try {
-            FusionUser user = new FusionUser();
-            user.setDisplayName(account.getDisplayName());
-            FusionUser ret = getEndpoints().optionDataApi().loginUser(user).execute();
-            Log.i(TAG, ret.toString());
-            return ret;
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (fusionUser == null) {
+            synchronized (TAG) {
+                if (fusionUser == null) {
+                    try {
+                        FusionUser user = new FusionUser();
+                        user.setDisplayName(account.getDisplayName());
+                        fusionUser = getEndpoints().optionDataApi().loginUser(user).execute();
+                        Log.i(TAG, fusionUser.toString());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
-        return null;
+        return fusionUser;
     }
+
+
 
     private OptionFusion getEndpoints() {
 

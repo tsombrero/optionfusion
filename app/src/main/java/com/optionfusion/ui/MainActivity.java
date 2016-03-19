@@ -55,10 +55,12 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
     int accentColor;
 
     @Inject
-    ClientInterfaces.AccountClient fusionClient;
+    Lazy<ClientInterfaces.AccountClient> fusionClient;
 
     @Inject
     OptionChainProvider optionChainProvider;
+
+    FusionUser fusionUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +78,9 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
         new AsyncTask<Void, Void, FusionUser>(){
             @Override
             protected FusionUser doInBackground(Void... params) {
-                return fusionClient.getAccountUser();
+                showProgress(true);
+                fusionUser = fusionClient.get().getAccountUser();
+                return fusionUser; //TODO something
             }
         }.execute();
     }
@@ -154,6 +158,10 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
         } else {
             finish();
         }
+    }
+
+    public void showProgress(boolean show) {
+        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     public class MySharedElementCallback extends SharedElementCallback {

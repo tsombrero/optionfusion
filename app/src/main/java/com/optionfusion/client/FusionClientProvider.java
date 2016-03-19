@@ -11,7 +11,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.optionfusion.util.Constants;
 
-public class FusionClientProvider extends ClientProvider implements ClientProvider.SymbolLookupClientProvider, ClientProvider.OptionChainClientProvider, ClientProvider.AccountClientProvider {
+public class FusionClientProvider extends ClientProvider implements ClientProvider.SymbolLookupClientProvider, ClientProvider.OptionChainClientProvider, ClientProvider.AccountClientProvider, ClientProvider.StockQuoteClientProvider {
 
     FusionClient client;
     Context context;
@@ -85,13 +85,20 @@ public class FusionClientProvider extends ClientProvider implements ClientProvid
 
     @Override
     public ClientInterfaces.OptionChainClient getOptionChainClient() {
-        if (client == null && acct != null)
-            client = new FusionClient(context, acct);
-        return client;
+        return getClient();
     }
 
     @Override
     public ClientInterfaces.AccountClient getAccountClient() {
+        return getClient();
+    }
+
+    @Override
+    public ClientInterfaces.StockQuoteClient getStockQuoteClient() {
+        return getClient();
+    }
+
+    private FusionClient getClient() {
         if (client == null && acct != null)
             client = new FusionClient(context, acct);
         return client;

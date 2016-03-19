@@ -9,6 +9,7 @@ package com.optionfusion.backend.apis;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
+import com.google.api.server.spi.config.Nullable;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
@@ -62,7 +63,7 @@ public class OptionDataApi {
     private static final int MAX_RESULTS = 20;
     private static final Logger log = Logger.getLogger(OptionDataApi.class.getSimpleName());
 
-    @ApiMethod(httpMethod = "GET")
+    @ApiMethod(httpMethod = "GET", path = "getTickersMatching")
     public final List<Equity> getTickersMatching(@Named("q") String searchString, User user) {
 
         ArrayList<Equity> ret = new ArrayList<>();
@@ -97,7 +98,7 @@ public class OptionDataApi {
         return ret;
     }
 
-    @ApiMethod(httpMethod = "GET")
+    @ApiMethod(httpMethod = "GET", path = "getEodChain")
     public final OptionChain getEodChain(@Named("q") String ticker, User user) throws OAuthRequestException {
 
         ensureLoggedIn(user);
@@ -111,7 +112,7 @@ public class OptionDataApi {
         return ret;
     }
 
-    @ApiMethod(httpMethod = "POST")
+    @ApiMethod(httpMethod = "POST", path = "loginUser")
     public final FusionUser loginUser(FusionUser fusionUserIn, User user) throws OAuthRequestException {
 
         ensureLoggedIn(user);
@@ -139,34 +140,35 @@ public class OptionDataApi {
         return ret;
     }
 
-    @ApiMethod(httpMethod = "GET")
-    private List<Equity> getEquityList(@Named("tickers") String tickers, User user) throws OAuthRequestException {
+    @ApiMethod(httpMethod = "GET", path = "getEquityQuotes")
+    public final List<Equity> getEquityQuotes(@Named("tickers") String tickers, User user) throws OAuthRequestException {
 
         ensureLoggedIn(user);
 
-        Collection<Equity> ret = getEquityList(tickers.split(","));
+        Collection<Equity> ret;
+
+        if (!TextUtils.isEmpty(tickers)) {
+            ret = getEquityList(tickers.split(","));
+        } else {
+            FusionUser fuser = ofy().load().key(Key.create(FusionUser.class, user.getEmail())).now();
+
+            if (fuser == null)
+                throw new OAuthRequestException("Authenticated user not found in datastore");
+
+            ret = getEquityList(fuser.getWatchlistTickers());
+        }
 
         for (Equity equity : ret) {
-            // Ensure all the equities have well-formed stockquotes
-            if (equity.getEodStockQuote() == null || equity.getEodStockQuote().getPreviousClose() == 0d) {
-                populateEodStockQuote(equity);
-            }
+            ensureEquityHasStockQuote(equity);
         }
 
         return new ArrayList<>(ret);
     }
 
-    @ApiMethod(httpMethod = "GET")
-    public final List<Equity> getEquityQuotes(User user) throws OAuthRequestException {
-
-        ensureLoggedIn(user);
-
-        FusionUser fuser = ofy().load().key(Key.create(FusionUser.class, user.getEmail())).now();
-
-        if (fuser == null)
-            throw new OAuthRequestException("Authenticated user not found in datastore");
-
-        return getEquityList(fuser.getWatchlistTickers());
+    private void ensureEquityHasStockQuote(Equity equity) {
+        if (equity.getEodStockQuote() == null || equity.getEodStockQuote().getPreviousClose() == 0d) {
+            populateEodStockQuote(equity);
+        }
     }
 
     private void populateEodStockQuote(Equity equity) {

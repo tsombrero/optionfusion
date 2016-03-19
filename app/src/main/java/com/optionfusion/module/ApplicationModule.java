@@ -90,10 +90,12 @@ public class ApplicationModule {
 
     // Note this is not a singleton because it's an abstracted provider; the underlying client providers are singletons
     @Provides
-    ClientInterfaces.StockQuoteClient provideStockQuoteClient(Context context, AmeritradeClientProvider ameritradeClientProvider, YhooClientClientProvider yhooClientProvider) {
+    ClientInterfaces.StockQuoteClient provideStockQuoteClient(Context context, AmeritradeClientProvider ameritradeClientProvider, YhooClientClientProvider yhooClientProvider, FusionClientProvider fusionClientProvider) {
         switch (OptionFusionApplication.from(context).getBackendProvider()) {
             case AMERITRADE:
                 //TODO
+            case OPTION_FUSION_BACKEND:
+                return fusionClientProvider.getStockQuoteClient();
             default:
                 return yhooClientProvider.getStockQuoteClient();
         }
@@ -110,6 +112,7 @@ public class ApplicationModule {
     }
 
     @Provides
+    @Nullable
     ClientInterfaces.AccountClient provideAccountClient(Context context, FusionClientProvider fusionClientProvider) {
         return fusionClientProvider.getAccountClient();
     }

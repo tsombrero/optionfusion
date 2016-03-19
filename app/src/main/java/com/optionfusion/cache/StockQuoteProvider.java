@@ -37,20 +37,21 @@ public class StockQuoteProvider extends LruCache<String, Interfaces.StockQuote> 
 
         boolean needsUpdate = false;
 
-        for (String symbol : symbols) {
-            Interfaces.StockQuote quote = get(symbol);
-            if (quote != null) {
-                quotes.add(quote);
-                needsUpdate |= System.currentTimeMillis() - quote.getLastUpdatedTimestamp() > TimeUnit.SECONDS.toMillis(30);
-            } else {
-                needsUpdate = true;
+        if (symbols != null) { //TODO make the caller pass in the symbols
+            for (String symbol : symbols) {
+                Interfaces.StockQuote quote = get(symbol);
+                if (quote != null) {
+                    quotes.add(quote);
+                    needsUpdate |= System.currentTimeMillis() - quote.getLastUpdatedTimestamp() > TimeUnit.SECONDS.toMillis(30);
+                } else {
+                    needsUpdate = true;
+                }
             }
-        }
 
-        callback.call(quotes);
-
-        if (!needsUpdate) {
-            return;
+            if (!needsUpdate) {
+                callback.call(quotes);
+                return;
+            }
         }
 
         stockQuoteClient.getStockQuotes(symbols, new ClientInterfaces.Callback<List<Interfaces.StockQuote>>() {

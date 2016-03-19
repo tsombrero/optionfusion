@@ -15,8 +15,7 @@ public class StockQuote {
     long timestamp;
 
     @Parent
-    @Load
-    Ref<Equity> equity;
+    Key<Equity> equity;
 
     String ticker;
 
@@ -42,21 +41,12 @@ public class StockQuote {
     }
 
     public String getTicker() {
-        if (TextUtils.isEmpty(ticker)) {
-            ticker = getEquity().getTicker();
-        }
         return ticker;
     }
 
-    public Equity getEquity() {
-        if (equity == null)
-            return null;
-
-        return equity.get();
-    }
-
     public void setEquity(String ticker) {
-        this.equity = Ref.create(Key.create(Equity.class, ticker));
+        this.equity = Key.create(Equity.class, ticker);
+        this.ticker = ticker;
     }
 
     public long getVolume() {
