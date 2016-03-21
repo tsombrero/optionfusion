@@ -112,8 +112,7 @@ public class ApplicationModule {
     }
 
     @Provides
-    @Nullable
-    ClientInterfaces.AccountClient provideAccountClient(Context context, FusionClientProvider fusionClientProvider) {
+    ClientInterfaces.AccountClient provideAccountClient(FusionClientProvider fusionClientProvider) {
         return fusionClientProvider.getAccountClient();
     }
 

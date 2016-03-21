@@ -242,8 +242,6 @@ public class GetEodDataWorkerServlet extends HttpServlet {
 
         public String[] addRecords(String[] firstRecord, CSVIterator parser) {
             addRecord(firstRecord);
-            // NOTE CSVParser.hasNext() sucks, it increments the iterator and loses the record. Sad clown.
-            // FIXME find a better csv iterator
             while (parser.hasNext()) {
                 String[] record = parser.next();
                 exchange = record[OptionsColumns.EXCHANGE.ordinal()];
@@ -274,7 +272,7 @@ public class GetEodDataWorkerServlet extends HttpServlet {
                         .setSymbol(record[OptionsColumns.UNDERLYING_SYMBOL.ordinal()])
                         .setClose(doubleValueOf(record, OptionsColumns.UNDERLYING_PRICE))
                         .setTimestamp(timestamp)
-                .build();
+                        .build();
             }
 
             if ("0".equals(record[OptionsColumns.OPEN_INTEREST.ordinal()]) && "0".equals(record[OptionsColumns.VOLUME.ordinal()]))
@@ -368,7 +366,7 @@ public class GetEodDataWorkerServlet extends HttpServlet {
     }
 
     private void commit(OptionChainProto.OptionChain currentChain) {
-        OptionChain existingOptionChain = ofy().load().type(OptionChain.class)
+        OptionChain existingOptionChain = ofy().cache(false).load().type(OptionChain.class)
                 .filter(Query.CompositeFilterOperator.and(
                         new Query.FilterPredicate("symbol", Query.FilterOperator.EQUAL, currentChain.getStockquote().getSymbol()),
                         new Query.FilterPredicate("quote_timestamp", Query.FilterOperator.EQUAL, new Date(currentChain.getTimestamp()))
@@ -376,7 +374,9 @@ public class GetEodDataWorkerServlet extends HttpServlet {
                 .first().now();
 
         if (existingOptionChain == null) {
-            ofy().save().entity(new OptionChain(currentChain)).now();
+            ofy()
+                    .cache(false)
+                    .save().entity(new OptionChain(currentChain)).now();
         }
     }
 
@@ -386,7 +386,9 @@ public class GetEodDataWorkerServlet extends HttpServlet {
 
         if (equity == null) {
             equity = new Equity(stockQuote.getTicker(), "No Description", new ArrayList<String>());
-            equityKey = ofy().save().entity(equity).now();
+            equityKey = ofy()
+                    .cache(false)
+                    .save().entity(equity).now();
         }
 
         if (equity.getEodStockQuote() == null || equity.getEodStockQuote().getDataTimestamp() < stockQuote.getDataTimestamp()) {
@@ -394,12 +396,20 @@ public class GetEodDataWorkerServlet extends HttpServlet {
                 stockQuote.setPreviousClose(equity.getEodStockQuote().getClose());
             }
             equity.setEodStockQuote(stockQuote);
-            ofy().save().entity(equity).now();
+            ofy()
+                    .cache(false)
+                    .save().entity(equity).now();
         }
 
-        StockQuote existingStockQuote = ofy().load().key(Key.create(equityKey, StockQuote.class, stockQuote.getDataTimestamp())).now();
+        StockQuote existingStockQuote = ofy()
+                .cache(false)
+                .load()
+                .key(Key.create(equityKey, StockQuote.class, stockQuote.getDataTimestamp()))
+                .now();
         if (existingStockQuote == null) {
-            ofy().save().entity(stockQuote).now();
+            ofy()
+                    .cache(false)
+                    .save().entity(stockQuote).now();
         }
     }
 
@@ -422,7 +432,7 @@ public class GetEodDataWorkerServlet extends HttpServlet {
     }
 
     private boolean chainsExistForDate(DateTime date, String symbol) {
-        List<OptionChain> existingOptionChain = ofy().load().type(OptionChain.class)
+        List<OptionChain> existingOptionChain = ofy().cache(false).load().type(OptionChain.class)
                 .filter(Query.CompositeFilterOperator.and(
                         new Query.FilterPredicate("symbol", Query.FilterOperator.EQUAL, symbol),
                         new Query.FilterPredicate("quote_timestamp", Query.FilterOperator.EQUAL, date.toDate())
@@ -452,7 +462,10 @@ public class GetEodDataWorkerServlet extends HttpServlet {
     }
 
     private Equity getEquity(String ticker) {
-        return ofy().load().key(Key.create(Equity.class, ticker)).now();
+        return ofy()
+                .cache(false)
+                .load()
+                .key(Key.create(Equity.class, ticker)).now();
     }
 
 

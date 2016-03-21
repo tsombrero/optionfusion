@@ -30,7 +30,6 @@ dependencies {
     compile 'com.google.protobuf:protobuf-java:2.6.1'
     compile 'com.googlecode.objectify:objectify:5.1.5'
     compile 'commons-codec:commons-codec:1.10'
-//    compile 'org.apache.commons:commons-csv:1.2'
     compile 'com.opencsv:opencsv:3.7'
     compile 'javax.servlet:servlet-api:2.5'
     compile 'joda-time:joda-time:2.9.2'

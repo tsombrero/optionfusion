@@ -16,7 +16,6 @@ import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
-import com.google.api.client.util.StringUtils;
 import com.optionfusion.BuildConfig;
 import com.optionfusion.R;
 import com.optionfusion.backend.protobuf.OptionChainProto;
@@ -501,6 +500,9 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     public FusionUser getAccountUser() {
         if (fusionUser == null) {
             synchronized (TAG) {
+                if (account == null)
+                    return null;
+
                 if (fusionUser == null) {
                     try {
                         FusionUser user = new FusionUser();
@@ -515,8 +517,6 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         }
         return fusionUser;
     }
-
-
 
     private OptionFusion getEndpoints() {
 

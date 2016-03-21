@@ -1,5 +1,6 @@
 package com.optionfusion.backend.models;
 
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
@@ -9,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
+@Cache
 public class FusionUser {
 
     public static final String EMAIL = "email";

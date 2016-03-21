@@ -1,6 +1,7 @@
 package com.optionfusion.backend.models;
 
 import com.google.appengine.api.datastore.Blob;
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
@@ -10,6 +11,7 @@ import com.optionfusion.backend.protobuf.OptionChainProto;
 import java.util.Date;
 
 @Entity
+@Cache
 public class OptionChain {
 
     public static final String QUOTE_TIMESTAMP = "quote_timestamp";

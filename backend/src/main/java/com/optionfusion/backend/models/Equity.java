@@ -1,6 +1,7 @@
 package com.optionfusion.backend.models;
 
 import com.googlecode.objectify.Ref;
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
@@ -12,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
+@Cache
 public class Equity {
 
     public static final String TICKER = "ticker";
@@ -90,4 +92,8 @@ public class Equity {
     public void setEodStockQuote(StockQuote eodStockQuote) {
         this.eodStockQuote = Ref.create(eodStockQuote);
     }
+
+//    public Key<Equity> getKey() {
+//        return Key.create(Equity.class, ticker);
+//    }
 }

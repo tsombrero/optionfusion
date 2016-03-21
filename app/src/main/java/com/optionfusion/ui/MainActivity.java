@@ -22,9 +22,6 @@ import android.widget.Toast;
 import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.client.ClientInterfaces;
-import com.optionfusion.client.ClientProvider;
-import com.optionfusion.client.FusionClient;
-import com.optionfusion.client.FusionClientProvider;
 import com.optionfusion.com.backend.optionFusion.model.FusionUser;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
@@ -38,12 +35,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 import butterknife.Bind;
 import butterknife.BindColor;
 import butterknife.ButterKnife;
-import dagger.Lazy;
 
 
 public class MainActivity extends AppCompatActivity implements SearchFragment.Host, ResultsFragment.Host {
@@ -55,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
     int accentColor;
 
     @Inject
-    Lazy<ClientInterfaces.AccountClient> fusionClient;
+    ClientInterfaces.AccountClient fusionClient;
 
     @Inject
     OptionChainProvider optionChainProvider;
@@ -75,12 +70,17 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
                 .add(R.id.fragment_container, frag, "tag_search")
                 .commit();
         progressBar.getIndeterminateDrawable().setColorFilter(accentColor, PorterDuff.Mode.SRC_IN);
+        showProgress(true);
         new AsyncTask<Void, Void, FusionUser>(){
             @Override
             protected FusionUser doInBackground(Void... params) {
-                showProgress(true);
-                fusionUser = fusionClient.get().getAccountUser();
+                fusionUser = fusionClient.getAccountUser();
                 return fusionUser; //TODO something
+            }
+
+            @Override
+            protected void onPostExecute(FusionUser fusionUser) {
+                showProgress(false);
             }
         }.execute();
     }

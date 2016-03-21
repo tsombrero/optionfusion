@@ -45,9 +45,10 @@ public class FusionClientProvider extends ClientProvider implements ClientProvid
             }
         } else {
             Log.e(TAG, "Sign in failed");
+            acct = null;
+            client = null;
             // Signed out, show unauthenticated UI.
         }
-        client = null;
     }
 
     private void setAccountName(String accountName) {
@@ -99,7 +100,7 @@ public class FusionClientProvider extends ClientProvider implements ClientProvid
     }
 
     private FusionClient getClient() {
-        if (client == null && acct != null)
+        if (client == null)
             client = new FusionClient(context, acct);
         return client;
     }

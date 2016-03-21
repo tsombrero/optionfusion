@@ -1,20 +1,23 @@
 package com.optionfusion.backend.models;
 
+import com.google.api.server.spi.config.AnnotationBoolean;
+import com.google.api.server.spi.config.ApiResourceProperty;
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Ref;
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Load;
 import com.googlecode.objectify.annotation.Parent;
-import com.optionfusion.backend.utils.TextUtils;
 
 @Entity
+@Cache
 public class StockQuote {
     public static final String DATA_TIMESTAMP = "timestamp";
+
     @Id
     long timestamp;
 
     @Parent
+    @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
     Key<Equity> equity;
 
     String ticker;
@@ -33,7 +36,6 @@ public class StockQuote {
     public StockQuote(String ticker, long timestamp) {
         setEquity(ticker);
         this.timestamp = timestamp;
-        this.ticker = ticker;
     }
 
     public long getDataTimestamp() {
@@ -45,8 +47,8 @@ public class StockQuote {
     }
 
     public void setEquity(String ticker) {
-        this.equity = Key.create(Equity.class, ticker);
         this.ticker = ticker;
+        equity = Key.create(Equity.class, ticker);
     }
 
     public long getVolume() {

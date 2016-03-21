@@ -26,10 +26,7 @@ import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.client.ClientInterfaces;
-import com.optionfusion.client.ClientProvider;
-import com.optionfusion.client.FusionClient;
 import com.optionfusion.db.DbHelper;
-import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.Interfaces.StockQuote;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.SharedViewHolders;
@@ -37,7 +34,6 @@ import com.optionfusion.ui.widgets.SymbolSearchTextView;
 import com.optionfusion.util.Util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -50,7 +46,6 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
-import dagger.Lazy;
 
 public class SearchFragment extends Fragment implements SharedViewHolders.StockQuoteViewHolderListener, SwipeRefreshLayout.OnRefreshListener, AppBarLayout.OnOffsetChangedListener {
 
@@ -78,7 +73,7 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
     StockQuoteProvider stockQuoteProvider;
 
     @Inject
-    Lazy<ClientInterfaces.AccountClient> accountClient;
+    ClientInterfaces.AccountClient accountClient;
 
     @Inject
     DbHelper dbHelper;
@@ -209,7 +204,10 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
                 return;
             isUpdating = true;
 
-            stockQuoteProvider.get(accountClient.get().getAccountUser().getWatchlistTickers(), new StockQuoteProvider.StockQuoteCallback() {
+            if (accountClient.getAccountUser() == null)
+                return;
+
+            stockQuoteProvider.get(accountClient.getAccountUser().getWatchlistTickers(), new StockQuoteProvider.StockQuoteCallback() {
                 @Override
                 public void call(List<StockQuote> stockQuotes) {
                     if (stockQuotes == null)
