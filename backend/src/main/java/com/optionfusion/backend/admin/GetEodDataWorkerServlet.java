@@ -65,7 +65,7 @@ public class GetEodDataWorkerServlet extends HttpServlet {
         try {
             DateTime todayEod = Util.getEodDateTime();
 
-            for (int i = daysToSearch - 1; i > 0; i--) {
+            for (int i = daysToSearch - 1; i >= 0; i--) {
                 DateTime quoteDate = todayEod.minusDays(i);
                 if (quoteDate.isAfter(DateTime.now()))
                     break;
@@ -182,7 +182,7 @@ public class GetEodDataWorkerServlet extends HttpServlet {
         return ret;
     }
 
-    private long longValueOf(String[] record, StockQuoteColumns col) {
+    private long longValueOf(String[] record, Enum<?> col) {
         try {
             return Long.valueOf(record[col.ordinal()]);
         } catch (Throwable t) {
@@ -230,15 +230,10 @@ public class GetEodDataWorkerServlet extends HttpServlet {
 
     private class OptionChainBuilder {
         Map<String, List<String[]>> subchainsByExp = new HashMap<>();
-        OptionChainProto.StockQuote stockQuote;
+        String symbol;
         String exchange;
-
-        public OptionChainBuilder(OptionChainProto.StockQuote stockQuote) {
-            this.stockQuote = stockQuote;
-        }
-
-        public OptionChainBuilder() {
-        }
+        long timestamp;
+        double underlyingPrice;
 
         public String[] addRecords(String[] firstRecord, CSVIterator parser) {
             addRecord(firstRecord);
@@ -251,7 +246,7 @@ public class GetEodDataWorkerServlet extends HttpServlet {
                         && !"Q".equals(exchange))
                     continue;
 
-                if (stockQuote == null || TextUtils.equals(stockQuote.getSymbol(), record[OptionsColumns.UNDERLYING_SYMBOL.ordinal()])) {
+                if (symbol == null || TextUtils.equals(symbol, record[OptionsColumns.UNDERLYING_SYMBOL.ordinal()])) {
                     addRecord(record);
                 } else {
                     // We've got the first record for the next chain, return it
@@ -265,20 +260,16 @@ public class GetEodDataWorkerServlet extends HttpServlet {
             if (record == null)
                 return;
 
-            if (stockQuote == null) {
-                long timestamp = TIMESTAMP_FORMATTER.parseMillis(record[OptionsColumns.DATA_DATE.ordinal()] + " -0500");
-
-                stockQuote = OptionChainProto.StockQuote.newBuilder()
-                        .setSymbol(record[OptionsColumns.UNDERLYING_SYMBOL.ordinal()])
-                        .setClose(doubleValueOf(record, OptionsColumns.UNDERLYING_PRICE))
-                        .setTimestamp(timestamp)
-                        .build();
+            if (symbol == null) {
+                symbol = record[OptionsColumns.UNDERLYING_SYMBOL.ordinal()];
+                timestamp = TIMESTAMP_FORMATTER.parseMillis(record[OptionsColumns.DATA_DATE.ordinal()] + " -0500");
+                underlyingPrice = doubleValueOf(record, OptionsColumns.UNDERLYING_PRICE);
             }
 
             if ("0".equals(record[OptionsColumns.OPEN_INTEREST.ordinal()]) && "0".equals(record[OptionsColumns.VOLUME.ordinal()]))
                 return;
 
-            if (Double.valueOf(record[OptionsColumns.ASK.ordinal()]) < 0.05D && Double.valueOf(record[OptionsColumns.BID.ordinal()]) < 0.05D)
+            if (doubleValueOf(record, OptionsColumns.ASK) < 0.05D && doubleValueOf(record, OptionsColumns.BID) < 0.05D)
                 return;
 
             String exp = record[OptionsColumns.EXPIRATION.ordinal()];
@@ -291,8 +282,9 @@ public class GetEodDataWorkerServlet extends HttpServlet {
 
         OptionChainProto.OptionChain build() {  //TODO update last close price on skinny stockquote
             OptionChainProto.OptionChain.Builder ret = OptionChainProto.OptionChain.newBuilder()
-                    .setStockquote(stockQuote)
-                    .setTimestamp(stockQuote.getTimestamp());
+                    .setSymbol(symbol)
+                    .setTimestamp(timestamp)
+                    .setUnderlyingPrice(underlyingPrice);
 
             ArrayList<String> exps = new ArrayList<>(subchainsByExp.keySet());
             Collections.sort(exps);
@@ -318,14 +310,13 @@ public class GetEodDataWorkerServlet extends HttpServlet {
         private OptionChainProto.OptionQuote newOptionQuote(String[] record) {
             OptionChainProto.OptionQuote.Builder builder =
                     OptionChainProto.OptionQuote.newBuilder()
-                            .setAsk(Double.valueOf(record[OptionsColumns.ASK.ordinal()]))
-                            .setBid(Double.valueOf(record[OptionsColumns.BID.ordinal()]))
+                            .setAsk(doubleValueOf(record, OptionsColumns.ASK))
+                            .setBid(doubleValueOf(record, OptionsColumns.BID))
                             .setOptionType(record[OptionsColumns.TYPE.ordinal()].toUpperCase().startsWith("C") ? CALL : PUT)
-                            .setStrike(Double.valueOf(record[OptionsColumns.STRIKE.ordinal()]))
-
-                            .setOpenInterest(Integer.valueOf(record[OptionsColumns.OPEN_INTEREST.ordinal()]))
-                            .setLast(Double.valueOf(record[OptionsColumns.LAST.ordinal()]))
-                            .setVolume(Integer.valueOf(record[OptionsColumns.VOLUME.ordinal()]));
+                            .setStrike(doubleValueOf(record, OptionsColumns.STRIKE))
+                            .setOpenInterest((int)longValueOf(record, OptionsColumns.OPEN_INTEREST))
+                            .setLast(doubleValueOf(record, OptionsColumns.LAST))
+                            .setVolume(longValueOf(record, OptionsColumns.VOLUME));
 
             Double val = doubleValueOf(record, OptionsColumns.DELTA);
             if (val != 0D)
@@ -343,35 +334,21 @@ public class GetEodDataWorkerServlet extends HttpServlet {
         }
 
         public String getSymbol() {
-            if (stockQuote == null)
-                return null;
-
-            return stockQuote.getSymbol();
-        }
-
-        public void setStockQuote(StockQuote stockQuote) {
-            this.stockQuote = OptionChainProto.StockQuote.newBuilder()
-                    .setSymbol(stockQuote.getTicker())
-                    .setClose(stockQuote.getClose())
-                    .setTimestamp(stockQuote.getDataTimestamp())
-                    .build();
+            return symbol;
         }
     }
 
     private void commit(OptionChainBuilder chainBuilder, StockQuote stockQuote) {
         //TODO transaction
-        chainBuilder.setStockQuote(stockQuote);
         commit(chainBuilder.build());
         commit(stockQuote);
     }
 
     private void commit(OptionChainProto.OptionChain currentChain) {
-        OptionChain existingOptionChain = ofy().cache(false).load().type(OptionChain.class)
-                .filter(Query.CompositeFilterOperator.and(
-                        new Query.FilterPredicate("symbol", Query.FilterOperator.EQUAL, currentChain.getStockquote().getSymbol()),
-                        new Query.FilterPredicate("quote_timestamp", Query.FilterOperator.EQUAL, new Date(currentChain.getTimestamp()))
-                ))
-                .first().now();
+        Key<Equity> parentKey = Key.create(Equity.class, currentChain.getSymbol());
+        OptionChain existingOptionChain = ofy().cache(false).load()
+                .key(Key.create(parentKey, OptionChain.class, currentChain.getTimestamp()))
+                .now();
 
         if (existingOptionChain == null) {
             ofy()
@@ -432,15 +409,13 @@ public class GetEodDataWorkerServlet extends HttpServlet {
     }
 
     private boolean chainsExistForDate(DateTime date, String symbol) {
-        List<OptionChain> existingOptionChain = ofy().cache(false).load().type(OptionChain.class)
-                .filter(Query.CompositeFilterOperator.and(
-                        new Query.FilterPredicate("symbol", Query.FilterOperator.EQUAL, symbol),
-                        new Query.FilterPredicate("quote_timestamp", Query.FilterOperator.EQUAL, date.toDate())
-                ))
-                .limit(1)
-                .list();
 
-        return !existingOptionChain.isEmpty();
+        Key<Equity> parentKey = Key.create(Equity.class, symbol);
+        OptionChain existingOptionChain = ofy().cache(false).load()
+                .key(Key.create(parentKey, OptionChain.class, date.getMillis()))
+                .now();
+
+        return existingOptionChain != null;
     }
 
     public String getOptionsFileName(DateTime date) {

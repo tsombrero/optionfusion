@@ -3,6 +3,7 @@ package com.optionfusion.client;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -19,6 +20,7 @@ import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
 import com.optionfusion.BuildConfig;
 import com.optionfusion.R;
 import com.optionfusion.backend.protobuf.OptionChainProto;
+import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.com.backend.optionFusion.OptionFusion;
 import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.com.backend.optionFusion.model.EquityCollection;
@@ -31,7 +33,6 @@ import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.model.provider.backend.FusionOptionChain;
 import com.optionfusion.model.provider.backend.FusionStockQuote;
-import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.util.Util;
 
 import org.joda.time.DateTime;
@@ -44,6 +45,8 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import dagger.Lazy;
 
 public class FusionClient implements ClientInterfaces.SymbolLookupClient, ClientInterfaces.OptionChainClient, ClientInterfaces.AccountClient, ClientInterfaces.StockQuoteClient {
 
@@ -62,10 +65,12 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     @Inject
     DbHelper dbHelper;
 
+    @Inject
+    Lazy<StockQuoteProvider> stockQuoteProvider;
+
     public FusionClient(Context context, GoogleSignInAccount acct) {
         this.context = context;
         this.account = acct;
-        OptionFusionApplication.from(context).getComponent().inject(this);
     }
 
     @Override
@@ -94,11 +99,12 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             @Override
             protected FusionOptionChain doInBackground(Void... params) {
                 try {
+                    Interfaces.StockQuote stockQuote = stockQuoteProvider.get().get(symbol);
                     OptionChain chain = getEndpoints().optionDataApi().getEodChain(symbol).execute();
                     OptionChainProto.OptionChain protoChain = OptionChainProto.OptionChain.parseFrom(chain.decodeChainData());
-                    writeChainToDb(protoChain);
+                    writeChainToDb(protoChain, stockQuote);
 
-                    return new FusionOptionChain(protoChain, dbHelper);
+                    return new FusionOptionChain(protoChain, stockQuote, dbHelper);
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -184,7 +190,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     }
 
 
-    private void writeChainToDb(OptionChainProto.OptionChain protoChain) {
+    private void writeChainToDb(OptionChainProto.OptionChain protoChain, Interfaces.StockQuote stockQuote) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         long now = System.currentTimeMillis();
         Log.i(TAG, "TACO Starting Transaction");
@@ -192,7 +198,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             db.beginTransaction();
 
             for (OptionChainProto.OptionDateChain dateChain : protoChain.getOptionDatesList()) {
-                writeDateChainToDb(db, protoChain.getStockquote(), dateChain, now);
+                writeDateChainToDb(db, stockQuote, dateChain, now, protoChain);
             }
 
             db.delete(Schema.VerticalSpreads.getTableName(),
@@ -200,7 +206,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
             updateSpreads(db);
 
-            clearBidAsk(db, protoChain.getStockquote().getSymbol());
+            clearBidAsk(db, protoChain.getSymbol());
 
             db.setTransactionSuccessful();
         } finally {
@@ -470,7 +476,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         }
     }
 
-    private void writeDateChainToDb(SQLiteDatabase db, OptionChainProto.StockQuote stockQuote, OptionChainProto.OptionDateChain dateChain, long now) {
+    private void writeDateChainToDb(SQLiteDatabase db, Interfaces.StockQuote stockQuote, OptionChainProto.OptionDateChain dateChain, long now, OptionChainProto.OptionChain protoChain) {
 
         for (OptionChainProto.OptionQuote optionQuote : dateChain.getOptionsList()) {
             if (Util.getDaysFromNow(new DateTime(dateChain.getExpiration())) <= 1) {
@@ -489,7 +495,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                     .put(Options.OPTION_TYPE, optionQuote.getOptionType().name().substring(0, 1))
                     .put(Options.OPEN_INTEREST, optionQuote.getOpenInterest())
                     .put(Options.TIMESTAMP_FETCH, now)
-                    .put(Options.TIMESTAMP_QUOTE, stockQuote.getTimestamp());
+                    .put(Options.TIMESTAMP_QUOTE, protoChain.getTimestamp());
 
             db.insertWithOnConflict(Options.getTableName(), "", cv.build(), SQLiteDatabase.CONFLICT_REPLACE);
         }
@@ -503,7 +509,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                 if (account == null)
                     return null;
 
-                if (fusionUser == null) {
+                if (fusionUser == null && Looper.getMainLooper() != Looper.myLooper()) {
                     try {
                         FusionUser user = new FusionUser();
                         user.setDisplayName(account.getDisplayName());

@@ -88,7 +88,7 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
                     return;
 
                 synchronized (suggestionAdapter) {
-                    String ticker = suggestionAdapter.getItem(position).getTicker();
+                    String ticker = suggestionAdapter.getItem(position).getSymbol();
                     symbolSearchListener.onSymbolSearch(ticker);
                 }
             }
@@ -128,7 +128,7 @@ public class SymbolSearchTextView extends AutoCompleteTextView {
 
             SuggestionItemViewHolder holder = (SuggestionItemViewHolder) convertView.getTag();
             holder.description.setText(list.get(position).getDescription());
-            holder.ticker.setText(list.get(position).getTicker());
+            holder.ticker.setText(list.get(position).getSymbol());
             return convertView;
         }
 

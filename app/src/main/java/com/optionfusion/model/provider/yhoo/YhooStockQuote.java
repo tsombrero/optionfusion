@@ -209,5 +209,10 @@ public class YhooStockQuote {
         public long getLastUpdatedTimestamp() {
             return lastUpdatedTimestamp;
         }
+
+        @Override
+        public long getQuoteTimestamp() {
+            return lastUpdatedTimestamp;
+        }
     }
 }

@@ -9,7 +9,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.optionfusion.cache.StockQuoteProvider;
+import com.optionfusion.db.DbHelper;
 import com.optionfusion.util.Constants;
+
+import javax.inject.Inject;
 
 public class FusionClientProvider extends ClientProvider implements ClientProvider.SymbolLookupClientProvider, ClientProvider.OptionChainClientProvider, ClientProvider.AccountClientProvider, ClientProvider.StockQuoteClientProvider {
 

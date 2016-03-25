@@ -16,11 +16,15 @@ import java.util.List;
 @Cache
 public class Equity {
 
-    public static final String TICKER = "ticker";
+    public static final String SYMBOL = "symbol";
     public static final String DESCRIPTION = "description";
+    public static final String KEYWORDS = "keywords";
 
     @Id
-    private String ticker;
+    private String id;
+
+    @Index
+    private String symbol;
 
     private String description;
 
@@ -44,14 +48,15 @@ public class Equity {
     }
 
     public Equity(String symbol, String description, List<String> keywords) {
-        this.ticker = symbol;
+        this.id = symbol;
+        this.symbol = symbol;
         this.description = description;
         if (keywords != null)
            this.keywords.addAll(keywords);
     }
 
-    public String getTicker() {
-        return ticker;
+    public String getSymbol() {
+        return symbol;
     }
 
     public String getDescription() {
@@ -70,7 +75,7 @@ public class Equity {
             if (o2 == null)
                 return 1;
 
-            return o1.getTicker().compareTo(o2.getTicker());
+            return o1.getSymbol().compareTo(o2.getSymbol());
         }
     };
 
@@ -78,7 +83,7 @@ public class Equity {
     public boolean equals(Object obj) {
         if (obj instanceof Equity) {
             Equity e2 = (Equity)obj;
-            return e2.ticker.equals(this.ticker);
+            return e2.symbol.equals(this.symbol);
         }
         return false;
     }
@@ -92,8 +97,4 @@ public class Equity {
     public void setEodStockQuote(StockQuote eodStockQuote) {
         this.eodStockQuote = Ref.create(eodStockQuote);
     }
-
-//    public Key<Equity> getKey() {
-//        return Key.create(Equity.class, ticker);
-//    }
 }

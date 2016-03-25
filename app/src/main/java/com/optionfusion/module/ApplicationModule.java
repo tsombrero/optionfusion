@@ -69,7 +69,7 @@ public class ApplicationModule {
 
     // Note this is not a singleton because it's an abstracted provider; the underlying client providers are singletons
     @Provides
-    ClientInterfaces.OptionChainClient provideOptionChainClient(Context context, AmeritradeClientProvider ameritradeClientProvider, FusionClientProvider fusionClientProvider, ClientInterfaces.StockQuoteClient stockQuoteClient) {
+    ClientInterfaces.OptionChainClient provideOptionChainClient(Context context, AmeritradeClientProvider ameritradeClientProvider, FusionClientProvider fusionClientProvider) {
         switch (OptionFusionApplication.from(context).getBackendProvider()) {
             case AMERITRADE:
                 return ameritradeClientProvider.getOptionChainClient();
@@ -90,7 +90,7 @@ public class ApplicationModule {
 
     // Note this is not a singleton because it's an abstracted provider; the underlying client providers are singletons
     @Provides
-    ClientInterfaces.StockQuoteClient provideStockQuoteClient(Context context, AmeritradeClientProvider ameritradeClientProvider, YhooClientClientProvider yhooClientProvider, FusionClientProvider fusionClientProvider) {
+    ClientInterfaces.StockQuoteClient provideStockQuoteClient(Context context, YhooClientClientProvider yhooClientProvider, FusionClientProvider fusionClientProvider) {
         switch (OptionFusionApplication.from(context).getBackendProvider()) {
             case AMERITRADE:
                 //TODO
@@ -102,7 +102,7 @@ public class ApplicationModule {
     }
 
     @Provides
-    ClientInterfaces.SymbolLookupClient provideSymbolLookupClient(Context context, AmeritradeClientProvider ameritradeClientProvider, GoogClientProvider googClientProvider, FusionClientProvider fusionClientProvider) {
+    ClientInterfaces.SymbolLookupClient provideSymbolLookupClient(Context context, FusionClientProvider fusionClientProvider) {
         switch (OptionFusionApplication.from(context).getBackendProvider()) {
             case AMERITRADE:
                 //TODO

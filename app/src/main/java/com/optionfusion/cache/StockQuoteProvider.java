@@ -31,6 +31,26 @@ public class StockQuoteProvider extends LruCache<String, Interfaces.StockQuote> 
         this.stockQuoteClient = stockQuoteClient;
     }
 
+    public Interfaces.StockQuote getSynchronously(String symbol) {
+        if (symbol == null)
+            return null;
+
+        Interfaces.StockQuote ret = get(symbol);
+        boolean needsUpdate = true;
+
+        if (ret != null) {
+            needsUpdate = System.currentTimeMillis() - ret.getLastUpdatedTimestamp() > TimeUnit.SECONDS.toMillis(30);
+        }
+
+        if (needsUpdate || ret == null) {
+            ret = stockQuoteClient.getStockQuote(symbol, null);
+            if (ret != null) {
+                put(symbol, ret);
+            }
+        }
+        return ret;
+    }
+
     public void get(Collection<String> symbols, final StockQuoteCallback callback) {
 
         ArrayList<Interfaces.StockQuote> quotes = new ArrayList<>();

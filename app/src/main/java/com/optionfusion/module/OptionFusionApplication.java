@@ -39,7 +39,7 @@ public class OptionFusionApplication extends Application {
         }
     }
 
-    private Provider provider;
+    private Provider provider = Provider.OPTION_FUSION_BACKEND;
 
     public Provider getBackendProvider() {
         return provider;

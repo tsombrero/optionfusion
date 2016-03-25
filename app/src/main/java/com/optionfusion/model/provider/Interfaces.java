@@ -83,6 +83,8 @@ public class Interfaces {
         Double getChangePercent();
 
         long getLastUpdatedTimestamp();
+
+        long getQuoteTimestamp();
     }
 
     public interface OptionStrike {

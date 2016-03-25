@@ -35,7 +35,6 @@ import java.util.logging.Logger;
 
 import javax.inject.Named;
 
-import static com.google.appengine.api.datastore.Query.FilterOperator.EQUAL;
 import static com.google.appengine.api.datastore.Query.FilterOperator.GREATER_THAN_OR_EQUAL;
 import static com.google.appengine.api.datastore.Query.FilterOperator.LESS_THAN;
 import static com.optionfusion.backend.utils.OfyService.ofy;
@@ -68,7 +67,7 @@ public class OptionDataApi {
         ArrayList<Equity> ret = new ArrayList<>();
 
         List<Equity> equities = ofy().load().type(Equity.class)
-                .filter(startsWithFilter("ticker", searchString.toUpperCase()))
+                .filter(startsWithFilter(Equity.SYMBOL, searchString.toUpperCase()))
                 .limit(MAX_RESULTS)
                 .list();
 
@@ -79,7 +78,7 @@ public class OptionDataApi {
 
         if (ret.size() < MAX_RESULTS) {
             equities = ofy().load().type(Equity.class)
-                    .filter(startsWithFilter("keywords", searchString.toLowerCase()))
+                    .filter(startsWithFilter(Equity.KEYWORDS, searchString.toLowerCase()))
                     .limit(MAX_RESULTS - ret.size())
                     .list();
 
@@ -102,11 +101,9 @@ public class OptionDataApi {
 
         ensureLoggedIn(user);
 
-        OptionChain ret = ofy().load().type(OptionChain.class)
-                .filter(new FilterPredicate(OptionChain.SYMBOL, EQUAL, ticker))
-                .order("-" + OptionChain.QUOTE_TIMESTAMP)
-                .first()
-                .now();
+        Equity equity = getEquity(ticker);
+
+        OptionChain ret = ofy().load().type(OptionChain.class).ancestor(equity).order("-__key__").first().now();
 
         return ret;
     }
@@ -171,13 +168,14 @@ public class OptionDataApi {
     }
 
     private void populateEodStockQuote(Equity equity) {
-        List<StockQuote> quotes = ofy().load().type(StockQuote.class).ancestor(equity).order("-" + StockQuote.DATA_TIMESTAMP).limit(2).list();
+        List<StockQuote> quotes = ofy().load().type(StockQuote.class).ancestor(equity).order("-__key__").limit(2).list();
         if (quotes == null || quotes.isEmpty())
             return;
 
         StockQuote newStockQuote = quotes.get(0);
+        StockQuote existingEodStockQuote = equity.getEodStockQuote();
 
-        if (equity.getEodStockQuote().getDataTimestamp() < newStockQuote.getDataTimestamp()) {
+        if (existingEodStockQuote == null || existingEodStockQuote.getDataTimestamp() < newStockQuote.getDataTimestamp()) {
             if (newStockQuote.getPreviousClose() == 0d && quotes.size() > 1)
                 newStockQuote.setPreviousClose(quotes.get(1).getClose());
 

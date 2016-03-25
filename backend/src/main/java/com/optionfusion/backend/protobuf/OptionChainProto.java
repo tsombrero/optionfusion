@@ -46,17 +46,27 @@ public final class OptionChainProto {
     long getTimestamp();
 
     /**
-     * <code>optional .com.optionfusion.backend.protobuf.StockQuote stockquote = 3;</code>
+     * <code>required string symbol = 3;</code>
      */
-    boolean hasStockquote();
+    boolean hasSymbol();
     /**
-     * <code>optional .com.optionfusion.backend.protobuf.StockQuote stockquote = 3;</code>
+     * <code>required string symbol = 3;</code>
      */
-    com.optionfusion.backend.protobuf.OptionChainProto.StockQuote getStockquote();
+    java.lang.String getSymbol();
     /**
-     * <code>optional .com.optionfusion.backend.protobuf.StockQuote stockquote = 3;</code>
+     * <code>required string symbol = 3;</code>
      */
-    com.optionfusion.backend.protobuf.OptionChainProto.StockQuoteOrBuilder getStockquoteOrBuilder();
+    com.google.protobuf.ByteString
+        getSymbolBytes();
+
+    /**
+     * <code>required double underlyingPrice = 4;</code>
+     */
+    boolean hasUnderlyingPrice();
+    /**
+     * <code>required double underlyingPrice = 4;</code>
+     */
+    double getUnderlyingPrice();
   }
   /**
    * Protobuf type {@code com.optionfusion.backend.protobuf.OptionChain}
@@ -124,16 +134,14 @@ public final class OptionChainProto {
               break;
             }
             case 26: {
-              com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000002) == 0x00000002)) {
-                subBuilder = stockquote_.toBuilder();
-              }
-              stockquote_ = input.readMessage(com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.PARSER, extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(stockquote_);
-                stockquote_ = subBuilder.buildPartial();
-              }
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000002;
+              symbol_ = bs;
+              break;
+            }
+            case 33: {
+              bitField0_ |= 0x00000004;
+              underlyingPrice_ = input.readDouble();
               break;
             }
           }
@@ -229,31 +237,68 @@ public final class OptionChainProto {
       return timestamp_;
     }
 
-    public static final int STOCKQUOTE_FIELD_NUMBER = 3;
-    private com.optionfusion.backend.protobuf.OptionChainProto.StockQuote stockquote_;
+    public static final int SYMBOL_FIELD_NUMBER = 3;
+    private java.lang.Object symbol_;
     /**
-     * <code>optional .com.optionfusion.backend.protobuf.StockQuote stockquote = 3;</code>
+     * <code>required string symbol = 3;</code>
      */
-    public boolean hasStockquote() {
+    public boolean hasSymbol() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>optional .com.optionfusion.backend.protobuf.StockQuote stockquote = 3;</code>
+     * <code>required string symbol = 3;</code>
      */
-    public com.optionfusion.backend.protobuf.OptionChainProto.StockQuote getStockquote() {
-      return stockquote_;
+    public java.lang.String getSymbol() {
+      java.lang.Object ref = symbol_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          symbol_ = s;
+        }
+        return s;
+      }
     }
     /**
-     * <code>optional .com.optionfusion.backend.protobuf.StockQuote stockquote = 3;</code>
+     * <code>required string symbol = 3;</code>
      */
-    public com.optionfusion.backend.protobuf.OptionChainProto.StockQuoteOrBuilder getStockquoteOrBuilder() {
-      return stockquote_;
+    public com.google.protobuf.ByteString
+        getSymbolBytes() {
+      java.lang.Object ref = symbol_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        symbol_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int UNDERLYINGPRICE_FIELD_NUMBER = 4;
+    private double underlyingPrice_;
+    /**
+     * <code>required double underlyingPrice = 4;</code>
+     */
+    public boolean hasUnderlyingPrice() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>required double underlyingPrice = 4;</code>
+     */
+    public double getUnderlyingPrice() {
+      return underlyingPrice_;
     }
 
     private void initFields() {
       optionDates_ = java.util.Collections.emptyList();
       timestamp_ = 0L;
-      stockquote_ = com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.getDefaultInstance();
+      symbol_ = "";
+      underlyingPrice_ = 0D;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -265,14 +310,16 @@ public final class OptionChainProto {
         memoizedIsInitialized = 0;
         return false;
       }
+      if (!hasSymbol()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasUnderlyingPrice()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       for (int i = 0; i < getOptionDatesCount(); i++) {
         if (!getOptionDates(i).isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
-      if (hasStockquote()) {
-        if (!getStockquote().isInitialized()) {
           memoizedIsInitialized = 0;
           return false;
         }
@@ -291,7 +338,10 @@ public final class OptionChainProto {
         output.writeInt64(2, timestamp_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeMessage(3, stockquote_);
+        output.writeBytes(3, getSymbolBytes());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeDouble(4, underlyingPrice_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -312,7 +362,11 @@ public final class OptionChainProto {
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(3, stockquote_);
+          .computeBytesSize(3, getSymbolBytes());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeDoubleSize(4, underlyingPrice_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -424,7 +478,6 @@ public final class OptionChainProto {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getOptionDatesFieldBuilder();
-          getStockquoteFieldBuilder();
         }
       }
       private static Builder create() {
@@ -441,12 +494,10 @@ public final class OptionChainProto {
         }
         timestamp_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000002);
-        if (stockquoteBuilder_ == null) {
-          stockquote_ = com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.getDefaultInstance();
-        } else {
-          stockquoteBuilder_.clear();
-        }
+        symbol_ = "";
         bitField0_ = (bitField0_ & ~0x00000004);
+        underlyingPrice_ = 0D;
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
 
@@ -491,11 +542,11 @@ public final class OptionChainProto {
         if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
           to_bitField0_ |= 0x00000002;
         }
-        if (stockquoteBuilder_ == null) {
-          result.stockquote_ = stockquote_;
-        } else {
-          result.stockquote_ = stockquoteBuilder_.build();
+        result.symbol_ = symbol_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000004;
         }
+        result.underlyingPrice_ = underlyingPrice_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -541,8 +592,13 @@ public final class OptionChainProto {
         if (other.hasTimestamp()) {
           setTimestamp(other.getTimestamp());
         }
-        if (other.hasStockquote()) {
-          mergeStockquote(other.getStockquote());
+        if (other.hasSymbol()) {
+          bitField0_ |= 0x00000004;
+          symbol_ = other.symbol_;
+          onChanged();
+        }
+        if (other.hasUnderlyingPrice()) {
+          setUnderlyingPrice(other.getUnderlyingPrice());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -553,14 +609,16 @@ public final class OptionChainProto {
           
           return false;
         }
+        if (!hasSymbol()) {
+          
+          return false;
+        }
+        if (!hasUnderlyingPrice()) {
+          
+          return false;
+        }
         for (int i = 0; i < getOptionDatesCount(); i++) {
           if (!getOptionDates(i).isInitialized()) {
-            
-            return false;
-          }
-        }
-        if (hasStockquote()) {
-          if (!getStockquote().isInitialized()) {
             
             return false;
           }
@@ -859,120 +917,112 @@ public final class OptionChainProto {
         return this;
       }
 
-      private com.optionfusion.backend.protobuf.OptionChainProto.StockQuote stockquote_ = com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.getDefaultInstance();
-      private com.google.protobuf.SingleFieldBuilder<
-          com.optionfusion.backend.protobuf.OptionChainProto.StockQuote, com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.Builder, com.optionfusion.backend.protobuf.OptionChainProto.StockQuoteOrBuilder> stockquoteBuilder_;
+      private java.lang.Object symbol_ = "";
       /**
-       * <code>optional .com.optionfusion.backend.protobuf.StockQuote stockquote = 3;</code>
+       * <code>required string symbol = 3;</code>
        */
-      public boolean hasStockquote() {
+      public boolean hasSymbol() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional .com.optionfusion.backend.protobuf.StockQuote stockquote = 3;</code>
+       * <code>required string symbol = 3;</code>
        */
-      public com.optionfusion.backend.protobuf.OptionChainProto.StockQuote getStockquote() {
-        if (stockquoteBuilder_ == null) {
-          return stockquote_;
-        } else {
-          return stockquoteBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .com.optionfusion.backend.protobuf.StockQuote stockquote = 3;</code>
-       */
-      public Builder setStockquote(com.optionfusion.backend.protobuf.OptionChainProto.StockQuote value) {
-        if (stockquoteBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
+      public java.lang.String getSymbol() {
+        java.lang.Object ref = symbol_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            symbol_ = s;
           }
-          stockquote_ = value;
-          onChanged();
+          return s;
         } else {
-          stockquoteBuilder_.setMessage(value);
+          return (java.lang.String) ref;
         }
-        bitField0_ |= 0x00000004;
-        return this;
       }
       /**
-       * <code>optional .com.optionfusion.backend.protobuf.StockQuote stockquote = 3;</code>
+       * <code>required string symbol = 3;</code>
        */
-      public Builder setStockquote(
-          com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.Builder builderForValue) {
-        if (stockquoteBuilder_ == null) {
-          stockquote_ = builderForValue.build();
-          onChanged();
+      public com.google.protobuf.ByteString
+          getSymbolBytes() {
+        java.lang.Object ref = symbol_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          symbol_ = b;
+          return b;
         } else {
-          stockquoteBuilder_.setMessage(builderForValue.build());
+          return (com.google.protobuf.ByteString) ref;
         }
-        bitField0_ |= 0x00000004;
-        return this;
       }
       /**
-       * <code>optional .com.optionfusion.backend.protobuf.StockQuote stockquote = 3;</code>
+       * <code>required string symbol = 3;</code>
        */
-      public Builder mergeStockquote(com.optionfusion.backend.protobuf.OptionChainProto.StockQuote value) {
-        if (stockquoteBuilder_ == null) {
-          if (((bitField0_ & 0x00000004) == 0x00000004) &&
-              stockquote_ != com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.getDefaultInstance()) {
-            stockquote_ =
-              com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.newBuilder(stockquote_).mergeFrom(value).buildPartial();
-          } else {
-            stockquote_ = value;
-          }
-          onChanged();
-        } else {
-          stockquoteBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00000004;
-        return this;
-      }
-      /**
-       * <code>optional .com.optionfusion.backend.protobuf.StockQuote stockquote = 3;</code>
-       */
-      public Builder clearStockquote() {
-        if (stockquoteBuilder_ == null) {
-          stockquote_ = com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.getDefaultInstance();
-          onChanged();
-        } else {
-          stockquoteBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00000004);
-        return this;
-      }
-      /**
-       * <code>optional .com.optionfusion.backend.protobuf.StockQuote stockquote = 3;</code>
-       */
-      public com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.Builder getStockquoteBuilder() {
-        bitField0_ |= 0x00000004;
+      public Builder setSymbol(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        symbol_ = value;
         onChanged();
-        return getStockquoteFieldBuilder().getBuilder();
+        return this;
       }
       /**
-       * <code>optional .com.optionfusion.backend.protobuf.StockQuote stockquote = 3;</code>
+       * <code>required string symbol = 3;</code>
        */
-      public com.optionfusion.backend.protobuf.OptionChainProto.StockQuoteOrBuilder getStockquoteOrBuilder() {
-        if (stockquoteBuilder_ != null) {
-          return stockquoteBuilder_.getMessageOrBuilder();
-        } else {
-          return stockquote_;
-        }
+      public Builder clearSymbol() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        symbol_ = getDefaultInstance().getSymbol();
+        onChanged();
+        return this;
       }
       /**
-       * <code>optional .com.optionfusion.backend.protobuf.StockQuote stockquote = 3;</code>
+       * <code>required string symbol = 3;</code>
        */
-      private com.google.protobuf.SingleFieldBuilder<
-          com.optionfusion.backend.protobuf.OptionChainProto.StockQuote, com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.Builder, com.optionfusion.backend.protobuf.OptionChainProto.StockQuoteOrBuilder> 
-          getStockquoteFieldBuilder() {
-        if (stockquoteBuilder_ == null) {
-          stockquoteBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              com.optionfusion.backend.protobuf.OptionChainProto.StockQuote, com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.Builder, com.optionfusion.backend.protobuf.OptionChainProto.StockQuoteOrBuilder>(
-                  getStockquote(),
-                  getParentForChildren(),
-                  isClean());
-          stockquote_ = null;
-        }
-        return stockquoteBuilder_;
+      public Builder setSymbolBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        symbol_ = value;
+        onChanged();
+        return this;
+      }
+
+      private double underlyingPrice_ ;
+      /**
+       * <code>required double underlyingPrice = 4;</code>
+       */
+      public boolean hasUnderlyingPrice() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>required double underlyingPrice = 4;</code>
+       */
+      public double getUnderlyingPrice() {
+        return underlyingPrice_;
+      }
+      /**
+       * <code>required double underlyingPrice = 4;</code>
+       */
+      public Builder setUnderlyingPrice(double value) {
+        bitField0_ |= 0x00000008;
+        underlyingPrice_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required double underlyingPrice = 4;</code>
+       */
+      public Builder clearUnderlyingPrice() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        underlyingPrice_ = 0D;
+        onChanged();
+        return this;
       }
 
       // @@protoc_insertion_point(builder_scope:com.optionfusion.backend.protobuf.OptionChain)
@@ -3203,958 +3253,6 @@ public final class OptionChainProto {
     // @@protoc_insertion_point(class_scope:com.optionfusion.backend.protobuf.OptionDateChain)
   }
 
-  public interface StockQuoteOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.optionfusion.backend.protobuf.StockQuote)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <code>optional int64 timestamp = 1;</code>
-     */
-    boolean hasTimestamp();
-    /**
-     * <code>optional int64 timestamp = 1;</code>
-     */
-    long getTimestamp();
-
-    /**
-     * <code>required string symbol = 2;</code>
-     */
-    boolean hasSymbol();
-    /**
-     * <code>required string symbol = 2;</code>
-     */
-    java.lang.String getSymbol();
-    /**
-     * <code>required string symbol = 2;</code>
-     */
-    com.google.protobuf.ByteString
-        getSymbolBytes();
-
-    /**
-     * <code>optional int64 volume = 3;</code>
-     */
-    boolean hasVolume();
-    /**
-     * <code>optional int64 volume = 3;</code>
-     */
-    long getVolume();
-
-    /**
-     * <code>optional double open = 5;</code>
-     */
-    boolean hasOpen();
-    /**
-     * <code>optional double open = 5;</code>
-     */
-    double getOpen();
-
-    /**
-     * <code>optional double close = 6;</code>
-     */
-    boolean hasClose();
-    /**
-     * <code>optional double close = 6;</code>
-     */
-    double getClose();
-
-    /**
-     * <code>optional double hi = 7;</code>
-     */
-    boolean hasHi();
-    /**
-     * <code>optional double hi = 7;</code>
-     */
-    double getHi();
-
-    /**
-     * <code>optional double lo = 8;</code>
-     */
-    boolean hasLo();
-    /**
-     * <code>optional double lo = 8;</code>
-     */
-    double getLo();
-  }
-  /**
-   * Protobuf type {@code com.optionfusion.backend.protobuf.StockQuote}
-   */
-  public static final class StockQuote extends
-      com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:com.optionfusion.backend.protobuf.StockQuote)
-      StockQuoteOrBuilder {
-    // Use StockQuote.newBuilder() to construct.
-    private StockQuote(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
-      super(builder);
-      this.unknownFields = builder.getUnknownFields();
-    }
-    private StockQuote(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final StockQuote defaultInstance;
-    public static StockQuote getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public StockQuote getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-      return this.unknownFields;
-    }
-    private StockQuote(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-            case 8: {
-              bitField0_ |= 0x00000001;
-              timestamp_ = input.readInt64();
-              break;
-            }
-            case 18: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000002;
-              symbol_ = bs;
-              break;
-            }
-            case 24: {
-              bitField0_ |= 0x00000004;
-              volume_ = input.readInt64();
-              break;
-            }
-            case 41: {
-              bitField0_ |= 0x00000008;
-              open_ = input.readDouble();
-              break;
-            }
-            case 49: {
-              bitField0_ |= 0x00000010;
-              close_ = input.readDouble();
-              break;
-            }
-            case 57: {
-              bitField0_ |= 0x00000020;
-              hi_ = input.readDouble();
-              break;
-            }
-            case 65: {
-              bitField0_ |= 0x00000040;
-              lo_ = input.readDouble();
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return com.optionfusion.backend.protobuf.OptionChainProto.internal_static_com_optionfusion_backend_protobuf_StockQuote_descriptor;
-    }
-
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return com.optionfusion.backend.protobuf.OptionChainProto.internal_static_com_optionfusion_backend_protobuf_StockQuote_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.class, com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<StockQuote> PARSER =
-        new com.google.protobuf.AbstractParser<StockQuote>() {
-      public StockQuote parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new StockQuote(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<StockQuote> getParserForType() {
-      return PARSER;
-    }
-
-    private int bitField0_;
-    public static final int TIMESTAMP_FIELD_NUMBER = 1;
-    private long timestamp_;
-    /**
-     * <code>optional int64 timestamp = 1;</code>
-     */
-    public boolean hasTimestamp() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>optional int64 timestamp = 1;</code>
-     */
-    public long getTimestamp() {
-      return timestamp_;
-    }
-
-    public static final int SYMBOL_FIELD_NUMBER = 2;
-    private java.lang.Object symbol_;
-    /**
-     * <code>required string symbol = 2;</code>
-     */
-    public boolean hasSymbol() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    /**
-     * <code>required string symbol = 2;</code>
-     */
-    public java.lang.String getSymbol() {
-      java.lang.Object ref = symbol_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          symbol_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>required string symbol = 2;</code>
-     */
-    public com.google.protobuf.ByteString
-        getSymbolBytes() {
-      java.lang.Object ref = symbol_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        symbol_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int VOLUME_FIELD_NUMBER = 3;
-    private long volume_;
-    /**
-     * <code>optional int64 volume = 3;</code>
-     */
-    public boolean hasVolume() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
-    /**
-     * <code>optional int64 volume = 3;</code>
-     */
-    public long getVolume() {
-      return volume_;
-    }
-
-    public static final int OPEN_FIELD_NUMBER = 5;
-    private double open_;
-    /**
-     * <code>optional double open = 5;</code>
-     */
-    public boolean hasOpen() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
-    }
-    /**
-     * <code>optional double open = 5;</code>
-     */
-    public double getOpen() {
-      return open_;
-    }
-
-    public static final int CLOSE_FIELD_NUMBER = 6;
-    private double close_;
-    /**
-     * <code>optional double close = 6;</code>
-     */
-    public boolean hasClose() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
-    }
-    /**
-     * <code>optional double close = 6;</code>
-     */
-    public double getClose() {
-      return close_;
-    }
-
-    public static final int HI_FIELD_NUMBER = 7;
-    private double hi_;
-    /**
-     * <code>optional double hi = 7;</code>
-     */
-    public boolean hasHi() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
-    }
-    /**
-     * <code>optional double hi = 7;</code>
-     */
-    public double getHi() {
-      return hi_;
-    }
-
-    public static final int LO_FIELD_NUMBER = 8;
-    private double lo_;
-    /**
-     * <code>optional double lo = 8;</code>
-     */
-    public boolean hasLo() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
-    }
-    /**
-     * <code>optional double lo = 8;</code>
-     */
-    public double getLo() {
-      return lo_;
-    }
-
-    private void initFields() {
-      timestamp_ = 0L;
-      symbol_ = "";
-      volume_ = 0L;
-      open_ = 0D;
-      close_ = 0D;
-      hi_ = 0D;
-      lo_ = 0D;
-    }
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      if (!hasSymbol()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeInt64(1, timestamp_);
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(2, getSymbolBytes());
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeInt64(3, volume_);
-      }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeDouble(5, open_);
-      }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeDouble(6, close_);
-      }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeDouble(7, hi_);
-      }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        output.writeDouble(8, lo_);
-      }
-      getUnknownFields().writeTo(output);
-    }
-
-    private int memoizedSerializedSize = -1;
-    public int getSerializedSize() {
-      int size = memoizedSerializedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(1, timestamp_);
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, getSymbolBytes());
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(3, volume_);
-      }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(5, open_);
-      }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(6, close_);
-      }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(7, hi_);
-      }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(8, lo_);
-      }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
-      return size;
-    }
-
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
-    public static com.optionfusion.backend.protobuf.OptionChainProto.StockQuote parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.optionfusion.backend.protobuf.OptionChainProto.StockQuote parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.optionfusion.backend.protobuf.OptionChainProto.StockQuote parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.optionfusion.backend.protobuf.OptionChainProto.StockQuote parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.optionfusion.backend.protobuf.OptionChainProto.StockQuote parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input);
-    }
-    public static com.optionfusion.backend.protobuf.OptionChainProto.StockQuote parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
-    }
-    public static com.optionfusion.backend.protobuf.OptionChainProto.StockQuote parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
-    }
-    public static com.optionfusion.backend.protobuf.OptionChainProto.StockQuote parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
-    }
-    public static com.optionfusion.backend.protobuf.OptionChainProto.StockQuote parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input);
-    }
-    public static com.optionfusion.backend.protobuf.OptionChainProto.StockQuote parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
-    }
-
-    public static Builder newBuilder() { return Builder.create(); }
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(com.optionfusion.backend.protobuf.OptionChainProto.StockQuote prototype) {
-      return newBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() { return newBuilder(this); }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * Protobuf type {@code com.optionfusion.backend.protobuf.StockQuote}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.optionfusion.backend.protobuf.StockQuote)
-        com.optionfusion.backend.protobuf.OptionChainProto.StockQuoteOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return com.optionfusion.backend.protobuf.OptionChainProto.internal_static_com_optionfusion_backend_protobuf_StockQuote_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return com.optionfusion.backend.protobuf.OptionChainProto.internal_static_com_optionfusion_backend_protobuf_StockQuote_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.class, com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.Builder.class);
-      }
-
-      // Construct using com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-        }
-      }
-      private static Builder create() {
-        return new Builder();
-      }
-
-      public Builder clear() {
-        super.clear();
-        timestamp_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000001);
-        symbol_ = "";
-        bitField0_ = (bitField0_ & ~0x00000002);
-        volume_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000004);
-        open_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000008);
-        close_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000010);
-        hi_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000020);
-        lo_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000040);
-        return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return com.optionfusion.backend.protobuf.OptionChainProto.internal_static_com_optionfusion_backend_protobuf_StockQuote_descriptor;
-      }
-
-      public com.optionfusion.backend.protobuf.OptionChainProto.StockQuote getDefaultInstanceForType() {
-        return com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.getDefaultInstance();
-      }
-
-      public com.optionfusion.backend.protobuf.OptionChainProto.StockQuote build() {
-        com.optionfusion.backend.protobuf.OptionChainProto.StockQuote result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      public com.optionfusion.backend.protobuf.OptionChainProto.StockQuote buildPartial() {
-        com.optionfusion.backend.protobuf.OptionChainProto.StockQuote result = new com.optionfusion.backend.protobuf.OptionChainProto.StockQuote(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
-        result.timestamp_ = timestamp_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
-        result.symbol_ = symbol_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000004;
-        }
-        result.volume_ = volume_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-          to_bitField0_ |= 0x00000008;
-        }
-        result.open_ = open_;
-        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
-          to_bitField0_ |= 0x00000010;
-        }
-        result.close_ = close_;
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-          to_bitField0_ |= 0x00000020;
-        }
-        result.hi_ = hi_;
-        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
-          to_bitField0_ |= 0x00000040;
-        }
-        result.lo_ = lo_;
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
-      }
-
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.optionfusion.backend.protobuf.OptionChainProto.StockQuote) {
-          return mergeFrom((com.optionfusion.backend.protobuf.OptionChainProto.StockQuote)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(com.optionfusion.backend.protobuf.OptionChainProto.StockQuote other) {
-        if (other == com.optionfusion.backend.protobuf.OptionChainProto.StockQuote.getDefaultInstance()) return this;
-        if (other.hasTimestamp()) {
-          setTimestamp(other.getTimestamp());
-        }
-        if (other.hasSymbol()) {
-          bitField0_ |= 0x00000002;
-          symbol_ = other.symbol_;
-          onChanged();
-        }
-        if (other.hasVolume()) {
-          setVolume(other.getVolume());
-        }
-        if (other.hasOpen()) {
-          setOpen(other.getOpen());
-        }
-        if (other.hasClose()) {
-          setClose(other.getClose());
-        }
-        if (other.hasHi()) {
-          setHi(other.getHi());
-        }
-        if (other.hasLo()) {
-          setLo(other.getLo());
-        }
-        this.mergeUnknownFields(other.getUnknownFields());
-        return this;
-      }
-
-      public final boolean isInitialized() {
-        if (!hasSymbol()) {
-          
-          return false;
-        }
-        return true;
-      }
-
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        com.optionfusion.backend.protobuf.OptionChainProto.StockQuote parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (com.optionfusion.backend.protobuf.OptionChainProto.StockQuote) e.getUnfinishedMessage();
-          throw e;
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-      private int bitField0_;
-
-      private long timestamp_ ;
-      /**
-       * <code>optional int64 timestamp = 1;</code>
-       */
-      public boolean hasTimestamp() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>optional int64 timestamp = 1;</code>
-       */
-      public long getTimestamp() {
-        return timestamp_;
-      }
-      /**
-       * <code>optional int64 timestamp = 1;</code>
-       */
-      public Builder setTimestamp(long value) {
-        bitField0_ |= 0x00000001;
-        timestamp_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int64 timestamp = 1;</code>
-       */
-      public Builder clearTimestamp() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        timestamp_ = 0L;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object symbol_ = "";
-      /**
-       * <code>required string symbol = 2;</code>
-       */
-      public boolean hasSymbol() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>required string symbol = 2;</code>
-       */
-      public java.lang.String getSymbol() {
-        java.lang.Object ref = symbol_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            symbol_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>required string symbol = 2;</code>
-       */
-      public com.google.protobuf.ByteString
-          getSymbolBytes() {
-        java.lang.Object ref = symbol_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          symbol_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>required string symbol = 2;</code>
-       */
-      public Builder setSymbol(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000002;
-        symbol_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>required string symbol = 2;</code>
-       */
-      public Builder clearSymbol() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        symbol_ = getDefaultInstance().getSymbol();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>required string symbol = 2;</code>
-       */
-      public Builder setSymbolBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000002;
-        symbol_ = value;
-        onChanged();
-        return this;
-      }
-
-      private long volume_ ;
-      /**
-       * <code>optional int64 volume = 3;</code>
-       */
-      public boolean hasVolume() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <code>optional int64 volume = 3;</code>
-       */
-      public long getVolume() {
-        return volume_;
-      }
-      /**
-       * <code>optional int64 volume = 3;</code>
-       */
-      public Builder setVolume(long value) {
-        bitField0_ |= 0x00000004;
-        volume_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int64 volume = 3;</code>
-       */
-      public Builder clearVolume() {
-        bitField0_ = (bitField0_ & ~0x00000004);
-        volume_ = 0L;
-        onChanged();
-        return this;
-      }
-
-      private double open_ ;
-      /**
-       * <code>optional double open = 5;</code>
-       */
-      public boolean hasOpen() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
-      }
-      /**
-       * <code>optional double open = 5;</code>
-       */
-      public double getOpen() {
-        return open_;
-      }
-      /**
-       * <code>optional double open = 5;</code>
-       */
-      public Builder setOpen(double value) {
-        bitField0_ |= 0x00000008;
-        open_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional double open = 5;</code>
-       */
-      public Builder clearOpen() {
-        bitField0_ = (bitField0_ & ~0x00000008);
-        open_ = 0D;
-        onChanged();
-        return this;
-      }
-
-      private double close_ ;
-      /**
-       * <code>optional double close = 6;</code>
-       */
-      public boolean hasClose() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
-      }
-      /**
-       * <code>optional double close = 6;</code>
-       */
-      public double getClose() {
-        return close_;
-      }
-      /**
-       * <code>optional double close = 6;</code>
-       */
-      public Builder setClose(double value) {
-        bitField0_ |= 0x00000010;
-        close_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional double close = 6;</code>
-       */
-      public Builder clearClose() {
-        bitField0_ = (bitField0_ & ~0x00000010);
-        close_ = 0D;
-        onChanged();
-        return this;
-      }
-
-      private double hi_ ;
-      /**
-       * <code>optional double hi = 7;</code>
-       */
-      public boolean hasHi() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
-      }
-      /**
-       * <code>optional double hi = 7;</code>
-       */
-      public double getHi() {
-        return hi_;
-      }
-      /**
-       * <code>optional double hi = 7;</code>
-       */
-      public Builder setHi(double value) {
-        bitField0_ |= 0x00000020;
-        hi_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional double hi = 7;</code>
-       */
-      public Builder clearHi() {
-        bitField0_ = (bitField0_ & ~0x00000020);
-        hi_ = 0D;
-        onChanged();
-        return this;
-      }
-
-      private double lo_ ;
-      /**
-       * <code>optional double lo = 8;</code>
-       */
-      public boolean hasLo() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
-      }
-      /**
-       * <code>optional double lo = 8;</code>
-       */
-      public double getLo() {
-        return lo_;
-      }
-      /**
-       * <code>optional double lo = 8;</code>
-       */
-      public Builder setLo(double value) {
-        bitField0_ |= 0x00000040;
-        lo_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional double lo = 8;</code>
-       */
-      public Builder clearLo() {
-        bitField0_ = (bitField0_ & ~0x00000040);
-        lo_ = 0D;
-        onChanged();
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:com.optionfusion.backend.protobuf.StockQuote)
-    }
-
-    static {
-      defaultInstance = new StockQuote(true);
-      defaultInstance.initFields();
-    }
-
-    // @@protoc_insertion_point(class_scope:com.optionfusion.backend.protobuf.StockQuote)
-  }
-
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_com_optionfusion_backend_protobuf_OptionChain_descriptor;
   private static
@@ -4170,11 +3268,6 @@ public final class OptionChainProto {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_com_optionfusion_backend_protobuf_OptionDateChain_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_optionfusion_backend_protobuf_StockQuote_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_com_optionfusion_backend_protobuf_StockQuote_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -4185,25 +3278,21 @@ public final class OptionChainProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\026OptionChainProto.proto\022!com.optionfusi" +
-      "on.backend.protobuf\"\254\001\n\013OptionChain\022G\n\013o" +
+      "on.backend.protobuf\"\222\001\n\013OptionChain\022G\n\013o" +
       "ptionDates\030\001 \003(\01322.com.optionfusion.back" +
       "end.protobuf.OptionDateChain\022\021\n\ttimestam" +
-      "p\030\002 \002(\003\022A\n\nstockquote\030\003 \001(\0132-.com.option" +
-      "fusion.backend.protobuf.StockQuote\"\301\002\n\013O" +
-      "ptionQuote\022\016\n\006strike\030\001 \002(\001\022\013\n\003bid\030\002 \001(\001\022" +
-      "\013\n\003ask\030\003 \001(\001\022\014\n\004last\030\004 \001(\001\022S\n\noptionType" +
-      "\030\006 \002(\01629.com.optionfusion.backend.protob" +
-      "uf.OptionQuote.OptionType:\004CALL\022\024\n\014openI",
-      "nterest\030\007 \001(\005\022\n\n\002iv\030\010 \001(\001\022\r\n\005delta\030\t \001(\001" +
-      "\022\r\n\005gamma\030\n \001(\001\022\r\n\005theta\030\013 \001(\001\022\014\n\004vega\030\014" +
-      " \001(\001\022\016\n\006volume\030\r \001(\003\022\027\n\nmultiplier\030\016 \001(\005" +
-      ":\003100\"\037\n\nOptionType\022\007\n\003PUT\020\000\022\010\n\004CALL\020\001\"f" +
-      "\n\017OptionDateChain\022\022\n\nexpiration\030\001 \002(\003\022?\n" +
-      "\007options\030\002 \003(\0132..com.optionfusion.backen" +
-      "d.protobuf.OptionQuote\"t\n\nStockQuote\022\021\n\t" +
-      "timestamp\030\001 \001(\003\022\016\n\006symbol\030\002 \002(\t\022\016\n\006volum" +
-      "e\030\003 \001(\003\022\014\n\004open\030\005 \001(\001\022\r\n\005close\030\006 \001(\001\022\n\n\002" +
-      "hi\030\007 \001(\001\022\n\n\002lo\030\010 \001(\001"
+      "p\030\002 \002(\003\022\016\n\006symbol\030\003 \002(\t\022\027\n\017underlyingPri" +
+      "ce\030\004 \002(\001\"\301\002\n\013OptionQuote\022\016\n\006strike\030\001 \002(\001" +
+      "\022\013\n\003bid\030\002 \001(\001\022\013\n\003ask\030\003 \001(\001\022\014\n\004last\030\004 \001(\001" +
+      "\022S\n\noptionType\030\006 \002(\01629.com.optionfusion." +
+      "backend.protobuf.OptionQuote.OptionType:" +
+      "\004CALL\022\024\n\014openInterest\030\007 \001(\005\022\n\n\002iv\030\010 \001(\001\022",
+      "\r\n\005delta\030\t \001(\001\022\r\n\005gamma\030\n \001(\001\022\r\n\005theta\030\013" +
+      " \001(\001\022\014\n\004vega\030\014 \001(\001\022\016\n\006volume\030\r \001(\003\022\027\n\nmu" +
+      "ltiplier\030\016 \001(\005:\003100\"\037\n\nOptionType\022\007\n\003PUT" +
+      "\020\000\022\010\n\004CALL\020\001\"f\n\017OptionDateChain\022\022\n\nexpir" +
+      "ation\030\001 \002(\003\022?\n\007options\030\002 \003(\0132..com.optio" +
+      "nfusion.backend.protobuf.OptionQuote"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -4222,7 +3311,7 @@ public final class OptionChainProto {
     internal_static_com_optionfusion_backend_protobuf_OptionChain_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_com_optionfusion_backend_protobuf_OptionChain_descriptor,
-        new java.lang.String[] { "OptionDates", "Timestamp", "Stockquote", });
+        new java.lang.String[] { "OptionDates", "Timestamp", "Symbol", "UnderlyingPrice", });
     internal_static_com_optionfusion_backend_protobuf_OptionQuote_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_com_optionfusion_backend_protobuf_OptionQuote_fieldAccessorTable = new
@@ -4235,12 +3324,6 @@ public final class OptionChainProto {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_com_optionfusion_backend_protobuf_OptionDateChain_descriptor,
         new java.lang.String[] { "Expiration", "Options", });
-    internal_static_com_optionfusion_backend_protobuf_StockQuote_descriptor =
-      getDescriptor().getMessageTypes().get(3);
-    internal_static_com_optionfusion_backend_protobuf_StockQuote_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_com_optionfusion_backend_protobuf_StockQuote_descriptor,
-        new java.lang.String[] { "Timestamp", "Symbol", "Volume", "Open", "Close", "Hi", "Lo", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

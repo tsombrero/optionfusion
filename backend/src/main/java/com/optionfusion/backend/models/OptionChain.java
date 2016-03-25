@@ -1,10 +1,14 @@
 package com.optionfusion.backend.models;
 
+import com.google.api.server.spi.config.AnnotationBoolean;
+import com.google.api.server.spi.config.ApiResourceProperty;
 import com.google.appengine.api.datastore.Blob;
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.annotation.Parent;
 import com.googlecode.objectify.annotation.Serialize;
 import com.optionfusion.backend.protobuf.OptionChainProto;
 
@@ -14,17 +18,14 @@ import java.util.Date;
 @Cache
 public class OptionChain {
 
-    public static final String QUOTE_TIMESTAMP = "quote_timestamp";
-    public static final String SYMBOL = "symbol";
-
     @Id
-    Long id;
+    long timestamp;
 
-    @Index
+    @Parent
+    @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
+    Key<Equity> equity;
+
     String symbol;
-
-    @Index
-    Date quote_timestamp;
 
     @Serialize(zip = true)
     Blob chainData;
@@ -33,8 +34,8 @@ public class OptionChain {
     }
 
     public OptionChain(OptionChainProto.OptionChain protoChain) {
-        quote_timestamp = new Date(protoChain.getTimestamp());
-        symbol = protoChain.getStockquote().getSymbol();
+        setEquity(protoChain.getSymbol());
+        timestamp = protoChain.getTimestamp();
         chainData = new Blob(protoChain.toByteArray());
     }
 
@@ -43,15 +44,15 @@ public class OptionChain {
     }
 
     public Date getQuote_timestamp() {
-        return quote_timestamp;
+        return new Date(timestamp);
     }
 
     public Blob getChainData() {
         return chainData;
     }
 
-    //
-//    public OptionChainProto.OptionChain getProtoBufChain() throws InvalidProtocolBufferException {
-//        return OptionChainProto.OptionChain.parseFrom(chainData.getBytes());
-//    }
+    public void setEquity(String ticker) {
+        this.symbol = ticker;
+        equity = Key.create(Equity.class, ticker);
+    }
 }

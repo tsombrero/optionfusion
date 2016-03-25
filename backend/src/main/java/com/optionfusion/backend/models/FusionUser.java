@@ -72,8 +72,8 @@ public class FusionUser {
     }
 
     public void addEquityToWatchlist(Equity equity) {
-        if (!watchlistTickers.contains(equity.getTicker()))
-            watchlistTickers.add(equity.getTicker());
+        if (!watchlistTickers.contains(equity.getSymbol()))
+            watchlistTickers.add(equity.getSymbol());
     }
 
     public void addPositionToFavorite(Position position) {

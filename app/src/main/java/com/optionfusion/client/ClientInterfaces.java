@@ -48,25 +48,25 @@ public class ClientInterfaces {
 
     public static class SymbolLookupResult {
 
-        public SymbolLookupResult(String ticker, String description) {
-            this.ticker = ticker;
+        public SymbolLookupResult(String symbol, String description) {
+            this.symbol = symbol;
             this.description = description;
         }
 
         public SymbolLookupResult(Equity equity) {
-            this.ticker = equity.getTicker();
+            this.symbol = equity.getSymbol();
             this.description = equity.getDescription();
         }
 
-        String ticker;
+        String symbol;
         String description;
 
         public String getDescription() {
             return description;
         }
 
-        public String getTicker() {
-            return ticker;
+        public String getSymbol() {
+            return symbol;
         }
     }
 

@@ -131,6 +131,11 @@ public class AmeritradeStockQuote extends AmtdResponseBase implements Interfaces
 
     @Override
     public long getLastUpdatedTimestamp() {
-        return 0;
+        return lastUpdatedTimestamp;
+    }
+
+    @Override
+    public long getQuoteTimestamp() {
+        return lastUpdatedTimestamp;
     }
 }

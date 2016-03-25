@@ -3,7 +3,8 @@ package com.optionfusion.backend.protobuf;
 message OptionChain {
 	repeated OptionDateChain optionDates = 1;
 	required int64 timestamp = 2;
-	optional StockQuote stockquote = 3;
+        required string symbol = 3;
+        required double underlyingPrice = 4;
 }
 
 message OptionQuote {
@@ -30,16 +31,4 @@ message OptionDateChain {
 	required int64 expiration = 1;
 	repeated OptionQuote options = 2;
 }
-
-message StockQuote {
-	optional int64 timestamp = 1;
-	required string symbol = 2;
-	optional int64 volume = 3;
-
-	optional double open = 5;
-	optional double close = 6;
-	optional double hi = 7;
-	optional double lo = 8;
-}
-
 

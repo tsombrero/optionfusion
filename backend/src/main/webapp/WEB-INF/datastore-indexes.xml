@@ -1,8 +1,2 @@
 <datastore-indexes autoGenerate="true">
-
-    <datastore-index ancestor="false" kind="OptionChain" source="manual">
-        <property name="symbol" direction="asc"/>
-        <property name="quote_timestamp" direction="desc"/>
-    </datastore-index>
-
 </datastore-indexes>

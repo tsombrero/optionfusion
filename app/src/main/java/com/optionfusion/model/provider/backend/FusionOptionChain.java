@@ -26,12 +26,12 @@ public class FusionOptionChain implements Interfaces.OptionChain {
 
     DbHelper dbHelper;
 
-    FusionStockQuote stockQuote;
+    Interfaces.StockQuote stockQuote;
 
 
-    public FusionOptionChain(OptionChainProto.OptionChain protoChain, DbHelper dbHelper) {
+    public FusionOptionChain(OptionChainProto.OptionChain protoChain, Interfaces.StockQuote stockQuote, DbHelper dbHelper) {
         this.dbHelper = dbHelper;
-        stockQuote = new FusionStockQuote(protoChain.getStockquote());
+        this.stockQuote = stockQuote;
         getStrikePrices();
         for (OptionChainProto.OptionDateChain dateChain : protoChain.getOptionDatesList()) {
             expirationDates.add(new DateTime(dateChain.getExpiration()));
