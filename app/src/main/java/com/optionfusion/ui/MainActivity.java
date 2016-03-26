@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
+import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.client.ClientInterfaces;
 import com.optionfusion.com.backend.optionFusion.model.FusionUser;
 import com.optionfusion.model.provider.Interfaces;
@@ -54,6 +55,9 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
 
     @Inject
     OptionChainProvider optionChainProvider;
+
+    @Inject
+    StockQuoteProvider stockQuoteProvider;
 
     FusionUser fusionUser;
 
@@ -119,15 +123,29 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
                 progressBar.setVisibility(View.GONE);
 
                 if (optionChain != null) {
-                    Fragment fragment = ResultsFragment.newInstance(optionChain.getUnderlyingStockQuote().getSymbol());
-                    getSupportActionBar().setTitle(optionChain.getUnderlyingStockQuote().getDescription());
+                    Fragment fragment = ResultsFragment.newInstance(optionChain.getSymbol());
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, fragment, optionChain.getUnderlyingStockQuote().getSymbol())
+                            .replace(R.id.fragment_container, fragment, optionChain.getSymbol())
                             .addToBackStack(null)
                             .commit();
                 } else {
                     Toast.makeText(MainActivity.this, "Failed getting option chain", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        stockQuoteProvider.get(symbol, new StockQuoteProvider.StockQuoteCallback() {
+            @Override
+            public void call(List<Interfaces.StockQuote> stockQuotes) {
+                if (stockQuotes == null || stockQuotes.isEmpty())
+                    return;
+
+                getSupportActionBar().setTitle(stockQuotes.get(0).getDescription());
+            }
+
+            @Override
+            public void onError(int status, String message) {
+
             }
         });
     }

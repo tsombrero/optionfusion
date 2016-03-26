@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
+import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
@@ -23,7 +24,6 @@ import com.optionfusion.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -42,7 +42,7 @@ import lecho.lib.hellocharts.view.LineChartView;
 public class TradeDetailsFragment extends Fragment {
 
     @Bind(R.id.stock_quote)
-    protected ViewGroup stockQuote;
+    protected ViewGroup stockQuoteLayout;
 
     @Bind(R.id.details_brief)
     protected ViewGroup briefDetailsLayout;
@@ -80,6 +80,9 @@ public class TradeDetailsFragment extends Fragment {
     @Inject
     OptionChainProvider optionChainProvider;
 
+    @Inject
+    StockQuoteProvider stockQuoteProvider;
+
     VerticalSpread spread;
 
     private static final String ARG_TRADE = "trade";
@@ -114,8 +117,9 @@ public class TradeDetailsFragment extends Fragment {
 
     public void initView() {
         oc = optionChainProvider.get(spread.getUnderlyingSymbol());
+        Interfaces.StockQuote stockQuote = stockQuoteProvider.get(spread.getUnderlyingSymbol());
 
-        new SharedViewHolders.StockQuoteViewHolder(stockQuote, null).bind(oc.getUnderlyingStockQuote());
+        new SharedViewHolders.StockQuoteViewHolder(stockQuoteLayout, null).bind(stockQuote);
         new SharedViewHolders.BriefTradeDetailsHolder(briefDetailsLayout).bind(spread);
 
         View buyLayout = getActivity().getLayoutInflater().inflate(R.layout.incl_option_quote, null);
@@ -144,7 +148,7 @@ public class TradeDetailsFragment extends Fragment {
         values.add(new PointValue((float) spread.getPrice_BreakEven(), 0f).setLabel(""));
         values.add(new PointValue((float) spread.getPrice_MaxReturn(), (float) spread.getMaxPercentProfitAtExpiration()).setLabel(""));
 
-        float lastPrice = (float) oc.getUnderlyingStockQuote().getLast();
+        float lastPrice = (float) oc.getUnderlyingPrice();
 
         if (spread.isBullSpread()) {
             values.add(new PointValue(lastPrice * 100f, (float) spread.getMaxPercentProfitAtExpiration()).setLabel(""));
@@ -238,8 +242,8 @@ public class TradeDetailsFragment extends Fragment {
         v.left = (float) (spread.getPrice_BreakEven() - xViewRange);
         v.right = (float) (spread.getPrice_BreakEven() + xViewRange);
 
-        v.left = (float) Math.max(0f, Math.min(oc.getUnderlyingStockQuote().getLast() * 0.98f, v.left));
-        v.right = (float) Math.max(oc.getUnderlyingStockQuote().getLast() * 1.02f, v.right);
+        v.left = (float) Math.max(0f, Math.min(oc.getUnderlyingPrice() * 0.98f, v.left));
+        v.right = (float) Math.max(oc.getUnderlyingPrice() * 1.02f, v.right);
 
         v.bottom = (float) Math.max(v.bottom, Math.max(0f, spread.getAsk()) * -1f);
 

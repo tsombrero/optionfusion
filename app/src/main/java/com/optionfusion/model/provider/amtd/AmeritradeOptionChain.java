@@ -46,16 +46,21 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         this.stockQuote = stockQuote;
     }
 
-    @Override
-    public Interfaces.StockQuote getUnderlyingStockQuote() {
-        return stockQuote;
-    }
-
     public List<AmtdOptionDate> getChainsByDate() {
         if (data == null)
             return Collections.EMPTY_LIST;
 
         return Collections.unmodifiableList(data.optionDates);
+    }
+
+    @Override
+    public double getUnderlyingPrice() {
+        return stockQuote.getLast();
+    }
+
+    @Override
+    public String getSymbol() {
+        return stockQuote.getSymbol();
     }
 
     @Override
@@ -200,18 +205,16 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
             OptionStrike lo = null;
             OptionStrike hi = null;
 
-            Interfaces.StockQuote underlying = optionChain.getUnderlyingStockQuote();
-
             while (i < optionStrikes.size() - 1) {
                 hi = optionStrikes.get(i);
                 int j = i + 1;
 
                 while (j < optionStrikes.size()) {
                     lo = optionStrikes.get(j);
-                    addIfPassFilters(ret, filterSet, PojoSpread.newSpread(hi.call, lo.call, underlying));
-                    addIfPassFilters(ret, filterSet, PojoSpread.newSpread(lo.call, hi.call, underlying));
-                    addIfPassFilters(ret, filterSet, PojoSpread.newSpread(hi.put, lo.put, underlying));
-                    addIfPassFilters(ret, filterSet, PojoSpread.newSpread(lo.put, hi.put, underlying));
+                    addIfPassFilters(ret, filterSet, PojoSpread.newSpread(hi.call, lo.call, optionChain));
+                    addIfPassFilters(ret, filterSet, PojoSpread.newSpread(lo.call, hi.call, optionChain));
+                    addIfPassFilters(ret, filterSet, PojoSpread.newSpread(hi.put, lo.put, optionChain));
+                    addIfPassFilters(ret, filterSet, PojoSpread.newSpread(lo.put, hi.put, optionChain));
                     j++;
                 }
                 i++;
@@ -455,11 +458,6 @@ public class AmeritradeOptionChain extends AmtdResponseBase implements Interface
         @Override
         public boolean isStandard() {
             return standard;
-        }
-
-        @Override
-        public Interfaces.StockQuote getUnderlyingStockQuote() {
-            return optionDate.optionChain.stockQuote;
         }
 
         @Override

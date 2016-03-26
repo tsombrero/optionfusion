@@ -14,7 +14,7 @@ import java.util.Comparator;
 
 abstract public class PojoSpread implements Parcelable, com.optionfusion.model.provider.VerticalSpread {
     Interfaces.OptionQuote buy, sell;
-    Interfaces.StockQuote underlying;
+    Interfaces.OptionChain chain;
 
     private static final String TAG = "Spread";
 
@@ -35,13 +35,13 @@ abstract public class PojoSpread implements Parcelable, com.optionfusion.model.p
 
     protected PojoSpread() {}
 
-    protected PojoSpread(Interfaces.OptionQuote buy, Interfaces.OptionQuote sell, Interfaces.StockQuote underlying) {
-        if (buy == null || sell == null || underlying == null)
+    protected PojoSpread(Interfaces.OptionQuote buy, Interfaces.OptionQuote sell, Interfaces.OptionChain chain) {
+        if (buy == null || sell == null || chain == null)
             throw new IllegalArgumentException("Quotes and Chain cannot be null");
 
         this.buy = buy;
         this.sell = sell;
-        this.underlying = underlying;
+        this.chain = chain;
     }
 
     @Override
@@ -67,7 +67,7 @@ abstract public class PojoSpread implements Parcelable, com.optionfusion.model.p
                 : SpreadType.BULL_PUT;
     }
 
-    public static PojoSpread newSpread(Interfaces.OptionQuote buy, Interfaces.OptionQuote sell, Interfaces.StockQuote underlying) {
+    public static PojoSpread newSpread(Interfaces.OptionQuote buy, Interfaces.OptionQuote sell, Interfaces.OptionChain chain) {
         if (buy == null || sell == null)
             return null;
 
@@ -92,7 +92,7 @@ abstract public class PojoSpread implements Parcelable, com.optionfusion.model.p
                     return null;
 
                 //Bull Call Spread
-                return new BullCallSpread(buy, sell, underlying);
+                return new BullCallSpread(buy, sell, chain);
             }
             if (buy.getStrike() > sell.getStrike()) {
                 //TODO Bear call spread not impl
@@ -104,7 +104,7 @@ abstract public class PojoSpread implements Parcelable, com.optionfusion.model.p
                     return null;
 
                 //Bear Put Spread
-                return new BearPutSpread(buy, sell, underlying);
+                return new BearPutSpread(buy, sell, chain);
             }
             if (buy.getStrike() < sell.getStrike()) {
                 //TODO Bull put spread not impl
@@ -146,13 +146,13 @@ abstract public class PojoSpread implements Parcelable, com.optionfusion.model.p
     // how much $ the price can change before the max profit limit
     @Override
     public double getPriceChange_MaxProfit() {
-        return sell.getStrike() - underlying.getLast();
+        return sell.getStrike() - chain.getUnderlyingPrice();
     }
 
     // how much % the price can drop before cutting into profit
     @Override
     public double getPercentChange_MaxProfit() {
-        return getPriceChange_MaxProfit() / underlying.getLast();
+        return getPriceChange_MaxProfit() / chain.getUnderlyingPrice();
     }
 
     @Override
@@ -167,8 +167,8 @@ abstract public class PojoSpread implements Parcelable, com.optionfusion.model.p
 
     public String toString() {
         return String.format("%s $%.2f; dte:%d; spr:%.2f/%.2f b/a:$%.2f/%.2f MaxProfit: %s / %.1f%% risk:%.3f",
-                underlying.getSymbol(),
-                underlying.getLast(),
+                chain.getSymbol(),
+                chain.getUnderlyingPrice(),
                 buy.getDaysUntilExpiration(),
                 buy.getStrike(), sell.getStrike(),
                 getAsk(), getBid(),
@@ -178,7 +178,7 @@ abstract public class PojoSpread implements Parcelable, com.optionfusion.model.p
     }
 
     public String getWeightComponents() {
-        return " WT: " + getMaxReturnAnnualized() + "/5 + " + getBreakEvenDepth() + " / " + underlying.getLast();
+        return " WT: " + getMaxReturnAnnualized() + "/5 + " + getBreakEvenDepth() + " / " + chain.getUnderlyingPrice();
 
     }
 
@@ -190,17 +190,17 @@ abstract public class PojoSpread implements Parcelable, com.optionfusion.model.p
     @Override
     public boolean isInTheMoney_BreakEven() {
         if (buy.getOptionType() == Interfaces.OptionType.CALL) {
-            return getPrice_BreakEven() < underlying.getLast();
+            return getPrice_BreakEven() < chain.getUnderlyingPrice();
         }
-        return getPrice_BreakEven() > underlying.getLast();
+        return getPrice_BreakEven() > chain.getUnderlyingPrice();
     }
 
     @Override
     public boolean isInTheMoney_MaxReturn() {
         if (buy.getOptionType() == Interfaces.OptionType.CALL) {
-            return getPrice_MaxReturn() < underlying.getLast();
+            return getPrice_MaxReturn() < chain.getUnderlyingPrice();
         }
-        return getPrice_MaxReturn() > underlying.getLast();
+        return getPrice_MaxReturn() > chain.getUnderlyingPrice();
     }
 
     @Override
@@ -220,7 +220,7 @@ abstract public class PojoSpread implements Parcelable, com.optionfusion.model.p
 
     @Override
     public String getUnderlyingSymbol() {
-        return underlying.getSymbol();
+        return chain.getSymbol();
     }
 
     @Override
@@ -243,7 +243,7 @@ abstract public class PojoSpread implements Parcelable, com.optionfusion.model.p
 
     @Override
     public double getWeightedValue() {
-        return Math.min(.5, getMaxReturnAnnualized() / 5D) + (WEIGHT_LOWRISK * getBreakEvenDepth() / underlying.getLast());
+        return Math.min(.5, getMaxReturnAnnualized() / 5D) + (WEIGHT_LOWRISK * getBreakEvenDepth() / chain.getUnderlyingPrice());
     }
 
     // Parcelable
@@ -258,8 +258,8 @@ abstract public class PojoSpread implements Parcelable, com.optionfusion.model.p
         dest.writeString(getBuy().toJson(ClassFactory.gson));
         dest.writeInt(getSell().getProvider().ordinal());
         dest.writeString(getSell().toJson(ClassFactory.gson));
-        dest.writeInt(underlying.getProvider().ordinal());
-        dest.writeString(underlying.toJson(ClassFactory.gson));
+        dest.writeInt(chain.getProvider().ordinal());
+        dest.writeString(chain.toJson(ClassFactory.gson));
     }
 
     public static final Parcelable.Creator<PojoSpread> CREATOR = new SpreadCreator();
@@ -269,7 +269,7 @@ abstract public class PojoSpread implements Parcelable, com.optionfusion.model.p
             Interfaces.OptionQuote buy = ClassFactory.OptionQuoteFromJson(readProvider(in), in.readString());
             Interfaces.OptionQuote sell = ClassFactory.OptionQuoteFromJson(readProvider(in), in.readString());
             Interfaces.OptionChain oc = ClassFactory.OptionChainFromJson(readProvider(in), in.readString());
-            return PojoSpread.newSpread(buy, sell, oc.getUnderlyingStockQuote());
+            return PojoSpread.newSpread(buy, sell, oc);
         }
 
         public PojoSpread[] newArray(int size) {

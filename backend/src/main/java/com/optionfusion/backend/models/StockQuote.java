@@ -20,7 +20,7 @@ public class StockQuote {
     @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
     Key<Equity> equity;
 
-    String ticker;
+    String symbol;
 
     long volume;
     double open, hi, lo, close;
@@ -42,12 +42,12 @@ public class StockQuote {
         return timestamp;
     }
 
-    public String getTicker() {
-        return ticker;
+    public String getSymbol() {
+        return symbol;
     }
 
     public void setEquity(String ticker) {
-        this.ticker = ticker;
+        this.symbol = ticker;
         equity = Key.create(Equity.class, ticker);
     }
 

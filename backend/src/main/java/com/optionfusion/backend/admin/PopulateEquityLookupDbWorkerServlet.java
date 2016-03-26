@@ -118,7 +118,7 @@ public class PopulateEquityLookupDbWorkerServlet extends HttpServlet {
         return ret;
     }
 
-    private static final List<String> reject = Arrays.asList("", "inc", "corp", "co", "corporation", "ltd");
+    private static final List<String> reject = Arrays.asList("", "inc", "corp", "co", "corporation", "ltd", "llc", "L", "C", "P");
 
     private ArrayList<String> getKeywords(String description) {
         ArrayList<String> ret = new ArrayList<>(Arrays.asList(

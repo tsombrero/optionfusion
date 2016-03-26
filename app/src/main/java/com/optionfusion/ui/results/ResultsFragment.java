@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
+import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.model.FilterSet;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
@@ -42,6 +43,9 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
 
     @Inject
     OptionChainProvider optionChainProvider;
+
+    @Inject
+    StockQuoteProvider stockQuoteProvider;
 
     @Inject
     SharedPreferences sharedPreferences;
@@ -95,13 +99,19 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
         if (filterSet == null)
             filterSet = FilterSet.loadForSymbol(symbol, gson, sharedPreferences);
 
-
-
-        optionChainProvider.get(symbol, new OptionChainProvider.OptionChainCallback() {
+        stockQuoteProvider.get(symbol, new StockQuoteProvider.StockQuoteCallback() {
             @Override
-            public void call(Interfaces.OptionChain optionChain) {
-                new SharedViewHolders.StockQuoteViewHolder(stockQuoteLayout, null).bind(optionChain.getUnderlyingStockQuote());
+            public void call(List<Interfaces.StockQuote> quotes) {
+                if (quotes == null || quotes.isEmpty())
+                    return;
+
+                new SharedViewHolders.StockQuoteViewHolder(stockQuoteLayout, null).bind(quotes.get(0));
                 onChange(filterSet);
+            }
+
+            @Override
+            public void onError(int status, String message) {
+
             }
         });
 

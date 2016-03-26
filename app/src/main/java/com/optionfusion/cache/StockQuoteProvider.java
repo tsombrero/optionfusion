@@ -11,6 +11,7 @@ import com.optionfusion.model.provider.Interfaces;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -49,6 +50,10 @@ public class StockQuoteProvider extends LruCache<String, Interfaces.StockQuote> 
             }
         }
         return ret;
+    }
+
+    public void get(String symbol, final StockQuoteCallback callback) {
+        get(Collections.singletonList(symbol), callback);
     }
 
     public void get(Collection<String> symbols, final StockQuoteCallback callback) {

@@ -371,11 +371,6 @@ public class DbSpread implements VerticalSpread, Parcelable {
         }
 
         @Override
-        public Interfaces.StockQuote getUnderlyingStockQuote() {
-            return null;
-        }
-
-        @Override
         public String toJson(Gson gson) {
             return null;
         }

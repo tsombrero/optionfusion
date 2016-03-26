@@ -35,13 +35,13 @@ public class SharedViewHolders {
             ButterKnife.bind(this, view);
         }
 
-        public void bind(Interfaces.OptionChain oc) {
-            if (oc == null)
+        public void bind(Interfaces.StockQuote stockQuote) {
+            if (stockQuote == null)
                 return;
 
-            tickerView.setText(oc.getUnderlyingStockQuote().getSymbol());
-            priceView.setText(Util.formatDollars(oc.getUnderlyingStockQuote().getLast()));
-            equityDescriptionView.setText(oc.getUnderlyingStockQuote().getDescription());
+            tickerView.setText(stockQuote.getSymbol());
+            priceView.setText(Util.formatDollars(stockQuote.getLast()));
+            equityDescriptionView.setText(stockQuote.getDescription());
         }
 
         static public String getTransitionName(String symbol) {

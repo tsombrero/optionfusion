@@ -26,21 +26,28 @@ public class FusionOptionChain implements Interfaces.OptionChain {
 
     DbHelper dbHelper;
 
-    Interfaces.StockQuote stockQuote;
+    private final long lastUpdatedTimestamp = System.currentTimeMillis();
+    private String symbol;
+    private double underlyingPrice;
 
-
-    public FusionOptionChain(OptionChainProto.OptionChain protoChain, Interfaces.StockQuote stockQuote, DbHelper dbHelper) {
+    public FusionOptionChain(OptionChainProto.OptionChain protoChain, DbHelper dbHelper) {
         this.dbHelper = dbHelper;
-        this.stockQuote = stockQuote;
-        getStrikePrices();
         for (OptionChainProto.OptionDateChain dateChain : protoChain.getOptionDatesList()) {
             expirationDates.add(new DateTime(dateChain.getExpiration()));
         }
+        symbol = protoChain.getSymbol();
+        underlyingPrice = protoChain.getUnderlyingPrice();
+        getStrikePrices();
     }
 
     @Override
-    public Interfaces.StockQuote getUnderlyingStockQuote() {
-        return stockQuote;
+    public double getUnderlyingPrice() {
+        return underlyingPrice;
+    }
+
+    @Override
+    public String getSymbol() {
+        return symbol;
     }
 
     @Override
@@ -56,7 +63,7 @@ public class FusionOptionChain implements Interfaces.OptionChain {
                     " WHERE " + Schema.Options.UNDERLYING_SYMBOL + " =?";
 
             Cursor c = dbHelper.getReadableDatabase()
-                    .rawQuery(sql, new String[]{getUnderlyingStockQuote().getSymbol()});
+                    .rawQuery(sql, new String[]{symbol});
 
             if (c.moveToFirst()) {
                 Double minStrike = c.getDouble(0);
@@ -75,7 +82,7 @@ public class FusionOptionChain implements Interfaces.OptionChain {
         ArrayList<String> selectionArgs = new ArrayList<>();
 
         selections.add("(" + Schema.VerticalSpreads.UNDERLYING_SYMBOL + "=?)");
-        selectionArgs.add(getUnderlyingStockQuote().getSymbol());
+        selectionArgs.add(symbol);
 
         // TODO credit spreads eclipse others in the list
 //        selections.add("(" + Schema.VerticalSpreads.IS_CREDIT + "=0)");
@@ -105,17 +112,17 @@ public class FusionOptionChain implements Interfaces.OptionChain {
 
     @Override
     public String toJson(Gson gson) {
-        return null;
+        return gson.toJson(this);
     }
 
     @Override
     public OptionFusionApplication.Provider getProvider() {
-        return null;
+        return OptionFusionApplication.Provider.OPTION_FUSION_BACKEND;
     }
 
     @Override
     public long getLastUpdatedTimestamp() {
-        return 0;
+        return lastUpdatedTimestamp;
     }
 
     @Override

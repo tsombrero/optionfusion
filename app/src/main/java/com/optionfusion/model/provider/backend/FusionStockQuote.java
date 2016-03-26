@@ -1,6 +1,7 @@
 package com.optionfusion.model.provider.backend;
 
 import com.google.gson.Gson;
+import com.optionfusion.backend.protobuf.OptionChainProto;
 import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.com.backend.optionFusion.model.StockQuote;
 import com.optionfusion.model.provider.Interfaces;
@@ -8,18 +9,35 @@ import com.optionfusion.module.OptionFusionApplication;
 
 public class FusionStockQuote implements Interfaces.StockQuote {
 
-    private final StockQuote stockQuote;
-    private String equityDescription;
+    private String symbol, equityDescription;
     private long createTimestamp = System.currentTimeMillis();
+    private long dataTimestamp;
+
+    private double open, close, previousClose;
+
 
     public FusionStockQuote(Equity equity) {
-        this.stockQuote = equity.getEodStockQuote();
-        this.equityDescription = equity.getDescription();
+        StockQuote stockQuote = equity.getEodStockQuote();
+        equityDescription = equity.getDescription();
+        symbol = equity.getSymbol();
+        dataTimestamp = stockQuote.getDataTimestamp();
+        open = stockQuote.getOpen();
+        close = stockQuote.getClose();
+        previousClose = stockQuote.getPreviousClose();
+    }
+
+    public FusionStockQuote(OptionChainProto.OptionChain protoChain) {
+        symbol = protoChain.getSymbol();
+        equityDescription = protoChain.getSymbol();
+        dataTimestamp = protoChain.getTimestamp();
+        open = protoChain.getUnderlyingPrice();
+        close = protoChain.getUnderlyingPrice();
+
     }
 
     @Override
     public String getSymbol() {
-        return stockQuote.getTicker();
+        return symbol;
     }
 
     @Override
@@ -29,27 +47,27 @@ public class FusionStockQuote implements Interfaces.StockQuote {
 
     @Override
     public double getBid() {
-        return stockQuote.getClose();
+        return close;
     }
 
     @Override
     public double getAsk() {
-        return stockQuote.getClose();
+        return close;
     }
 
     @Override
     public double getLast() {
-        return stockQuote.getClose();
+        return close;
     }
 
     @Override
     public double getOpen() {
-        return stockQuote.getOpen();
+        return open;
     }
 
     @Override
     public double getClose() {
-        return stockQuote.getClose();
+        return close;
     }
 
     @Override
@@ -64,12 +82,12 @@ public class FusionStockQuote implements Interfaces.StockQuote {
 
     @Override
     public Double getChange() {
-        return getClose() - stockQuote.getPreviousClose();
+        return getClose() - previousClose;
     }
 
     @Override
     public Double getChangePercent() {
-        return getChange() / stockQuote.getPreviousClose();
+        return getChange() / previousClose;
     }
 
     @Override
@@ -79,6 +97,6 @@ public class FusionStockQuote implements Interfaces.StockQuote {
 
     @Override
     public long getQuoteTimestamp() {
-        return stockQuote.getDataTimestamp();
+        return dataTimestamp;
     }
 }

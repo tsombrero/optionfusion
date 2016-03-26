@@ -1,6 +1,5 @@
 package com.optionfusion.backend.admin;
 
-import com.google.appengine.api.datastore.Query;
 import com.google.gcloud.storage.Blob;
 import com.google.gcloud.storage.BlobId;
 import com.google.gcloud.storage.Storage;
@@ -27,7 +26,6 @@ import java.io.Reader;
 import java.nio.channels.Channels;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -131,7 +129,7 @@ public class GetEodDataWorkerServlet extends HttpServlet {
                 String optionChainSymbol = null;
 
                 if (currentStockQuote != null)
-                    stockQuoteSymbol = currentStockQuote.getTicker();
+                    stockQuoteSymbol = currentStockQuote.getSymbol();
 
                 if (currentOptionChainBuilder != null)
                     optionChainSymbol = currentOptionChainBuilder.getSymbol();
@@ -358,11 +356,11 @@ public class GetEodDataWorkerServlet extends HttpServlet {
     }
 
     private void commit(StockQuote stockQuote) {
-        Equity equity = getEquity(stockQuote.getTicker());
-        Key<Equity> equityKey = Key.create(Equity.class, stockQuote.getTicker());
+        Equity equity = getEquity(stockQuote.getSymbol());
+        Key<Equity> equityKey = Key.create(Equity.class, stockQuote.getSymbol());
 
         if (equity == null) {
-            equity = new Equity(stockQuote.getTicker(), "No Description", new ArrayList<String>());
+            equity = new Equity(stockQuote.getSymbol(), "No Description", new ArrayList<String>());
             equityKey = ofy()
                     .cache(false)
                     .save().entity(equity).now();

@@ -33,6 +33,7 @@ import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.model.provider.backend.FusionOptionChain;
 import com.optionfusion.model.provider.backend.FusionStockQuote;
+import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.util.Util;
 
 import org.joda.time.DateTime;
@@ -69,6 +70,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     Lazy<StockQuoteProvider> stockQuoteProvider;
 
     public FusionClient(Context context, GoogleSignInAccount acct) {
+        OptionFusionApplication.from(context).getComponent().inject(this);
         this.context = context;
         this.account = acct;
     }
@@ -99,12 +101,11 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             @Override
             protected FusionOptionChain doInBackground(Void... params) {
                 try {
-                    Interfaces.StockQuote stockQuote = stockQuoteProvider.get().get(symbol);
                     OptionChain chain = getEndpoints().optionDataApi().getEodChain(symbol).execute();
                     OptionChainProto.OptionChain protoChain = OptionChainProto.OptionChain.parseFrom(chain.decodeChainData());
-                    writeChainToDb(protoChain, stockQuote);
+                    writeChainToDb(protoChain);
 
-                    return new FusionOptionChain(protoChain, stockQuote, dbHelper);
+                    return new FusionOptionChain(protoChain, dbHelper);
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -190,7 +191,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     }
 
 
-    private void writeChainToDb(OptionChainProto.OptionChain protoChain, Interfaces.StockQuote stockQuote) {
+    private void writeChainToDb(OptionChainProto.OptionChain protoChain) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         long now = System.currentTimeMillis();
         Log.i(TAG, "TACO Starting Transaction");
@@ -198,7 +199,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             db.beginTransaction();
 
             for (OptionChainProto.OptionDateChain dateChain : protoChain.getOptionDatesList()) {
-                writeDateChainToDb(db, stockQuote, dateChain, now, protoChain);
+                writeDateChainToDb(db, dateChain, now, protoChain);
             }
 
             db.delete(Schema.VerticalSpreads.getTableName(),
@@ -476,16 +477,16 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         }
     }
 
-    private void writeDateChainToDb(SQLiteDatabase db, Interfaces.StockQuote stockQuote, OptionChainProto.OptionDateChain dateChain, long now, OptionChainProto.OptionChain protoChain) {
+    private void writeDateChainToDb(SQLiteDatabase db, OptionChainProto.OptionDateChain dateChain, long now, OptionChainProto.OptionChain protoChain) {
 
         for (OptionChainProto.OptionQuote optionQuote : dateChain.getOptionsList()) {
             if (Util.getDaysFromNow(new DateTime(dateChain.getExpiration())) <= 1) {
                 continue;
             }
             Schema.ContentValueBuilder cv = new Schema.ContentValueBuilder();
-            cv.put(Options.SYMBOL, Options.getKey(stockQuote.getSymbol(), dateChain.getExpiration(), optionQuote.getOptionType(), optionQuote.getStrike()))
-                    .put(Options.UNDERLYING_SYMBOL, stockQuote.getSymbol())
-                    .put(Options.UNDERLYING_PRICE, stockQuote.getClose())
+            cv.put(Options.SYMBOL, Options.getKey(protoChain.getSymbol(), dateChain.getExpiration(), optionQuote.getOptionType(), optionQuote.getStrike()))
+                    .put(Options.UNDERLYING_SYMBOL, protoChain.getSymbol())
+                    .put(Options.UNDERLYING_PRICE, protoChain.getUnderlyingPrice())
                     .put(Options.BID, optionQuote.getBid())
                     .put(Options.ASK, optionQuote.getAsk())
                     .put(Options.STRIKE, optionQuote.getStrike())

@@ -108,8 +108,13 @@ public class GoogOptionChain implements Interfaces.OptionChain {
     }
 
     @Override
-    public Interfaces.StockQuote getUnderlyingStockQuote() {
-        return stockQuote;
+    public double getUnderlyingPrice() {
+        return stockQuote.getLast();
+    }
+
+    @Override
+    public String getSymbol() {
+        return stockQuote.getSymbol();
     }
 
     @Override
@@ -272,11 +277,6 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         }
 
         @Override
-        public Interfaces.StockQuote getUnderlyingStockQuote() {
-            return optionDate.optionChain.getUnderlyingStockQuote();
-        }
-
-        @Override
         public String toJson(Gson gson) {
             return gson.toJson(this);
         }
@@ -333,8 +333,8 @@ public class GoogOptionChain implements Interfaces.OptionChain {
                     while (j < putsOrCalls.size()) {
                         GoogOptionQuote b = putsOrCalls.get(j);
                         if ((b.getStrike() * 100D) % 50 == 0) {
-                            addIfPassFilters(ret, filterSet, PojoSpread.newSpread(a, b, optionChain.getUnderlyingStockQuote()));
-                            addIfPassFilters(ret, filterSet, PojoSpread.newSpread(b, a, optionChain.getUnderlyingStockQuote()));
+                            addIfPassFilters(ret, filterSet, PojoSpread.newSpread(a, b, optionChain));
+                            addIfPassFilters(ret, filterSet, PojoSpread.newSpread(b, a, optionChain));
                         }
                         j++;
                     }

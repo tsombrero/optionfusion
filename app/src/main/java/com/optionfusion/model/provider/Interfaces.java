@@ -52,8 +52,6 @@ public class Interfaces {
 
         boolean isStandard();
 
-        StockQuote getUnderlyingStockQuote();
-
         String toJson(Gson gson);
 
         Provider getProvider();
@@ -110,7 +108,9 @@ public class Interfaces {
     }
 
     public interface OptionChain extends ResponseBase {
-        StockQuote getUnderlyingStockQuote();
+        double getUnderlyingPrice();
+
+        String getSymbol();
 
         List<DateTime> getExpirationDates();
 
