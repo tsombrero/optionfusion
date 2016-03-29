@@ -1,9 +1,6 @@
 package com.optionfusion.backend.admin;
 
 import com.google.gcloud.storage.Blob;
-import com.google.gcloud.storage.BlobId;
-import com.google.gcloud.storage.Storage;
-import com.google.gcloud.storage.StorageOptions;
 import com.googlecode.objectify.Key;
 import com.opencsv.CSVIterator;
 import com.opencsv.CSVReader;
@@ -17,7 +14,6 @@ import com.optionfusion.backend.utils.Util;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.DateTimeFormatterBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,34 +43,26 @@ public class GetEodDataWorkerServlet extends HttpServlet {
     private static final DateTimeFormatter STOCKQUOTE_DATE_FORMATTER = DateTimeFormat.forPattern("MM/dd/yyyy");
 
     public static final String PARAM_DAYS_TO_SEARCH = "DAYS_TO_SEARCH";
+    public static final String PARAM_DATE_TO_SEARCH = "DATE_TO_SEARCH";
+    public static final String PARAM_INITIAL_LETTER_SHARD = "INITIAL_LETTER_SHARD";
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 
-        log("Job Starting " + req.getRequestedSessionId());
-        int daysToSearch = 1;
-
-        String p = req.getParameter(PARAM_DAYS_TO_SEARCH);
-        if (!TextUtils.isEmpty(p)) {
-            daysToSearch = Math.max(daysToSearch, Integer.valueOf(p));
+        String initialLetter = req.getParameter(PARAM_INITIAL_LETTER_SHARD);
+        DateTime dateToSearch = null;
+        try {
+            dateToSearch = new DateTime(Long.valueOf(req.getParameter(PARAM_DATE_TO_SEARCH)));
+        } catch (Exception e) {
+            log("Failed", e);
+            return;
         }
 
+        log("Job Starting " + initialLetter + " " + dateToSearch);
+
         try {
-            DateTime todayEod = Util.getEodDateTime();
-
-            for (int i = daysToSearch - 1; i >= 0; i--) {
-                DateTime quoteDate = todayEod.minusDays(i);
-                if (quoteDate.isAfter(DateTime.now()))
-                    break;
-
-                if (chainsExistForDate(quoteDate, "ZX") || chainsExistForDate(quoteDate, "ZUMZ") || chainsExistForDate(quoteDate, "ZTS")) {
-                    log("Already processed options for date " + quoteDate);
-                    continue;
-                }
-
-                processFilesForDate(quoteDate);
-            }
+            processFilesForDate(dateToSearch, initialLetter);
         } catch (Throwable e) {
             resp.getWriter().println("Failed");
             e.printStackTrace();
@@ -83,15 +71,15 @@ public class GetEodDataWorkerServlet extends HttpServlet {
         log("Job Finished");
     }
 
-    private void processFilesForDate(DateTime dateTime) throws IOException {
+    private void processFilesForDate(DateTime dateTime, String initialLetter) throws IOException {
         InputStream optionsIn = null;
         InputStream stocksIn = null;
         CSVIterator optionRecordIterator = null;
         CSVIterator stockQuoteRecordIterator = null;
 
         try {
-            optionsIn = getRemoteFileInputStream(getOptionsFileName(dateTime));
-            stocksIn = getRemoteFileInputStream(getStockQuotesFileName(dateTime));
+            optionsIn = getRemoteFileInputStream(Util.getOptionsFileName(dateTime));
+            stocksIn = getRemoteFileInputStream(Util.getStockQuotesFileName(dateTime));
 
             if (optionsIn == null) {
                 log("No options input data for date " + dateTime);
@@ -106,6 +94,30 @@ public class GetEodDataWorkerServlet extends HttpServlet {
             String[] firstOptionRecordForNextSymbol = null;
             OptionChainBuilder currentOptionChainBuilder = null;
             StockQuote currentStockQuote = null;
+
+            {
+                String symbol = null;
+                while (optionRecordIterator.hasNext()) {
+                    firstOptionRecordForNextSymbol = optionRecordIterator.next();
+                    symbol = firstOptionRecordForNextSymbol[OptionsColumns.UNDERLYING_SYMBOL.ordinal()];
+                    if (symbol.startsWith(initialLetter) && isRecordValid(firstOptionRecordForNextSymbol)) {
+                        break;
+                    }
+                }
+
+                String[] record;
+                while (stockQuoteRecordIterator.hasNext()) {
+                    record = stockQuoteRecordIterator.next();
+                    symbol = record[StockQuoteColumns.SYMBOL.ordinal()];
+
+                    if (symbol.startsWith(initialLetter)) {
+                        currentStockQuote = createStockQuote(record);
+                        break;
+                    }
+                }
+
+                log("Starting " + initialLetter + ":" + dateTime + " shard (" + symbol + "/" + currentStockQuote + ")");
+            }
 
             // Looping through two iterators. The strategy is:
             // - Keep a reference to the current quote and optionchain
@@ -128,11 +140,22 @@ public class GetEodDataWorkerServlet extends HttpServlet {
                 String stockQuoteSymbol = null;
                 String optionChainSymbol = null;
 
-                if (currentStockQuote != null)
+                if (currentStockQuote != null) {
                     stockQuoteSymbol = currentStockQuote.getSymbol();
+                    if (!stockQuoteSymbol.startsWith(initialLetter))
+                        currentStockQuote = null;
+                }
 
-                if (currentOptionChainBuilder != null)
+                if (currentOptionChainBuilder != null) {
                     optionChainSymbol = currentOptionChainBuilder.getSymbol();
+                    if (!optionChainSymbol.startsWith(initialLetter))
+                        currentOptionChainBuilder = null;
+                }
+
+                if (currentOptionChainBuilder == null && currentStockQuote == null) {
+                    log("Finished " + initialLetter + ":" + dateTime + " shard (" + stockQuoteSymbol + "/" + optionChainSymbol + ")");
+                    break;
+                }
 
                 int compare = TextUtils.compare(optionChainSymbol, stockQuoteSymbol);
 
@@ -140,13 +163,13 @@ public class GetEodDataWorkerServlet extends HttpServlet {
                     commit(currentOptionChainBuilder, currentStockQuote);
                     currentOptionChainBuilder = null;
                     currentStockQuote = null;
-                } else if (compare > 0) {
+                } else if (compare > 0 && currentStockQuote != null) {
                     //stockQuoteSymbol is first
                     commit(currentStockQuote);
                     currentStockQuote = null;
-                } else {
+                } else if (currentOptionChainBuilder != null) {
                     //optionChainSymbol is first
-                    commit(currentOptionChainBuilder.build());
+                    commit(currentOptionChainBuilder);
                     currentOptionChainBuilder = null;
                 }
             }
@@ -162,8 +185,10 @@ public class GetEodDataWorkerServlet extends HttpServlet {
         if (stockQuoteRecords == null || !stockQuoteRecords.hasNext())
             return null;
 
-        String[] record = stockQuoteRecords.next();
+        return createStockQuote(stockQuoteRecords.next());
+    }
 
+    private StockQuote createStockQuote(String[] record) {
         DateTime dateTime = STOCKQUOTE_DATE_FORMATTER
                 .parseDateTime(record[StockQuoteColumns.DATE.ordinal()]);
 
@@ -229,7 +254,6 @@ public class GetEodDataWorkerServlet extends HttpServlet {
     private class OptionChainBuilder {
         Map<String, List<String[]>> subchainsByExp = new HashMap<>();
         String symbol;
-        String exchange;
         long timestamp;
         double underlyingPrice;
 
@@ -237,11 +261,7 @@ public class GetEodDataWorkerServlet extends HttpServlet {
             addRecord(firstRecord);
             while (parser.hasNext()) {
                 String[] record = parser.next();
-                exchange = record[OptionsColumns.EXCHANGE.ordinal()];
-
-                if (!"*".equals(exchange)
-                        && !"W".equals(exchange)
-                        && !"Q".equals(exchange))
+                if (!isRecordValid(record))
                     continue;
 
                 if (symbol == null || TextUtils.equals(symbol, record[OptionsColumns.UNDERLYING_SYMBOL.ordinal()])) {
@@ -261,6 +281,7 @@ public class GetEodDataWorkerServlet extends HttpServlet {
             if (symbol == null) {
                 symbol = record[OptionsColumns.UNDERLYING_SYMBOL.ordinal()];
                 timestamp = TIMESTAMP_FORMATTER.parseMillis(record[OptionsColumns.DATA_DATE.ordinal()] + " -0500");
+                timestamp = Util.getEodDateTime(new DateTime(timestamp)).getMillis();
                 underlyingPrice = doubleValueOf(record, OptionsColumns.UNDERLYING_PRICE);
             }
 
@@ -312,7 +333,7 @@ public class GetEodDataWorkerServlet extends HttpServlet {
                             .setBid(doubleValueOf(record, OptionsColumns.BID))
                             .setOptionType(record[OptionsColumns.TYPE.ordinal()].toUpperCase().startsWith("C") ? CALL : PUT)
                             .setStrike(doubleValueOf(record, OptionsColumns.STRIKE))
-                            .setOpenInterest((int)longValueOf(record, OptionsColumns.OPEN_INTEREST))
+                            .setOpenInterest((int) longValueOf(record, OptionsColumns.OPEN_INTEREST))
                             .setLast(doubleValueOf(record, OptionsColumns.LAST))
                             .setVolume(longValueOf(record, OptionsColumns.VOLUME));
 
@@ -336,16 +357,31 @@ public class GetEodDataWorkerServlet extends HttpServlet {
         }
     }
 
+    private boolean isRecordValid(String[] record) {
+        String exchange = record[OptionsColumns.EXCHANGE.ordinal()];
+
+        return ("*".equals(exchange)
+                || "W".equals(exchange)
+                || "Q".equals(exchange));
+    }
+
     private void commit(OptionChainBuilder chainBuilder, StockQuote stockQuote) {
         //TODO transaction
         commit(chainBuilder.build());
         commit(stockQuote);
     }
 
+    private void commit(OptionChainBuilder optionChainBuilder) {
+        commit(optionChainBuilder.build());
+
+        StockQuote stockQuote = new StockQuote(optionChainBuilder.getSymbol(), optionChainBuilder.timestamp);
+        stockQuote.setClose(optionChainBuilder.underlyingPrice);
+        commit(stockQuote);
+    }
+
     private void commit(OptionChainProto.OptionChain currentChain) {
-        Key<Equity> parentKey = Key.create(Equity.class, currentChain.getSymbol());
         OptionChain existingOptionChain = ofy().cache(false).load()
-                .key(Key.create(parentKey, OptionChain.class, currentChain.getTimestamp()))
+                .key(Util.getOptionChainKey(currentChain.getSymbol(), currentChain.getTimestamp()))
                 .now();
 
         if (existingOptionChain == null) {
@@ -357,13 +393,9 @@ public class GetEodDataWorkerServlet extends HttpServlet {
 
     private void commit(StockQuote stockQuote) {
         Equity equity = getEquity(stockQuote.getSymbol());
-        Key<Equity> equityKey = Key.create(Equity.class, stockQuote.getSymbol());
 
         if (equity == null) {
             equity = new Equity(stockQuote.getSymbol(), "No Description", new ArrayList<String>());
-            equityKey = ofy()
-                    .cache(false)
-                    .save().entity(equity).now();
         }
 
         if (equity.getEodStockQuote() == null || equity.getEodStockQuote().getDataTimestamp() < stockQuote.getDataTimestamp()) {
@@ -379,8 +411,9 @@ public class GetEodDataWorkerServlet extends HttpServlet {
         StockQuote existingStockQuote = ofy()
                 .cache(false)
                 .load()
-                .key(Key.create(equityKey, StockQuote.class, stockQuote.getDataTimestamp()))
+                .key(Util.getStockQuoteKey(stockQuote.getSymbol(), stockQuote.getDataTimestamp()))
                 .now();
+
         if (existingStockQuote == null) {
             ofy()
                     .cache(false)
@@ -389,9 +422,7 @@ public class GetEodDataWorkerServlet extends HttpServlet {
     }
 
     private InputStream getRemoteFileInputStream(String fileName) throws IOException {
-        Storage storage = StorageOptions.defaultInstance().service();
-        BlobId blobId = BlobId.of("optionfusion_com", fileName);
-        Blob blob = storage.get(blobId);
+        Blob blob = Util.getBlobFromStorage(fileName);
 
         if (blob != null) {
             try {
@@ -404,34 +435,6 @@ public class GetEodDataWorkerServlet extends HttpServlet {
             }
         }
         return null;
-    }
-
-    private boolean chainsExistForDate(DateTime date, String symbol) {
-
-        Key<Equity> parentKey = Key.create(Equity.class, symbol);
-        OptionChain existingOptionChain = ofy().cache(false).load()
-                .key(Key.create(parentKey, OptionChain.class, date.getMillis()))
-                .now();
-
-        return existingOptionChain != null;
-    }
-
-    public String getOptionsFileName(DateTime date) {
-        return "csv/options_" + getDateTimeStringForFilename(date) + ".csv.zip";
-    }
-
-    public String getStockQuotesFileName(DateTime date) {
-        return "csv/stockquotes_" + getDateTimeStringForFilename(date) + ".csv.zip";
-    }
-
-    public String getDateTimeStringForFilename(DateTime date) {
-        DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder()
-                .appendYear(4, 4)
-                .appendMonthOfYear(2)
-                .appendDayOfMonth(2)
-                .toFormatter();
-
-        return date.toString(dateTimeFormatter);
     }
 
     private Equity getEquity(String ticker) {

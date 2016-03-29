@@ -89,6 +89,14 @@ public class OptionDataApi {
             }
         }
 
+        List<Equity> toRemove = new ArrayList<>();
+        for (Equity equity : equities) {
+            if (equity.getEodStockQuote() == null)
+                toRemove.add(equity);
+        }
+
+        equities.removeAll(toRemove);
+
         if (ret.isEmpty()) {
             ret.add(new Equity("No Matches", "", null));
         }

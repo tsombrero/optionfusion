@@ -114,4 +114,8 @@ public class StockQuote {
     public void setPreviousClose(double previousClose) {
         this.previousClose = previousClose;
     }
+
+    public String toString() {
+        return getSymbol() + " " + getClose();
+    }
 }

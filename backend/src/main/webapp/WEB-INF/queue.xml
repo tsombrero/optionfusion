@@ -1,12 +1,12 @@
 <queue-entries>
     <queue>
         <name>eoddataqueue</name>
-        <rate>1/s</rate>
-        <max-concurrent-requests>1</max-concurrent-requests>
+        <rate>10/s</rate>
+        <max-concurrent-requests>50</max-concurrent-requests>
         <retry-parameters>
             <min-backoff-seconds>10</min-backoff-seconds>
             <max-backoff-seconds>10</max-backoff-seconds>
-            <max-doublings>0</max-doublings>
+            <max-doublings>3</max-doublings>
         </retry-parameters>
     </queue>
 </queue-entries>

@@ -16,6 +16,9 @@ public class TextUtils {
         if (a == null)
             return 1;
 
+        if (b == null)
+            return -1;
+
         return a.compareTo(b);
     }
 }
