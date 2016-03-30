@@ -59,19 +59,19 @@ public class AdminServlet extends HttpServlet {
     // The getEodData tasks are delayed 5 mins to give this time to finish.
     private void populateBlobStorage(HttpServletRequest req) {
 
-        HttpTransport httpTransport = null;
-        try {
-            httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Compute compute = new Compute.Builder(
-                httpTransport, JSON_FACTORY, null)
-                .setApplicationName(APPLICATION_NAME)
-                .setHttpRequestInitializer(req.).build();
+//        HttpTransport httpTransport = null;
+//        try {
+//            httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+//        } catch (GeneralSecurityException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        Compute compute = new Compute.Builder(
+//                httpTransport, JSON_FACTORY, null)
+//                .setApplicationName(APPLICATION_NAME)
+//                .setHttpRequestInitializer(req.).build();
     }
 
     private void getEodData(int daysToSearch) {
@@ -82,12 +82,12 @@ public class AdminServlet extends HttpServlet {
 
         while (!quoteDate.isAfter(DateTime.now())) {
             if (Util.getBlobFromStorage(Util.getOptionsFileName(quoteDate)) != null) {
-                if (chainsExistForDate(quoteDate)) {
+                if (!chainsExistForDate(quoteDate)) {
+                    getEodDataShards(quoteDate, dayCounter);
+                    dayCounter++;
+                } else {
                     log("Already got chains for date " + quoteDate);
-                    continue;
                 }
-                getEodDataShards(quoteDate, dayCounter);
-                dayCounter++;
             } else {
                 log("No data for " + quoteDate);
             }
