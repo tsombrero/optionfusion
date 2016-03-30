@@ -23,7 +23,7 @@ targetCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
     appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.31'
-    compile 'com.google.apis:google-api-services-compute:v1-rev94-1.21.0'
+    compile 'com.google.apis:google-api-services-compute:v1-rev103-1.21.0'
     compile 'com.google.appengine:appengine-endpoints:1.9.31'
     compile 'com.google.appengine:appengine-endpoints-deps:1.9.31'
     compile 'com.google.gcloud:gcloud-java-storage:0.1.4'

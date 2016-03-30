@@ -1,5 +1,8 @@
 package com.optionfusion.backend.admin;
 
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.services.compute.Compute;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskHandle;
@@ -11,6 +14,7 @@ import com.optionfusion.backend.utils.Util;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +27,12 @@ import static com.optionfusion.backend.utils.OfyService.ofy;
 public class AdminServlet extends HttpServlet {
 
     public static final String LOOKUP_CSV_FILE_URI = "lookupCsvFile";
+    public static final String clientSecretsJson = "{" +
+            "  \"installed\": {" +
+            "    \"client_id\": \"Enter Client ID\"," +
+            "    \"client_secret\": \"Enter Client Secret\"" +
+            "  }" +
+            "}";
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -34,8 +44,10 @@ public class AdminServlet extends HttpServlet {
         } else if (req.getParameter(GetEodDataWorkerServlet.PARAM_DAYS_TO_SEARCH) != null) {
             try {
                 Integer days = Integer.valueOf(req.getParameter(GetEodDataWorkerServlet.PARAM_DAYS_TO_SEARCH));
-                if (days != null)
+                if (days != null) {
+                    populateBlobStorage(req);
                     getEodData(days);
+                }
             } catch (Exception e) {
                 log("Failed", e);
             }
@@ -43,11 +55,30 @@ public class AdminServlet extends HttpServlet {
         resp.getWriter().write("Work submitted");
     }
 
+    // Download the csv data from the provider by starting the compute instance and letting it do its thing. It shuts down automatically.
+    // The getEodData tasks are delayed 5 mins to give this time to finish.
+    private void populateBlobStorage(HttpServletRequest req) {
+
+        HttpTransport httpTransport = null;
+        try {
+            httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Compute compute = new Compute.Builder(
+                httpTransport, JSON_FACTORY, null)
+                .setApplicationName(APPLICATION_NAME)
+                .setHttpRequestInitializer(req.).build();
+    }
+
     private void getEodData(int daysToSearch) {
         DateTime todayEod = Util.getEodDateTime();
         DateTime quoteDate = todayEod.minusDays(daysToSearch);
 
-        int dayCounter = 0;
+        int dayCounter = 1;
 
         while (!quoteDate.isAfter(DateTime.now())) {
             if (Util.getBlobFromStorage(Util.getOptionsFileName(quoteDate)) != null) {
