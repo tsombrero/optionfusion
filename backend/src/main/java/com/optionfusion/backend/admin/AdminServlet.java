@@ -1,8 +1,16 @@
 package com.optionfusion.backend.admin;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.compute.ComputeCredential;
+import com.google.api.client.googleapis.extensions.appengine.auth.oauth2.AppIdentityCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.compute.Compute;
+import com.google.api.services.compute.ComputeScopes;
+import com.google.api.services.compute.model.Operation;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskHandle;
@@ -14,7 +22,8 @@ import com.optionfusion.backend.utils.Util;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +35,9 @@ import static com.optionfusion.backend.utils.OfyService.ofy;
 
 public class AdminServlet extends HttpServlet {
 
+    public static final String APPLICATION_NAME = "option-fusion-api";
+    public static final String EOD_DOWNLOADER_INSTANCE = "eod-downloader-instance";
+    public static final String EOD_DOWNLOADER_INSTANCE_ZONE = "us-central1-b";
     public static final String LOOKUP_CSV_FILE_URI = "lookupCsvFile";
     public static final String clientSecretsJson = "{" +
             "  \"installed\": {" +
@@ -45,7 +57,7 @@ public class AdminServlet extends HttpServlet {
             try {
                 Integer days = Integer.valueOf(req.getParameter(GetEodDataWorkerServlet.PARAM_DAYS_TO_SEARCH));
                 if (days != null) {
-                    populateBlobStorage(req);
+                    populateBlobStorage(resp);
                     getEodData(days);
                 }
             } catch (Exception e) {
@@ -57,21 +69,34 @@ public class AdminServlet extends HttpServlet {
 
     // Download the csv data from the provider by starting the compute instance and letting it do its thing. It shuts down automatically.
     // The getEodData tasks are delayed 5 mins to give this time to finish.
-    private void populateBlobStorage(HttpServletRequest req) {
+    private void populateBlobStorage(HttpServletResponse resp) {
 
-//        HttpTransport httpTransport = null;
-//        try {
-//            httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-//        } catch (GeneralSecurityException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        Compute compute = new Compute.Builder(
-//                httpTransport, JSON_FACTORY, null)
-//                .setApplicationName(APPLICATION_NAME)
-//                .setHttpRequestInitializer(req.).build();
+        try {
+            JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+            HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+
+            AppIdentityCredential credential =
+                    new AppIdentityCredential(Arrays.asList(ComputeScopes.COMPUTE));
+
+            Compute compute = new Compute.Builder(
+                    httpTransport, JSON_FACTORY, null)
+                    .setApplicationName(APPLICATION_NAME)
+                    .setHttpRequestInitializer(credential).build();
+
+            resp.getWriter().write("Starting " + EOD_DOWNLOADER_INSTANCE);
+
+            Operation i = compute.instances().start(APPLICATION_NAME, EOD_DOWNLOADER_INSTANCE_ZONE, EOD_DOWNLOADER_INSTANCE).execute();
+            if (i != null) {
+                resp.getWriter().write(i + " | " + i.getError() + " | " + i.getHttpErrorStatusCode());
+            }
+        } catch (Throwable t) {
+            log("Failed populating blob storage", t);
+            try {
+                resp.getWriter().write("Failed populating blob storage " + t);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void getEodData(int daysToSearch) {
@@ -108,7 +133,7 @@ public class AdminServlet extends HttpServlet {
             queue.add(TaskOptions.Builder.withUrl("/eoddataworker")
                     .param(GetEodDataWorkerServlet.PARAM_DATE_TO_SEARCH, String.valueOf(dateTime.getMillis()))
                     .param(GetEodDataWorkerServlet.PARAM_INITIAL_LETTER_SHARD, String.valueOf(c))
-                    .countdownMillis(dayCounter * TimeUnit.MINUTES.toMillis(5))
+                    .countdownMillis(dayCounter * TimeUnit.MINUTES.toMillis(4))
             );
             log("Added job for " + c + " " + dateTime);
         }
