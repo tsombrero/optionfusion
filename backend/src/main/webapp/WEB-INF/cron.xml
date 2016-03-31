@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+    <cron>
+        <url>/admin?DAYS_TO_SEARCH=2</url>
+        <description>Update EOD entities</description>
+        <schedule>every 15 minutes from 16:15 to 19:15</schedule>
+        <timezone>America/New_York</timezone>
+    </cron>
+</cronentries>
