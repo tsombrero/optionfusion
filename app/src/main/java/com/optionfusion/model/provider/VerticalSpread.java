@@ -72,6 +72,8 @@ public interface VerticalSpread extends Parcelable {
 
     Interfaces.OptionQuote getSell();
 
+    Double getCapitalAtRisk();
+
     public enum SpreadType {
         BULL_CALL,
         BEAR_CALL,

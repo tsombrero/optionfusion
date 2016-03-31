@@ -26,6 +26,7 @@ import com.optionfusion.db.Schema;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import java.lang.reflect.Type;
@@ -157,21 +158,21 @@ public class ApplicationModule {
     @Singleton
     Gson provideGson() {
         return new GsonBuilder()
-                .registerTypeAdapter(LocalDate.class, new DateTimeSerializer())
-                .registerTypeAdapter(LocalDate.class, new DateTimeDeserializer())
+                .registerTypeAdapter(DateTime.class, new DateTimeSerializer())
+                .registerTypeAdapter(DateTime.class, new DateTimeDeserializer())
                 .create();
     }
 
-    private class DateTimeSerializer implements JsonSerializer<LocalDate> {
-        public JsonElement serialize(LocalDate src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(src.toString());
+    private class DateTimeSerializer implements JsonSerializer<DateTime> {
+        public JsonElement serialize(DateTime src, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(src.getMillis());
         }
     }
 
-    private class DateTimeDeserializer implements JsonDeserializer<LocalDate> {
-        public LocalDate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    private class DateTimeDeserializer implements JsonDeserializer<DateTime> {
+        public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
                 throws JsonParseException {
-            return new LocalDate(json.getAsJsonPrimitive().getAsString());
+            return new DateTime(json.getAsJsonPrimitive().getAsLong());
         }
     }
 

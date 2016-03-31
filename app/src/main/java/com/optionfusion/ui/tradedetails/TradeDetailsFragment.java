@@ -170,7 +170,7 @@ public class TradeDetailsFragment extends Fragment {
                 .setFilled(false)
                 .setCubic(false)
                 .setHasLabels(true)
-                .setHasPoints(true)
+                .setHasPoints(false)
                 .setStrokeWidth(3)
                 .setHasLines(true);
 

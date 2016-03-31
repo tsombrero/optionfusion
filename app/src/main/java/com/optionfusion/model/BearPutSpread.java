@@ -24,5 +24,10 @@ public class BearPutSpread extends PojoSpread {
         return getPrice_BreakEven() - chain.getUnderlyingPrice();
     }
 
+    @Override
+    public Double getCapitalAtRisk() {
+        return getAsk();
+    }
+
     public static final Parcelable.Creator<PojoSpread> CREATOR = new SpreadCreator();
 }

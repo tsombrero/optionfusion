@@ -268,7 +268,7 @@ public class SharedViewHolders {
                     Util.formatPercentCompact(Math.abs(spread.getPercentChange_MaxProfit()))    // some percent
             ));
 
-            textTradeCost.setText(Util.formatDollars(spread.getAsk()));
+            textTradeCost.setText(Util.formatDollars(spread.getCapitalAtRisk()));
             breakEvenPrice.setText(Util.formatDollars(spread.getPrice_BreakEven()));
             daysToExp.setText(Util.getFormattedOptionDate(spread.getExpiresDate()) + " / " + String.valueOf(spread.getDaysToExpiration()) + " days");
             maxReturn.setText(Util.formatDollars(spread.getMaxReturn()) + " / " + Util.formatPercentCompact(spread.getMaxPercentProfitAtExpiration()));

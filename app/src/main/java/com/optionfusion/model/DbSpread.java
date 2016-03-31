@@ -132,7 +132,16 @@ public class DbSpread implements VerticalSpread, Parcelable {
 
     @Override
     public Interfaces.OptionQuote getSell() {
-        return new DbOptionQuote(getSellSymbol(), getOptionType(), getBuyStrike(), getExpiresDate());
+        return new DbOptionQuote(getSellSymbol(), getOptionType(), getSellStrike(), getExpiresDate());
+    }
+
+    @Override
+    public Double getCapitalAtRisk() {
+        if (isCreditSpread()) {
+            return getMaxValueAtExpiration() + getAsk();
+        } else {
+            return getAsk();
+        }
     }
 
     public Interfaces.OptionType getOptionType() {

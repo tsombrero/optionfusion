@@ -24,5 +24,10 @@ public class BullCallSpread extends PojoSpread {
         return chain.getUnderlyingPrice() - getPrice_BreakEven();
     }
 
+    @Override
+    public Double getCapitalAtRisk() {
+        return getAsk();
+    }
+
     public static final Parcelable.Creator<PojoSpread> CREATOR = new SpreadCreator();
 }

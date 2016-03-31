@@ -346,12 +346,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                         "END";
                 break;
             case MAX_VALUE_AT_EXPIRATION:
-                sql = "CASE " +
-                        "WHEN isBullCall OR isBearPut THEN " +
-                        " normal_max_value " +
-                        "ELSE " +
-                        " credit_max_value" +
-                        "END";
+                sql = " normal_max_value ";
                 break;
             case CAPITAL_AT_RISK:
                 sql = "CASE " +
@@ -457,7 +452,6 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     // very poor excuse for a template language, quick and dirty.
     enum Replacements {
         normal_max_value("abs(buy.strike - sell.strike)"),
-        credit_max_value("net_ask * -1"),
         bullCall_breakEven("buy.strike + net_ask"),
         bearPut_breakEven("buy.strike - net_ask"),
         bearCall_breakEven("sell.strike - net_ask"),
@@ -562,7 +556,6 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     }
 
     // Code borrowed from GoogleAccountCredential
-
     class RequestHandler implements HttpExecuteInterceptor, HttpUnsuccessfulResponseHandler {
 
         /**

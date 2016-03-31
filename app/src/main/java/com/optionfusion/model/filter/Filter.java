@@ -2,6 +2,7 @@ package com.optionfusion.model.filter;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.optionfusion.model.provider.Interfaces;
@@ -10,6 +11,8 @@ import com.optionfusion.model.provider.VerticalSpread;
 import java.util.ArrayList;
 
 abstract public class Filter implements Parcelable {
+
+    private static final String TAG = "Filter";
 
     public abstract void addDbSelection(ArrayList<String> selections, ArrayList<String> selectionArgs);
 
@@ -30,13 +33,17 @@ abstract public class Filter implements Parcelable {
     }
 
     public static Filter fromJson(Gson gson, FilterType filterType, String json) {
-        switch (filterType) {
-            case ROI:
-                return gson.fromJson(json, RoiFilter.class);
-            case TIME:
-                return gson.fromJson(json, TimeFilter.class);
-            case STRIKE:
-                return gson.fromJson(json, StrikeFilter.class);
+        try {
+            switch (filterType) {
+                case ROI:
+                    return gson.fromJson(json, RoiFilter.class);
+                case TIME:
+                    return gson.fromJson(json, TimeFilter.class);
+                case STRIKE:
+                    return gson.fromJson(json, StrikeFilter.class);
+            }
+        } catch (Throwable t) {
+            Log.w(TAG, "fromJson: Failed parsing filter " + json, t);
         }
         return null;
     }
