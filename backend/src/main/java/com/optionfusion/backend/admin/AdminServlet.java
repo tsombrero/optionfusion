@@ -118,10 +118,10 @@ public class AdminServlet extends HttpServlet {
             }
             quoteDate = quoteDate.plusDays(1);
 
-            if (dayCounter >= 10) {
-                log("processed 10 days, exiting");
-                break;
-            }
+//            if (dayCounter >= 10) {
+//                log("processed 10 days, exiting");
+//                break;
+//            }
         }
     }
 

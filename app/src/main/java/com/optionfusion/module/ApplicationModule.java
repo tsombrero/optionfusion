@@ -5,6 +5,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 
+import com.birbit.android.jobqueue.Job;
+import com.birbit.android.jobqueue.JobManager;
+import com.birbit.android.jobqueue.config.Configuration;
+import com.birbit.android.jobqueue.di.DependencyInjector;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -23,11 +27,12 @@ import com.optionfusion.client.GoogClientProvider;
 import com.optionfusion.client.YhooClientClientProvider;
 import com.optionfusion.db.DbHelper;
 import com.optionfusion.db.Schema;
+import com.optionfusion.jobqueue.GetStockQuotesJob;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 
 import java.lang.reflect.Type;
 
@@ -184,8 +189,8 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    StockQuoteProvider provideStockQuoteProvider(Context context, ClientInterfaces.StockQuoteClient stockQuoteClient) {
-        return new StockQuoteProvider(context, stockQuoteClient);
+    StockQuoteProvider provideStockQuoteProvider(Context context, ClientInterfaces.StockQuoteClient stockQuoteClient, EventBus bus, JobManager jobManager) {
+        return new StockQuoteProvider(context, stockQuoteClient, bus, jobManager);
     }
 
     @Provides
@@ -193,6 +198,24 @@ public class ApplicationModule {
     DbHelper provideDbHelper(Context context) {
         String path = context.getDatabasePath(Schema.DB_NAME).getPath();
         return new DbHelper(context, path, null, Schema.SCHEMA_VERSION);
+    }
+
+    @Provides
+    @Singleton
+    EventBus provideEventBus() {
+        return new EventBus();
+    }
+
+    @Provides
+    @Singleton
+    JobManager provideJobManager(final Context context) {
+        return new JobManager(new Configuration.Builder(context).injector(new DependencyInjector() {
+            @Override
+            public void inject(Job job) {
+                OptionFusionApplication.from(context).getComponent().inject(job);
+            }
+        })
+        .build());
     }
 
 }

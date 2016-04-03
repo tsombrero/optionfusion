@@ -16,12 +16,17 @@ import com.google.gson.Gson;
 import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.cache.StockQuoteProvider;
+import com.optionfusion.events.StockQuotesUpdatedEvent;
 import com.optionfusion.model.FilterSet;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.SharedViewHolders;
 import com.optionfusion.util.Util;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
@@ -53,12 +58,16 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
     @Inject
     Gson gson;
 
+    @Inject
+    EventBus bus;
+
     FilterSet filterSet;
     String symbol;
     ResultsAdapter resultsAdapter;
 
     private static final String TAG = "ResultsFragment";
     private static final String ARG_SYMBOL = "symbol";
+    private SharedViewHolders.StockQuoteViewHolder stockQuoteViewHolder;
 
     public static ResultsFragment newInstance(String symbol) {
         ResultsFragment ret = new ResultsFragment();
@@ -79,6 +88,8 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Vertical Spreads");
 
+        bus.register(this);
+
         return ret;
     }
 
@@ -86,6 +97,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
     public void onResume() {
         super.onResume();
         symbol = getArguments().getString(ARG_SYMBOL);
+        bus.register(this);
         initView();
     }
 
@@ -93,29 +105,27 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
     public void onPause() {
         super.onPause();
         resultsAdapter = null;
+        bus.unregister(this);
     }
 
     public void initView() {
         if (filterSet == null)
             filterSet = FilterSet.loadForSymbol(symbol, gson, sharedPreferences);
 
-        stockQuoteProvider.get(symbol, new StockQuoteProvider.StockQuoteCallback() {
-            @Override
-            public void call(List<Interfaces.StockQuote> quotes) {
-                if (quotes == null || quotes.isEmpty())
-                    return;
+        Interfaces.StockQuote stockQuote = stockQuoteProvider.get(symbol);
 
-                new SharedViewHolders.StockQuoteViewHolder(stockQuoteLayout, null).bind(quotes.get(0));
-                onChange(filterSet);
-            }
+        stockQuoteViewHolder = new SharedViewHolders.StockQuoteViewHolder(stockQuoteLayout, null, null, bus);
+        stockQuoteViewHolder.bind(stockQuote);
 
-            @Override
-            public void onError(int status, String message) {
-
-            }
-        });
-
+        onChange(filterSet);
         Util.hideSoftKeyboard(getActivity());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(StockQuotesUpdatedEvent event) {
+        Interfaces.StockQuote stockQuote = event.getStockQuote(symbol);
+        if (stockQuote != null && stockQuoteViewHolder != null)
+            stockQuoteViewHolder.bind(stockQuote);
     }
 
     @Override

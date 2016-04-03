@@ -3,11 +3,13 @@ package com.optionfusion.util;
 import android.app.Activity;
 import android.view.inputmethod.InputMethodManager;
 
+import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.module.OptionFusionApplication;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
-import org.joda.time.LocalDate;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -249,5 +251,19 @@ public class Util {
 
     public static DateTime getEodDateTime(int year, int month, int day) {
         return new DateTime(year, month, day, 16, 0, DateTimeZone.forID("America/New_York"));
+    }
+
+    public static Interfaces.StockQuote bestOf(Interfaces.StockQuote a, Interfaces.StockQuote b) {
+        if (a == null)
+            return b;
+        if (b == null)
+            return a;
+        if (a.getProvider() == OptionFusionApplication.Provider.DUMMY)
+            return b;
+        if (b.getProvider() == OptionFusionApplication.Provider.DUMMY)
+            return a;
+        if (a.getQuoteTimestamp() > b.getQuoteTimestamp())
+            return a;
+        return b;
     }
 }

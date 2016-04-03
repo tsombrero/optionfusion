@@ -21,6 +21,8 @@ import com.optionfusion.ui.SharedViewHolders;
 import com.optionfusion.util.PercentAxisValueFormatter;
 import com.optionfusion.util.Util;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -83,6 +85,9 @@ public class TradeDetailsFragment extends Fragment {
     @Inject
     StockQuoteProvider stockQuoteProvider;
 
+    @Inject
+    EventBus bus;
+
     VerticalSpread spread;
 
     private static final String ARG_TRADE = "trade";
@@ -119,7 +124,7 @@ public class TradeDetailsFragment extends Fragment {
         oc = optionChainProvider.get(spread.getUnderlyingSymbol());
         Interfaces.StockQuote stockQuote = stockQuoteProvider.get(spread.getUnderlyingSymbol());
 
-        new SharedViewHolders.StockQuoteViewHolder(stockQuoteLayout, null).bind(stockQuote);
+        new SharedViewHolders.StockQuoteViewHolder(stockQuoteLayout, null, null, bus).bind(stockQuote);
         new SharedViewHolders.BriefTradeDetailsHolder(briefDetailsLayout).bind(spread);
 
         View buyLayout = getActivity().getLayoutInflater().inflate(R.layout.incl_option_quote, null);

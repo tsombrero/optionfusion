@@ -1,5 +1,6 @@
 package com.optionfusion.module;
 
+import com.birbit.android.jobqueue.Job;
 import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.client.AmeritradeClient;
 import com.optionfusion.client.AmeritradeClientProvider;
@@ -9,11 +10,13 @@ import com.optionfusion.client.GoogClient;
 import com.optionfusion.client.GoogClientProvider;
 import com.optionfusion.client.YhooClient;
 import com.optionfusion.client.YhooClientClientProvider;
+import com.optionfusion.jobqueue.BaseApiJob;
+import com.optionfusion.jobqueue.GetStockQuotesJob;
 import com.optionfusion.ui.MainActivity;
 import com.optionfusion.ui.StockDetailsFragment;
+import com.optionfusion.ui.login.AmeritradeLoginFragment;
 import com.optionfusion.ui.login.GoogleLoginFragment;
 import com.optionfusion.ui.login.LoginActivity;
-import com.optionfusion.ui.login.AmeritradeLoginFragment;
 import com.optionfusion.ui.login.StartFragment;
 import com.optionfusion.ui.results.FilterViewHolder;
 import com.optionfusion.ui.results.ResultsFragment;
@@ -70,4 +73,6 @@ public interface OptionFusionApplicationComponent {
     void inject(FusionClientProvider fusionClientProvider);
 
     void inject(FusionClient fusionClient);
+
+    void inject(Job job);
 }

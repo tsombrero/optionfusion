@@ -27,15 +27,20 @@ import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.client.ClientInterfaces;
 import com.optionfusion.db.DbHelper;
+import com.optionfusion.events.StockQuotesUpdatedEvent;
+import com.optionfusion.events.WatchListUpdatedEvent;
+import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.Interfaces.StockQuote;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.SharedViewHolders;
 import com.optionfusion.ui.widgets.SymbolSearchTextView;
 import com.optionfusion.util.Util;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,7 +52,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
 
-public class SearchFragment extends Fragment implements SharedViewHolders.StockQuoteViewHolderListener, SwipeRefreshLayout.OnRefreshListener, AppBarLayout.OnOffsetChangedListener {
+public class SearchFragment extends Fragment implements SharedViewHolders.SymbolSelectedListener, SwipeRefreshLayout.OnRefreshListener, AppBarLayout.OnOffsetChangedListener {
 
     private static final String PREFKEY_WATCHLIST = "recents";
 
@@ -77,6 +82,9 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
 
     @Inject
     DbHelper dbHelper;
+
+    @Inject
+    EventBus bus;
 
     @Bind(R.id.swipe_refresh_layout)
     SwipeRefreshLayout swipeRefreshLayout;
@@ -150,11 +158,6 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
     }
 
     @Override
-    public void onTogglePriceChangeFormat() {
-        adapter.notifyDataSetChanged();
-    }
-
-    @Override
     public void onSymbolSelected(String symbol) {
         ((Host) getActivity()).openResultsFragment(symbol);
     }
@@ -183,14 +186,28 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
             appBarLayout.removeOnOffsetChangedListener(this);
     }
 
+    SharedViewHolders.StockQuoteViewConfig viewConfig = new SharedViewHolders.StockQuoteViewConfig() {
+        @Override
+        public void onConfigChanged() {
+            if (adapter != null)
+                adapter.notifyDataSetChanged();
+        }
+    };
+
     private class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuoteViewHolder> {
 
         private final Context context;
-        private List<StockQuote> stockQuoteList;
+        private List<StockQuote> stockQuoteList = new ArrayList<>();
         private boolean isUpdating;
 
         public StockQuoteAdapter() {
+            this(Collections.EMPTY_LIST);
+        }
+
+        public StockQuoteAdapter(List<String> symbols) {
             context = getActivity();
+            stockQuoteList = stockQuoteProvider.get(symbols);
+            bus.register(this);
             update();
         }
 
@@ -202,42 +219,65 @@ public class SearchFragment extends Fragment implements SharedViewHolders.StockQ
         public void update() {
             if (isUpdating)
                 return;
-            isUpdating = true;
 
             if (accountClient.getAccountUser() == null)
                 return;
 
-            stockQuoteProvider.get(accountClient.getAccountUser().getWatchlistTickers(), new StockQuoteProvider.StockQuoteCallback() {
-                @Override
-                public void call(List<StockQuote> stockQuotes) {
-                    if (stockQuotes == null)
-                        return;
+            isUpdating = true;
+            stockQuoteList = stockQuoteProvider.get(accountClient.getAccountUser().getWatchlistTickers());
 
-                    stockQuoteList = new ArrayList<>(stockQuotes);
-                    Collections.sort(stockQuoteList, new Comparator<StockQuote>() {
-                        @Override
-                        public int compare(StockQuote lhs, StockQuote rhs) {
-                            return lhs.getSymbol().compareTo(rhs.getSymbol());
+            if (hasDummyStockQuotes(stockQuoteList)) {
+                recyclerView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isUpdating) {
+                            Toast.makeText(context, "Failed refreshing stock quotes", Toast.LENGTH_SHORT);
+                            swipeRefreshLayout.setRefreshing(false);
+                            isUpdating = false;
                         }
-                    });
-                    notifyDataSetChanged();
-                    swipeRefreshLayout.setRefreshing(false);
-                    isUpdating = false;
-                }
+                    }
+                }, 10000);
+            } else {
+                isUpdating = false;
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
 
-                @Override
-                public void onError(int status, String message) {
-                    Toast.makeText(context, "Failed getting quotes (" + message + ")", Toast.LENGTH_SHORT);
-                    swipeRefreshLayout.setRefreshing(false);
-                    isUpdating = false;
+        private boolean hasDummyStockQuotes(List<StockQuote> stockQuoteList) {
+            for (StockQuote stockQuote : stockQuoteList) {
+                if (stockQuote.getProvider() == OptionFusionApplication.Provider.DUMMY)
+                    return true;
+            }
+            return false;
+        }
+
+
+        @Subscribe
+        public void onEvent(StockQuotesUpdatedEvent event) {
+            if (event.getStockQuoteList() == null)
+                return;
+
+            synchronized (stockQuoteList) {
+                for (StockQuote oldStockQuote : new ArrayList<>(stockQuoteList)) {
+                    stockQuoteList.remove(oldStockQuote);
+                    stockQuoteList.add(Util.bestOf(oldStockQuote, event.getStockQuote(oldStockQuote.getSymbol())));
                 }
-            });
+            }
+
+            notifyDataSetChanged();
+            swipeRefreshLayout.setRefreshing(false);
+            isUpdating = false;
+        }
+
+        @Subscribe
+        public void onEvent(WatchListUpdatedEvent event) {
+            update();
         }
 
         @Override
         public SharedViewHolders.StockQuoteViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_stock_quote, parent, false);
-            return new SharedViewHolders.StockQuoteViewHolder(v, SearchFragment.this);
+            return new SharedViewHolders.StockQuoteViewHolder(v, viewConfig, SearchFragment.this, bus);
         }
 
         @Override

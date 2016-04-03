@@ -13,7 +13,10 @@ import android.widget.TextView;
 import com.optionfusion.R;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
+import com.optionfusion.ui.widgets.PriceChangeView;
 import com.optionfusion.util.Util;
+
+import org.greenrobot.eventbus.EventBus;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -59,22 +62,25 @@ public class SharedViewHolders {
         TextView priceView;
 
         @Bind(R.id.change)
-        TextView changeView;
+        PriceChangeView changeView;
 
         @Bind(R.id.description)
         @Nullable
-        TextView description;
+        TextView descriptionView;
 
-        StockQuoteViewHolderListener stockQuoteViewHolderListener;
+        StockQuoteViewConfig stockQuoteViewConfig;
         Interfaces.StockQuote stockQuote;
 
-        static boolean showChangeAsPercent;
-
-        public StockQuoteViewHolder(final View itemView, final StockQuoteViewHolderListener stockQuoteViewHolderListener) {
+        public StockQuoteViewHolder(final View itemView, final StockQuoteViewConfig stockQuoteViewConfig, final SymbolSelectedListener symbolSelectedListener, EventBus bus) {
             super(itemView);
             this.view = itemView;
-            this.stockQuoteViewHolderListener = stockQuoteViewHolderListener;
+            this.stockQuoteViewConfig = stockQuoteViewConfig;
+
+            if (this.stockQuoteViewConfig == null)
+                this.stockQuoteViewConfig = new StockQuoteViewConfig();
+
             ButterKnife.bind(this, view);
+            changeView.observe(bus);
 
             itemView.post(new Runnable() {
                 @Override
@@ -91,19 +97,20 @@ public class SharedViewHolders {
                 }
             });
 
-            if (stockQuoteViewHolderListener != null) {
+            if (stockQuoteViewConfig != null) {
                 changeView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        showChangeAsPercent = !showChangeAsPercent;
-                        stockQuoteViewHolderListener.onTogglePriceChangeFormat();
+                        stockQuoteViewConfig.setShowAsPercentage(!stockQuoteViewConfig.isShowAsPercentage());
                     }
                 });
+            }
 
+            if (symbolSelectedListener != null && stockQuote != null) {
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        stockQuoteViewHolderListener.onSymbolSelected(stockQuote.getSymbol());
+                        symbolSelectedListener.onSymbolSelected(stockQuote.getSymbol());
                     }
                 });
             }
@@ -111,17 +118,14 @@ public class SharedViewHolders {
 
         public void bind(Interfaces.StockQuote stockQuote) {
             this.stockQuote = stockQuote;
-            Double change = stockQuote.getChange();
-            tickerView.setText(stockQuote.getSymbol());
-            priceView.setText(Util.formatDollars(stockQuote.getLast(), 100000));
-
-            if (showChangeAsPercent) {
-                changeView.setText(Util.formatPercent(stockQuote.getChangePercent()));
-            } else {
-                changeView.setText(Util.formatDollarChange(stockQuote.getChange()));
+            if (stockQuote != null) {
+                tickerView.setText(stockQuote.getSymbol());
+                priceView.setText(Util.formatDollars(stockQuote.getLast(), 100000));
+                if (descriptionView != null)
+                    descriptionView.setText(stockQuote.getDescription());
             }
-            if (description != null)
-                description.setText(stockQuote.getDescription());
+            changeView.setStockQuote(stockQuote);
+            changeView.setShowAsPercentage(stockQuoteViewConfig.isShowAsPercentage());
         }
 
         private String getTransitionName() {
@@ -140,9 +144,25 @@ public class SharedViewHolders {
         }
     }
 
-    public interface StockQuoteViewHolderListener {
-        void onTogglePriceChangeFormat();
+    public static class StockQuoteViewConfig {
+        boolean showAsPercentage;
 
+        public boolean isShowAsPercentage() {
+            return showAsPercentage;
+        }
+
+        public void setShowAsPercentage(boolean showAsPercentage) {
+            if (this.showAsPercentage == showAsPercentage)
+                return;
+
+            this.showAsPercentage = showAsPercentage;
+            onConfigChanged();
+        }
+
+        public void onConfigChanged() {};
+    }
+
+    public interface SymbolSelectedListener {
         void onSymbolSelected(String symbol);
     }
 

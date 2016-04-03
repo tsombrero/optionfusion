@@ -91,7 +91,7 @@ public class FusionStockQuote implements Interfaces.StockQuote {
     }
 
     @Override
-    public long getLastUpdatedTimestamp() {
+    public long getLastUpdatedLocalTimestamp() {
         return createTimestamp;
     }
 

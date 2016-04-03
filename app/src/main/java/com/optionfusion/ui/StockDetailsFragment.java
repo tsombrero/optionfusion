@@ -12,9 +12,18 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.optionfusion.R;
+import com.optionfusion.cache.StockQuoteProvider;
+import com.optionfusion.db.Schema;
+import com.optionfusion.events.StockQuotesUpdatedEvent;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.tradedetails.LineChartViewHolder;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -31,7 +40,14 @@ public class StockDetailsFragment extends Fragment {
     @Bind(R.id.list)
     RecyclerView recyclerView;
 
+    @Inject
+    EventBus bus;
+
+    @Inject
+    StockQuoteProvider stockQuoteProvider;
+
     private Interfaces.StockQuote stockQuote;
+    private SharedViewHolders.StockQuoteViewHolder stockQuoteViewHolder;
 
     @Nullable
     @Override
@@ -45,7 +61,12 @@ public class StockDetailsFragment extends Fragment {
 
         setHasOptionsMenu(true);
 
-        new SharedViewHolders.StockQuoteViewHolder(stockQuoteLayout, null).bind(stockQuote);
+        String symbol = getArguments().getString(Schema.StockQuotes.SYMBOL.name());
+
+        stockQuote = stockQuoteProvider.get(symbol);
+
+        stockQuoteViewHolder = new SharedViewHolders.StockQuoteViewHolder(stockQuoteLayout, null, null, bus);
+        stockQuoteViewHolder.bind(stockQuote);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(new StockDetailsAdapter());
@@ -55,10 +76,35 @@ public class StockDetailsFragment extends Fragment {
     public static Fragment newInstance(Interfaces.StockQuote stockQuote) {
         Fragment ret = new StockDetailsFragment();
         Bundle args = new Bundle();
-        args.putString("symbol", stockQuote.getSymbol());
+        args.putString(Schema.StockQuotes.SYMBOL.name(), stockQuote.getSymbol());
         ret.setArguments(args);
         return ret;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        bus.register(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        bus.unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.POSTING)
+    public void onEvent(StockQuotesUpdatedEvent event) {
+        stockQuote = event.getStockQuote(getSymbol());
+    }
+
+    public String getSymbol() {
+        if (stockQuote != null)
+            return stockQuote.getSymbol();
+
+        return getArguments().getString(Schema.StockQuotes.SYMBOL.name());
+    }
+
 
     private class StockDetailsAdapter extends RecyclerView.Adapter {
 

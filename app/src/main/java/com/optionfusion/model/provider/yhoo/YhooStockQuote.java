@@ -206,7 +206,7 @@ public class YhooStockQuote {
         }
 
         @Override
-        public long getLastUpdatedTimestamp() {
+        public long getLastUpdatedLocalTimestamp() {
             return lastUpdatedTimestamp;
         }
 

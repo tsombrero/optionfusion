@@ -124,6 +124,8 @@ dependencies {
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
     compile 'com.google.android.gms:play-services-analytics:8.4.0'
     compile 'com.google.protobuf:protobuf-java:2.6.1'
+    compile 'com.birbit:android-priority-jobqueue:2.0.0-alpha2'
+    compile 'org.greenrobot:eventbus:3.0.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

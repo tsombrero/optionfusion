@@ -133,21 +133,6 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
                 }
             }
         });
-
-        stockQuoteProvider.get(symbol, new StockQuoteProvider.StockQuoteCallback() {
-            @Override
-            public void call(List<Interfaces.StockQuote> stockQuotes) {
-                if (stockQuotes == null || stockQuotes.isEmpty())
-                    return;
-
-                getSupportActionBar().setTitle(stockQuotes.get(0).getDescription());
-            }
-
-            @Override
-            public void onError(int status, String message) {
-
-            }
-        });
     }
 
     @Override

@@ -20,7 +20,7 @@
         android:layout_alignParentLeft="true"
         tools:text="ABCD"/>
 
-    <com.optionfusion.ui.widgets.AutoFitTextView
+    <com.optionfusion.ui.widgets.PriceChangeView
         android:id="@+id/change"
         style="@style/stockQuoteDataInverse"
         android:paddingLeft="5dp"

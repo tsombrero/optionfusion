@@ -18,7 +18,7 @@ import static com.optionfusion.db.Schema.DbConstraint.PRIMARY_KEY;
 
 public class Schema {
 
-    public final static int SCHEMA_VERSION = 4;
+    public final static int SCHEMA_VERSION = 5;
     public static final String DB_NAME = "optionfusion.db";
 
     enum DbConstraint {
@@ -59,6 +59,34 @@ public class Schema {
         public ContentValues build() {
             return cv;
         }
+    }
+
+    public enum StockQuotes implements DbColumn {
+        SYMBOL(TEXT, PRIMARY_KEY),
+        LAST(REAL),
+        CHANGE(REAL),
+        CHANGE_PERCENT(REAL),
+        TIMESTAMP(INTEGER),
+        TIMESTAMP_UPDATED(INTEGER),
+        DESCRIPTION(TEXT);
+
+        private final DataType datatype;
+        private final DbConstraint[] constraints;
+
+        StockQuotes(DataType datatype, DbConstraint... constraints) {
+            this.datatype = datatype;
+            this.constraints = resolveConstraints(datatype, constraints);
+        }
+
+        public DataType dataType() {
+            return datatype;
+        }
+
+        public DbConstraint[] constraints() {
+            return constraints;
+        }
+
+        public static String getTableName() { return StockQuotes.class.getSimpleName(); }
     }
 
     public enum Options implements DbColumn {

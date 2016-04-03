@@ -178,19 +178,6 @@ public class AutoFitTextView extends TextView {
         refreshDrawableState();
     }
 
-    private static final int[] STATE_VALUE_DECREASED = new int[]{R.attr.state_value_decreased};
-
-    @Override
-    protected int[] onCreateDrawableState(int extraSpace) {
-        if (getText() != null
-                && getText().toString().indexOf('-') >= 0) {
-            final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
-            mergeDrawableStates(drawableState, STATE_VALUE_DECREASED);
-            return drawableState;
-        }
-        return super.onCreateDrawableState(extraSpace);
-    }
-
     private final SizeTester mSizeTester = new SizeTester() {
         @Override
         public int onTestSize(int suggestedSize, RectF availableSPace) {

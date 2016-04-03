@@ -1,11 +1,14 @@
 package com.optionfusion.model.provider;
 
+import android.text.TextUtils;
+
 import com.google.gson.Gson;
 import com.optionfusion.model.FilterSet;
 import com.optionfusion.model.HistoricalQuote;
 
 import org.joda.time.DateTime;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -58,6 +61,19 @@ public class Interfaces {
     }
 
     public interface StockQuote {
+        Comparator<? super StockQuote> COMPARATOR = new Comparator<StockQuote>() {
+            @Override
+            public int compare(StockQuote lhs, StockQuote rhs) {
+                if (lhs == rhs)
+                    return 0;
+                if (lhs == null || lhs.getSymbol() == null)
+                    return -1;
+                if (rhs == null || rhs.getSymbol() == null)
+                    return 1;
+                return lhs.getSymbol().compareTo(rhs.getSymbol());
+            }
+        };
+
         String getSymbol();
 
         String getDescription();
@@ -80,7 +96,7 @@ public class Interfaces {
 
         Double getChangePercent();
 
-        long getLastUpdatedTimestamp();
+        long getLastUpdatedLocalTimestamp();
 
         long getQuoteTimestamp();
     }

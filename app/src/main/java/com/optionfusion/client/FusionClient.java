@@ -235,7 +235,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
         for (Schema.VerticalSpreads col : Schema.VerticalSpreads.values()) {
             colNames.add(col.name());
-            colValues.add(appendClculatedColumnValue(col));
+            colValues.add(appendCalculatedColumnValue(col));
         }
 
         StringBuilder sb = new StringBuilder("INSERT OR REPLACE INTO " + Schema.VerticalSpreads.getTableName())
@@ -258,7 +258,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     }
 
     // calculate columns that generate the obscene sql query
-    private String appendClculatedColumnValue(Schema.VerticalSpreads spreadColumn) {
+    private String appendCalculatedColumnValue(Schema.VerticalSpreads spreadColumn) {
         String sql = "0";
         switch (spreadColumn) {
             case UNDERLYING_SYMBOL:
