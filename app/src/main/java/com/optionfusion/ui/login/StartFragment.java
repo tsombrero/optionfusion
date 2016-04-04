@@ -57,7 +57,9 @@ public class StartFragment extends Fragment implements GoogleApiClient.OnConnect
     @OnClick(R.id.sign_in_button)
     public void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(fusionClientProvider.getGoogleApiClient());
+        signInIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         startActivityForResult(signInIntent, RC_SIGN_IN);
+
     }
 
     @Override

@@ -33,8 +33,8 @@ public class GetStockQuotesJob extends BaseApiJob {
     private List<StockQuote> result;
     private final List<String> symbols;
 
-    public GetStockQuotesJob(Context context, List<String> symbols) {
-        super(context, new Params(1)
+    public GetStockQuotesJob(List<String> symbols) {
+        super(new Params(1)
                 .requireNetwork()
                 .setPersistent(false)
                 .singleInstanceBy(GetStockQuotesJob.class.getSimpleName() + TextUtils.join(",", symbols)));
@@ -43,7 +43,7 @@ public class GetStockQuotesJob extends BaseApiJob {
     }
 
     public GetStockQuotesJob(Context context, String symbol) {
-        this(context, Collections.singletonList(symbol));
+        this(Collections.singletonList(symbol));
     }
 
     @Override
@@ -103,5 +103,4 @@ public class GetStockQuotesJob extends BaseApiJob {
 
         return cv;
     }
-
 }

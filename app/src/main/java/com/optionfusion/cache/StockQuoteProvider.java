@@ -1,8 +1,6 @@
 package com.optionfusion.cache;
 
 import android.content.Context;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.birbit.android.jobqueue.JobManager;
 import com.optionfusion.client.ClientInterfaces;
@@ -61,7 +59,7 @@ public class StockQuoteProvider extends HashMap<String, Interfaces.StockQuote> {
         }
 
         if (needsUpdate)
-            jobManager.addJobInBackground(new GetStockQuotesJob(context, symbols));
+            jobManager.addJobInBackground(new GetStockQuotesJob(symbols));
 
         Collections.sort(ret, Interfaces.StockQuote.COMPARATOR);
 
