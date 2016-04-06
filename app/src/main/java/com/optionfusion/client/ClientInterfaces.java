@@ -1,5 +1,11 @@
 package com.optionfusion.client;
 
+import android.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.com.backend.optionFusion.model.FusionUser;
 import com.optionfusion.model.provider.Interfaces;
@@ -80,5 +86,7 @@ public class ClientInterfaces {
 
     public interface AccountClient {
         FusionUser getAccountUser();
+        void setGoogleAccount(GoogleSignInAccount account);
+        GoogleSignInResult trySilentSignIn(GoogleApiClient googleApiClient);
     }
 }

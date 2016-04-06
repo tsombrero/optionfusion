@@ -27,7 +27,8 @@ import com.optionfusion.client.GoogClientProvider;
 import com.optionfusion.client.YhooClientClientProvider;
 import com.optionfusion.db.DbHelper;
 import com.optionfusion.db.Schema;
-import com.optionfusion.jobqueue.GetStockQuotesJob;
+import com.optionfusion.jobqueue.BaseApiJob;
+import com.optionfusion.util.SharedPrefStore;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -131,8 +132,8 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    FusionClientProvider provideFusionClientProvider(Context context) {
-        return new FusionClientProvider(context);
+    FusionClientProvider provideFusionClientProvider(Context context, SharedPrefStore sharedPrefStore) {
+        return new FusionClientProvider(context, sharedPrefStore);
     }
 
     @Provides
@@ -212,10 +213,9 @@ public class ApplicationModule {
         return new JobManager(new Configuration.Builder(context).injector(new DependencyInjector() {
             @Override
             public void inject(Job job) {
-                OptionFusionApplication.from(context).getComponent().inject(job);
+                OptionFusionApplication.from(context).getComponent().inject((BaseApiJob) job);
             }
         })
-        .build());
+                .build());
     }
-
 }

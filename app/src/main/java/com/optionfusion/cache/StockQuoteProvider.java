@@ -50,10 +50,13 @@ public class StockQuoteProvider extends HashMap<String, Interfaces.StockQuote> {
 
         synchronized (TAG) {
             for (String symbol : symbols) {
-                Interfaces.StockQuote quote = get(symbol);
+                Interfaces.StockQuote quote = super.get(symbol);
                 if (quote != null) {
                     ret.add(quote);
                     needsUpdate |= (System.currentTimeMillis() - quote.getLastUpdatedLocalTimestamp() > minTimeBetweenFetches);
+                } else {
+                    Interfaces.StockQuote dummy = new DummyStockQuote(symbol);
+                    put(symbol, dummy);
                 }
             }
         }
@@ -64,22 +67,6 @@ public class StockQuoteProvider extends HashMap<String, Interfaces.StockQuote> {
         Collections.sort(ret, Interfaces.StockQuote.COMPARATOR);
 
         return ret;
-    }
-
-    @Override
-    public Interfaces.StockQuote get(Object key) {
-        if (key == null || !(key instanceof String))
-            return null;
-
-        synchronized (TAG) {
-            Interfaces.StockQuote ret = super.get(key);
-
-            if (ret == null) {
-                ret = new DummyStockQuote((String) key);
-                put((String) key, ret);
-            }
-            return ret;
-        }
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING)

@@ -1,6 +1,5 @@
 package com.optionfusion.module;
 
-import com.birbit.android.jobqueue.Job;
 import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.client.AmeritradeClient;
 import com.optionfusion.client.AmeritradeClientProvider;
@@ -11,7 +10,6 @@ import com.optionfusion.client.GoogClientProvider;
 import com.optionfusion.client.YhooClient;
 import com.optionfusion.client.YhooClientClientProvider;
 import com.optionfusion.jobqueue.BaseApiJob;
-import com.optionfusion.jobqueue.GetStockQuotesJob;
 import com.optionfusion.ui.MainActivity;
 import com.optionfusion.ui.StockDetailsFragment;
 import com.optionfusion.ui.login.AmeritradeLoginFragment;
@@ -23,6 +21,8 @@ import com.optionfusion.ui.results.ResultsFragment;
 import com.optionfusion.ui.search.SearchFragment;
 import com.optionfusion.ui.tradedetails.TradeDetailsFragment;
 import com.optionfusion.ui.widgets.SymbolSearchTextView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import javax.inject.Singleton;
 
@@ -74,5 +74,7 @@ public interface OptionFusionApplicationComponent {
 
     void inject(FusionClient fusionClient);
 
-    void inject(Job job);
+    void inject(BaseApiJob job);
+
+    void inject(EventBus bus);
 }

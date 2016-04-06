@@ -17,6 +17,7 @@ import com.optionfusion.R;
 import com.optionfusion.client.FusionClientProvider;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.MainActivity;
+import com.optionfusion.util.SharedPrefStore;
 
 import javax.inject.Inject;
 
@@ -29,13 +30,14 @@ public class LoginActivity extends FragmentActivity implements StartFragment.Hos
     @Inject
     FusionClientProvider fusionClientProvider;
 
+    @Inject
+    SharedPrefStore sharedPrefStore;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         OptionFusionApplication.from(this).getComponent().inject(this);
-
-        fusionClientProvider.initGoogleApiClient();
 
         Fragment frag = StartFragment.newInstance();
         getSupportFragmentManager().beginTransaction()
@@ -50,7 +52,6 @@ public class LoginActivity extends FragmentActivity implements StartFragment.Hos
 
         if (NEEDS_PERMISSIONS)
             checkPermissions();
-
     }
 
     protected void checkPermissions() {
@@ -74,9 +75,9 @@ public class LoginActivity extends FragmentActivity implements StartFragment.Hos
                     0);
 
             AccountManager accountManager = AccountManager.get(this);
-            for (Account account : accountManager.getAccounts()) {
-                Log.d(TAG, account.toString());
-            }
+//            for (Account account : accountManager.getAccounts()) {
+//                Log.d(TAG, account.toString());
+//            }
         }
     }
 
@@ -89,9 +90,9 @@ public class LoginActivity extends FragmentActivity implements StartFragment.Hos
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     AccountManager accountManager = AccountManager.get(this);
-                    for (Account account : accountManager.getAccounts()) {
-                        Log.d(TAG, account.toString());
-                    }
+//                    for (Account account : accountManager.getAccounts()) {
+//                        Log.d(TAG, account.toString());
+//                    }
                 } else {
                 }
                 return;

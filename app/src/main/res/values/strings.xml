@@ -20,4 +20,6 @@
     <string name="failed_getting_chain">Failed getting option chain</string>
     <string name="stock_search_hint">Symbol or Name</string>
     <string name="title_trade_cost">Capital at Risk</string>
+    <string name="connection_failed">Connection failed</string>
+    <string name="error_sign_in">Please use Google to sign in</string>
 </resources>

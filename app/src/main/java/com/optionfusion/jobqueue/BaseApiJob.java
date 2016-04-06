@@ -1,11 +1,13 @@
 package com.optionfusion.jobqueue;
 
-import android.database.sqlite.SQLiteDatabase;
-
 import com.birbit.android.jobqueue.Job;
 import com.birbit.android.jobqueue.Params;
 import com.birbit.android.jobqueue.RetryConstraint;
-import com.google.common.eventbus.EventBus;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.optionfusion.cache.StockQuoteProvider;
+import com.optionfusion.client.ClientInterfaces;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -15,13 +17,19 @@ import javax.inject.Inject;
 public abstract class BaseApiJob extends Job {
 
     @Inject
-    SQLiteDatabase db;
+    EventBus bus;
 
     @Inject
-    EventBus bus;
+    StockQuoteProvider stockQuoteProvider;
+
+    @Inject
+    ClientInterfaces.AccountClient accountClient;
+
 
     protected final ReentrantLock lock = new ReentrantLock();
     protected final Condition completed = lock.newCondition();
+    protected final Condition gotToken = lock.newCondition();
+    public GoogleSignInResult signinResult;
 
     public BaseApiJob(Params params) {
         super(params);

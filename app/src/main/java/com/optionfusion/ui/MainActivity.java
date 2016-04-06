@@ -19,14 +19,18 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.client.ClientInterfaces;
+import com.optionfusion.client.FusionClient;
 import com.optionfusion.com.backend.optionFusion.model.FusionUser;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
+import com.optionfusion.ui.login.LoginActivity;
 import com.optionfusion.ui.results.ResultsFragment;
 import com.optionfusion.ui.search.SearchFragment;
 import com.optionfusion.ui.tradedetails.TradeDetailsFragment;
@@ -59,7 +63,12 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
     @Inject
     StockQuoteProvider stockQuoteProvider;
 
+    @Inject
+    ClientInterfaces.AccountClient accountClient;
+
     FusionUser fusionUser;
+
+    private static final int GOOGLE_API_CLIENTID = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,14 +77,9 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
         OptionFusionApplication.from(this).getComponent().inject(this);
         ButterKnife.bind(this);
 
-        Fragment frag = SearchFragment.newInstance();
-        getSupportFragmentManager().beginTransaction()
-                .addToBackStack(null)
-                .add(R.id.fragment_container, frag, "tag_search")
-                .commit();
         progressBar.getIndeterminateDrawable().setColorFilter(accentColor, PorterDuff.Mode.SRC_IN);
         showProgress(true);
-        new AsyncTask<Void, Void, FusionUser>(){
+        new AsyncTask<Void, Void, FusionUser>() {
             @Override
             protected FusionUser doInBackground(Void... params) {
                 fusionUser = fusionClient.getAccountUser();
@@ -93,6 +97,37 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        final GoogleApiClient apiClient = FusionClient.getGoogleApiClient(this, GOOGLE_API_CLIENTID);
+
+        new AsyncTask<Void, Void, GoogleSignInResult>() {
+            @Override
+            protected GoogleSignInResult doInBackground(Void... params) {
+                return accountClient.trySilentSignIn(apiClient);
+            }
+
+            @Override
+            protected void onPostExecute(GoogleSignInResult googleSignInResult) {
+                if (googleSignInResult != null && googleSignInResult.isSuccess()) {
+
+                    accountClient.setGoogleAccount(googleSignInResult.getSignInAccount());
+
+                    Fragment frag = SearchFragment.newInstance();
+                    getSupportFragmentManager().beginTransaction()
+                            .addToBackStack(null)
+                            .add(R.id.fragment_container, frag, "tag_search")
+                            .commit();
+                } else {
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    finish();
+                }
+            }
+        }.execute(null, null);
     }
 
     @Override
@@ -163,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
         }
     }
 
+    @Override
     public void showProgress(boolean show) {
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }

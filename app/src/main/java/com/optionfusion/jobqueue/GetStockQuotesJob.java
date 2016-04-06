@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.birbit.android.jobqueue.Params;
 import com.optionfusion.client.ClientInterfaces.Callback;
 import com.optionfusion.client.ClientInterfaces.StockQuoteClient;
+import com.optionfusion.db.DbHelper;
 import com.optionfusion.db.Schema;
 import com.optionfusion.db.Schema.StockQuotes;
 import com.optionfusion.events.StockQuotesUpdatedEvent;
@@ -30,6 +31,9 @@ public class GetStockQuotesJob extends BaseApiJob {
     @Inject
     Context context;
 
+    @Inject
+    DbHelper dbHelper;
+
     private List<StockQuote> result;
     private final List<String> symbols;
 
@@ -42,7 +46,7 @@ public class GetStockQuotesJob extends BaseApiJob {
         this.symbols = symbols;
     }
 
-    public GetStockQuotesJob(Context context, String symbol) {
+    public GetStockQuotesJob(String symbol) {
         this(Collections.singletonList(symbol));
     }
 
@@ -78,6 +82,7 @@ public class GetStockQuotesJob extends BaseApiJob {
     }
 
     private void writeResultsToDb(List<StockQuote> result) {
+        org.sqlite.database.sqlite.SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
             for (StockQuote stockQuote : result) {

@@ -19,30 +19,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
+import com.birbit.android.jobqueue.JobManager;
 import com.optionfusion.BuildConfig;
 import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.client.ClientInterfaces;
 import com.optionfusion.db.DbHelper;
-import com.optionfusion.events.StockQuotesUpdatedEvent;
-import com.optionfusion.events.WatchListUpdatedEvent;
-import com.optionfusion.model.provider.Interfaces;
-import com.optionfusion.model.provider.Interfaces.StockQuote;
+import com.optionfusion.jobqueue.GetWatchlistJob;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.SharedViewHolders;
 import com.optionfusion.ui.widgets.SymbolSearchTextView;
 import com.optionfusion.util.Util;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -86,6 +79,9 @@ public class SearchFragment extends Fragment implements SharedViewHolders.Symbol
     @Inject
     EventBus bus;
 
+    @Inject
+    JobManager jobManager;
+
     @Bind(R.id.swipe_refresh_layout)
     SwipeRefreshLayout swipeRefreshLayout;
 
@@ -108,7 +104,7 @@ public class SearchFragment extends Fragment implements SharedViewHolders.Symbol
         setHasOptionsMenu(true);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-        adapter = new StockQuoteAdapter();
+        adapter = new StockQuoteAdapter(this);
         recyclerView.setAdapter(adapter);
 
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
@@ -127,11 +123,9 @@ public class SearchFragment extends Fragment implements SharedViewHolders.Symbol
                 if (symbol == null)
                     return;
 
-                //TODO
-//                Set<String> symbols = adapter.getSymbols();
-//                symbols.remove(symbol);
-//                sharedPreferences.edit().putStringSet(PREFKEY_WATCHLIST, symbols).apply();
                 adapter.removeItem(viewHolder.getAdapterPosition());
+
+                //TODO job to remove symbol from db & backend
             }
         };
 
@@ -170,6 +164,8 @@ public class SearchFragment extends Fragment implements SharedViewHolders.Symbol
 
     public interface Host {
         void openResultsFragment(String symbol);
+
+        void showProgress(boolean show);
     }
 
     @Override
@@ -177,6 +173,10 @@ public class SearchFragment extends Fragment implements SharedViewHolders.Symbol
         super.onResume();
         if (appBarLayout != null)
             appBarLayout.addOnOffsetChangedListener(this);
+
+        showProgress(true);
+
+        jobManager.addJobInBackground(new GetWatchlistJob());
     }
 
     @Override
@@ -194,100 +194,11 @@ public class SearchFragment extends Fragment implements SharedViewHolders.Symbol
         }
     };
 
-    private class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuoteViewHolder> {
-
-        private final Context context;
-        private List<StockQuote> stockQuoteList = new ArrayList<>();
-        private boolean isUpdating;
-
-        public StockQuoteAdapter() {
-            this(Collections.EMPTY_LIST);
-        }
-
-        public StockQuoteAdapter(List<String> symbols) {
-            context = getActivity();
-            stockQuoteList = stockQuoteProvider.get(symbols);
-            bus.register(this);
-            update();
-        }
-
-        public void removeItem(int index) {
-            notifyItemRemoved(index);
-            stockQuoteList.remove(index);
-        }
-
-        public void update() {
-            if (isUpdating)
-                return;
-
-            if (accountClient.getAccountUser() == null)
-                return;
-
-            isUpdating = true;
-            stockQuoteList = stockQuoteProvider.get(accountClient.getAccountUser().getWatchlistTickers());
-
-            if (hasDummyStockQuotes(stockQuoteList)) {
-                recyclerView.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (isUpdating) {
-                            Toast.makeText(context, "Failed refreshing stock quotes", Toast.LENGTH_SHORT);
-                            swipeRefreshLayout.setRefreshing(false);
-                            isUpdating = false;
-                        }
-                    }
-                }, 10000);
-            } else {
-                isUpdating = false;
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-
-        private boolean hasDummyStockQuotes(List<StockQuote> stockQuoteList) {
-            for (StockQuote stockQuote : stockQuoteList) {
-                if (stockQuote.getProvider() == OptionFusionApplication.Provider.DUMMY)
-                    return true;
-            }
-            return false;
-        }
-
-
-        @Subscribe
-        public void onEvent(StockQuotesUpdatedEvent event) {
-            if (event.getStockQuoteList() == null)
-                return;
-
-            synchronized (stockQuoteList) {
-                for (StockQuote oldStockQuote : new ArrayList<>(stockQuoteList)) {
-                    stockQuoteList.remove(oldStockQuote);
-                    stockQuoteList.add(Util.bestOf(oldStockQuote, event.getStockQuote(oldStockQuote.getSymbol())));
-                }
-            }
-
-            notifyDataSetChanged();
-            swipeRefreshLayout.setRefreshing(false);
-            isUpdating = false;
-        }
-
-        @Subscribe
-        public void onEvent(WatchListUpdatedEvent event) {
-            update();
-        }
-
-        @Override
-        public SharedViewHolders.StockQuoteViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_stock_quote, parent, false);
-            return new SharedViewHolders.StockQuoteViewHolder(v, viewConfig, SearchFragment.this, bus);
-        }
-
-        @Override
-        public void onBindViewHolder(SharedViewHolders.StockQuoteViewHolder holder, int position) {
-            holder.bind(stockQuoteList.get(position));
-        }
-
-        @Override
-        public int getItemCount() {
-            return stockQuoteList == null ? 0 : stockQuoteList.size();
+    void showProgress(boolean show) {
+        Host host = ((Host) getActivity());
+        if (host != null && isAdded() && isVisible()) {
+            ((Host) getActivity()).showProgress(show);
+            fab.setEnabled(!show);
         }
     }
 

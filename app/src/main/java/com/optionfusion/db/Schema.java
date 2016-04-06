@@ -65,6 +65,7 @@ public class Schema {
         SYMBOL(TEXT, PRIMARY_KEY),
         LAST(REAL),
         CHANGE(REAL),
+        VOLUME(INTEGER),
         CHANGE_PERCENT(REAL),
         TIMESTAMP(INTEGER),
         TIMESTAMP_UPDATED(INTEGER),

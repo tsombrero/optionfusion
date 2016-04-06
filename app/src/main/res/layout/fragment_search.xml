@@ -44,6 +44,14 @@
                 android:gravity="center"
                 android:text="EMPTY" />
 
+            <ProgressBar
+                android:id="@+id/progress"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:indeterminateOnly="true"
+                android:visibility="gone"
+                />
+
         </FrameLayout>
     </android.support.v4.widget.SwipeRefreshLayout>
 

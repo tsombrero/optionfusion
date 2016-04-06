@@ -4,12 +4,22 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Looper;
+import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.OptionalPendingResult;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.http.HttpExecuteInterceptor;
@@ -34,6 +44,8 @@ import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.model.provider.backend.FusionOptionChain;
 import com.optionfusion.model.provider.backend.FusionStockQuote;
 import com.optionfusion.module.OptionFusionApplication;
+import com.optionfusion.util.Constants;
+import com.optionfusion.util.SharedPrefStore;
 import com.optionfusion.util.Util;
 
 import org.joda.time.DateTime;
@@ -44,6 +56,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Inject;
 
@@ -69,10 +84,18 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     @Inject
     Lazy<StockQuoteProvider> stockQuoteProvider;
 
-    public FusionClient(Context context, GoogleSignInAccount acct) {
+    @Inject
+    SharedPrefStore sharedPrefStore;
+
+    private GoogleApiClient googleApiClient;
+    ReentrantLock lock = new ReentrantLock();
+    Condition gotToken = lock.newCondition();
+    GoogleSignInResult signinResult;
+
+
+    public FusionClient(Context context) {
         OptionFusionApplication.from(context).getComponent().inject(this);
         this.context = context;
-        this.account = acct;
     }
 
     @Override
@@ -129,7 +152,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             return quote.get(0);
         }
 
-        new AsyncTask<Void, Void, Interfaces.StockQuote>(){
+        new AsyncTask<Void, Void, Interfaces.StockQuote>() {
             @Override
             protected Interfaces.StockQuote doInBackground(Void... params) {
                 List<Interfaces.StockQuote> quote = getStockQuotes(Collections.singletonList(symbol));
@@ -153,7 +176,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             return getStockQuotes(symbols);
         }
 
-        new AsyncTask<Void, Void, List<Interfaces.StockQuote>>(){
+        new AsyncTask<Void, Void, List<Interfaces.StockQuote>>() {
             @Override
             protected List<Interfaces.StockQuote> doInBackground(Void... params) {
                 return getStockQuotes(symbols);
@@ -519,6 +542,18 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         return fusionUser;
     }
 
+    @Override
+    public void setGoogleAccount(GoogleSignInAccount account) {
+        this.account = account;
+
+        if (account != null) {
+            sharedPrefStore.setAccountName(account.getEmail());
+            // User is authorized.
+        } else {
+            sharedPrefStore.setAccountName(null);
+        }
+    }
+
     private OptionFusion getEndpoints() {
 
         if (optionFusionApi == null) {
@@ -584,14 +619,61 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             }
             return false;
         }
-
     }
 
-    public GoogleSignInAccount getAccount() {
-        return account;
+    @Override
+    public GoogleSignInResult trySilentSignIn(GoogleApiClient apiClient) {
+        OptionalPendingResult<GoogleSignInResult> pendingResult =
+                Auth.GoogleSignInApi.silentSignIn(apiClient);
+        if (pendingResult.isDone()) {
+            signinResult = pendingResult.get();
+        } else {
+            lock.lock();
+            try {
+                pendingResult.setResultCallback(new ResultCallback<GoogleSignInResult>() {
+
+                    @Override
+                    public void onResult(@NonNull GoogleSignInResult result) {
+                        lock.lock();
+                        try {
+                            signinResult = result;
+                            gotToken.signalAll();
+                        } finally {
+                            lock.unlock();
+                        }
+                    }
+
+
+                });
+
+                gotToken.await(10, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Log.w(getClass().getSimpleName(), "Authentication Error");
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        return signinResult;
     }
 
-    public void setAccount(GoogleSignInAccount account) {
-        this.account = account;
+    public static GoogleApiClient getGoogleApiClient(final FragmentActivity activity, int hostId) {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestProfile()
+                .requestId()
+                .requestIdToken(Constants.WEB_CLIENT_ID)
+                .build();
+
+        GoogleApiClient.Builder ret = new GoogleApiClient.Builder(activity)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .enableAutoManage(activity, hostId, new GoogleApiClient.OnConnectionFailedListener() {
+                    @Override
+                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+                        Toast.makeText(activity, R.string.connection_failed, Toast.LENGTH_SHORT);
+                    }
+                });
+
+        return ret.build();
     }
 }

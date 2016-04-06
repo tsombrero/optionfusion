@@ -12,6 +12,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.db.DbHelper;
 import com.optionfusion.util.Constants;
+import com.optionfusion.util.SharedPrefStore;
 
 import javax.inject.Inject;
 
@@ -19,73 +20,18 @@ public class FusionClientProvider extends ClientProvider implements ClientProvid
 
     FusionClient client;
     Context context;
+    private final SharedPrefStore sharedPrefStore;
 
     private static final String TAG = "FusionClientProvider";
-    private GoogleSignInAccount acct;
-    private SharedPreferences settings;
-    private GoogleApiClient googleApiClient;
 
-    public FusionClientProvider(Context context) {
+    public FusionClientProvider(Context context, SharedPrefStore sharedPrefStore) {
         this.context = context;
+        this.sharedPrefStore = sharedPrefStore;
     }
 
     @Override
     public ClientInterfaces.SymbolLookupClient getSymbolLookupClient() {
-        if (client == null)
-            client = new FusionClient(context, acct);
-        return client;
-    }
-
-    public void handleSignInResult(GoogleSignInResult result) {
-        if (result.isSuccess()) {
-            // Signed in successfully, show authenticated UI.
-            acct = result.getSignInAccount();
-
-            client = new FusionClient(context, acct);
-
-            if (result.getSignInAccount() != null) {
-                setAccountName(result.getSignInAccount().getEmail());
-                // User is authorized.
-            }
-        } else {
-            Log.e(TAG, "Sign in failed");
-            acct = null;
-            client = null;
-            // Signed out, show unauthenticated UI.
-        }
-    }
-
-    private void setAccountName(String accountName) {
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString("ACCOUNT_NAME", accountName);
-        editor.commit();
-        client = null;
-    }
-
-    public GoogleApiClient initGoogleApiClient() {
-        settings = context.getSharedPreferences(TAG, 0);
-
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .requestProfile()
-                .requestId()
-                .requestIdToken(Constants.WEB_CLIENT_ID)
-                .build();
-
-        // Build a GoogleApiClient with access to the Google Sign-In API and the
-        // options specified by gso.
-        googleApiClient = new GoogleApiClient.Builder(context)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
-
-        googleApiClient.connect();
-        return googleApiClient;
-    }
-
-    public GoogleApiClient getGoogleApiClient() {
-        return googleApiClient;
+        return getClient();
     }
 
     @Override
@@ -105,7 +51,7 @@ public class FusionClientProvider extends ClientProvider implements ClientProvid
 
     private FusionClient getClient() {
         if (client == null)
-            client = new FusionClient(context, acct);
+            client = new FusionClient(context);
         return client;
     }
 }
