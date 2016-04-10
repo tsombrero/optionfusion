@@ -11,6 +11,7 @@ import com.optionfusion.com.backend.optionFusion.model.FusionUser;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.Interfaces.OptionChain;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -85,8 +86,10 @@ public class ClientInterfaces {
     }
 
     public interface AccountClient {
-        FusionUser getAccountUser();
         void setGoogleAccount(GoogleSignInAccount account);
         GoogleSignInResult trySilentSignIn(GoogleApiClient googleApiClient);
+
+        FusionUser getAccountUser();
+        List<Equity> setWatchlist(Collection<String> symbols) throws IOException;
     }
 }

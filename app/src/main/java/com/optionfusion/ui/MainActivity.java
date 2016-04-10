@@ -79,29 +79,6 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
 
         progressBar.getIndeterminateDrawable().setColorFilter(accentColor, PorterDuff.Mode.SRC_IN);
         showProgress(true);
-        new AsyncTask<Void, Void, FusionUser>() {
-            @Override
-            protected FusionUser doInBackground(Void... params) {
-                fusionUser = fusionClient.getAccountUser();
-                return fusionUser; //TODO something
-            }
-
-            @Override
-            protected void onPostExecute(FusionUser fusionUser) {
-                showProgress(false);
-            }
-        }.execute();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
 
         final GoogleApiClient apiClient = FusionClient.getGoogleApiClient(this, GOOGLE_API_CLIENTID);
 
@@ -128,6 +105,12 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
                 }
             }
         }.execute(null, null);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     @Override

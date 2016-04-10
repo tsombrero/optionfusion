@@ -1,10 +1,14 @@
 package com.optionfusion.model.provider.backend;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.Gson;
 import com.optionfusion.backend.protobuf.OptionChainProto;
 import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.com.backend.optionFusion.model.StockQuote;
 import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.model.provider.dummy.DummyStockQuote;
 import com.optionfusion.module.OptionFusionApplication;
 
 public class FusionStockQuote implements Interfaces.StockQuote {
@@ -20,10 +24,13 @@ public class FusionStockQuote implements Interfaces.StockQuote {
         StockQuote stockQuote = equity.getEodStockQuote();
         equityDescription = equity.getDescription();
         symbol = equity.getSymbol();
-        dataTimestamp = stockQuote.getDataTimestamp();
-        open = stockQuote.getOpen();
-        close = stockQuote.getClose();
-        previousClose = stockQuote.getPreviousClose();
+
+        if (stockQuote != null) {
+            dataTimestamp = stockQuote.getDataTimestamp();
+            open = stockQuote.getOpen();
+            close = stockQuote.getClose();
+            previousClose = stockQuote.getPreviousClose();
+        }
     }
 
     public FusionStockQuote(OptionChainProto.OptionChain protoChain) {
@@ -34,6 +41,28 @@ public class FusionStockQuote implements Interfaces.StockQuote {
         close = protoChain.getUnderlyingPrice();
 
     }
+
+    public FusionStockQuote(Parcel in) {
+        symbol = in.readString();
+        equityDescription = in.readString();
+        createTimestamp = in.readLong();
+        dataTimestamp = in.readLong();
+        open = in.readDouble();
+        close = in.readDouble();
+        previousClose = in.readDouble();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(symbol);
+        dest.writeString(equityDescription);
+        dest.writeLong(createTimestamp);
+        dest.writeLong(dataTimestamp);
+        dest.writeDouble(open);
+        dest.writeDouble(close);
+        dest.writeDouble(previousClose);
+    }
+
 
     @Override
     public String getSymbol() {
@@ -99,4 +128,22 @@ public class FusionStockQuote implements Interfaces.StockQuote {
     public long getQuoteTimestamp() {
         return dataTimestamp;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    // Creator
+    public static final Parcelable.Creator CREATOR
+            = new Parcelable.Creator() {
+        public FusionStockQuote createFromParcel(Parcel in) {
+            return new FusionStockQuote(in);
+        }
+
+        public FusionStockQuote[] newArray(int size) {
+            return new FusionStockQuote[size];
+        }
+    };
+
 }

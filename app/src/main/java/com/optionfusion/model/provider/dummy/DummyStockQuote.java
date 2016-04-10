@@ -1,5 +1,8 @@
 package com.optionfusion.model.provider.dummy;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.Gson;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.module.OptionFusionApplication;
@@ -81,4 +84,32 @@ public class DummyStockQuote implements Interfaces.StockQuote {
     public long getQuoteTimestamp() {
         return 0;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(symbol);
+        dest.writeString(description);
+    }
+
+    public DummyStockQuote(Parcel in) {
+        symbol = in.readString();
+        description = in.readString();
+    }
+
+    // Creator
+    public static final Parcelable.Creator CREATOR
+            = new Parcelable.Creator() {
+        public DummyStockQuote createFromParcel(Parcel in) {
+            return new DummyStockQuote(in);
+        }
+
+        public DummyStockQuote[] newArray(int size) {
+            return new DummyStockQuote[size];
+        }
+    };
 }

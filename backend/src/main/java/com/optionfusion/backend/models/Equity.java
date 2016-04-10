@@ -24,14 +24,14 @@ public class Equity {
     private String id;
 
     @Index
-    private String symbol;
+    String symbol;
 
-    private String description;
+    String description;
 
-    private Date timeLastAccessed;
+    Date timeLastAccessed;
 
     @Index
-    private ArrayList<String> keywords = new ArrayList<>();
+    ArrayList<String> keywords = new ArrayList<>();
 
     @Load
     Ref<StockQuote> eodStockQuote;

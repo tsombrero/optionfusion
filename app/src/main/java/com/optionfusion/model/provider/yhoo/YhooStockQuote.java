@@ -1,5 +1,7 @@
 package com.optionfusion.model.provider.yhoo;
 
+import android.os.Parcel;
+
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.optionfusion.model.provider.Interfaces;
@@ -213,6 +215,20 @@ public class YhooStockQuote {
         @Override
         public long getQuoteTimestamp() {
             return lastUpdatedTimestamp;
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            //TODO if we need yhoo
+        }
+
+        public QuoteData(Parcel in) {
+            //TODO if we need yhoo
         }
     }
 }

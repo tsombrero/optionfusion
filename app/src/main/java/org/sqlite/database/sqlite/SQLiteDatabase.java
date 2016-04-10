@@ -2181,9 +2181,9 @@ public final class SQLiteDatabase extends SQLiteClosable {
         /**
          * See {@link SQLiteCursor#SQLiteCursor(SQLiteCursorDriver, String, SQLiteQuery)}.
          */
-        public Cursor newCursor(SQLiteDatabase db,
-                SQLiteCursorDriver masterQuery, String editTable,
-                SQLiteQuery query);
+        Cursor newCursor(SQLiteDatabase db,
+                         SQLiteCursorDriver masterQuery, String editTable,
+                         SQLiteQuery query);
     }
 
     /**
@@ -2193,7 +2193,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * @hide
      */
     public interface CustomFunction {
-        public void callback(String[] args);
+        void callback(String[] args);
     }
 
     public static boolean hasCodec() {

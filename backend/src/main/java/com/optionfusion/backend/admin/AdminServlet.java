@@ -1,29 +1,22 @@
 package com.optionfusion.backend.admin;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.googleapis.compute.ComputeCredential;
-import com.google.api.client.googleapis.extensions.appengine.auth.oauth2.AppIdentityCredential;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.compute.Compute;
-import com.google.api.services.compute.ComputeScopes;
 import com.google.api.services.compute.model.Operation;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskHandle;
 import com.google.appengine.api.taskqueue.TaskOptions;
+import com.google.appengine.repackaged.org.joda.time.DateTimeConstants;
+import com.google.appengine.repackaged.org.joda.time.LocalDate;
 import com.googlecode.objectify.Key;
 import com.optionfusion.backend.models.OptionChain;
+import com.optionfusion.backend.utils.Constants;
+import com.optionfusion.backend.utils.GoogleApiUtils;
 import com.optionfusion.backend.utils.Util;
 
 import org.joda.time.DateTime;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -35,16 +28,7 @@ import static com.optionfusion.backend.utils.OfyService.ofy;
 
 public class AdminServlet extends HttpServlet {
 
-    public static final String APPLICATION_NAME = "option-fusion-api";
-    public static final String EOD_DOWNLOADER_INSTANCE = "eod-downloader-instance";
-    public static final String EOD_DOWNLOADER_INSTANCE_ZONE = "us-central1-b";
     public static final String LOOKUP_CSV_FILE_URI = "lookupCsvFile";
-    public static final String clientSecretsJson = "{" +
-            "  \"installed\": {" +
-            "    \"client_id\": \"Enter Client ID\"," +
-            "    \"client_secret\": \"Enter Client Secret\"" +
-            "  }" +
-            "}";
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -57,8 +41,8 @@ public class AdminServlet extends HttpServlet {
             try {
                 Integer days = Integer.valueOf(req.getParameter(GetEodDataWorkerServlet.PARAM_DAYS_TO_SEARCH));
                 if (days != null) {
-                    populateBlobStorage(resp);
-                    getEodData(days);
+                    boolean dataDownload = populateBlobStorage(resp);
+                    getEodData(days, dataDownload);
                 }
             } catch (Exception e) {
                 log("Failed", e);
@@ -69,26 +53,36 @@ public class AdminServlet extends HttpServlet {
 
     // Download the csv data from the provider by starting the compute instance and letting it do its thing. It shuts down automatically.
     // The getEodData tasks are delayed 5 mins to give this time to finish.
-    private void populateBlobStorage(HttpServletResponse resp) {
+    private boolean populateBlobStorage(HttpServletResponse resp) {
+
+        boolean needsData = false;
+        for (int i = 0; i < 10; i++) {
+            DateTime quoteDay = Util.getEodDateTime().minusDays(i);
+
+            if (quoteDay.isAfterNow())
+                continue;
+
+            if (isMarketOpenOn(quoteDay) && !chainsExistForDate(quoteDay)) {
+                needsData = true;
+                break;
+            }
+        }
+
+        if (!needsData)
+            return false;
 
         try {
-            JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-            HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+            Compute compute = GoogleApiUtils.getCompute();
 
-            AppIdentityCredential credential =
-                    new AppIdentityCredential(Arrays.asList(ComputeScopes.COMPUTE));
+            resp.getWriter().write("Starting " + Constants.EOD_DOWNLOADER_INSTANCE);
 
-            Compute compute = new Compute.Builder(
-                    httpTransport, JSON_FACTORY, null)
-                    .setApplicationName(APPLICATION_NAME)
-                    .setHttpRequestInitializer(credential).build();
+            Operation i = compute.instances().start(Constants.APPLICATION_NAME, Constants.EOD_DOWNLOADER_INSTANCE_ZONE, Constants.EOD_DOWNLOADER_INSTANCE).execute();
 
-            resp.getWriter().write("Starting " + EOD_DOWNLOADER_INSTANCE);
-
-            Operation i = compute.instances().start(APPLICATION_NAME, EOD_DOWNLOADER_INSTANCE_ZONE, EOD_DOWNLOADER_INSTANCE).execute();
             if (i != null) {
                 resp.getWriter().write(i + " | " + i.getError() + " | " + i.getHttpErrorStatusCode());
             }
+
+            return true;
         } catch (Throwable t) {
             log("Failed populating blob storage", t);
             try {
@@ -97,13 +91,43 @@ public class AdminServlet extends HttpServlet {
                 e.printStackTrace();
             }
         }
+        return needsData;
     }
 
-    private void getEodData(int daysToSearch) {
+    public static LocalDate[] MARKET_HOLIDAYS = new LocalDate[]{
+            new LocalDate(2016, 5, 30),
+            new LocalDate(2016, 7, 4),
+            new LocalDate(2016, 9, 5),
+            new LocalDate(2016, 11, 24),
+            new LocalDate(2016, 12, 26),
+            new LocalDate(2017, 1, 2),
+            new LocalDate(2017, 1, 16),
+            new LocalDate(2017, 2, 20),
+            new LocalDate(2017, 4, 14),
+            new LocalDate(2017, 5, 29),
+            new LocalDate(2017, 7, 4),
+            new LocalDate(2017, 9, 4),
+            new LocalDate(2017, 11, 23),
+            new LocalDate(2017, 12, 25)
+    };
+
+    private boolean isMarketOpenOn(DateTime quoteDay) {
+        if (quoteDay.getDayOfWeek() == DateTimeConstants.SATURDAY || quoteDay.getDayOfWeek() == DateTimeConstants.SUNDAY)
+            return false;
+
+        for (LocalDate holiday : MARKET_HOLIDAYS) {
+            if (quoteDay.getYear() == holiday.getYear()
+                    && quoteDay.getDayOfYear() == holiday.getDayOfYear())
+                return false;
+        }
+        return true;
+    }
+
+    private void getEodData(int daysToSearch, boolean dataDownload) {
         DateTime todayEod = Util.getEodDateTime();
         DateTime quoteDate = todayEod.minusDays(daysToSearch);
 
-        int dayCounter = 1;
+        int dayCounter = 0;
 
         while (!quoteDate.isAfter(DateTime.now())) {
             if (Util.getBlobFromStorage(Util.getOptionsFileName(quoteDate)) != null) {
@@ -118,10 +142,10 @@ public class AdminServlet extends HttpServlet {
             }
             quoteDate = quoteDate.plusDays(1);
 
-//            if (dayCounter >= 10) {
-//                log("processed 10 days, exiting");
-//                break;
-//            }
+            if (dayCounter >= 10) {
+                log("processed 10 days, exiting");
+                break;
+            }
         }
     }
 

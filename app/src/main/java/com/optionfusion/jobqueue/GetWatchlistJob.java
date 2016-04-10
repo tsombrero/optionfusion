@@ -13,15 +13,17 @@ public class GetWatchlistJob extends BaseApiJob {
         super(new Params(1)
                 .requireNetwork()
                 .setPersistent(false)
+                .setGroupId(GROUP_ID_WATCHLIST)
                 .singleInstanceBy(GetWatchlistJob.class.getSimpleName()));
     }
 
     @Override
     public void onRun() throws Throwable {
+        super.onRun();
         FusionUser user = accountClient.getAccountUser();
         if (user != null) {
-            ArrayList<Interfaces.StockQuote> stockQuotes = stockQuoteProvider.get(user.getWatchlistTickers());
-            bus.post(new WatchListUpdatedEvent(stockQuotes));
+            ArrayList<Interfaces.StockQuote> stockQuotes = stockQuoteProvider.getFromEquityList(user.getWatchList());
+            bus.post(WatchListUpdatedEvent.fromStockQuoteList(stockQuotes));
         }
     }
 }

@@ -56,5 +56,5 @@ public interface SQLiteCursorDriver {
      * Set new bind arguments. These will take effect in cursorRequeried().
      * @param bindArgs the new arguments
      */
-    public void setBindArguments(String[] bindArgs);
+    void setBindArguments(String[] bindArgs);
 }

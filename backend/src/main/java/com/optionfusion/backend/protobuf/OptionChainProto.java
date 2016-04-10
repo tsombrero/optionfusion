@@ -1393,7 +1393,7 @@ public final class OptionChainProto {
       private final int index;
       private final int value;
 
-      private OptionType(int index, int value) {
+      OptionType(int index, int value) {
         this.index = index;
         this.value = value;
       }
@@ -2020,11 +2020,7 @@ public final class OptionChainProto {
           
           return false;
         }
-        if (!hasOptionType()) {
-          
-          return false;
-        }
-        return true;
+        return hasOptionType();
       }
 
       public Builder mergeFrom(

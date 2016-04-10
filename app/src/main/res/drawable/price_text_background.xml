@@ -8,6 +8,13 @@
         </shape>
     </item>
 
+    <item app:state_value_unknown="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="3dp"/>
+            <solid android:color="@color/foreground_light_grey"/>
+        </shape>
+    </item>
+
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="3dp"/>

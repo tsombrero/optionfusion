@@ -119,11 +119,11 @@ public class SQLiteCursor extends AbstractWindowedCursor {
             Field field = AbstractCursor.class.getDeclaredField("mRowIdColumnIndex");
             field.setInt(this, ExtraUtils.findRowIdColumnIndex(mColumns));
         } catch (NoSuchFieldException nfe) {
-            ;//loaded in system with api level 23 or later
+            //loaded in system with api level 23 or later
         } catch (IllegalAccessException e) {
-            ;//iae
+            //iae
         } catch (IllegalArgumentException e) {
-            ;//iae
+            //iae
         }
     }
 

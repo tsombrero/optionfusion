@@ -74,7 +74,7 @@ public interface VerticalSpread extends Parcelable {
 
     Double getCapitalAtRisk();
 
-    public enum SpreadType {
+    enum SpreadType {
         BULL_CALL,
         BEAR_CALL,
         BULL_PUT,

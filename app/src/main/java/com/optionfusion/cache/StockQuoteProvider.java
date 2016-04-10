@@ -3,10 +3,11 @@ package com.optionfusion.cache;
 import android.content.Context;
 
 import com.birbit.android.jobqueue.JobManager;
-import com.optionfusion.client.ClientInterfaces;
+import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.events.StockQuotesUpdatedEvent;
 import com.optionfusion.jobqueue.GetStockQuotesJob;
 import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.model.provider.backend.FusionStockQuote;
 import com.optionfusion.model.provider.dummy.DummyStockQuote;
 
 import org.greenrobot.eventbus.EventBus;
@@ -21,16 +22,12 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class StockQuoteProvider extends HashMap<String, Interfaces.StockQuote> {
-    private final Context context;
-    private final ClientInterfaces.StockQuoteClient stockQuoteClient;
     private final JobManager jobManager;
     private final String TAG = OptionChainProvider.class.getSimpleName();
 
     private long minTimeBetweenFetches = TimeUnit.SECONDS.toMillis(30);
 
-    public StockQuoteProvider(Context context, ClientInterfaces.StockQuoteClient stockQuoteClient, EventBus bus, JobManager jobManager) {
-        this.context = context;
-        this.stockQuoteClient = stockQuoteClient;
+    public StockQuoteProvider(EventBus bus, JobManager jobManager) {
         this.jobManager = jobManager;
         bus.register(this);
     }
@@ -41,6 +38,38 @@ public class StockQuoteProvider extends HashMap<String, Interfaces.StockQuote> {
             return list.get(0);
 
         return null;
+    }
+
+    public ArrayList<Interfaces.StockQuote> getFromEquityList(@NotNull List<Equity> equities) {
+        ArrayList<Interfaces.StockQuote> ret = new ArrayList<>();
+
+        boolean needsUpdate = false;
+
+        if (equities == null)
+            return ret;
+
+        synchronized (TAG) {
+            for (Equity equity : equities) {
+                Interfaces.StockQuote oldQuote = super.get(equity.getSymbol());
+                Interfaces.StockQuote newQuote = new FusionStockQuote(equity);
+
+                Interfaces.StockQuote quoteToUse = oldQuote;
+
+                if (oldQuote == null || oldQuote.getQuoteTimestamp() <= newQuote.getQuoteTimestamp()) {
+                    quoteToUse = newQuote;
+                }
+
+                ret.add(quoteToUse);
+                needsUpdate |= (System.currentTimeMillis() - quoteToUse.getLastUpdatedLocalTimestamp() > minTimeBetweenFetches);
+            }
+        }
+
+        if (needsUpdate)
+            jobManager.addJobInBackground(GetStockQuotesJob.fromEquities(equities));
+
+        Collections.sort(ret, Interfaces.StockQuote.COMPARATOR);
+
+        return ret;
     }
 
     public ArrayList<Interfaces.StockQuote> get(@NotNull List<String> symbols) {
@@ -57,12 +86,13 @@ public class StockQuoteProvider extends HashMap<String, Interfaces.StockQuote> {
                 } else {
                     Interfaces.StockQuote dummy = new DummyStockQuote(symbol);
                     put(symbol, dummy);
+                    needsUpdate = true;
                 }
             }
         }
 
         if (needsUpdate)
-            jobManager.addJobInBackground(new GetStockQuotesJob(symbols));
+            jobManager.addJobInBackground(GetStockQuotesJob.fromSymbols(symbols));
 
         Collections.sort(ret, Interfaces.StockQuote.COMPARATOR);
 
@@ -76,8 +106,5 @@ public class StockQuoteProvider extends HashMap<String, Interfaces.StockQuote> {
                 put(quote.getSymbol(), quote);
             }
         }
-    }
-
-    public abstract static class StockQuoteCallback extends ClientInterfaces.Callback<List<Interfaces.StockQuote>> {
     }
 }

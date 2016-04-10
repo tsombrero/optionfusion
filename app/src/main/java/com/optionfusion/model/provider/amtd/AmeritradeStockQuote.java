@@ -1,5 +1,7 @@
 package com.optionfusion.model.provider.amtd;
 
+import android.os.Parcel;
+
 import com.google.gson.Gson;
 import com.optionfusion.model.provider.Interfaces;
 
@@ -137,5 +139,20 @@ public class AmeritradeStockQuote extends AmtdResponseBase implements Interfaces
     @Override
     public long getQuoteTimestamp() {
         return lastUpdatedTimestamp;
+    }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        //TODO if we need AMTD
+    }
+
+    public AmeritradeStockQuote(Parcel in) {
+        //TODO if we need AMTD
     }
 }

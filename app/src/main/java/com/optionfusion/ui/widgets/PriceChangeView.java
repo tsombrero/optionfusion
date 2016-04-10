@@ -7,6 +7,7 @@ import android.util.AttributeSet;
 import com.optionfusion.R;
 import com.optionfusion.events.StockQuotesUpdatedEvent;
 import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.util.Util;
 
 import org.greenrobot.eventbus.EventBus;
@@ -53,12 +54,17 @@ public class PriceChangeView extends AutoFitTextView {
             return;
 
         Interfaces.StockQuote sq = quotesUpdatedEvent.getStockQuote(stockQuote.getSymbol());
-        update();
+        if (sq != null) {
+            stockQuote = sq;
+            update();
+        }
     }
 
     @MainThread
     private void update() {
-        if (showAsPercentage) {
+        if (stockQuote == null || stockQuote.getProvider() == OptionFusionApplication.Provider.DUMMY) {
+            setText("---");
+        } else if (showAsPercentage) {
             setText(Util.formatPercent(stockQuote.getChangePercent()));
         } else {
             setText(Util.formatDollarChange(stockQuote.getChange()));
@@ -76,17 +82,19 @@ public class PriceChangeView extends AutoFitTextView {
     }
 
     private static final int[] STATE_VALUE_DECREASED = new int[]{R.attr.state_value_decreased};
+    private static final int[] STATE_VALUE_UNKNOWN = new int[]{R.attr.state_value_unknown};
 
     @Override
     protected int[] onCreateDrawableState(int extraSpace) {
-        if (getText() != null
-                && getText().toString().indexOf('-') >= 0) {
+        if (stockQuote != null && stockQuote.getChange() < 0d) {
             final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
             mergeDrawableStates(drawableState, STATE_VALUE_DECREASED);
+            return drawableState;
+        } else if (stockQuote == null || stockQuote.getProvider() == OptionFusionApplication.Provider.DUMMY) {
+            final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
+            mergeDrawableStates(drawableState, STATE_VALUE_UNKNOWN);
             return drawableState;
         }
         return super.onCreateDrawableState(extraSpace);
     }
-
-
 }

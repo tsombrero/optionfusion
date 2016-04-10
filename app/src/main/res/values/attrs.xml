@@ -32,6 +32,7 @@
 
     <declare-styleable name="priceChange">
         <attr name="state_value_decreased" format="boolean" />
+        <attr name="state_value_unknown" format="boolean" />
     </declare-styleable>
 
 

@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.optionfusion.R;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
+import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.widgets.PriceChangeView;
 import com.optionfusion.util.Util;
 
@@ -118,11 +119,19 @@ public class SharedViewHolders {
 
         public void bind(Interfaces.StockQuote stockQuote) {
             this.stockQuote = stockQuote;
-            if (stockQuote != null) {
+
+            if (stockQuote != null)
                 tickerView.setText(stockQuote.getSymbol());
+            else
+                tickerView.setText("");
+
+            if (stockQuote != null && stockQuote.getProvider() != OptionFusionApplication.Provider.DUMMY) {
                 priceView.setText(Util.formatDollars(stockQuote.getLast(), 100000));
                 if (descriptionView != null)
                     descriptionView.setText(stockQuote.getDescription());
+            } else {
+                priceView.setText("");
+                descriptionView.setText("");
             }
             changeView.setStockQuote(stockQuote);
             changeView.setShowAsPercentage(stockQuoteViewConfig.isShowAsPercentage());
@@ -159,7 +168,9 @@ public class SharedViewHolders {
             onConfigChanged();
         }
 
-        public void onConfigChanged() {};
+        public void onConfigChanged() {
+        }
+
     }
 
     public interface SymbolSelectedListener {

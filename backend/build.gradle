@@ -34,6 +34,8 @@ dependencies {
     compile 'javax.servlet:servlet-api:2.5'
     compile 'joda-time:joda-time:2.9.2'
 
+    compile 'com.google.http-client:google-http-client-gson:1.19.0'
+
 }
 
 appengine {

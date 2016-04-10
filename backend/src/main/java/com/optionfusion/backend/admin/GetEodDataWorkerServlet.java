@@ -8,6 +8,8 @@ import com.optionfusion.backend.models.Equity;
 import com.optionfusion.backend.models.OptionChain;
 import com.optionfusion.backend.models.StockQuote;
 import com.optionfusion.backend.protobuf.OptionChainProto;
+import com.optionfusion.backend.utils.Constants;
+import com.optionfusion.backend.utils.GoogleApiUtils;
 import com.optionfusion.backend.utils.TextUtils;
 import com.optionfusion.backend.utils.Util;
 
@@ -20,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.channels.Channels;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,6 +53,12 @@ public class GetEodDataWorkerServlet extends HttpServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 
+        // The compute instance tries to shut itself down after downloading the data files into storage
+        // but sometimes it fails and sits there running. That's bad because the download script only
+        // runs on startup. The GetEodDataWorkerServlets run delayed so we can call shutdown here just to
+        // be safe.
+        stopComputeInstance();
+
         String initialLetter = req.getParameter(PARAM_INITIAL_LETTER_SHARD);
         DateTime dateToSearch = null;
         try {
@@ -69,6 +78,16 @@ public class GetEodDataWorkerServlet extends HttpServlet {
             throw e;
         }
         log("Job Finished");
+    }
+
+    private void stopComputeInstance() {
+        try {
+            GoogleApiUtils.getCompute().instances().stop(Constants.APPLICATION_NAME, Constants.EOD_DOWNLOADER_INSTANCE_ZONE, Constants.EOD_DOWNLOADER_INSTANCE).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
     }
 
     private void processFilesForDate(DateTime dateTime, String initialLetter) throws IOException {

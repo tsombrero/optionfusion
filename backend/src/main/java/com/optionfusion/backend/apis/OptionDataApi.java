@@ -6,12 +6,15 @@
 
 package com.optionfusion.backend.apis;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
-import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.oauth.OAuthRequestException;
 import com.google.appengine.api.users.User;
@@ -25,15 +28,19 @@ import com.optionfusion.backend.utils.TextUtils;
 
 import org.joda.time.DateTime;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
 
 import static com.google.appengine.api.datastore.Query.FilterOperator.GREATER_THAN_OR_EQUAL;
 import static com.google.appengine.api.datastore.Query.FilterOperator.LESS_THAN;
@@ -116,15 +123,32 @@ public class OptionDataApi {
         return ret;
     }
 
+    @ApiMethod(httpMethod = "POST", path = "setWatchlist")
+    public final List<Equity> setWatchlist(@Named("q") String tickers, User user) throws OAuthRequestException {
+
+        ensureLoggedIn(user);
+
+        FusionUser fuser = getFusionUser(user.getEmail());
+
+        if (fuser == null) {
+            throw new OAuthRequestException("Authenticated user not found in datastore");
+        }
+
+        List<Equity> ret = getEquityQuotes(tickers, user);
+
+        fuser.setWatchlist(ret);
+
+        ofy().save().entity(ret).now();
+
+        return ret;
+    }
+
     @ApiMethod(httpMethod = "POST", path = "loginUser")
     public final FusionUser loginUser(FusionUser fusionUserIn, User user) throws OAuthRequestException {
 
         ensureLoggedIn(user);
 
-        FusionUser ret = ofy().load().type(FusionUser.class)
-                .filter(new FilterPredicate("email", FilterOperator.EQUAL, user.getEmail()))
-                .first()
-                .now();
+        FusionUser ret = getFusionUser(user.getEmail());
 
         if (ret == null) {
             ret = new FusionUser(user.getEmail(), fusionUserIn.getDisplayName());
@@ -144,6 +168,40 @@ public class OptionDataApi {
         return ret;
     }
 
+
+    private User getUserFromToken(HttpServletRequest req) {
+        String tokenString = req.getHeader("Authorization").replace("Bearer ", "");
+
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+                .setAudience(Arrays.asList(Constants.ANDROID_AUDIENCE))
+                .setIssuer("https://accounts.google.com")
+                .build();
+
+        GoogleIdToken token = null;
+        try {
+            token = GoogleIdToken.parse(new GsonFactory(), tokenString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (token.getPayload().getExpirationTimeSeconds() * 1000 < System.currentTimeMillis()) {
+            log.info("ERROR token is expired " + token.getPayload().getExpirationTimeSeconds());
+        }
+
+        try {
+            if (!verifier.verify(token)) {
+                log.info("Verify failed");
+            } else {
+                log.info("Token Verified! So why is User null?");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
+        return new User(token.getPayload().getEmail(), token.getPayload().getHostedDomain(), token.getPayload().getSubject());
+    }
+
     @ApiMethod(httpMethod = "GET", path = "getEquityQuotes")
     public final List<Equity> getEquityQuotes(@Named("tickers") String tickers, User user) throws OAuthRequestException {
 
@@ -159,12 +217,14 @@ public class OptionDataApi {
             if (fuser == null)
                 throw new OAuthRequestException("Authenticated user not found in datastore");
 
-            ret = getEquityList(fuser.getWatchlistTickers());
+            ret = fuser.getWatchList();
         }
 
         for (Equity equity : ret) {
             ensureEquityHasStockQuote(equity);
         }
+
+        log.info("Returning list of " + ret.size() + " stock quotes");
 
         return new ArrayList<>(ret);
     }
@@ -194,17 +254,15 @@ public class OptionDataApi {
     }
 
     private void createWatchlist(FusionUser fusionUser) {
-        Collection<Equity> equityList = getEquityList(new String[]{"AAPL", "AMZN", "CSCO", "FB", "GOOG", "NFLX", "TSLA"});
-        for (Equity equity : equityList) {
-            fusionUser.addEquityToWatchlist(equity);
-        }
+        List<Equity> equityList = getEquityList(new String[]{"SPY", "AAPL", "AMZN", "CSCO", "FB", "GOOG", "NFLX", "TSLA"});
+        fusionUser.setWatchlist(equityList);
     }
 
     private Equity getEquity(String ticker) {
         return ofy().load().key(Key.create(Equity.class, ticker)).now();
     }
 
-    private Collection<Equity> getEquityList(String[] tickers) {
+    private List<Equity> getEquityList(String[] tickers) {
         return getEquityList(Arrays.asList(tickers));
     }
 
@@ -221,6 +279,12 @@ public class OptionDataApi {
     private StockQuote getStockQuote(String ticker, DateTime dateTime) {
         Key<Equity> equityKey = Key.create(Equity.class, ticker);
         return ofy().load().key(Key.create(equityKey, StockQuote.class, dateTime.getMillis())).now();
+    }
+
+    private FusionUser getFusionUser(String email) {
+        FusionUser ret = ofy().load().key(Key.create(FusionUser.class, email))
+                .now();
+        return ret;
     }
 
     private static Filter startsWithFilter(String field, String q) {

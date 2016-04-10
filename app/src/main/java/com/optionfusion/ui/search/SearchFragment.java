@@ -28,6 +28,9 @@ import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.client.ClientInterfaces;
 import com.optionfusion.db.DbHelper;
 import com.optionfusion.jobqueue.GetWatchlistJob;
+import com.optionfusion.jobqueue.SetWatchlistJob;
+import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.model.provider.backend.FusionStockQuote;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.SharedViewHolders;
 import com.optionfusion.ui.widgets.SymbolSearchTextView;
@@ -35,6 +38,7 @@ import com.optionfusion.util.Util;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -47,7 +51,8 @@ import butterknife.OnEditorAction;
 
 public class SearchFragment extends Fragment implements SharedViewHolders.SymbolSelectedListener, SwipeRefreshLayout.OnRefreshListener, AppBarLayout.OnOffsetChangedListener {
 
-    private static final String PREFKEY_WATCHLIST = "recents";
+    private static final String KEY_WATCHLIST = "watchlist";
+    private static final String KEY_PROVIDER = "provider";
 
     @Bind(R.id.toolbar)
     Toolbar toolbar;
@@ -62,9 +67,6 @@ public class SearchFragment extends Fragment implements SharedViewHolders.Symbol
     AppBarLayout appBarLayout;
 
     @Inject
-    OptionChainProvider optionChainProvider;
-
-    @Inject
     SharedPreferences sharedPreferences;
 
     @Inject
@@ -72,9 +74,6 @@ public class SearchFragment extends Fragment implements SharedViewHolders.Symbol
 
     @Inject
     ClientInterfaces.AccountClient accountClient;
-
-    @Inject
-    DbHelper dbHelper;
 
     @Inject
     EventBus bus;
@@ -132,6 +131,8 @@ public class SearchFragment extends Fragment implements SharedViewHolders.Symbol
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
+        onRestoreInstanceState(savedInstanceState);
+
         return ret;
     }
 
@@ -174,9 +175,12 @@ public class SearchFragment extends Fragment implements SharedViewHolders.Symbol
         if (appBarLayout != null)
             appBarLayout.addOnOffsetChangedListener(this);
 
-        showProgress(true);
-
-        jobManager.addJobInBackground(new GetWatchlistJob());
+        if (adapter == null || adapter.getStockQuoteList().isEmpty()) {
+            jobManager.addJobInBackground(new GetWatchlistJob());
+            showProgress(true);
+        } else {
+            showProgress(false);
+        }
     }
 
     @Override
@@ -213,8 +217,9 @@ public class SearchFragment extends Fragment implements SharedViewHolders.Symbol
                 Set<String> symbols = new HashSet<>(); //TODO populate with current set
                 if (!symbols.contains(symbol)) {
                     symbols.add(symbol);
-                    sharedPreferences.edit().putStringSet(PREFKEY_WATCHLIST, symbols).apply();
+                    sharedPreferences.edit().putStringSet(KEY_WATCHLIST, symbols).apply();
                 }
+                jobManager.addJobInBackground(new SetWatchlistJob(symbols));
                 adapter.update();
             }
         });
@@ -264,6 +269,31 @@ public class SearchFragment extends Fragment implements SharedViewHolders.Symbol
         public boolean onSubmit() {
             onSymbolSearch(symbolSearchTextView.getText().toString().toUpperCase());
             return true;
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (adapter.getStockQuoteList() != null && adapter.getStockQuoteList().size() > 0) {
+            outState.putInt(KEY_PROVIDER, adapter.getStockQuoteList().get(0).getProvider().ordinal());
+            outState.putParcelableArrayList(KEY_WATCHLIST, adapter.getStockQuoteList());
+        }
+    }
+
+    private void onRestoreInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState == null)
+            return;
+
+        int provider = savedInstanceState.getInt(KEY_PROVIDER, OptionFusionApplication.Provider._UNKNOWN.ordinal());
+        switch (OptionFusionApplication.Provider.values()[provider]) {
+            case OPTION_FUSION_BACKEND:
+                ArrayList<FusionStockQuote> watchlist = savedInstanceState.getParcelableArrayList(KEY_WATCHLIST);
+                //// FIXME: 4/7/16 lame to copy, can't cast?
+                ArrayList<Interfaces.StockQuote> ret = new ArrayList<>();
+                ret.addAll(watchlist);
+                adapter.setStockQuoteList(ret);
+                break;
         }
     }
 }

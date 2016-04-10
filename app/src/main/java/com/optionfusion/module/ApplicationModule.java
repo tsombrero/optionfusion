@@ -191,7 +191,7 @@ public class ApplicationModule {
     @Provides
     @Singleton
     StockQuoteProvider provideStockQuoteProvider(Context context, ClientInterfaces.StockQuoteClient stockQuoteClient, EventBus bus, JobManager jobManager) {
-        return new StockQuoteProvider(context, stockQuoteClient, bus, jobManager);
+        return new StockQuoteProvider(bus, jobManager);
     }
 
     @Provides

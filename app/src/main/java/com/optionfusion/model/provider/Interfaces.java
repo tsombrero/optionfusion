@@ -1,5 +1,6 @@
 package com.optionfusion.model.provider;
 
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
@@ -19,7 +20,7 @@ public class Interfaces {
 
     public enum OptionType {
         PUT,
-        CALL;
+        CALL
     }
 
     public interface OptionQuote {
@@ -60,7 +61,7 @@ public class Interfaces {
         Provider getProvider();
     }
 
-    public interface StockQuote {
+    public interface StockQuote extends Parcelable {
         Comparator<? super StockQuote> COMPARATOR = new Comparator<StockQuote>() {
             @Override
             public int compare(StockQuote lhs, StockQuote rhs) {

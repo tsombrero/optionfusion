@@ -29,7 +29,7 @@ public class GoogPriceHistoryConverter implements Converter<ResponseBody, GoogPr
     }
 
     enum HistoryResponseColumn {
-        DATE,CLOSE,HIGH,LOW,OPEN,VOLUME;
+        DATE,CLOSE,HIGH,LOW,OPEN,VOLUME
     }
 
     @Override

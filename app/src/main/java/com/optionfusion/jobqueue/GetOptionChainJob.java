@@ -9,6 +9,6 @@ public class GetOptionChainJob extends BaseApiJob {
 
     @Override
     public void onRun() throws Throwable {
-
+        super.onRun();
     }
 }

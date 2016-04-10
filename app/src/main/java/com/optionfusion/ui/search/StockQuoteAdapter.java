@@ -26,7 +26,7 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
 
     private SearchFragment searchFragment;
     private final Context context;
-    private List<Interfaces.StockQuote> stockQuoteList = new ArrayList<>();
+    private ArrayList<Interfaces.StockQuote> stockQuoteList = new ArrayList<>();
     private boolean isUpdating;
 
     public StockQuoteAdapter(SearchFragment searchFragment) {
@@ -54,7 +54,7 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
             return;
 
         isUpdating = true;
-        stockQuoteList = searchFragment.stockQuoteProvider.get(searchFragment.accountClient.getAccountUser().getWatchlistTickers());
+        stockQuoteList = searchFragment.stockQuoteProvider.getFromEquityList(searchFragment.accountClient.getAccountUser().getWatchList());
 
         if (hasDummyStockQuotes(stockQuoteList)) {
             searchFragment.recyclerView.postDelayed(new Runnable() {
@@ -72,6 +72,7 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
         } else {
             isUpdating = false;
             searchFragment.swipeRefreshLayout.setRefreshing(false);
+            searchFragment.showProgress(false);
         }
         notifyDataSetChanged();
     }
@@ -128,5 +129,14 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
     @Override
     public int getItemCount() {
         return stockQuoteList == null ? 0 : stockQuoteList.size();
+    }
+
+    public ArrayList<Interfaces.StockQuote> getStockQuoteList() {
+        return stockQuoteList;
+    }
+
+    public void setStockQuoteList(ArrayList<Interfaces.StockQuote> stockQuoteList) {
+        this.stockQuoteList = stockQuoteList;
+        notifyDataSetChanged();
     }
 }

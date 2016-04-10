@@ -18,15 +18,18 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.OptionalPendingResult;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
+import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.google.api.client.http.HttpExecuteInterceptor;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
+import com.google.api.client.http.javanet.NetHttpTransport;
 import com.optionfusion.BuildConfig;
 import com.optionfusion.R;
 import com.optionfusion.backend.protobuf.OptionChainProto;
@@ -52,13 +55,13 @@ import org.joda.time.DateTime;
 import org.sqlite.database.sqlite.SQLiteDatabase;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Inject;
 
@@ -87,11 +90,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     @Inject
     SharedPrefStore sharedPrefStore;
 
-    private GoogleApiClient googleApiClient;
-    ReentrantLock lock = new ReentrantLock();
-    Condition gotToken = lock.newCondition();
     GoogleSignInResult signinResult;
-
 
     public FusionClient(Context context) {
         OptionFusionApplication.from(context).getComponent().inject(this);
@@ -191,7 +190,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         return null;
     }
 
-    private List<Interfaces.StockQuote> getStockQuotes(Collection<String> symbols) {
+    public List<Interfaces.StockQuote> getStockQuotes(Collection<String> symbols) {
 
         String param = null;
         List<Interfaces.StockQuote> ret = new ArrayList<>();
@@ -201,9 +200,12 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
         try {
             EquityCollection e = getEndpoints().optionDataApi().getEquityQuotes(param).execute();
-            if (e == null)
+            if (e == null) {
+                Log.w(TAG, "Failed getting quotes from service");
                 return null;
+            }
 
+            Log.w(TAG, "Got " + e.getItems().size() + " quotes from service");
             for (Equity equity : e.getItems()) {
                 ret.add(new FusionStockQuote(equity));
             }
@@ -523,6 +525,9 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     @Override
     public FusionUser getAccountUser() {
         if (fusionUser == null) {
+
+            optionFusionApi = null;
+
             synchronized (TAG) {
                 if (account == null)
                     return null;
@@ -540,6 +545,15 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             }
         }
         return fusionUser;
+    }
+
+    @Override
+    public List<Equity> setWatchlist(Collection<String> symbols) throws IOException {
+        EquityCollection equityCollection = getEndpoints().optionDataApi().setWatchlist(TextUtils.join(",", symbols)).execute();
+        if (equityCollection != null)
+            return equityCollection.getItems();
+
+        return null;
     }
 
     @Override
@@ -561,9 +575,10 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             // Create API handler
             OptionFusion.Builder builder = new OptionFusion.Builder(
                     AndroidHttp.newCompatibleTransport(),
-                    new AndroidJsonFactory(), getRequestInitializer())
+                    new AndroidJsonFactory(), getHttpRequestInitializer())
                     .setApplicationName(context.getString(R.string.app_name))
-                    .setRootUrl(ROOT_URL);
+                    .setRootUrl(ROOT_URL)
+                    .setGoogleClientRequestInitializer(getGoogleClientRequestInitializer());
 
             optionFusionApi = builder.build();
         }
@@ -577,10 +592,22 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
      *
      * @return an appropriate HttpRequestInitializer.
      */
-    HttpRequestInitializer getRequestInitializer() {
+    GoogleClientRequestInitializer getGoogleClientRequestInitializer() {
+        return new GoogleClientRequestInitializer() {
+            @Override
+            public void initialize(AbstractGoogleClientRequest<?> request) throws IOException {
+                if (account != null) {
+                    String token = account.getIdToken();
+                    request.setDisableGZipContent(true);
+                }
+            }
+        };
+    }
+
+    HttpRequestInitializer getHttpRequestInitializer() {
         return new HttpRequestInitializer() {
             @Override
-            public void initialize(final HttpRequest request) {
+            public void initialize(HttpRequest request) throws IOException {
                 if (account != null) {
                     RequestHandler handler = new RequestHandler();
                     request.setInterceptor(handler);
@@ -623,46 +650,52 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
     @Override
     public GoogleSignInResult trySilentSignIn(GoogleApiClient apiClient) {
-        OptionalPendingResult<GoogleSignInResult> pendingResult =
-                Auth.GoogleSignInApi.silentSignIn(apiClient);
-        if (pendingResult.isDone()) {
-            signinResult = pendingResult.get();
-        } else {
-            lock.lock();
-            try {
-                pendingResult.setResultCallback(new ResultCallback<GoogleSignInResult>() {
+        signinResult =
+                Auth.GoogleSignInApi.silentSignIn(apiClient).await(15, TimeUnit.SECONDS);
 
-                    @Override
-                    public void onResult(@NonNull GoogleSignInResult result) {
-                        lock.lock();
-                        try {
-                            signinResult = result;
-                            gotToken.signalAll();
-                        } finally {
-                            lock.unlock();
-                        }
-                    }
-
-
-                });
-
-                gotToken.await(10, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                Log.w(getClass().getSimpleName(), "Authentication Error");
-            } finally {
-                lock.unlock();
-            }
+        if (signinResult != null && signinResult.isSuccess()) {
+            account = signinResult.getSignInAccount();
+            Log.i(TAG, "Account updated, token " + account.getIdToken());
         }
+
+        if (account == null)
+            return null;
+
+        try {
+            GoogleIdToken token = GoogleIdToken.parse(new AndroidJsonFactory(), account.getIdToken());
+            if (token.getPayload().getExpirationTimeSeconds() * 1000 < System.currentTimeMillis()) {
+                Log.e(TAG, "Token is expired " + token.getPayload().getExpirationTimeSeconds());
+            } else {
+                Log.i(TAG, "Token is NOT expired");
+                GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new AndroidJsonFactory())
+                        .setAudience(Arrays.asList(Constants.AUDIENCE_ANDROID_CLIENT_ID))
+                        // If you retrieved the token on Android using the Play Services 8.3 API or newer, set
+                        // the issuer to "https://accounts.google.com". Otherwise, set the issuer to
+                        // "accounts.google.com". If you need to verify tokens from multiple sources, build
+                        // a GoogleIdTokenVerifier for each issuer and try them both.
+                        .setIssuer("https://accounts.google.com")
+                        .build();
+
+                if (!verifier.verify(token)) {
+                    Log.e(TAG, "Token failed verify " + token.getPayload().getAudience());
+                } else {
+                    Log.i(TAG, "Token Verified");
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
+
 
         return signinResult;
     }
 
     public static GoogleApiClient getGoogleApiClient(final FragmentActivity activity, int hostId) {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .requestProfile()
-                .requestId()
                 .requestIdToken(Constants.WEB_CLIENT_ID)
+                .requestEmail()
                 .build();
 
         GoogleApiClient.Builder ret = new GoogleApiClient.Builder(activity)

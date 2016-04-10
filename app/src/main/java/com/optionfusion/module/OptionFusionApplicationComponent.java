@@ -13,7 +13,6 @@ import com.optionfusion.jobqueue.BaseApiJob;
 import com.optionfusion.ui.MainActivity;
 import com.optionfusion.ui.StockDetailsFragment;
 import com.optionfusion.ui.login.AmeritradeLoginFragment;
-import com.optionfusion.ui.login.GoogleLoginFragment;
 import com.optionfusion.ui.login.LoginActivity;
 import com.optionfusion.ui.login.StartFragment;
 import com.optionfusion.ui.results.FilterViewHolder;
@@ -67,8 +66,6 @@ public interface OptionFusionApplicationComponent {
     void inject(StockDetailsFragment stockDetailsFragment);
 
     void inject(SymbolSearchTextView symbolSearchTextView);
-
-    void inject(GoogleLoginFragment googleLoginFragment);
 
     void inject(FusionClientProvider fusionClientProvider);
 

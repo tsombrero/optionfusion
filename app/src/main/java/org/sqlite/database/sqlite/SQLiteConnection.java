@@ -1044,11 +1044,8 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
     }
 
     private static boolean isCacheable(int statementType) {
-        if (statementType == DatabaseUtils.STATEMENT_UPDATE
-                || statementType == DatabaseUtils.STATEMENT_SELECT) {
-            return true;
-        }
-        return false;
+        return statementType == DatabaseUtils.STATEMENT_UPDATE
+                || statementType == DatabaseUtils.STATEMENT_SELECT;
     }
 
     private void applyBlockGuardPolicy(PreparedStatement statement) {

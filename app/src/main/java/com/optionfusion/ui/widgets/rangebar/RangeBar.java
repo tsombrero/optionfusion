@@ -1271,8 +1271,8 @@ public class RangeBar extends View {
     }
 
     public interface RangeBarDataProvider {
-        public Object getLeftValue();
+        Object getLeftValue();
 
-        public Object getRightValue();
+        Object getRightValue();
     }
 }
