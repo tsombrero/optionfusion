@@ -23,10 +23,9 @@ import android.view.inputmethod.InputMethodManager;
 import com.birbit.android.jobqueue.JobManager;
 import com.optionfusion.BuildConfig;
 import com.optionfusion.R;
-import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.client.ClientInterfaces;
-import com.optionfusion.db.DbHelper;
+import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.jobqueue.GetWatchlistJob;
 import com.optionfusion.jobqueue.SetWatchlistJob;
 import com.optionfusion.model.provider.Interfaces;
@@ -40,6 +39,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -160,7 +160,7 @@ public class SearchFragment extends Fragment implements SharedViewHolders.Symbol
     @Override
     public void onRefresh() {
         if (adapter != null)
-            adapter.update();
+            adapter.onManualRefresh();
     }
 
     public interface Host {
@@ -214,13 +214,21 @@ public class SearchFragment extends Fragment implements SharedViewHolders.Symbol
         dialog.setSymbolSearchListener(new SymbolSearchTextView.SymbolSearchListener() {
             @Override
             public void onSymbolSearch(String symbol) {
-                Set<String> symbols = new HashSet<>(); //TODO populate with current set
+                Set<String> symbols = new HashSet<>();
+
+                List<Equity> watchlist = accountClient.getAccountUser().getWatchList();
+
+                if (watchlist == null)
+                    watchlist = new ArrayList<>();
+
+                for (Equity equity : watchlist) {
+                    symbols.add(equity.getSymbol());
+                }
+
                 if (!symbols.contains(symbol)) {
                     symbols.add(symbol);
-                    sharedPreferences.edit().putStringSet(KEY_WATCHLIST, symbols).apply();
+                    jobManager.addJobInBackground(new SetWatchlistJob(symbols));
                 }
-                jobManager.addJobInBackground(new SetWatchlistJob(symbols));
-                adapter.update();
             }
         });
         dialog.setCancelable(true);

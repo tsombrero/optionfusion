@@ -1,9 +1,8 @@
 package com.optionfusion.cache;
 
-import android.content.Context;
-
 import com.birbit.android.jobqueue.JobManager;
 import com.optionfusion.com.backend.optionFusion.model.Equity;
+import com.optionfusion.com.backend.optionFusion.model.StockQuote;
 import com.optionfusion.events.StockQuotesUpdatedEvent;
 import com.optionfusion.jobqueue.GetStockQuotesJob;
 import com.optionfusion.model.provider.Interfaces;
@@ -16,14 +15,17 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class StockQuoteProvider extends HashMap<String, Interfaces.StockQuote> {
+public class StockQuoteProvider {
     private final JobManager jobManager;
     private final String TAG = OptionChainProvider.class.getSimpleName();
+
+    private final HashMap<String, Interfaces.StockQuote> data = new HashMap<>();
 
     private long minTimeBetweenFetches = TimeUnit.SECONDS.toMillis(30);
 
@@ -33,7 +35,7 @@ public class StockQuoteProvider extends HashMap<String, Interfaces.StockQuote> {
     }
 
     public Interfaces.StockQuote get(@NotNull String symbol) {
-        ArrayList<Interfaces.StockQuote> list = get(Collections.singletonList(symbol));
+        ArrayList<Interfaces.StockQuote> list = getFromSymbols(Collections.singletonList(symbol));
         if (list != null && !list.isEmpty())
             return list.get(0);
 
@@ -50,7 +52,7 @@ public class StockQuoteProvider extends HashMap<String, Interfaces.StockQuote> {
 
         synchronized (TAG) {
             for (Equity equity : equities) {
-                Interfaces.StockQuote oldQuote = super.get(equity.getSymbol());
+                Interfaces.StockQuote oldQuote = data.get(equity.getSymbol());
                 Interfaces.StockQuote newQuote = new FusionStockQuote(equity);
 
                 Interfaces.StockQuote quoteToUse = oldQuote;
@@ -72,20 +74,20 @@ public class StockQuoteProvider extends HashMap<String, Interfaces.StockQuote> {
         return ret;
     }
 
-    public ArrayList<Interfaces.StockQuote> get(@NotNull List<String> symbols) {
+    public ArrayList<Interfaces.StockQuote> getFromSymbols(@NotNull Collection<String> symbols) {
         ArrayList<Interfaces.StockQuote> ret = new ArrayList<>();
 
         boolean needsUpdate = false;
 
         synchronized (TAG) {
             for (String symbol : symbols) {
-                Interfaces.StockQuote quote = super.get(symbol);
+                Interfaces.StockQuote quote = data.get(symbol);
                 if (quote != null) {
                     ret.add(quote);
                     needsUpdate |= (System.currentTimeMillis() - quote.getLastUpdatedLocalTimestamp() > minTimeBetweenFetches);
                 } else {
                     Interfaces.StockQuote dummy = new DummyStockQuote(symbol);
-                    put(symbol, dummy);
+                    data.put(symbol, dummy);
                     needsUpdate = true;
                 }
             }
@@ -103,7 +105,7 @@ public class StockQuoteProvider extends HashMap<String, Interfaces.StockQuote> {
     public void onEvent(StockQuotesUpdatedEvent event) {
         synchronized (TAG) {
             for (Interfaces.StockQuote quote : event.getStockQuoteList()) {
-                put(quote.getSymbol(), quote);
+                data.put(quote.getSymbol(), quote);
             }
         }
     }

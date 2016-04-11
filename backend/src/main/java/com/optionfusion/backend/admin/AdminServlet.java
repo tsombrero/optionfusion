@@ -6,8 +6,6 @@ import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskHandle;
 import com.google.appengine.api.taskqueue.TaskOptions;
-import com.google.appengine.repackaged.org.joda.time.DateTimeConstants;
-import com.google.appengine.repackaged.org.joda.time.LocalDate;
 import com.googlecode.objectify.Key;
 import com.optionfusion.backend.models.OptionChain;
 import com.optionfusion.backend.utils.Constants;
@@ -15,6 +13,8 @@ import com.optionfusion.backend.utils.GoogleApiUtils;
 import com.optionfusion.backend.utils.Util;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
 
 import java.io.IOException;
 import java.util.Map;

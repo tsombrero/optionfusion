@@ -10,6 +10,8 @@ import android.widget.Toast;
 import com.optionfusion.R;
 import com.optionfusion.events.StockQuotesUpdatedEvent;
 import com.optionfusion.events.WatchListUpdatedEvent;
+import com.optionfusion.jobqueue.GetWatchlistJob;
+import com.optionfusion.jobqueue.SetWatchlistJob;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.SharedViewHolders;
@@ -36,17 +38,17 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
     public StockQuoteAdapter(SearchFragment searchFragment, List<String> symbols) {
         this.searchFragment = searchFragment;
         context = searchFragment.getActivity();
-        stockQuoteList = searchFragment.stockQuoteProvider.get(symbols);
+        stockQuoteList = searchFragment.stockQuoteProvider.getFromSymbols(symbols);
         searchFragment.bus.register(this);
-        update();
     }
 
     public void removeItem(int index) {
         notifyItemRemoved(index);
         stockQuoteList.remove(index);
+        searchFragment.jobManager.addJobInBackground(SetWatchlistJob.fromStockQuoteList(stockQuoteList));
     }
 
-    public synchronized void update() {
+    public synchronized void onManualRefresh() {
         if (isUpdating)
             return;
 
@@ -54,26 +56,20 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
             return;
 
         isUpdating = true;
-        stockQuoteList = searchFragment.stockQuoteProvider.getFromEquityList(searchFragment.accountClient.getAccountUser().getWatchList());
 
-        if (hasDummyStockQuotes(stockQuoteList)) {
-            searchFragment.recyclerView.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (this) {
-                        if (isUpdating) {
-                            Toast.makeText(context, "Failed refreshing stock quotes", Toast.LENGTH_SHORT);
-                            searchFragment.swipeRefreshLayout.setRefreshing(false);
-                            isUpdating = false;
-                        }
+        searchFragment.jobManager.addJobInBackground(new GetWatchlistJob());
+        searchFragment.recyclerView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    if (isUpdating) {
+                        Toast.makeText(context, "Failed refreshing stock quotes", Toast.LENGTH_SHORT);
+                        searchFragment.swipeRefreshLayout.setRefreshing(false);
+                        isUpdating = false;
                     }
                 }
-            }, 10000);
-        } else {
-            isUpdating = false;
-            searchFragment.swipeRefreshLayout.setRefreshing(false);
-            searchFragment.showProgress(false);
-        }
+            }
+        }, 10000);
         notifyDataSetChanged();
     }
 
@@ -110,9 +106,8 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(WatchListUpdatedEvent event) {
-        if (event.getWatchList().isEmpty())
-            searchFragment.showProgress(false);
-        update();
+        searchFragment.showProgress(false);
+        setStockQuoteList(event.getWatchList());
     }
 
     @Override
@@ -135,8 +130,17 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
         return stockQuoteList;
     }
 
-    public void setStockQuoteList(ArrayList<Interfaces.StockQuote> stockQuoteList) {
-        this.stockQuoteList = stockQuoteList;
+    public void setStockQuoteList(List<Interfaces.StockQuote> stockQuoteList) {
+        if (stockQuoteList == null)
+            return;
+
+        if (stockQuoteList == null || stockQuoteList.isEmpty()) {
+            if (this.stockQuoteList != null)
+                return;
+        }
+
+        this.stockQuoteList = new ArrayList<>(stockQuoteList);
+        Collections.sort(this.stockQuoteList, Interfaces.StockQuote.COMPARATOR);
         notifyDataSetChanged();
     }
 }

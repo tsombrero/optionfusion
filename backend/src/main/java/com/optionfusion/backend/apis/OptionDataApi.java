@@ -13,6 +13,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
+import com.google.api.server.spi.response.UnauthorizedException;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
@@ -35,7 +36,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -65,11 +65,16 @@ import static com.optionfusion.backend.utils.OfyService.ofy;
 
 public class OptionDataApi {
 
+    private static final GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+            .setAudience(Arrays.asList(Constants.ANDROID_AUDIENCE))
+            .setIssuer("https://accounts.google.com")
+            .build();
+
     private static final int MAX_RESULTS = 20;
     private static final Logger log = Logger.getLogger(OptionDataApi.class.getSimpleName());
 
     @ApiMethod(httpMethod = "GET", path = "getTickersMatching")
-    public final List<Equity> getTickersMatching(@Named("q") String searchString, User user) {
+    public final List<Equity> getTickersMatching(@Named("q") String searchString) {
 
         ArrayList<Equity> ret = new ArrayList<>();
 
@@ -98,7 +103,7 @@ public class OptionDataApi {
 
         List<Equity> toRemove = new ArrayList<>();
         for (Equity equity : equities) {
-            if (equity.getEodStockQuote() == null)
+            if (equity.getEodStockQuote() == null || equity.getEodStockQuote().getClose() <= 0d)
                 toRemove.add(equity);
         }
 
@@ -112,9 +117,9 @@ public class OptionDataApi {
     }
 
     @ApiMethod(httpMethod = "GET", path = "getEodChain")
-    public final OptionChain getEodChain(@Named("q") String ticker, User user) throws OAuthRequestException {
+    public final OptionChain getEodChain(HttpServletRequest req, @Named("q") String ticker, User user) throws OAuthRequestException {
 
-        ensureLoggedIn(user);
+        ensureLoggedIn(user, req);
 
         Equity equity = getEquity(ticker);
 
@@ -124,9 +129,9 @@ public class OptionDataApi {
     }
 
     @ApiMethod(httpMethod = "POST", path = "setWatchlist")
-    public final List<Equity> setWatchlist(@Named("q") String tickers, User user) throws OAuthRequestException {
+    public final List<Equity> setWatchlist(HttpServletRequest req, @Named("q") String tickers, User user) throws OAuthRequestException {
 
-        ensureLoggedIn(user);
+        ensureLoggedIn(user, req);
 
         FusionUser fuser = getFusionUser(user.getEmail());
 
@@ -134,19 +139,19 @@ public class OptionDataApi {
             throw new OAuthRequestException("Authenticated user not found in datastore");
         }
 
-        List<Equity> ret = getEquityQuotes(tickers, user);
+        List<Equity> ret = getEquityQuotes(req, tickers, user);
 
         fuser.setWatchlist(ret);
 
-        ofy().save().entity(ret).now();
+        ofy().save().entity(fuser).now();
 
         return ret;
     }
 
     @ApiMethod(httpMethod = "POST", path = "loginUser")
-    public final FusionUser loginUser(FusionUser fusionUserIn, User user) throws OAuthRequestException {
+    public final FusionUser loginUser(HttpServletRequest req, FusionUser fusionUserIn, User user) throws OAuthRequestException {
 
-        ensureLoggedIn(user);
+        ensureLoggedIn(user, req);
 
         FusionUser ret = getFusionUser(user.getEmail());
 
@@ -169,13 +174,8 @@ public class OptionDataApi {
     }
 
 
-    private User getUserFromToken(HttpServletRequest req) {
+    private User getUserFromToken(HttpServletRequest req) throws OAuthRequestException {
         String tokenString = req.getHeader("Authorization").replace("Bearer ", "");
-
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
-                .setAudience(Arrays.asList(Constants.ANDROID_AUDIENCE))
-                .setIssuer("https://accounts.google.com")
-                .build();
 
         GoogleIdToken token = null;
         try {
@@ -184,41 +184,36 @@ public class OptionDataApi {
             e.printStackTrace();
         }
 
-        if (token.getPayload().getExpirationTimeSeconds() * 1000 < System.currentTimeMillis()) {
-            log.info("ERROR token is expired " + token.getPayload().getExpirationTimeSeconds());
-        }
-
         try {
             if (!verifier.verify(token)) {
-                log.info("Verify failed");
+                if (token.getPayload().getExpirationTimeSeconds() * 1000 < System.currentTimeMillis()) {
+                    log.info("ERROR token is expired " + token.getPayload().getExpirationTimeSeconds());
+                } else {
+                    log.info("Verify failed");
+                }
             } else {
-                log.info("Token Verified! So why is User null?");
+                return new User(token.getPayload().getEmail(), "", token.getPayload().getSubject());
             }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         }
-        return new User(token.getPayload().getEmail(), token.getPayload().getHostedDomain(), token.getPayload().getSubject());
+        throw new OAuthRequestException("Please authenticate");
     }
 
     @ApiMethod(httpMethod = "GET", path = "getEquityQuotes")
-    public final List<Equity> getEquityQuotes(@Named("tickers") String tickers, User user) throws OAuthRequestException {
+    public final List<Equity> getEquityQuotes(HttpServletRequest req, @Named("tickers") String tickers, User user) throws OAuthRequestException {
 
-        ensureLoggedIn(user);
+        ensureLoggedIn(user, req);
 
+        return getEquities(tickers);
+    }
+
+    private List<Equity> getEquities(String tickers) throws OAuthRequestException {
         Collection<Equity> ret;
 
-        if (!TextUtils.isEmpty(tickers)) {
-            ret = getEquityList(tickers.split(","));
-        } else {
-            FusionUser fuser = ofy().load().key(Key.create(FusionUser.class, user.getEmail())).now();
-
-            if (fuser == null)
-                throw new OAuthRequestException("Authenticated user not found in datastore");
-
-            ret = fuser.getWatchList();
-        }
+        ret = getEquityList(tickers.split(","));
 
         for (Equity equity : ret) {
             ensureEquityHasStockQuote(equity);
@@ -293,7 +288,17 @@ public class OptionDataApi {
                 new FilterPredicate(field, LESS_THAN, q + Character.MAX_VALUE));
     }
 
-    private void ensureLoggedIn(User user) throws OAuthRequestException {
+    private void ensureLoggedIn(User user, HttpServletRequest req) throws OAuthRequestException {
+        if (user == null)
+            log.severe("User is null");
+
+        if (user == null) {
+            user = getUserFromToken(req);
+
+            if (user != null)
+                log.info("Built user " + user.getEmail() + " | " + user.getUserId());
+        }
+
         if (user == null)
             throw new OAuthRequestException("Please authenticate first");
     }

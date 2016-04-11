@@ -10,6 +10,7 @@ import com.optionfusion.db.Schema.StockQuotes;
 import com.optionfusion.events.StockQuotesUpdatedEvent;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static com.optionfusion.model.provider.Interfaces.StockQuote;
@@ -17,24 +18,24 @@ import static com.optionfusion.model.provider.Interfaces.StockQuote;
 public class GetStockQuotesJob extends BaseApiJob {
 
     private List<StockQuote> result;
-    private List<String> symbols;
+    private List<String> symbols = new ArrayList<>();
 
     @Override
     protected int getRetryLimit() {
         return 5;
     }
 
-    private GetStockQuotesJob(List<String> symbols) {
+    private GetStockQuotesJob(Collection<String> symbols) {
         super(new Params(1)
                 .requireNetwork()
                 .setPersistent(false)
                 .setGroupId(GROUP_ID_WATCHLIST)
                 .singleInstanceBy(GetStockQuotesJob.class.getSimpleName() + TextUtils.join(",", symbols)));
 
-        this.symbols = symbols;
+        this.symbols.addAll(symbols);
     }
 
-    public static GetStockQuotesJob fromSymbols(List<String> symbols) {
+    public static GetStockQuotesJob fromSymbols(Collection<String> symbols) {
         return new GetStockQuotesJob(symbols);
     }
 
