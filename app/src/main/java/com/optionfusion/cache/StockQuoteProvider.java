@@ -2,7 +2,6 @@ package com.optionfusion.cache;
 
 import com.birbit.android.jobqueue.JobManager;
 import com.optionfusion.com.backend.optionFusion.model.Equity;
-import com.optionfusion.com.backend.optionFusion.model.StockQuote;
 import com.optionfusion.events.StockQuotesUpdatedEvent;
 import com.optionfusion.jobqueue.GetStockQuotesJob;
 import com.optionfusion.model.provider.Interfaces;
@@ -72,6 +71,27 @@ public class StockQuoteProvider {
         Collections.sort(ret, Interfaces.StockQuote.COMPARATOR);
 
         return ret;
+    }
+
+    public Interfaces.StockQuote getFromSymbol(@NotNull String symbol) {
+        boolean needsUpdate = false;
+
+        Interfaces.StockQuote quote = data.get(symbol);
+
+        synchronized (TAG) {
+            if (quote != null) {
+                needsUpdate |= (System.currentTimeMillis() - quote.getLastUpdatedLocalTimestamp() > minTimeBetweenFetches);
+            } else {
+                Interfaces.StockQuote dummy = new DummyStockQuote(symbol);
+                data.put(symbol, dummy);
+                needsUpdate = true;
+            }
+        }
+
+        if (needsUpdate)
+            jobManager.addJobInBackground(GetStockQuotesJob.fromSymbols(Collections.singleton(symbol)));
+
+        return quote;
     }
 
     public ArrayList<Interfaces.StockQuote> getFromSymbols(@NotNull Collection<String> symbols) {

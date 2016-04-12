@@ -1,2 +1,7 @@
 <datastore-indexes autoGenerate="true">
+
+    <datastore-index ancestor="true" kind="StockQuote" source="manual">
+        <property name="__key__" direction="desc"/>
+    </datastore-index>
+
 </datastore-indexes>
