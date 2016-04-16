@@ -31,7 +31,7 @@ public class FusionUser {
     transient List<Ref<Equity>> watchlistRefs = new ArrayList<>();
 
     @Ignore
-    List<Equity> watchlist = new ArrayList<>();
+    List<Equity> materializedWatchlist = new ArrayList<>();
 
     Map<String, String> userData = new HashMap<>();
 
@@ -83,17 +83,17 @@ public class FusionUser {
         this.lastLogin = lastLogin;
     }
 
-    public List<Equity> getWatchList() {
-        return watchlist;
+    public List<Equity> getMaterializedWatchlist() {
+        return materializedWatchlist;
     }
 
     @OnLoad
     public void deRef() {
         if (watchlistRefs != null) {
-            watchlist = new ArrayList<>();
+            materializedWatchlist = new ArrayList<>();
             for (Ref<Equity> equityRef : watchlistRefs) {
                 if (equityRef.isLoaded()) {
-                    watchlist.add(equityRef.get());
+                    materializedWatchlist.add(equityRef.get());
                 }
             }
         }
@@ -101,7 +101,7 @@ public class FusionUser {
 
     public void setWatchlist(List<Equity> equityList) {
         watchlistRefs.clear();
-        watchlist.clear();
+        materializedWatchlist.clear();
         HashSet<String> tickers = new HashSet<>();
 
         for (Equity equity : equityList) {
@@ -109,7 +109,7 @@ public class FusionUser {
                 continue;
 
             watchlistRefs.add(Ref.create(equity));
-            watchlist.add(equity);
+            materializedWatchlist.add(equity);
             tickers.add(equity.getSymbol());
         }
     }

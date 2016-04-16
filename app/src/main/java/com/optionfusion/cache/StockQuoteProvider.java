@@ -7,6 +7,7 @@ import com.optionfusion.jobqueue.GetStockQuotesJob;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.backend.FusionStockQuote;
 import com.optionfusion.model.provider.dummy.DummyStockQuote;
+import com.optionfusion.util.Util;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -27,6 +28,9 @@ public class StockQuoteProvider {
     private final HashMap<String, Interfaces.StockQuote> data = new HashMap<>();
 
     private long minTimeBetweenFetches = TimeUnit.SECONDS.toMillis(30);
+
+    HashMap<String, Long> lastUpdatedLocalTimestamps = new HashMap<>();
+
 
     public StockQuoteProvider(EventBus bus, JobManager jobManager) {
         this.jobManager = jobManager;
@@ -61,7 +65,12 @@ public class StockQuoteProvider {
                 }
 
                 ret.add(quoteToUse);
-                needsUpdate |= (System.currentTimeMillis() - quoteToUse.getLastUpdatedLocalTimestamp() > minTimeBetweenFetches);
+
+                if (!lastUpdatedLocalTimestamps.containsKey(equity.getSymbol())
+                        || System.currentTimeMillis() - lastUpdatedLocalTimestamps.get(equity.getSymbol()) > minTimeBetweenFetches) {
+                    needsUpdate = true;
+                    lastUpdatedLocalTimestamps.put(equity.getSymbol(), System.currentTimeMillis());
+                }
             }
         }
 
@@ -80,7 +89,11 @@ public class StockQuoteProvider {
 
         synchronized (TAG) {
             if (quote != null) {
-                needsUpdate |= (System.currentTimeMillis() - quote.getLastUpdatedLocalTimestamp() > minTimeBetweenFetches);
+                if (!lastUpdatedLocalTimestamps.containsKey(symbol)
+                        || System.currentTimeMillis() - lastUpdatedLocalTimestamps.get(symbol) > minTimeBetweenFetches) {
+                    needsUpdate = true;
+                    lastUpdatedLocalTimestamps.put(symbol, System.currentTimeMillis());
+                }
             } else {
                 Interfaces.StockQuote dummy = new DummyStockQuote(symbol);
                 data.put(symbol, dummy);
@@ -104,7 +117,11 @@ public class StockQuoteProvider {
                 Interfaces.StockQuote quote = data.get(symbol);
                 if (quote != null) {
                     ret.add(quote);
-                    needsUpdate |= (System.currentTimeMillis() - quote.getLastUpdatedLocalTimestamp() > minTimeBetweenFetches);
+                    if (!lastUpdatedLocalTimestamps.containsKey(symbol)
+                            || System.currentTimeMillis() - lastUpdatedLocalTimestamps.get(symbol) > minTimeBetweenFetches) {
+                        needsUpdate = true;
+                        lastUpdatedLocalTimestamps.put(symbol, System.currentTimeMillis());
+                    }
                 } else {
                     Interfaces.StockQuote dummy = new DummyStockQuote(symbol);
                     data.put(symbol, dummy);
@@ -128,5 +145,9 @@ public class StockQuoteProvider {
                 data.put(quote.getSymbol(), quote);
             }
         }
+    }
+
+    public void refresh(List<Interfaces.StockQuote> stockQuotes) {
+        getFromSymbols(Util.getSymbols(stockQuotes));
     }
 }

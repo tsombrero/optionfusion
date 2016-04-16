@@ -16,6 +16,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -265,5 +266,16 @@ public class Util {
         if (a.getQuoteTimestamp() > b.getQuoteTimestamp())
             return a;
         return b;
+    }
+
+    public static List<String> getSymbols(List<Interfaces.StockQuote> stockQuotes) {
+        if (stockQuotes == null)
+            return Collections.EMPTY_LIST;
+
+        List<String> symbols = new ArrayList<>();
+        for (Interfaces.StockQuote stockQuote : stockQuotes) {
+            symbols.add(stockQuote.getSymbol());
+        }
+        return symbols;
     }
 }

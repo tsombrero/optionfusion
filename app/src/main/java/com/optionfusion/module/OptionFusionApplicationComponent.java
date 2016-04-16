@@ -17,7 +17,7 @@ import com.optionfusion.ui.login.LoginActivity;
 import com.optionfusion.ui.login.StartFragment;
 import com.optionfusion.ui.results.FilterViewHolder;
 import com.optionfusion.ui.results.ResultsFragment;
-import com.optionfusion.ui.search.SearchFragment;
+import com.optionfusion.ui.search.WatchlistFragment;
 import com.optionfusion.ui.tradedetails.TradeDetailsFragment;
 import com.optionfusion.ui.widgets.SymbolSearchTextView;
 
@@ -39,7 +39,7 @@ public interface OptionFusionApplicationComponent {
 
     void inject(MainActivity mainActivity);
 
-    void inject(SearchFragment searchFragment);
+    void inject(WatchlistFragment watchlistFragment);
 
     void inject(OptionChainProvider optionChainProvider);
 

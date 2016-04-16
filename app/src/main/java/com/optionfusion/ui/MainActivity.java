@@ -32,7 +32,7 @@ import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.login.LoginActivity;
 import com.optionfusion.ui.results.ResultsFragment;
-import com.optionfusion.ui.search.SearchFragment;
+import com.optionfusion.ui.search.WatchlistFragment;
 import com.optionfusion.ui.tradedetails.TradeDetailsFragment;
 import com.optionfusion.util.Util;
 
@@ -46,7 +46,7 @@ import butterknife.BindColor;
 import butterknife.ButterKnife;
 
 
-public class MainActivity extends AppCompatActivity implements SearchFragment.Host, ResultsFragment.Host {
+public class MainActivity extends AppCompatActivity implements WatchlistFragment.Host, ResultsFragment.Host {
 
     @Bind(R.id.progress)
     ProgressBar progressBar;
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
 
                     accountClient.setGoogleAccount(googleSignInResult.getSignInAccount());
 
-                    Fragment frag = SearchFragment.newInstance();
+                    Fragment frag = WatchlistFragment.newInstance();
                     getSupportFragmentManager().beginTransaction()
                             .addToBackStack(null)
                             .add(R.id.fragment_container, frag, "tag_search")
@@ -105,6 +105,11 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ho
                 }
             }
         }.execute(null, null);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override

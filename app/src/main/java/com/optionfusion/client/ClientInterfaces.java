@@ -90,6 +90,7 @@ public class ClientInterfaces {
         GoogleSignInResult trySilentSignIn(GoogleApiClient googleApiClient);
 
         FusionUser getAccountUser();
-        List<Equity> setWatchlist(Collection<String> symbols) throws IOException;
+        List<Interfaces.StockQuote> setWatchlist(Collection<String> symbols) throws IOException;
+        List<Interfaces.StockQuote> getWatchlist() throws IOException;
     }
 }

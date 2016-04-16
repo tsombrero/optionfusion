@@ -102,16 +102,18 @@ public class SharedViewHolders {
                 changeView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        stockQuoteViewConfig.setShowAsPercentage(!stockQuoteViewConfig.isShowAsPercentage());
+                        if (stockQuoteViewConfig != null)
+                            stockQuoteViewConfig.setShowAsPercentage(!stockQuoteViewConfig.isShowAsPercentage());
                     }
                 });
             }
 
-            if (symbolSelectedListener != null && stockQuote != null) {
+            if (symbolSelectedListener != null) {
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        symbolSelectedListener.onSymbolSelected(stockQuote.getSymbol());
+                        if (stockQuote != null)
+                            symbolSelectedListener.onSymbolSelected(stockQuote.getSymbol());
                     }
                 });
             }

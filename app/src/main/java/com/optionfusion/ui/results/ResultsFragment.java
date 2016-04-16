@@ -97,7 +97,8 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
     public void onResume() {
         super.onResume();
         symbol = getArguments().getString(ARG_SYMBOL);
-        bus.register(this);
+        if (!bus.isRegistered(this))
+            bus.register(this);
         initView();
     }
 
@@ -105,7 +106,8 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
     public void onPause() {
         super.onPause();
         resultsAdapter = null;
-        bus.unregister(this);
+        if (bus.isRegistered(this))
+            bus.unregister(this);
     }
 
     public void initView() {

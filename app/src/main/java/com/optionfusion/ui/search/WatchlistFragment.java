@@ -25,7 +25,6 @@ import com.optionfusion.BuildConfig;
 import com.optionfusion.R;
 import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.client.ClientInterfaces;
-import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.jobqueue.GetWatchlistJob;
 import com.optionfusion.jobqueue.SetWatchlistJob;
 import com.optionfusion.model.provider.Interfaces;
@@ -49,7 +48,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
 
-public class SearchFragment extends Fragment implements SharedViewHolders.SymbolSelectedListener, SwipeRefreshLayout.OnRefreshListener, AppBarLayout.OnOffsetChangedListener {
+public class WatchlistFragment extends Fragment implements SharedViewHolders.SymbolSelectedListener, SwipeRefreshLayout.OnRefreshListener, AppBarLayout.OnOffsetChangedListener {
 
     private static final String KEY_WATCHLIST = "watchlist";
     private static final String KEY_PROVIDER = "provider";
@@ -149,7 +148,7 @@ public class SearchFragment extends Fragment implements SharedViewHolders.Symbol
     }
 
     public static Fragment newInstance() {
-        return new SearchFragment();
+        return new WatchlistFragment();
     }
 
     @Override
@@ -216,13 +215,13 @@ public class SearchFragment extends Fragment implements SharedViewHolders.Symbol
             public void onSymbolSearch(String symbol) {
                 Set<String> symbols = new HashSet<>();
 
-                List<Equity> watchlist = accountClient.getAccountUser().getWatchList();
+                List<Interfaces.StockQuote> watchlist = adapter.getStockQuoteList();
 
                 if (watchlist == null)
                     watchlist = new ArrayList<>();
 
-                for (Equity equity : watchlist) {
-                    symbols.add(equity.getSymbol());
+                for (Interfaces.StockQuote stockQuote : watchlist) {
+                    symbols.add(stockQuote.getSymbol());
                 }
 
                 if (!symbols.contains(symbol)) {

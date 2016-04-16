@@ -70,7 +70,7 @@ public class OptionDataApi {
             .setIssuer("https://accounts.google.com")
             .build();
 
-    private static final int MAX_RESULTS = 20;
+    private static final int MAX_RESULTS = 50;
     private static final Logger log = Logger.getLogger(OptionDataApi.class.getSimpleName());
 
     @ApiMethod(httpMethod = "GET", path = "getTickersMatching")
@@ -88,26 +88,24 @@ public class OptionDataApi {
             Collections.sort(ret, Equity.TICKER_COMPARATOR);
         }
 
-        if (ret.size() < MAX_RESULTS) {
-            equities = ofy().load().type(Equity.class)
-                    .filter(startsWithFilter(Equity.KEYWORDS, searchString.toLowerCase()))
-                    .limit(MAX_RESULTS - ret.size())
-                    .list();
+        equities = ofy().load().type(Equity.class)
+                .filter(startsWithFilter(Equity.KEYWORDS, searchString.toLowerCase()))
+                .limit(MAX_RESULTS)
+                .list();
 
-            if (equities != null) {
-                equities.removeAll(ret);
-                Collections.sort(equities, Equity.TICKER_COMPARATOR);
-                ret.addAll(equities);
-            }
+        if (equities != null) {
+            equities.removeAll(ret);
+            Collections.sort(equities, Equity.TICKER_COMPARATOR);
+            ret.addAll(equities);
         }
 
         List<Equity> toRemove = new ArrayList<>();
-        for (Equity equity : equities) {
+        for (Equity equity : ret) {
             if (equity.getEodStockQuote() == null || equity.getEodStockQuote().getClose() <= 0d)
                 toRemove.add(equity);
         }
 
-        equities.removeAll(toRemove);
+        ret.removeAll(toRemove);
 
         if (ret.isEmpty()) {
             ret.add(new Equity("No Matches", "", null));
@@ -265,13 +263,21 @@ public class OptionDataApi {
         List<Key<Equity>> keyList = new ArrayList<>();
 
         for (String ticker : tickers) {
+            if (TextUtils.isEmpty(ticker))
+                continue;
             keyList.add(Key.create(Equity.class, ticker));
         }
+
+        if (keyList.isEmpty())
+            return new ArrayList<>();
 
         return new ArrayList<>(ofy().load().keys(keyList).values());
     }
 
     private StockQuote getStockQuote(String ticker, DateTime dateTime) {
+        if (TextUtils.isEmpty(ticker))
+            return null;
+
         Key<Equity> equityKey = Key.create(Equity.class, ticker);
         return ofy().load().key(Key.create(equityKey, StockQuote.class, dateTime.getMillis())).now();
     }

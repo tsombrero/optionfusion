@@ -2,6 +2,7 @@ package com.optionfusion.jobqueue;
 
 import android.content.ContentValues;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.birbit.android.jobqueue.Params;
 import com.optionfusion.com.backend.optionFusion.model.Equity;
@@ -16,6 +17,8 @@ import java.util.List;
 import static com.optionfusion.model.provider.Interfaces.StockQuote;
 
 public class GetStockQuotesJob extends BaseApiJob {
+
+    private static final String TAG = "GetStockQuotesJob";
 
     private List<StockQuote> result;
     private List<String> symbols = new ArrayList<>();
@@ -32,6 +35,7 @@ public class GetStockQuotesJob extends BaseApiJob {
                 .setGroupId(GROUP_ID_WATCHLIST)
                 .singleInstanceBy(GetStockQuotesJob.class.getSimpleName() + TextUtils.join(",", symbols)));
 
+        Log.i(TAG, "New StockQuoteJob : " + GetStockQuotesJob.class.getSimpleName() + TextUtils.join(",", symbols));
         this.symbols.addAll(symbols);
     }
 
@@ -54,6 +58,8 @@ public class GetStockQuotesJob extends BaseApiJob {
 
         if (result == null)
             throw new UnknownError("GetStockQuoteJob Failed");
+
+        Log.d(TAG, "Got " + result.size() + " quotes from server");
 
         bus.post(new StockQuotesUpdatedEvent(result));
         writeResultsToDb(result);
