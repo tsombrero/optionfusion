@@ -111,13 +111,17 @@
     <color name="text_hint">@color/foreground_lightest_grey</color>
 
     <style name="ListHeader" parent="@android:style/TextAppearance.Medium">
-        <item name="android:textColor">@color/primary_text_inverse</item>
+        <item name="android:textColor">@color/primary_text</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:paddingTop">@dimen/list_item_padding_vertical</item>
         <item name="android:paddingBottom">@dimen/list_item_padding_vertical</item>
         <item name="android:paddingRight">@dimen/list_item_padding_horizontal</item>
         <item name="android:paddingLeft">@dimen/list_item_padding_horizontal</item>
+    </style>
+
+    <style name="ListHeader.Inverse">
+        <item name="android:textColor">@color/primary_text_inverse</item>
     </style>
 
     <style name="DetailsLabel" parent="@android:style/TextAppearance.Small">

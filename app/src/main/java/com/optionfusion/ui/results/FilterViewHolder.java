@@ -1,6 +1,7 @@
 package com.optionfusion.ui.results;
 
 import android.app.Activity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,20 +11,21 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.optionfusion.ui.widgets.rangebar.RangeBar;
 import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.model.FilterSet;
 import com.optionfusion.model.filter.Filter;
 import com.optionfusion.model.filter.RoiFilter;
+import com.optionfusion.model.filter.SpreadTypeFilter;
 import com.optionfusion.model.filter.StrikeFilter;
 import com.optionfusion.model.filter.TimeFilter;
+import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
+import com.optionfusion.ui.widgets.rangebar.RangeBar;
 import com.optionfusion.util.Util;
 import com.wefika.flowlayout.FlowLayout;
 
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,6 +58,9 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
     @Bind(R.id.btn_time)
     ImageButton btnTime;
 
+    @Bind(R.id.btn_spread_types)
+    ImageButton btnSpreadTypes;
+
     @Bind(R.id.return_edit_layout)
     ViewGroup editRoiLayout;
 
@@ -64,6 +69,9 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     @Bind(R.id.strike_edit_layout)
     ViewGroup editStrikeLayout;
+
+    @Bind(R.id.spread_types_edit_layout)
+    ViewGroup editSpreadTypesLayout;
 
     @Bind(R.id.active_filters_container)
     FlowLayout activeFiltersContainer;
@@ -91,6 +99,18 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
 
     @Bind(R.id.roi_edit_value)
     EditText editRoiValue;
+
+    @Bind(R.id.bullcall)
+    TextView typesFilter_bullCallSelection;
+
+    @Bind(R.id.bearcall)
+    TextView typesFilter_bearCallSelection;
+
+    @Bind(R.id.bullput)
+    TextView typesFilter_bullPutSelection;
+
+    @Bind(R.id.bearput)
+    TextView typesFilter_bearPutSelection;
 
     private String symbol;
 
@@ -142,6 +162,9 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
                 break;
             case R.id.btn_roi:
                 onClickRoiFilter();
+                break;
+            case R.id.btn_spread_types:
+                onClickSpreadTypeFilter();
                 break;
         }
     }
@@ -203,6 +226,69 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         listener.onRangeChangeListener(rangeBarExpiration, null);
 
         showEditFilter(btnTime, editTimeLayout);
+    }
+
+    @OnClick(R.id.btn_spread_types)
+    public void onClickSpreadTypeFilter() {
+        if (editSpreadTypesLayout.getVisibility() == View.VISIBLE) {
+            resetButtons(true);
+            return;
+        }
+
+        refreshSpreadTypeFilterSelection();
+
+        showEditFilter(btnSpreadTypes, editSpreadTypesLayout);
+    }
+
+    private void refreshSpreadTypeFilterSelection() {
+        int grey = (btnSpreadTypes.getContext().getResources().getColor(R.color.foreground_light_grey));
+        int bull = (btnSpreadTypes.getContext().getResources().getColor(R.color.bull_spread_background));
+        int bear = (btnSpreadTypes.getContext().getResources().getColor(R.color.bear_spread_background));
+
+
+        SpreadTypeFilter filter = (SpreadTypeFilter) filterSet.getFilterMatching(new SpreadTypeFilter());
+        if (filter == null)
+            filter = new SpreadTypeFilter();
+
+        typesFilter_bullPutSelection.setBackgroundColor(filter.isIncluded(VerticalSpread.SpreadType.BULL_PUT) ? bull : grey);
+        typesFilter_bearCallSelection.setBackgroundColor(filter.isIncluded(VerticalSpread.SpreadType.BEAR_CALL) ? bear : grey);
+        typesFilter_bullCallSelection.setBackgroundColor(filter.isIncluded(VerticalSpread.SpreadType.BULL_CALL) ? bull : grey);
+        typesFilter_bearPutSelection.setBackgroundColor(filter.isIncluded(VerticalSpread.SpreadType.BEAR_PUT) ? bear : grey);
+    }
+
+    @OnClick({R.id.bearput, R.id.bullcall, R.id.bullput, R.id.bearcall})
+    public void onEditSpreadTypeFilter(View v) {
+
+        //can this be a tag on the view?
+        VerticalSpread.SpreadType spreadType = null;
+        switch (v.getId()) {
+            case R.id.bearcall:
+                spreadType = VerticalSpread.SpreadType.BEAR_CALL;
+                break;
+            case R.id.bearput:
+                spreadType = VerticalSpread.SpreadType.BEAR_PUT;
+                break;
+            case R.id.bullcall:
+                spreadType = VerticalSpread.SpreadType.BULL_CALL;
+                break;
+            case R.id.bullput:
+                spreadType = VerticalSpread.SpreadType.BULL_PUT;
+                break;
+            default:
+                return;
+        }
+        SpreadTypeFilter filter = (SpreadTypeFilter) filterSet.getFilterMatching(new SpreadTypeFilter());
+        if (filter == null)
+            filter = new SpreadTypeFilter();
+
+        filter.includeSpreadType(spreadType, !filter.isIncluded(spreadType));
+
+        if (TextUtils.isEmpty(filter.getPillText()))
+            removeFilterMatching(filter);
+        else
+            addFilter(filter);
+
+        refreshSpreadTypeFilterSelection();
     }
 
     private class ExpirationRangeBarListener implements RangeBar.OnRangeBarChangeListener {
@@ -340,17 +426,19 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
     }
 
     private void removeFilterMatching(Filter matchfilter) {
-        if (filterSet.removeFilterMatching(matchfilter))
+        if (filterSet.removeFilterMatching(matchfilter)) {
             resultsListener.onChange(filterSet);
+            refreshSpreadTypeFilterSelection();
+        }
     }
 
     private void resetButtons(boolean enabled) {
-        for (ImageButton btn : new ImageButton[]{btnRoi, btnStrike, btnTime}) {
+        for (ImageButton btn : new ImageButton[]{btnRoi, btnStrike, btnTime, btnSpreadTypes}) {
             btn.setEnabled(enabled);
             btn.setSelected(false);
         }
 
-        for (ViewGroup viewGroup : new ViewGroup[]{editRoiLayout, editTimeLayout, editStrikeLayout}) {
+        for (ViewGroup viewGroup : new ViewGroup[]{editRoiLayout, editTimeLayout, editStrikeLayout, editSpreadTypesLayout}) {
             viewGroup.setVisibility(View.GONE);
         }
 

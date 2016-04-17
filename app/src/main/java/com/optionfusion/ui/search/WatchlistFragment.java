@@ -284,7 +284,7 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (adapter.getStockQuoteList() != null && adapter.getStockQuoteList().size() > 0) {
+        if (adapter != null && adapter.getStockQuoteList() != null && adapter.getStockQuoteList().size() > 0) {
             outState.putInt(KEY_PROVIDER, adapter.getStockQuoteList().get(0).getProvider().ordinal());
             outState.putParcelableArrayList(KEY_WATCHLIST, adapter.getStockQuoteList());
         }

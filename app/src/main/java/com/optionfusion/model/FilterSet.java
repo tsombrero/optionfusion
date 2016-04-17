@@ -7,10 +7,13 @@ import android.os.Parcelable;
 import com.google.gson.Gson;
 import com.optionfusion.model.filter.Filter;
 import com.optionfusion.model.filter.RoiFilter;
+import com.optionfusion.model.filter.SpreadTypeFilter;
 import com.optionfusion.model.provider.Interfaces;
+import com.optionfusion.model.provider.VerticalSpread;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -159,6 +162,7 @@ public class FilterSet implements Parcelable {
         if (filterSet == null) {
             filterSet = new FilterSet();
             filterSet.addFilter(new RoiFilter(.10));
+            filterSet.addFilter(new SpreadTypeFilter(EnumSet.of(VerticalSpread.SpreadType.BULL_CALL, VerticalSpread.SpreadType.BEAR_PUT)));
         }
 
         return filterSet;

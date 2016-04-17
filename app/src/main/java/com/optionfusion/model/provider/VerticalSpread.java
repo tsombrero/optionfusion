@@ -75,10 +75,20 @@ public interface VerticalSpread extends Parcelable {
     Double getCapitalAtRisk();
 
     enum SpreadType {
-        BULL_CALL,
-        BEAR_CALL,
-        BULL_PUT,
-        BEAR_PUT;
+        BULL_CALL(true, false, true),
+        BEAR_CALL(false, true, true),
+        BULL_PUT(true, true, false),
+        BEAR_PUT(false, false, false);
+
+        public final boolean bullish;
+        public final boolean credit;
+        public final boolean call;
+
+        SpreadType(boolean bullish, boolean credit, boolean call) {
+            this.bullish = bullish;
+            this.credit = credit;
+            this.call = call;
+        }
 
         @Override
         public String toString() {

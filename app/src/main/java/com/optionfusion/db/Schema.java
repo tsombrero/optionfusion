@@ -18,7 +18,7 @@ import static com.optionfusion.db.Schema.DbConstraint.PRIMARY_KEY;
 
 public class Schema {
 
-    public final static int SCHEMA_VERSION = 5;
+    public final static int SCHEMA_VERSION = 6;
     public static final String DB_NAME = "optionfusion.db";
 
     enum DbConstraint {
@@ -148,6 +148,7 @@ public class Schema {
         SELL_SYMBOL(TEXT),
         BUY_STRIKE(REAL),
         SELL_STRIKE(REAL),
+        SPREAD_TYPE(INTEGER),
         IS_BULLISH(INTEGER),
         IS_CREDIT(INTEGER),
         NET_ASK(REAL),

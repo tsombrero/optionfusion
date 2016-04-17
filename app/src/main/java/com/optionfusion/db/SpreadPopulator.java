@@ -94,6 +94,18 @@ public class SpreadPopulator {
             case IS_BULLISH:
                 sql = "CASE when buy.strike < sell.strike THEN 1 ELSE 0 END";
                 break;
+            case SPREAD_TYPE:
+                sql = "CASE " +
+                        "when isBullCall THEN " +
+                        VerticalSpread.SpreadType.BULL_CALL.ordinal() +
+                        " when isBearPut THEN " +
+                        VerticalSpread.SpreadType.BEAR_PUT.ordinal() +
+                        " when isBearCall THEN " +
+                        VerticalSpread.SpreadType.BEAR_CALL.ordinal() +
+                        " ELSE " +
+                        VerticalSpread.SpreadType.BULL_PUT.ordinal() +
+                        " END";
+                break;
             case PRICE_AT_MAX_GAIN:
                 sql = "sell." + Schema.Options.STRIKE;
                 break;

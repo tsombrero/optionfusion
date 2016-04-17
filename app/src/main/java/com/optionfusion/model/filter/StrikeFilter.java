@@ -43,7 +43,7 @@ public class StrikeFilter extends Filter implements RangeBar.RangeBarDataProvide
     @Override
     public void addDbSelection(ArrayList<String> selections, ArrayList<String> selectionArgs) {
 
-        String str = "(" + IS_BULLISH + " = ? OR " + PRICE_AT_MAX_GAIN + " > ? AND " + PRICE_AT_MAX_GAIN + " < ? )";
+        String str = "(" + IS_BULLISH + " = ? OR (" + PRICE_AT_MAX_GAIN + " > ? AND " + PRICE_AT_MAX_GAIN + " < ? ))";
 
         selections.add(str);
         selectionArgs.add(type == Type.BULLISH ? "0" : "1");

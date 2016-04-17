@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
 
     <!--Buttons-->
     <LinearLayout
@@ -25,14 +25,14 @@
                 android:layout_width="@dimen/circle_button"
                 android:layout_height="@dimen/circle_button"
                 android:background="@drawable/shape_circle"
-                android:src="@drawable/ic_today_24dp" />
+                android:src="@drawable/ic_today_24dp"/>
 
             <TextView
                 style="@style/FilterButtonText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Time" />
+                android:text="Time"/>
         </LinearLayout>
 
         <LinearLayout
@@ -48,14 +48,14 @@
                 android:layout_width="@dimen/circle_button"
                 android:layout_height="@dimen/circle_button"
                 android:background="@drawable/shape_circle"
-                android:src="@drawable/ic_attach_money_black_24px" />
+                android:src="@drawable/ic_attach_money_black_24px"/>
 
             <TextView
                 style="@style/FilterButtonText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Strike" />
+                android:text="Strike"/>
 
         </LinearLayout>
 
@@ -72,14 +72,37 @@
                 android:layout_width="@dimen/circle_button"
                 android:layout_height="@dimen/circle_button"
                 android:background="@drawable/shape_circle"
-                android:src="@drawable/ic_trending_up_black_24px" />
+                android:src="@drawable/ic_trending_up_black_24px"/>
 
             <TextView
                 style="@style/FilterButtonText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Return" />
+                android:text="Return"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+
+            <ImageButton
+                android:id="@+id/btn_spread_types"
+                style="@style/FilterButton"
+                android:layout_width="@dimen/circle_button"
+                android:layout_height="@dimen/circle_button"
+                android:background="@drawable/shape_circle"
+                android:src="@drawable/ic_swap_vert_black_24dp"/>
+
+            <TextView
+                style="@style/FilterButtonText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Kind"/>
         </LinearLayout>
 
     </LinearLayout>
@@ -88,7 +111,7 @@
     <FrameLayout
         android:id="@+id/filter_adjust_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content">
 
         <!-- the minimum ROI editor -->
 
@@ -107,7 +130,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:text="Potential return:" />
+                android:text="Potential return:"/>
 
             <EditText
                 android:id="@+id/roi_edit_value"
@@ -120,7 +143,7 @@
                 android:inputType="numberDecimal"
                 android:singleLine="true"
                 android:textDirection="ltr"
-                android:textIsSelectable="false" />
+                android:textIsSelectable="false"/>
 
             <TextView
                 style="@style/FilterItemLabel"
@@ -128,7 +151,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBaseline="@id/return_edit_label"
                 android:layout_toRightOf="@id/roi_edit_value"
-                android:text="% / year" />
+                android:text="% / year"/>
 
         </RelativeLayout>
 
@@ -139,7 +162,7 @@
             style="@style/filtercard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/expiration_filter_label"
@@ -148,7 +171,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:text="Expiration" />
+                android:text="Expiration"/>
 
             <TextView
                 android:id="@+id/rangebar_expiration_text"
@@ -163,7 +186,7 @@
                 style="@style/rangebar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/rangebar_expiration_text" />
+                android:layout_below="@id/rangebar_expiration_text"/>
 
         </RelativeLayout>
 
@@ -186,7 +209,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:text="Include Options for Bullish Spreads" />
+                android:text="Include Options for Bullish Spreads"/>
 
             <TextView
                 android:id="@+id/strike_edit_bullish_text"
@@ -198,10 +221,10 @@
 
             <com.optionfusion.ui.widgets.rangebar.RangeBar
                 android:id="@+id/strike_edit_bullish"
+                style="@style/rangebar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/strike_edit_bullish_text"
-                style="@style/rangebar"
                 app:barColor="@color/rangebar_green"
                 app:barColorLeft="@color/rangebar_red"
                 app:connectingLineColor="@color/rangebar_green"
@@ -216,27 +239,153 @@
                 android:layout_below="@id/strike_edit_bullish"
                 android:layout_marginLeft="@dimen/activity_vertical_margin"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:text="Include Options for Bearish Spreads" />
+                android:text="Include Options for Bearish Spreads"/>
 
             <TextView
                 android:id="@+id/strike_edit_bearish_text"
                 style="@style/RangebarValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/strike_edit_bearish_label" />
+                android:layout_below="@id/strike_edit_bearish_label"/>
 
             <com.optionfusion.ui.widgets.rangebar.RangeBar
                 android:id="@+id/strike_edit_bearish"
+                style="@style/rangebar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/strike_edit_bearish_text"
-                style="@style/rangebar"
                 app:barColor="@color/rangebar_red"
                 app:barColorLeft="@color/rangebar_green"
                 app:connectingLineColor="@color/rangebar_green"
-                app:selectorColor="@color/rangebar_green" />
+                app:selectorColor="@color/rangebar_green"/>
 
         </RelativeLayout>
+
+        <!-- Spread Types filter -->
+
+        <LinearLayout
+            android:id="@+id/spread_types_edit_layout"
+            style="@style/filtercard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/activity_vertical_margin"
+            android:paddingRight="@dimen/activity_vertical_margin"
+            android:visibility="gone">
+
+            <TextView
+                style="@style/FilterItemLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:text="Vertical Spread Types"/>
+
+            <TextView
+                style="@style/HintTextSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:text="Select to include"
+                android:layout_marginBottom="10dp"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp"
+                >
+
+                <TextView
+                    style="@style/DetailsLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:text="Debit"
+                    />
+
+                <TextView
+                    style="@style/DetailsLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:text="Credit"
+                    />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/bullcall"
+                    style="@style/ListHeader.Inverse"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_margin="2dp"
+                    android:gravity="center_horizontal"
+                    android:background="@color/bull_spread_background"
+                    android:text="Bull Call"
+                    />
+
+                <TextView
+                    android:id="@+id/bullput"
+                    style="@style/ListHeader.Inverse"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_margin="2dp"
+                    android:background="@color/bull_spread_background"
+                    android:gravity="center_horizontal"
+                    android:text="Bull Put"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/bearput"
+                    style="@style/ListHeader.Inverse"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_margin="2dp"
+                    android:background="@color/bear_spread_background"
+                    android:gravity="center_horizontal"
+                    android:text="Bear Put"
+                    />
+
+                <TextView
+                    android:id="@+id/bearcall"
+                    style="@style/ListHeader.Inverse"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_margin="2dp"
+                    android:background="@color/bear_spread_background"
+                    android:gravity="center_horizontal"
+                    android:text="Bear Call"
+                    />
+            </LinearLayout>
+
+        </LinearLayout>
 
     </FrameLayout>
 
@@ -248,13 +397,13 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
         android:layout_marginTop="32dp"
-        android:text="Add filters to refine results" />
+        android:text="Add filters to refine results"/>
 
     <com.wefika.flowlayout.FlowLayout
         android:id="@+id/active_filters_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="start|top" />
+        android:gravity="start|top"/>
 
 
 </LinearLayout>

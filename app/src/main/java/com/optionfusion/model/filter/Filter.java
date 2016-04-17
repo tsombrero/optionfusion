@@ -41,6 +41,8 @@ abstract public class Filter implements Parcelable {
                     return gson.fromJson(json, TimeFilter.class);
                 case STRIKE:
                     return gson.fromJson(json, StrikeFilter.class);
+                case SPREAD_TYPE:
+                    return gson.fromJson(json, SpreadTypeFilter.class);
             }
         } catch (Throwable t) {
             Log.w(TAG, "fromJson: Failed parsing filter " + json, t);
@@ -59,6 +61,8 @@ abstract public class Filter implements Parcelable {
                     return new TimeFilter(in);
                 case STRIKE:
                     return new StrikeFilter(in);
+                case SPREAD_TYPE:
+                    return new SpreadTypeFilter(in);
             }
             return null;
         }
@@ -71,6 +75,7 @@ abstract public class Filter implements Parcelable {
     public enum FilterType {
         ROI,
         TIME,
-        STRIKE
+        STRIKE,
+        SPREAD_TYPE
     }
 }
