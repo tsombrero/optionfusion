@@ -22,4 +22,10 @@
     <string name="title_trade_cost">Capital at Risk</string>
     <string name="connection_failed">Connection failed</string>
     <string name="error_sign_in">Please use Google to sign in</string>
+    <string name="prices_as_of_market_close_s">Prices as of market close %s</string>
+    <string name="sounds_good">Sounds good</string>
+    <string name="why_eod_text">Option Fusion is currently limited to end-of-day market data, updated daily around 5pm EST. \n\nIn the future we\'ll be offering a subscription-based upgrade to professional quality real-time stock and option quotes.\n\nLet us know if you\'re interested!</string>
+    <string name="we_re_just_getting_started">We\'re just getting started!</string>
+    <string name="notify_me_when_the_real_time_upgrade_is_available">Notify me when the real-time upgrade is available</string>
+    <string name="ok">OK</string>
 </resources>

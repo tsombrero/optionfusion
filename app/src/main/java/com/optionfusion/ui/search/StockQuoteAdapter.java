@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuoteViewHolder> {
+class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuoteListViewHolder> {
 
     private static final String TAG = "StockQuoteAdapter";
 
@@ -46,9 +46,9 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
         watchlistFragment.bus.register(this);
     }
 
-    public void removeItem(int index) {
-        notifyItemRemoved(index);
-        stockQuoteList.remove(index);
+    public void removeItem(int pos) {
+        stockQuoteList.remove(pos2index(pos));
+        notifyItemRemoved(pos);
         watchlistFragment.jobManager.addJobInBackground(SetWatchlistJob.fromStockQuoteList(stockQuoteList));
     }
 
@@ -116,21 +116,41 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
     }
 
     @Override
-    public SharedViewHolders.StockQuoteViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_stock_quote, parent, false);
-        return new SharedViewHolders.StockQuoteViewHolder(v, watchlistFragment.viewConfig, watchlistFragment, watchlistFragment.bus);
+    public SharedViewHolders.StockQuoteListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        switch (ViewTypes.values()[viewType]) {
+            case STOCKQUOTE: {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_stock_quote, parent, false);
+                return new SharedViewHolders.StockQuoteViewHolder(v, watchlistFragment.viewConfig, watchlistFragment, watchlistFragment.bus);
+            }
+            default: {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_timestamp_header, parent, false);
+                return new SharedViewHolders.MarketDataTimestampHeaderViewHolder(v, watchlistFragment.getFragmentManager(), watchlistFragment.jobManager, watchlistFragment.accountClient);
+            }
+        }
+    }
+
+    enum ViewTypes {
+        HEADER, STOCKQUOTE
     }
 
     @Override
-    public void onBindViewHolder(SharedViewHolders.StockQuoteViewHolder holder, int position) {
-        // no need to get individual quotes, they come back from the watchlist
-//        searchFragment.stockQuoteProvider.getFromSymbol(stockQuoteList.get(position).getSymbol());
-        holder.bind(stockQuoteList.get(position));
+    public int getItemViewType(int position) {
+        if (position == 0)
+            return ViewTypes.HEADER.ordinal();
+        return ViewTypes.STOCKQUOTE.ordinal();
+    }
+
+    @Override
+    public void onBindViewHolder(SharedViewHolders.StockQuoteListViewHolder holder, int position) {
+        if (stockQuoteList.isEmpty())
+            return;
+
+        holder.bind(stockQuoteList.get(pos2index(position)));
     }
 
     @Override
     public int getItemCount() {
-        return stockQuoteList == null ? 0 : stockQuoteList.size();
+        return stockQuoteList == null || stockQuoteList.isEmpty() ? 0 : stockQuoteList.size() + 1;
     }
 
     public ArrayList<Interfaces.StockQuote> getStockQuoteList() {
@@ -163,7 +183,7 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
                 }
             }
             this.stockQuoteList = new ArrayList<>(newStockQuoteList);
-            notifyItemInserted(i);
+            notifyItemInserted(index2pos(i));
         } else if (newStockQuoteList.size() == this.stockQuoteList.size()) {
             // Update the ones that changed
             for (int i = 0; i < this.stockQuoteList.size(); i++) {
@@ -173,7 +193,7 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
                 } else {
                     if (stockQuoteList.get(i).getQuoteTimestamp() < newStockQuoteList.get(i).getQuoteTimestamp()) {
                         this.stockQuoteList.set(i, newStockQuoteList.get(i));
-                        notifyItemChanged(i);
+                        notifyItemChanged(index2pos(i));
                     }
                 }
             }
@@ -186,5 +206,13 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
             Log.i(TAG, "notifyDataSetChanged");
             notifyDataSetChanged();
         }
+    }
+
+    private int pos2index(int pos) {
+        return Math.max(0, pos - 1);
+    }
+
+    private int index2pos(int index) {
+        return index + 1;
     }
 }

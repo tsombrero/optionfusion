@@ -1,16 +1,29 @@
 package com.optionfusion.ui;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.TouchDelegate;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.birbit.android.jobqueue.JobManager;
 import com.optionfusion.R;
+import com.optionfusion.client.ClientInterfaces;
+import com.optionfusion.client.FusionClient;
+import com.optionfusion.com.backend.optionFusion.model.FusionUser;
+import com.optionfusion.jobqueue.SetUserDataJob;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
@@ -18,9 +31,11 @@ import com.optionfusion.ui.widgets.PriceChangeView;
 import com.optionfusion.util.Util;
 
 import org.greenrobot.eventbus.EventBus;
+import org.joda.time.DateTime;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class SharedViewHolders {
 
@@ -53,8 +68,19 @@ public class SharedViewHolders {
         }
     }
 
-    public static class StockQuoteViewHolder extends RecyclerView.ViewHolder {
-        private final View view;
+    public abstract static class StockQuoteListViewHolder extends RecyclerView.ViewHolder {
+
+        protected final View view;
+
+        public StockQuoteListViewHolder(View view) {
+            super(view);
+            this.view = view;
+            ButterKnife.bind(this, view);
+        }
+        public abstract void bind(Interfaces.StockQuote stockQuote);
+    }
+
+    public static class StockQuoteViewHolder extends StockQuoteListViewHolder {
 
         @Bind(R.id.ticker)
         TextView tickerView;
@@ -74,13 +100,11 @@ public class SharedViewHolders {
 
         public StockQuoteViewHolder(final View itemView, final StockQuoteViewConfig stockQuoteViewConfig, final SymbolSelectedListener symbolSelectedListener, EventBus bus) {
             super(itemView);
-            this.view = itemView;
             this.stockQuoteViewConfig = stockQuoteViewConfig;
 
             if (this.stockQuoteViewConfig == null)
                 this.stockQuoteViewConfig = new StockQuoteViewConfig();
 
-            ButterKnife.bind(this, view);
             changeView.observe(bus);
 
             itemView.post(new Runnable() {
@@ -322,4 +346,80 @@ public class SharedViewHolders {
         }
     }
 
+    public static class MarketDataTimestampHeaderViewHolder extends StockQuoteListViewHolder {
+
+        private final FragmentManager fragmentManager;
+        private final JobManager jobManager;
+        private final ClientInterfaces.AccountClient accountClient;
+        @Bind(R.id.info)
+        ImageView info;
+
+        @Bind(R.id.market_data_timestamp)
+        TextView textView;
+
+        public MarketDataTimestampHeaderViewHolder(View v, FragmentManager fragmentManager, JobManager jobManager, ClientInterfaces.AccountClient accountClient) {
+            super(v);
+            this.fragmentManager = fragmentManager;
+            this.jobManager = jobManager;
+            this.accountClient = accountClient;
+            ButterKnife.bind(this, v);
+        }
+
+        @Override
+        public void bind(Interfaces.StockQuote stockQuote) {
+            DateTime dateTime = new DateTime(stockQuote.getQuoteTimestamp());
+            String dOw = dateTime.dayOfWeek().getAsText();
+            String format = info.getContext().getResources().getString(R.string.prices_as_of_market_close_s);
+            textView.setText(String.format(format, dOw));
+        }
+
+        @OnClick(R.id.info)
+        public void onShowInfo() {
+            ShowInfoDialog dialog = new ShowInfoDialog();
+            dialog.jobManager = this.jobManager;
+            dialog.isNotifySet = TextUtils.equals(FusionClient.USERDATA_TRUE, accountClient.getUserData(FusionClient.USERDATA_NOTIFY_UPGRADE));
+            dialog.show(fragmentManager, null);
+        }
+
+        public static class ShowInfoDialog extends DialogFragment {
+            @Bind(R.id.checkbox)
+            CheckBox checkbox;
+            private boolean checkboxDirty;
+            public JobManager jobManager;
+            public boolean isNotifySet;
+
+            @Override
+            public void onCreate(@Nullable Bundle savedInstanceState) {
+                setStyle(DialogFragment.STYLE_NO_FRAME, R.style.DialogTheme);
+                super.onCreate(savedInstanceState);
+            }
+
+            @Nullable
+            @Override
+            public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+                View v = inflater.inflate(R.layout.dialog_why_eod, container, false);
+                ButterKnife.bind(this, v);
+                checkbox.setChecked(isNotifySet);
+                return v;
+            }
+
+            @OnClick(R.id.checkbox)
+            public void onClickCheckbox() {
+                checkboxDirty = true;
+            }
+
+            @OnClick(R.id.submit)
+            public void onOkClicked() {
+                dismiss();
+            }
+
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                super.onDismiss(dialog);
+                if (checkboxDirty && jobManager != null) {
+                    jobManager.addJobInBackground(new SetUserDataJob(FusionClient.USERDATA_NOTIFY_UPGRADE, checkbox.isChecked() ? FusionClient.USERDATA_TRUE : null));
+                }
+            }
+        }
+    }
 }

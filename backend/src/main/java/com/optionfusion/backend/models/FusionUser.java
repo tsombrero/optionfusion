@@ -1,7 +1,5 @@
 package com.optionfusion.backend.models;
 
-import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
@@ -10,10 +8,9 @@ import com.googlecode.objectify.annotation.Ignore;
 import com.googlecode.objectify.annotation.Index;
 import com.googlecode.objectify.annotation.Load;
 import com.googlecode.objectify.annotation.OnLoad;
-import com.optionfusion.backend.utils.Util;
+import com.optionfusion.backend.utils.TextUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,7 +30,7 @@ public class FusionUser {
     @Ignore
     List<Equity> materializedWatchlist = new ArrayList<>();
 
-    Map<String, String> userData = new HashMap<>();
+    Map<String, String> userDataMap = new HashMap<>();
 
     List<Position> savedPositions = new ArrayList<>();
 
@@ -83,6 +80,10 @@ public class FusionUser {
         this.lastLogin = lastLogin;
     }
 
+    public Map<String, String> getUserDatamap() {
+        return userDataMap;
+    }
+
     public List<Equity> getMaterializedWatchlist() {
         return materializedWatchlist;
     }
@@ -114,25 +115,21 @@ public class FusionUser {
         }
     }
 
-//    public String getUserData(String key) {
-//        return userData.get(key);
-//    }
-//
-//    public void setUserData(String key, String value) {
-//        if (key == null)
-//            return;
-//
-//        if (value == null)
-//            userData.remove(key);
-//
-//        userData.put(key, value);
-//    }
+    public void setUserData(String userDataKey, String userDataValue) {
+        if (TextUtils.isEmpty(userDataKey))
+            return;
 
-//    public void addPositionToSaved(Position position) {
-//
-//    }
-//
-//    public void getSavedPositions() {
-//
-//    }
+        if (TextUtils.isEmpty(userDataValue))
+            userDataMap.remove(userDataKey);
+        else
+            userDataMap.put(userDataKey, userDataValue);
+    }
+
+    public String getUserData(String userDataKey) {
+        return userDataMap.get(userDataKey);
+    }
+
+    public List<Position> getSavedPositions() {
+        return savedPositions;
+    }
 }

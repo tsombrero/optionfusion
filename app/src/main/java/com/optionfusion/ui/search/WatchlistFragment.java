@@ -236,6 +236,8 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
         dialog.show(ft, null);
     }
 
+
+
     public static class AddToWatchlistDialog extends DialogFragment implements SymbolSearchTextView.SymbolSearchListener {
 
         private SymbolSearchTextView.SymbolSearchListener listener;

@@ -58,7 +58,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -66,6 +68,10 @@ import javax.inject.Inject;
 import dagger.Lazy;
 
 public class FusionClient implements ClientInterfaces.SymbolLookupClient, ClientInterfaces.OptionChainClient, ClientInterfaces.AccountClient, ClientInterfaces.StockQuoteClient {
+
+    public static final String USERDATA_TRUE = "1";
+    public static final String USERDATA_NONE = "";
+    public static final String USERDATA_NOTIFY_UPGRADE = "USERDATA_NOTIFY_UPGRADE";
 
     OptionFusion optionFusionApi;
 
@@ -90,6 +96,8 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
     GoogleSignInResult signinResult;
     private List<Interfaces.StockQuote> watchlist;
+
+    private Map<String, String> userData = new HashMap<>();
 
     public FusionClient(Context context) {
         OptionFusionApplication.from(context).getComponent().inject(this);
@@ -192,7 +200,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     public List<Interfaces.StockQuote> getStockQuotes(Collection<String> symbols) {
 
         String param = null;
-        List<Interfaces.StockQuote> ret = new ArrayList<>();
+        List<Interfaces.StockQuote> ret = null;
 
         if (symbols != null)
             param = TextUtils.join(",", symbols);
@@ -205,9 +213,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             }
 
             Log.d(TAG, "Got " + e.getItems().size() + " quotes from service");
-            for (Equity equity : e.getItems()) {
-                ret.add(new FusionStockQuote(equity));
-            }
+            ret = getStockQuoteList(e.getItems());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -292,7 +298,11 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                         FusionUser user = new FusionUser();
                         user.setDisplayName(account.getDisplayName());
                         fusionUser = getEndpoints().optionDataApi().loginUser(user).execute();
-                        Log.d(TAG, fusionUser.toString());
+
+                        if (fusionUser.getUserDatamap() != null)
+                            for (Map.Entry<String, Object> stringObjectEntry : fusionUser.getUserDatamap().entrySet()) {
+                                userData.put(stringObjectEntry.getKey(), String.valueOf(stringObjectEntry.getValue()));
+                            }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -312,14 +322,8 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             if (fusionUser != null)
                 fusionUser.setWatchlist(equityCollection.getItems());
 
-            ArrayList<Interfaces.StockQuote> ret = new ArrayList<>();
-            if (equityCollection.getItems() != null) {
-                for (Equity equity : equityCollection.getItems()) {
-                    ret.add(new FusionStockQuote(equity));
-                }
-            }
-            watchlist = ret;
-            return ret;
+            watchlist = getStockQuoteList(equityCollection.getItems());
+            return watchlist;
         }
         return null;
     }
@@ -328,16 +332,40 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     public List<Interfaces.StockQuote> getWatchlist() throws IOException {
         if (watchlist == null) {
             FusionUser user = getAccountUser();
-            if (user != null && user.getMaterializedWatchlist() != null) {
-                List<Interfaces.StockQuote> newWatchlist = new ArrayList<>();
-                List<Equity> equities = user.getMaterializedWatchlist();
-                for (Equity equity : equities) {
-                    newWatchlist.add(new FusionStockQuote(equity));
-                }
-                watchlist = newWatchlist;
+            if (user != null) {
+                watchlist = getStockQuoteList(user.getMaterializedWatchlist());
             }
         }
         return watchlist;
+    }
+
+    @Override
+    public void setUserData(String userDataKey, String userDataValue) throws IOException {
+        synchronized (TAG) {
+            if (userDataValue == null) {
+                userData.remove(userDataKey);
+                userDataValue = USERDATA_NONE;
+            } else
+                userData.put(userDataKey, userDataValue);
+        }
+
+        getEndpoints().optionDataApi().setUserData(userDataKey, userDataValue).execute();
+    }
+
+    private static List<Interfaces.StockQuote> getStockQuoteList(Collection<Equity> equities) {
+        List ret = new ArrayList<>();
+        if (equities != null)
+            for (Equity equity : equities) {
+                ret.add(new FusionStockQuote(equity));
+            }
+        return ret;
+    }
+
+    @Override
+    public String getUserData(String userDataKey) {
+        synchronized (TAG) {
+            return userData.get(userDataKey);
+        }
     }
 
     @Override
@@ -401,13 +429,8 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         };
     }
 
-    // Code borrowed from GoogleAccountCredential
     class RequestHandler implements HttpExecuteInterceptor, HttpUnsuccessfulResponseHandler {
 
-        /**
-         * Whether we've received a 401 error code indicating the token is invalid.
-         */
-        boolean received401;
         String token;
 
         public void intercept(HttpRequest request) throws IOException {
@@ -417,17 +440,6 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
         public boolean handleResponse(
                 HttpRequest request, HttpResponse response, boolean supportsRetry) {
-//            if (response.getStatusCode() == 401 && !received401) {
-//                received401 = true;
-//                try {
-//                    GoogleAuthUtil.clearToken(context, token);
-//                } catch (GoogleAuthException e) {
-//                    e.printStackTrace();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//                return true;
-//            }
             return false;
         }
     }

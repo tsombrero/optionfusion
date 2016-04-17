@@ -243,7 +243,7 @@
     <!--Hint-->
     <TextView
         android:id="@+id/filter_hint"
-        style="@style/filterHint"
+        style="@style/HintText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"

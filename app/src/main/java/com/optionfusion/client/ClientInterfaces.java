@@ -92,5 +92,8 @@ public class ClientInterfaces {
         FusionUser getAccountUser();
         List<Interfaces.StockQuote> setWatchlist(Collection<String> symbols) throws IOException;
         List<Interfaces.StockQuote> getWatchlist() throws IOException;
+
+        void setUserData(String key, String value) throws IOException;
+        String getUserData(String key);
     }
 }

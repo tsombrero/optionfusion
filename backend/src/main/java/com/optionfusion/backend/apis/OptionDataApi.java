@@ -13,7 +13,6 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
-import com.google.api.server.spi.response.UnauthorizedException;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
@@ -171,6 +170,14 @@ public class OptionDataApi {
         return ret;
     }
 
+    @ApiMethod(httpMethod = "POST", path="setUserData")
+    public final void setUserData(HttpServletRequest req, @Named("userDataKey") String key, @Named("userDataValue") String value, User user) throws OAuthRequestException {
+        user = ensureLoggedIn(user, req);
+
+        FusionUser fuser = getFusionUser(user.getEmail());
+        fuser.setUserData(key, value);
+        ofy().save().entity(fuser).now();
+    }
 
     private User getUserFromToken(HttpServletRequest req) throws OAuthRequestException {
         String tokenString = req.getHeader("Authorization").replace("Bearer ", "");
@@ -294,7 +301,7 @@ public class OptionDataApi {
                 new FilterPredicate(field, LESS_THAN, q + Character.MAX_VALUE));
     }
 
-    private void ensureLoggedIn(User user, HttpServletRequest req) throws OAuthRequestException {
+    private User ensureLoggedIn(User user, HttpServletRequest req) throws OAuthRequestException {
         if (user == null)
             log.severe("User is null");
 
@@ -307,5 +314,7 @@ public class OptionDataApi {
 
         if (user == null)
             throw new OAuthRequestException("Please authenticate first");
+
+        return user;
     }
 }

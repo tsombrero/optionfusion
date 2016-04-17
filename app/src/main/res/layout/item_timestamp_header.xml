@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:paddingBottom="12dp"
+        >
+
+        <TextView
+            android:id="@+id/market_data_timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/HintTextSmall"
+            android:text="@string/prices_as_of_market_close_s"
+            />
+
+        <ImageView
+            android:id="@+id/info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:src="@drawable/ic_info_black_24dp"
+            android:tint="@color/foreground_middle_grey"
+            android:tintMode="multiply"
+            />
+
+    </LinearLayout>
+
+</FrameLayout>
