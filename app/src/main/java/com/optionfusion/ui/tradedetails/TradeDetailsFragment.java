@@ -127,18 +127,19 @@ public class TradeDetailsFragment extends Fragment {
         new SharedViewHolders.StockQuoteViewHolder(stockQuoteLayout, null, null, bus).bind(stockQuote);
         new SharedViewHolders.BriefTradeDetailsHolder(briefDetailsLayout).bind(spread);
 
-        View buyLayout = getActivity().getLayoutInflater().inflate(R.layout.incl_option_quote, null);
-        new SharedViewHolders.OptionLegHolder(buyLayout).bind(1, spread.getBuy());
-        tradeContainer.addView(buyLayout);
+        if (tradeContainer.getChildCount() <= 1) {
+                View buyLayout = getActivity().getLayoutInflater().inflate(R.layout.incl_option_quote, null);
+            new SharedViewHolders.OptionLegHolder(buyLayout).bind(1, spread.getBuy());
+            tradeContainer.addView(buyLayout);
 
-        View sellLayout = getActivity().getLayoutInflater().inflate(R.layout.incl_option_quote, null);
-        new SharedViewHolders.OptionLegHolder(sellLayout).bind(-1, spread.getSell());
-        tradeContainer.addView(sellLayout);
+            View sellLayout = getActivity().getLayoutInflater().inflate(R.layout.incl_option_quote, null);
+            new SharedViewHolders.OptionLegHolder(sellLayout).bind(-1, spread.getSell());
+            tradeContainer.addView(sellLayout);
 
-        View totalLayout = getActivity().getLayoutInflater().inflate(R.layout.incl_trade_quote_total, null);
-        new SharedViewHolders.OptionTradeBidAskHolder(totalLayout).bind(spread);
-        tradeContainer.addView(totalLayout);
-
+            View totalLayout = getActivity().getLayoutInflater().inflate(R.layout.incl_trade_quote_total, null);
+            new SharedViewHolders.OptionTradeBidAskHolder(totalLayout).bind(spread);
+            tradeContainer.addView(totalLayout);
+        }
         textMaxLoss.setText((spread.isBullSpread() ? "Below " : "Above ") + Util.formatDollars(spread.getBuy().getStrike()));
 
         initTradeProfitChart();

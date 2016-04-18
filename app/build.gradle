@@ -32,8 +32,8 @@ android {
         applicationId "com.optionfusion"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 4
-        versionName "0.4a"
+        versionCode 5
+        versionName "0.5a"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 

@@ -8,7 +8,7 @@
     <string name="formatPriceAtBreakEven">Break Even Price</string>
     <string name="bid_ask">Bid/Ask</string>
     <string name="timeToExp">Expires</string>
-    <string name="maxReturn">Max Gain</string>
+    <string name="maxReturn">Potential Gain</string>
     <string name="annualized">Annualized</string>
     <string name="expires_before">Expires before</string>
     <string name="expires_after">Expires after</string>
@@ -28,4 +28,11 @@
     <string name="we_re_just_getting_started">We\'re just getting started!</string>
     <string name="notify_me_when_the_real_time_upgrade_is_available">Notify me when the real-time upgrade is available</string>
     <string name="ok">OK</string>
+    <string name="total_loss_price">Total loss price</string>
+    <string name="gain_at_expiration">Gain at Expiration</string>
+    <string name="the_trade">The Trade:</string>
+    <string name="exp">Exp</string>
+    <string name="strike">Strike</string>
+    <string name="type">Type</string>
+    <string name="qty">Qty</string>
 </resources>

@@ -62,7 +62,7 @@
                     style="@style/DetailsLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="100% loss price"
+                    android:text="@string/total_loss_price"
                     />
 
                 <TextView
@@ -83,7 +83,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="@dimen/list_item_padding_vertical"
-                android:text="Gain % at Expiration"
+                android:text="@string/gain_at_expiration"
                 />
 
             <lecho.lib.hellocharts.view.LineChartView
@@ -105,7 +105,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="@dimen/list_item_padding_vertical"
-                android:text="The Trade:"
+                android:text="@string/the_trade"
                 />
 
             <LinearLayout

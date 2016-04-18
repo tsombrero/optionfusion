@@ -38,6 +38,9 @@ public class Util {
     private static final GregorianCalendar calendar = new GregorianCalendar();
 
     public static String formatDollars(Double val) {
+        if (val < 0) {
+            return "CR " + dollarFormat.format(Math.abs(val));
+        }
         return dollarFormat.format(val);
     }
 

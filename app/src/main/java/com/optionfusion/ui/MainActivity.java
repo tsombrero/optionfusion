@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.feedback:
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://plus.google.com/communities/117581253558561684569")));
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://plus.google.com/u/0/communities/118313361926845006072")));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
