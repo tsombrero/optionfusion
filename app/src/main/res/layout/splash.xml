@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
@@ -18,7 +19,7 @@
         android:layout_height="200dp"
         android:layout_above="@id/bottomBackground"
         android:scaleType="centerCrop"
-        android:src="@drawable/shape_spread_down_left"
+        app:srcCompat="@drawable/shape_spread_down_left"
         android:tint="@color/material_green_A700"
         />
 
@@ -28,7 +29,7 @@
         android:layout_height="200dp"
         android:layout_above="@id/bottomBackground"
         android:scaleType="centerCrop"
-        android:src="@drawable/shape_spread_up_right"
+        app:srcCompat="@drawable/shape_spread_up_right"
         android:tint="@color/material_indigo_500"
         />
 

@@ -20,6 +20,7 @@ import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.google.api.client.http.HttpExecuteInterceptor;
@@ -270,7 +271,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                     .put(Options.BID, optionQuote.getBid())
                     .put(Options.ASK, optionQuote.getAsk())
                     .put(Options.STRIKE, optionQuote.getStrike())
-                    .put(Options.EXPIRATION, dateChain.getExpiration())
+                    .put(Options.EXPIRATION, Util.roundToNearestFriday(new DateTime(dateChain.getExpiration())).getMillis())
                     .put(Options.DAYS_TO_EXPIRATION, Math.max(1, Util.getDaysFromNow(new DateTime(dateChain.getExpiration()))))
                     .put(Options.IV, optionQuote.getIv())
                     .put(Options.OPTION_TYPE, optionQuote.getOptionType().name().substring(0, 1))

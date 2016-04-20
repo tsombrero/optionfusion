@@ -120,7 +120,7 @@ public class Util {
     }
 
     public static int getDaysFromNow(DateTime date) {
-        return Days.daysBetween(DateTime.now(), date).getDays();
+        return Days.daysBetween(DateTime.now(), roundToNearestFriday(date)).getDays();
     }
 
     public static String formatDollarsCompact(Double val) {

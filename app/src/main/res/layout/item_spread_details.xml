@@ -3,23 +3,22 @@
     style="@style/card"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <include layout="@layout/incl_details_header"/>
 
     <include layout="@layout/incl_details_brief"/>
 
-    <ImageButton
+    <ImageView
         android:id="@+id/btn_more"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="@dimen/actionbar_padding_vertical"
-        android:backgroundTint="@color/foreground_light_grey"
-        android:backgroundTintMode="src_in"
-        android:background="@drawable/ic_more_horiz_48dp"
+        android:alpha="0.22"
+        app:srcCompat="@drawable/ic_more_horiz_48dp"
         />
 
 </LinearLayout>

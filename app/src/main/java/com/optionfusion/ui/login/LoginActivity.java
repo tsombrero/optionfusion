@@ -11,6 +11,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -27,7 +29,7 @@ import com.optionfusion.util.SharedPrefStore;
 
 import javax.inject.Inject;
 
-public class LoginActivity extends FragmentActivity implements StartFragment.Host {
+public class LoginActivity extends AppCompatActivity implements StartFragment.Host {
 
     private static final String TAG = "LoginActivity";
 

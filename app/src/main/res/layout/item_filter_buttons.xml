@@ -25,7 +25,7 @@
                 android:layout_width="@dimen/circle_button"
                 android:layout_height="@dimen/circle_button"
                 android:background="@drawable/shape_circle"
-                android:src="@drawable/ic_today_24dp"/>
+                app:srcCompat="@drawable/ic_today_24dp"/>
 
             <TextView
                 style="@style/FilterButtonText"
@@ -48,7 +48,7 @@
                 android:layout_width="@dimen/circle_button"
                 android:layout_height="@dimen/circle_button"
                 android:background="@drawable/shape_circle"
-                android:src="@drawable/ic_attach_money_black_24px"/>
+                app:srcCompat="@drawable/ic_attach_money_black_24px"/>
 
             <TextView
                 style="@style/FilterButtonText"
@@ -72,7 +72,7 @@
                 android:layout_width="@dimen/circle_button"
                 android:layout_height="@dimen/circle_button"
                 android:background="@drawable/shape_circle"
-                android:src="@drawable/ic_trending_up_black_24px"/>
+                app:srcCompat="@drawable/ic_trending_up_black_24px"/>
 
             <TextView
                 style="@style/FilterButtonText"
@@ -95,7 +95,7 @@
                 android:layout_width="@dimen/circle_button"
                 android:layout_height="@dimen/circle_button"
                 android:background="@drawable/shape_circle"
-                android:src="@drawable/ic_swap_vert_black_24dp"/>
+                app:srcCompat="@drawable/ic_swap_vert_black_24dp"/>
 
             <TextView
                 style="@style/FilterButtonText"

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -237,7 +238,9 @@ public class SharedViewHolders {
             expiration.setText(Util.getFormattedOptionDate(spread.getExpiresDate()));
             strikes.setText(String.format("%.2f/%.2f", spread.getBuyStrike(), spread.getSellStrike()));
 
-            header.setTransitionName(getTransitionName(spread));
+
+            if (Build.VERSION.SDK_INT >= 21)
+                header.setTransitionName(getTransitionName(spread));
 
         }
 
@@ -338,7 +341,8 @@ public class SharedViewHolders {
 
             breakEvenPrice.setTextColor(color);
 
-            layout.setTransitionName(getTransitionName(spread));
+            if (Build.VERSION.SDK_INT >= 21)
+                layout.setTransitionName(getTransitionName(spread));
         }
 
         static public String getTransitionName(VerticalSpread spread) {

@@ -8,7 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/shape_pill"
-        android:drawableEnd="@drawable/ic_close_18dp"
+        android:drawableEnd="@drawable/ic_close_black_18dp"
         android:drawableTint="@color/button_normal"
         android:layout_margin="4dp"
         android:drawablePadding="8dp"

@@ -7,6 +7,7 @@ import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
@@ -65,8 +66,6 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
 
     @Inject
     ClientInterfaces.AccountClient accountClient;
-
-    FusionUser fusionUser;
 
     private static final int GOOGLE_API_CLIENTID = 2;
 
@@ -161,12 +160,13 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
     @Override
     public void showDetails(VerticalSpread spread, Fragment requestingFragment, View headerLayout, View detailsLayout, View stockInfoLayout) {
 
-        requestingFragment.setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.change_transform));
-        requestingFragment.setExitTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
-
         Fragment fragment = TradeDetailsFragment.newInstance(spread);
-        fragment.setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.change_transform));
-        fragment.setEnterTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
+        if (Build.VERSION.SDK_INT >= 21) {
+            requestingFragment.setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.change_transform));
+            requestingFragment.setExitTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
+            fragment.setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.change_transform));
+            fragment.setEnterTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
+        }
 
         fragment.setEnterSharedElementCallback(new MySharedElementCallback());
 
