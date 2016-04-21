@@ -31,10 +31,10 @@ android {
 
     defaultConfig {
         applicationId "com.optionfusion"
-        minSdkVersion 18
+        minSdkVersion 17
         targetSdkVersion 23
-        versionCode 5
-        versionName "0.5a"
+        versionCode 6
+        versionName "0.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
