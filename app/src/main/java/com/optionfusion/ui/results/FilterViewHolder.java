@@ -192,7 +192,6 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
             Log.w("Can't add filter", e);
         }
         resetButtons(true);
-        Util.hideSoftKeyboard(activity);
         return true;
     }
 
@@ -445,6 +444,9 @@ public class FilterViewHolder extends ListViewHolders.BaseViewHolder {
         filterSet.setActiveButton(0);
 
         filterHintText.setVisibility(filterSet.isEmpty() ? View.VISIBLE : View.GONE);
+
+        if (enabled)
+            Util.hideSoftKeyboard(activity);
     }
 
     private void showEditFilter(ImageButton filterButton, ViewGroup filterLayout) {

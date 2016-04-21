@@ -21,12 +21,19 @@
             app:theme="@style/Toolbar"
             />
 
-        <include
-            layout="@layout/item_stock_quote"
-            android:layout_margin="5dp"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            />
+            android:background="@android:color/white">
+
+            <include
+                layout="@layout/item_stock_quote"
+                android:layout_margin="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
+        </FrameLayout>
 
     </android.support.design.widget.AppBarLayout>
 

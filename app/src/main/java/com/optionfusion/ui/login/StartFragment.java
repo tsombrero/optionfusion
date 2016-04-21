@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -39,6 +40,9 @@ public class StartFragment extends Fragment implements GoogleApiClient.OnConnect
     @Bind(R.id.sign_in_button)
     SignInButton signInButton;
 
+    @Bind(R.id.sign_in_text)
+    TextView signInText;
+
     @Inject
     ClientInterfaces.AccountClient accountClient;
 
@@ -52,6 +56,7 @@ public class StartFragment extends Fragment implements GoogleApiClient.OnConnect
         signInButton.setSize(SignInButton.SIZE_WIDE);
         signInButton.setColorScheme(SignInButton.COLOR_LIGHT);
         signInButton.setVisibility(View.GONE);
+        signInText.setVisibility(View.GONE);
 
         return ret;
     }
@@ -103,8 +108,10 @@ public class StartFragment extends Fragment implements GoogleApiClient.OnConnect
     }
 
     public void showSignInButton() {
-        if (signInButton != null)
+        if (signInButton != null) {
             signInButton.setVisibility(View.VISIBLE);
+            signInText.setVisibility(View.VISIBLE);
+        }
     }
 
     public interface Host {

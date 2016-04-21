@@ -15,7 +15,7 @@
         android:layout_alignParentBottom="true" />
 
     <ImageView
-        android:layout_width="500dp"
+        android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_above="@id/bottomBackground"
         android:scaleType="centerCrop"
@@ -25,7 +25,7 @@
 
     <ImageView
         android:id="@+id/spreadshape"
-        android:layout_width="500dp"
+        android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_above="@id/bottomBackground"
         android:scaleType="centerCrop"
@@ -70,6 +70,17 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="55dp"
+        />
+
+    <TextView
+        android:id="@+id/sign_in_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textAppearance="@style/secondaryTextInverse"
+        android:layout_above="@id/sign_in_button"
+        android:layout_marginBottom="20dp"
+        android:text="Please sign in to create a profile"
         />
 
     <!--

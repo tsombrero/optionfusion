@@ -131,6 +131,9 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
 
     @Override
     public void openResultsFragment(final String symbol) {
+        if (progressBar.getVisibility() == View.VISIBLE)
+            return;
+
         Util.hideSoftKeyboard(this);
 
         progressBar.setVisibility(View.VISIBLE);

@@ -27,8 +27,7 @@
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
             app:srcCompat="@drawable/ic_info_black_24dp"
-            android:tint="@color/foreground_middle_grey"
-            android:tintMode="multiply"
+            android:alpha="0.54"
             />
 
     </LinearLayout>

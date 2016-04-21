@@ -39,7 +39,7 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
         this(watchlistFragment, Collections.EMPTY_LIST);
     }
 
-    public StockQuoteAdapter(WatchlistFragment watchlistFragment, List<String> symbols) {
+        public StockQuoteAdapter(WatchlistFragment watchlistFragment, List<String> symbols) {
         this.watchlistFragment = watchlistFragment;
         context = watchlistFragment.getActivity();
         stockQuoteList = watchlistFragment.stockQuoteProvider.getFromSymbols(symbols);

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
@@ -42,7 +42,6 @@
     <color name="primary_dark">@color/material_indigo_700</color>
     <color name="primary_light">@color/primary</color>
     <color name="accent">@color/material_green_500</color>
-    <color name="accent_material_light">@color/material_deep_teal_500</color>
     <color name="primary_text">@color/foreground_dark_grey</color>
     <color name="secondary_text">@color/foreground_middle_grey</color>
     <color name="icons">@color/primary_text</color>
@@ -79,8 +78,8 @@
     // handy colors
     <color name="material_blue_grey_500">#ff607D8B</color>
     <color name="material_blue_grey_700">#ff455A64</color>
-    <color name="material_blue_grey_800">#ff37474F</color>
-    <color name="material_blue_grey_900">#ff263238</color>
+    <color name="material_blue_grey_800" tools:override="true">#ff37474F</color>
+    <color name="material_blue_grey_900" tools:override="true">#ff263238</color>
 
     <color name="material_blue_500">#ff2196f3</color>
     <color name="material_blue_700">#ff1976D2</color>
@@ -239,7 +238,6 @@
 
     <style name="FilterButton">
         <item name="android:tint">@color/primary_text_inverse</item>
-        <item name="android:tintMode">src_in</item>
         <item name="android:scaleType">fitCenter</item>
         <item name="elevation">@dimen/widget_elevation_resting</item>
         <item name="android:layout_gravity">center</item>
