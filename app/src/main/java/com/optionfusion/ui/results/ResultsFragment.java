@@ -16,10 +16,12 @@ import com.google.gson.Gson;
 import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.cache.StockQuoteProvider;
+import com.optionfusion.db.DbHelper;
 import com.optionfusion.events.StockQuotesUpdatedEvent;
 import com.optionfusion.model.FilterSet;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
+import com.optionfusion.model.provider.backend.FusionOptionChain;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.SharedViewHolders;
 import com.optionfusion.util.Util;
@@ -47,19 +49,22 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
     android.support.v7.widget.Toolbar toolbar;
 
     @Inject
-    OptionChainProvider optionChainProvider;
-
-    @Inject
     StockQuoteProvider stockQuoteProvider;
 
     @Inject
     SharedPreferences sharedPreferences;
 
     @Inject
+    OptionChainProvider optionChainProvider;
+
+    @Inject
     Gson gson;
 
     @Inject
     EventBus bus;
+
+    @Inject
+    DbHelper dbHelper;
 
     FilterSet filterSet;
     String symbol;
@@ -156,24 +161,10 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
 
             @Override
             protected List<VerticalSpread> doInBackground(Void... params) {
+
                 oc = optionChainProvider.get(symbol);
                 List<VerticalSpread> allSpreads = oc.getAllSpreads(filterSet);
                 return allSpreads;
-
-//                Log.i(TAG, "Closest matches:");
-//
-//                if (allSpreads == null) return Collections.EMPTY_LIST;
-//
-//                if (allSpreads.isEmpty()) return allSpreads;
-//
-//                Collections.sort(allSpreads, filterSet.getComparator());
-//
-//                int spreadCount = Math.min(40, allSpreads.size());
-//
-//                for (Spread spread : allSpreads.subList(0, spreadCount)) {
-//                    Log.i(TAG, spread.toString() + "        " + spread.getBuy() + " / " + spread.getSell());
-//                }
-//                return allSpreads.subList(0, spreadCount);
             }
         }.execute();
     }

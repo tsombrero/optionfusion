@@ -10,16 +10,20 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.MainThread;
+import android.support.v4.BuildConfig;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v7.app.AppCompatActivity;
 import android.transition.TransitionInflater;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.birbit.android.jobqueue.JobManager;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.optionfusion.R;
@@ -27,7 +31,7 @@ import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.client.ClientInterfaces;
 import com.optionfusion.client.FusionClient;
-import com.optionfusion.com.backend.optionFusion.model.FusionUser;
+import com.optionfusion.events.LoggedOutExceptionEvent;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
@@ -37,8 +41,18 @@ import com.optionfusion.ui.search.WatchlistFragment;
 import com.optionfusion.ui.tradedetails.TradeDetailsFragment;
 import com.optionfusion.util.Util;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.inject.Inject;
 
@@ -59,15 +73,25 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
     ClientInterfaces.AccountClient fusionClient;
 
     @Inject
-    OptionChainProvider optionChainProvider;
+    StockQuoteProvider stockQuoteProvider;
 
     @Inject
-    StockQuoteProvider stockQuoteProvider;
+    OptionChainProvider optionChainProvider;
 
     @Inject
     ClientInterfaces.AccountClient accountClient;
 
+    @Inject
+    EventBus bus;
+
+    @Inject
+    JobManager jobManager;
+
+    private static GoogleApiClient apiClient;
+
     private static final int GOOGLE_API_CLIENTID = 2;
+
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,11 +99,28 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
         setContentView(R.layout.activity_main);
         OptionFusionApplication.from(this).getComponent().inject(this);
         ButterKnife.bind(this);
+        bus.register(this);
 
         progressBar.getIndeterminateDrawable().setColorFilter(accentColor, PorterDuff.Mode.SRC_IN);
         showProgress(true);
 
-        final GoogleApiClient apiClient = FusionClient.getGoogleApiClient(this, GOOGLE_API_CLIENTID);
+        reconnect();
+    }
+
+    private void reconnect() {
+
+        if (apiClient != null) {
+            try {
+                apiClient.stopAutoManage(this);
+                if (apiClient.isConnected())
+                    apiClient.disconnect();
+                apiClient = null;
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+        }
+
+        apiClient = FusionClient.getGoogleApiClient(this, GOOGLE_API_CLIENTID);
 
         new AsyncTask<Void, Void, GoogleSignInResult>() {
             @Override
@@ -97,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
                     getSupportFragmentManager().beginTransaction()
                             .addToBackStack(null)
                             .add(R.id.fragment_container, frag, "tag_search")
-                            .commit();
+                            .commitAllowingStateLoss();
                 } else {
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                     finish();
@@ -129,7 +170,32 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
         }
     }
 
+    private long lastConnectionFailedErr;
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onLoggedOutException(LoggedOutExceptionEvent e) {
+        if (apiClient != null)
+            try {
+                if (BuildConfig.DEBUG) {
+                    File dumpfile = new File(getExternalCacheDir(), "connectionFailure_" + UUID.randomUUID());
+                    FileOutputStream fos = new FileOutputStream(dumpfile);
+                    apiClient.dump("FOO", null, new PrintWriter(fos), null);
+                    fos.close();
+                }
+                Log.e(TAG, "Connection Failed");
+            } catch (FileNotFoundException e1) {
+                e1.printStackTrace();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        if (lastConnectionFailedErr < System.currentTimeMillis() - 10000) {
+            lastConnectionFailedErr = System.currentTimeMillis();
+        }
+        reconnect();
+    }
+
     @Override
+    @MainThread
     public void openResultsFragment(final String symbol) {
         if (progressBar.getVisibility() == View.VISIBLE)
             return;
@@ -138,24 +204,27 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
 
         progressBar.setVisibility(View.VISIBLE);
 
-        optionChainProvider.get(symbol, new OptionChainProvider.OptionChainCallback() {
+        optionChainProvider.get(symbol, new ClientInterfaces.Callback<Interfaces.OptionChain>() {
             @Override
             public void call(Interfaces.OptionChain optionChain) {
-                if (progressBar.getVisibility() != View.VISIBLE) {
+                if (progressBar.getVisibility() != View.VISIBLE)
                     return;
-                }
 
-                progressBar.setVisibility(View.GONE);
-
+                showProgress(false);
                 if (optionChain != null) {
                     Fragment fragment = ResultsFragment.newInstance(optionChain.getSymbol());
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragment_container, fragment, optionChain.getSymbol())
                             .addToBackStack(null)
-                            .commit();
+                            .commitAllowingStateLoss();
                 } else {
-                    Toast.makeText(MainActivity.this, "Failed getting option chain", Toast.LENGTH_SHORT).show();
+                    onError(0, null);
                 }
+            }
+
+            @Override
+            public void onError(int status, String message) {
+                Toast.makeText(MainActivity.this, R.string.failed_fetch_chain, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -177,22 +246,32 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
                 .replace(R.id.fragment_container, fragment, spread.toString())
                 .addSharedElement(detailsLayout, SharedViewHolders.BriefTradeDetailsHolder.getTransitionName(spread))
                 .addToBackStack(null)
-                .commit();
+                .commitAllowingStateLoss();
     }
 
     @Override
     public void onBackPressed() {
-        if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
-            getSupportFragmentManager().popBackStack();
-        } else {
+        try {
+            if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
+                getSupportFragmentManager().popBackStack();
+            } else {
+                finish();
+            }
+        } catch (Throwable t) {
             finish();
         }
     }
 
     @Override
-    public void showProgress(boolean show) {
-        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+    public void showProgress(final boolean show) {
+        progressBar.post(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+        });
     }
+
 
     public class MySharedElementCallback extends SharedElementCallback {
         @Override

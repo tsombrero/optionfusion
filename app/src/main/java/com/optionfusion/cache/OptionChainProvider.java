@@ -1,61 +1,84 @@
 package com.optionfusion.cache;
 
-import android.content.Context;
-import android.util.Log;
-import android.util.LruCache;
-
+import com.birbit.android.jobqueue.Job;
+import com.birbit.android.jobqueue.JobManager;
+import com.birbit.android.jobqueue.callback.JobManagerCallbackAdapter;
 import com.optionfusion.client.ClientInterfaces;
+import com.optionfusion.jobqueue.GetOptionChainJob;
 import com.optionfusion.model.provider.Interfaces;
 
-public class OptionChainProvider extends LruCache<String, Interfaces.OptionChain> {
+import java.util.ArrayList;
+import java.util.HashMap;
 
-    private final Context context;
-    private final ClientInterfaces.OptionChainClient optionChainClient;
+public class OptionChainProvider {
+
     private final String TAG = OptionChainProvider.class.getSimpleName();
+    private final JobManager jobManager;
+    HashMap<String, Interfaces.OptionChain> chains = new HashMap<>();
+    HashMap<String, ArrayList<ClientInterfaces.Callback<Interfaces.OptionChain>>> callbacks = new HashMap<>();
 
-    public OptionChainProvider(Context context, ClientInterfaces.OptionChainClient optionChainClient) {
-        super(10);
-        this.context = context;
-        this.optionChainClient = optionChainClient;
+    public OptionChainProvider(JobManager jobManager) {
+        this.jobManager = jobManager;
+        jobManager.addCallback(new JobManagerCallbackAdapter(){
+            @Override
+            public void onDone(Job job) {
+                if (job instanceof GetOptionChainJob) {
+                    handleResult(((GetOptionChainJob)job).getSymbol(), ((GetOptionChainJob)job).getResult());
+                }
+            }
+        });
     }
 
-    public void get(final String symbol, final OptionChainCallback callback) {
-        if (symbol == null)
-            return;
+    public Interfaces.OptionChain get(String symbol) {
+        Interfaces.OptionChain ret = chains.get(symbol);
+        if (ret != null)
+            return ret;
+
+        jobManager.addJobInBackground(new GetOptionChainJob(symbol));
+        return null;
+    }
+
+    public void get(String symbol, ClientInterfaces.Callback<Interfaces.OptionChain> callback) {
+
+        addCallback(symbol, callback);
 
         Interfaces.OptionChain ret = get(symbol);
+
         if (ret != null) {
-            callback.call(ret);
-            return;
+            handleResult(symbol, ret);
         }
-
-        optionChainClient.getOptionChain(symbol, new ClientInterfaces.Callback<Interfaces.OptionChain>() {
-                    @Override
-                    public void call(Interfaces.OptionChain oc) {
-                        if (oc == null || !oc.succeeded()) {
-                            Log.w(TAG, "Failed: " + (oc == null ? "" : oc.getError()));
-                            callback.call(null);
-                            return;
-                        }
-
-                        Log.i("tag", "Got option chain: " + oc);
-
-                        put(symbol, oc);
-
-                        callback.call(oc);
-                    }
-
-                    @Override
-                    public void onError(int status, String message) {
-                        Log.w("tag", "Failed: " + status + " " + message);
-                        callback.call(null);
-
-                    }
-                }
-        );
     }
 
-    public interface OptionChainCallback {
-        void call(Interfaces.OptionChain optionChain);
+    private synchronized void addCallback(String symbol, ClientInterfaces.Callback<Interfaces.OptionChain> callback) {
+        if (callbacks.get(symbol) == null) {
+            callbacks.put(symbol, new ArrayList<ClientInterfaces.Callback<Interfaces.OptionChain>>());
+        }
+        callbacks.get(symbol).add(callback);
+    }
+
+    private synchronized void callCallback(String symbol, Interfaces.OptionChain chain, ClientInterfaces.Callback<Interfaces.OptionChain> callback) {
+        try {
+            callback.call(chain);
+        } finally {
+            if (callbacks.get(symbol) != null) {
+                callbacks.get(symbol).remove(callback);
+            }
+        }
+    }
+
+    public void put(Interfaces.OptionChain result) {
+        chains.put(result.getSymbol(), result);
+    }
+
+    public void handleResult(String symbol, Interfaces.OptionChain chain) {
+        chains.put(symbol, chain);
+
+        if (!callbacks.containsKey(symbol))
+            return;
+
+        ArrayList<ClientInterfaces.Callback<Interfaces.OptionChain>> listeners = new ArrayList<>(callbacks.get(symbol));
+        for (ClientInterfaces.Callback<Interfaces.OptionChain> listener : listeners) {
+            callCallback(symbol, chain, listener);
+        }
     }
 }

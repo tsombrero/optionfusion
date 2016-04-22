@@ -150,8 +150,8 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    OptionChainProvider getOptionChainProvider(Context context, ClientInterfaces.OptionChainClient client) {
-        return new OptionChainProvider(context, client);
+    OptionChainProvider getOptionChainProvider(JobManager jobManager) {
+        return new OptionChainProvider(jobManager);
     }
 
     @Provides

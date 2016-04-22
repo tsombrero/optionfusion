@@ -42,6 +42,7 @@ import com.optionfusion.db.DbHelper;
 import com.optionfusion.db.Schema;
 import com.optionfusion.db.Schema.Options;
 import com.optionfusion.db.SpreadPopulator;
+import com.optionfusion.events.LoggedOutExceptionEvent;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.backend.FusionOptionChain;
 import com.optionfusion.model.provider.backend.FusionStockQuote;
@@ -50,6 +51,7 @@ import com.optionfusion.util.Constants;
 import com.optionfusion.util.SharedPrefStore;
 import com.optionfusion.util.Util;
 
+import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
 import org.sqlite.database.sqlite.SQLiteDatabase;
 
@@ -95,6 +97,9 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     @Inject
     SharedPrefStore sharedPrefStore;
 
+    @Inject
+    EventBus bus;
+
     GoogleSignInResult signinResult;
     private List<Interfaces.StockQuote> watchlist;
 
@@ -126,28 +131,22 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     }
 
     @Override
-    public void getOptionChain(final String symbol, final ClientInterfaces.Callback<Interfaces.OptionChain> callback) {
-        new AsyncTask<Void, Void, FusionOptionChain>() {
-            @Override
-            protected FusionOptionChain doInBackground(Void... params) {
-                try {
-                    OptionChain chain = getEndpoints().optionDataApi().getEodChain(symbol).execute();
-                    OptionChainProto.OptionChain protoChain = OptionChainProto.OptionChain.parseFrom(chain.decodeChainData());
-                    writeChainToDb(protoChain);
+    public Interfaces.OptionChain getOptionChain(final String symbol) {
+        try {
+            OptionChain chain = getEndpoints().optionDataApi().getEodChain(symbol).execute();
+            OptionChainProto.OptionChain protoChain = OptionChainProto.OptionChain.parseFrom(chain.decodeChainData());
+            writeChainToDb(protoChain);
 
-                    return new FusionOptionChain(protoChain, dbHelper);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return null;
+            return new FusionOptionChain(protoChain, dbHelper);
+        } catch (GoogleJsonResponseException e) {
+            e.printStackTrace();
+            if (e.getStatusCode() == 401) {
+                bus.post(new LoggedOutExceptionEvent());
             }
-
-            @Override
-            protected void onPostExecute(FusionOptionChain fusionOptionChain) {
-                callback.call(fusionOptionChain);
-            }
-        }.execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -215,6 +214,11 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
             Log.d(TAG, "Got " + e.getItems().size() + " quotes from service");
             ret = getStockQuoteList(e.getItems());
+        } catch (GoogleJsonResponseException e) {
+            e.printStackTrace();
+            if (e.getStatusCode() == 401) {
+                bus.post(new LoggedOutExceptionEvent());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -304,6 +308,11 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                             for (Map.Entry<String, Object> stringObjectEntry : fusionUser.getUserDatamap().entrySet()) {
                                 userData.put(stringObjectEntry.getKey(), String.valueOf(stringObjectEntry.getValue()));
                             }
+                    } catch (GoogleJsonResponseException e) {
+                        e.printStackTrace();
+                        if (e.getStatusCode() == 401) {
+                            bus.post(new LoggedOutExceptionEvent());
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -314,11 +323,21 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     }
 
     @Override
-    public List<Interfaces.StockQuote> setWatchlist(Collection<String> symbols) throws IOException {
+    public List<Interfaces.StockQuote> setWatchlist(Collection<String> symbols) {
 
         watchlist = stockQuoteProvider.get().getFromSymbols(symbols);
 
-        EquityCollection equityCollection = getEndpoints().optionDataApi().setWatchlist(TextUtils.join(",", symbols)).execute();
+        EquityCollection equityCollection = null;
+        try {
+            equityCollection = getEndpoints().optionDataApi().setWatchlist(TextUtils.join(",", symbols)).execute();
+        } catch (GoogleJsonResponseException e) {
+            e.printStackTrace();
+            if (e.getStatusCode() == 401) {
+                bus.post(new LoggedOutExceptionEvent());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if (equityCollection != null) {
             if (fusionUser != null)
                 fusionUser.setWatchlist(equityCollection.getItems());
@@ -330,7 +349,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     }
 
     @Override
-    public List<Interfaces.StockQuote> getWatchlist() throws IOException {
+    public List<Interfaces.StockQuote> getWatchlist() {
         if (watchlist == null) {
             FusionUser user = getAccountUser();
             if (user != null) {
@@ -341,7 +360,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     }
 
     @Override
-    public void setUserData(String userDataKey, String userDataValue) throws IOException {
+    public void setUserData(String userDataKey, String userDataValue) {
         synchronized (TAG) {
             if (userDataValue == null) {
                 userData.remove(userDataKey);
@@ -350,7 +369,16 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                 userData.put(userDataKey, userDataValue);
         }
 
-        getEndpoints().optionDataApi().setUserData(userDataKey, userDataValue).execute();
+        try {
+            getEndpoints().optionDataApi().setUserData(userDataKey, userDataValue).execute();
+        } catch (GoogleJsonResponseException e) {
+            e.printStackTrace();
+            if (e.getStatusCode() == 401) {
+                bus.post(new LoggedOutExceptionEvent());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static List<Interfaces.StockQuote> getStockQuoteList(Collection<Equity> equities) {

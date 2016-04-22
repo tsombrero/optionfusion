@@ -40,6 +40,12 @@ public class FusionOptionChain implements Interfaces.OptionChain {
         getStrikePrices();
     }
 
+    public FusionOptionChain(String symbol, DbHelper dbHelper) {
+        this.symbol = symbol;
+        this.dbHelper = dbHelper;
+
+    }
+
     @Override
     public double getUnderlyingPrice() {
         return underlyingPrice;
@@ -83,9 +89,6 @@ public class FusionOptionChain implements Interfaces.OptionChain {
 
         selections.add("(" + Schema.VerticalSpreads.UNDERLYING_SYMBOL + "=?)");
         selectionArgs.add(symbol);
-
-        // TODO credit spreads eclipse others in the list
-//        selections.add("(" + Schema.VerticalSpreads.IS_CREDIT + "=0)");
 
         for (Filter filter : filterSet.getFilters()) {
             filter.addDbSelection(selections, selectionArgs);

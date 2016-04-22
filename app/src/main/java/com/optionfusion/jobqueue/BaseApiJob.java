@@ -7,6 +7,7 @@ import android.util.Log;
 import com.birbit.android.jobqueue.Job;
 import com.birbit.android.jobqueue.Params;
 import com.birbit.android.jobqueue.RetryConstraint;
+import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.client.ClientInterfaces;
 
@@ -23,10 +24,16 @@ public abstract class BaseApiJob extends Job {
     StockQuoteProvider stockQuoteProvider;
 
     @Inject
+    OptionChainProvider optionChainProvider;
+
+    @Inject
     ClientInterfaces.AccountClient accountClient;
 
     @Inject
     ClientInterfaces.StockQuoteClient stockQuoteClient;
+
+    @Inject
+    ClientInterfaces.OptionChainClient optionChainClient;
 
     @Inject
     Context context;

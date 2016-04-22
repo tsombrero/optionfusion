@@ -33,8 +33,32 @@ public class GoogClient implements ClientInterfaces.OptionChainClient, ClientInt
     }
 
     @Override
-    public void getOptionChain(String symbol, ClientInterfaces.Callback<Interfaces.OptionChain> callback) {
-        new OptionChainTask(callback).execute(symbol);
+    public Interfaces.OptionChain getOptionChain(String symbol) {
+        Interfaces.StockQuote quote = getStockQuote(symbol);
+
+        // TODO decouple quote from chain
+        if (quote == null) {
+            Log.e(TAG, "Failed getting option chain because quote is empty");
+            return null;
+        }
+
+        GoogOptionChain ret = new GoogOptionChain();
+        ret.setStockQuote(quote);
+        try {
+            Response<GoogOptionChain.GoogExpirations> expirations = restInterface.getExpirations(symbol).execute();
+
+            if (expirations == null || expirations.body() == null || expirations.body().getExpirations() == null)
+                return null;
+
+            for (GoogOptionChain.GoogExpiration expiration : expirations.body().getExpirations()) {
+                Response<GoogOptionChain.GoogOptionDate> datechain = restInterface.getChainForDate(symbol, expiration.getY(), expiration.getM(), expiration.getD()).execute();
+                ret.addToChain(datechain.body());
+            }
+            ret.setSucceeded(true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ret;
     }
 
     public Interfaces.StockQuote getStockQuote(String symbol) {
@@ -102,54 +126,6 @@ public class GoogClient implements ClientInterfaces.OptionChainClient, ClientInt
                 e.printStackTrace();
             }
             return null;
-        }
-    }
-
-    private class OptionChainTask extends AsyncTask<String, Void, GoogOptionChain> {
-
-        private final ClientInterfaces.Callback<Interfaces.OptionChain> callback;
-
-        public OptionChainTask(ClientInterfaces.Callback<Interfaces.OptionChain> callback) {
-            this.callback = callback;
-        }
-
-        @Override
-        protected GoogOptionChain doInBackground(String... params) {
-            String symbol = params[0];
-
-            Interfaces.StockQuote quote = getStockQuote(symbol);
-
-            // TODO decouple quote from chain
-            if (quote == null) {
-                Log.e(TAG, "Failed getting option chain because quote is empty");
-                return null;
-            }
-
-            GoogOptionChain ret = new GoogOptionChain();
-            ret.setStockQuote(quote);
-            try {
-                Response<GoogOptionChain.GoogExpirations> expirations = restInterface.getExpirations(symbol).execute();
-
-                if (expirations == null || expirations.body() == null || expirations.body().getExpirations() == null)
-                    return null;
-
-                for (GoogOptionChain.GoogExpiration expiration : expirations.body().getExpirations()) {
-                    Response<GoogOptionChain.GoogOptionDate> datechain = restInterface.getChainForDate(symbol, expiration.getY(), expiration.getM(), expiration.getD()).execute();
-                    ret.addToChain(datechain.body());
-                }
-                ret.setSucceeded(true);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return ret;
-        }
-
-        @Override
-        protected void onPostExecute(GoogOptionChain chain) {
-            if (chain == null) {
-                callback.onError(400, "Error fetching option chain");
-            }
-            callback.call(chain);
         }
     }
 

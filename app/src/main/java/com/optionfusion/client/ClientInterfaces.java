@@ -37,7 +37,7 @@ public class ClientInterfaces {
     }
 
     public interface OptionChainClient {
-        void getOptionChain(String symbol, Callback<OptionChain> callback);
+        Interfaces.OptionChain getOptionChain(String symbol);
     }
 
     public interface BrokerageClient {

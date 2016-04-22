@@ -54,45 +54,25 @@ public class AmeritradeClient implements ClientInterfaces.OptionChainClient, Cli
     }
 
     @Override
-    public void getOptionChain(String symbol, final ClientInterfaces.Callback<Interfaces.OptionChain> callback) {
-        new GetOptionChainTask(callback).execute(symbol);
-    }
+    public Interfaces.OptionChain getOptionChain(String symbol) {
+        try {
+            Response<AmeritradeStockQuote> quoteResponse = restInterface.getStockQuote(symbol).execute();
+            if (!checkRespoonse(quoteResponse))
+                return null;
 
-    private class GetOptionChainTask extends AsyncTask<String, Void, AmeritradeOptionChain> {
+            Response<AmeritradeOptionChain> chainResponse = restInterface.getOptionChain(symbol).execute();
+            if (!checkRespoonse(chainResponse))
+                return null;
 
-        ClientInterfaces.Callback<Interfaces.OptionChain> callback;
+            AmeritradeOptionChain chain = chainResponse.body();
+            AmeritradeStockQuote quote = quoteResponse.body();
 
-        public GetOptionChainTask(ClientInterfaces.Callback<Interfaces.OptionChain> callback) {
-            this.callback = callback;
+            chain.setStockQuote(quote);
+            return chain;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        @Override
-        protected void onPostExecute(AmeritradeOptionChain ameritradeOptionChain) {
-            callback.call(ameritradeOptionChain);
-        }
-
-        @Override
-        protected AmeritradeOptionChain doInBackground(String... params) {
-            String symbol = params[0];
-            try {
-                Response<AmeritradeStockQuote> quoteResponse = restInterface.getStockQuote(symbol).execute();
-                if (!checkRespoonse(quoteResponse))
-                    return null;
-
-                Response<AmeritradeOptionChain> chainResponse = restInterface.getOptionChain(symbol).execute();
-                if (!checkRespoonse(chainResponse))
-                    return null;
-
-                AmeritradeOptionChain chain = chainResponse.body();
-                AmeritradeStockQuote quote = quoteResponse.body();
-
-                chain.setStockQuote(quote);
-                return chain;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
+        return null;
     }
 
     public boolean checkRespoonse(Response response) {
