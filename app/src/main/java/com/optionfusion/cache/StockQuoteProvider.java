@@ -38,6 +38,10 @@ public class StockQuoteProvider {
     }
 
     public Interfaces.StockQuote get(@NotNull String symbol) {
+        return get(symbol, true);
+    }
+
+    public Interfaces.StockQuote get(@NotNull String symbol, boolean fetchIfStale) {
         ArrayList<Interfaces.StockQuote> list = getFromSymbols(Collections.singletonList(symbol));
         if (list != null && !list.isEmpty())
             return list.get(0);
@@ -108,6 +112,10 @@ public class StockQuoteProvider {
     }
 
     public ArrayList<Interfaces.StockQuote> getFromSymbols(@NotNull Collection<String> symbols) {
+        return getFromSymbols(symbols, true);
+    }
+
+    public ArrayList<Interfaces.StockQuote> getFromSymbols(@NotNull Collection<String> symbols, boolean fetchIfStale) {
         ArrayList<Interfaces.StockQuote> ret = new ArrayList<>();
 
         boolean needsUpdate = false;
@@ -130,7 +138,7 @@ public class StockQuoteProvider {
             }
         }
 
-        if (needsUpdate)
+        if (needsUpdate && fetchIfStale)
             jobManager.addJobInBackground(GetStockQuotesJob.fromSymbols(symbols));
 
         Collections.sort(ret, Interfaces.StockQuote.COMPARATOR);

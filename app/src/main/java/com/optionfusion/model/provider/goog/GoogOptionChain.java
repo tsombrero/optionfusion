@@ -170,11 +170,17 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         return OptionFusionApplication.Provider.GOOGLE_FINANCE;
     }
 
-    private long lastUpdatedTimestamp = System.currentTimeMillis();
     @Override
-    public long getLastUpdatedTimestamp() {
+    public long getLastUpdatedLocalTimestamp() {
         return lastUpdatedTimestamp;
     }
+
+    @Override
+    public long getQuoteTimestamp() {
+        return lastUpdatedTimestamp;
+    }
+
+    private long lastUpdatedTimestamp = System.currentTimeMillis();
 
     public void setStockQuote(Interfaces.StockQuote stockQuote) {
         this.stockQuote = stockQuote;

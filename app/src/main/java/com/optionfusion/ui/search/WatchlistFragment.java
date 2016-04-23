@@ -175,8 +175,8 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
             appBarLayout.addOnOffsetChangedListener(this);
 
         if (adapter == null || adapter.getStockQuoteList().isEmpty()) {
-            jobManager.addJobInBackground(new GetWatchlistJob());
             showProgress(true);
+            jobManager.addJobInBackground(new GetWatchlistJob());
         } else {
             showProgress(false);
         }

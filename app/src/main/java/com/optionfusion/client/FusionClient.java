@@ -133,10 +133,13 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     @Override
     public Interfaces.OptionChain getOptionChain(final String symbol) {
         try {
+            Log.d(TAG, "Getting chain for " + symbol);
             OptionChain chain = getEndpoints().optionDataApi().getEodChain(symbol).execute();
+            Log.d(TAG, "Parsing chain for " + symbol);
             OptionChainProto.OptionChain protoChain = OptionChainProto.OptionChain.parseFrom(chain.decodeChainData());
             writeChainToDb(protoChain);
 
+            Log.d(TAG, "Returning chain for " + symbol);
             return new FusionOptionChain(protoChain, dbHelper);
         } catch (GoogleJsonResponseException e) {
             e.printStackTrace();
@@ -145,6 +148,8 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            Log.d(TAG, "Done building chain for " + symbol);
         }
         return null;
     }
@@ -231,17 +236,24 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         long now = System.currentTimeMillis();
         try {
             db.beginTransaction();
+            Log.d(TAG, "Cleaning DB");
 
+            db.delete(Schema.Options.getTableName(),
+                    Schema.Options.UNDERLYING_SYMBOL + "='" + protoChain.getSymbol() + "'", null);
+
+            db.delete(Schema.VerticalSpreads.getTableName(),
+                    Schema.VerticalSpreads.UNDERLYING_SYMBOL + "='" + protoChain.getSymbol() + "'", null);
+
+            Log.d(TAG, "Writing Option Records");
             for (OptionChainProto.OptionDateChain dateChain : protoChain.getOptionDatesList()) {
                 writeDateChainToDb(db, dateChain, now, protoChain);
             }
 
-            db.delete(Schema.VerticalSpreads.getTableName(),
-                    Schema.VerticalSpreads.TIMESTAMP_QUOTE.name() + "=" + protoChain.getTimestamp(), null);
-
+            Log.d(TAG, "Writing Spread Records");
             SpreadPopulator.updateSpreads(protoChain.getSymbol(), db);
 
-            clearBidAsk(db, protoChain.getSymbol());
+            Log.d(TAG, "Cleaning up");
+//            clearBidAsk(db, protoChain.getSymbol());
 
             db.setTransactionSuccessful();
         } finally {
@@ -264,10 +276,19 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
     private void writeDateChainToDb(SQLiteDatabase db, OptionChainProto.OptionDateChain dateChain, long now, OptionChainProto.OptionChain protoChain) {
 
+        int i = 0;
+
+        if (Util.getDaysFromNow(new DateTime(dateChain.getExpiration())) <= 1) {
+            return;
+        }
+
+        double minPrice = protoChain.getUnderlyingPrice() / 500;
+
         for (OptionChainProto.OptionQuote optionQuote : dateChain.getOptionsList()) {
-            if (Util.getDaysFromNow(new DateTime(dateChain.getExpiration())) <= 1) {
+            if (optionQuote.getAsk() < minPrice && optionQuote.getBid() < minPrice) {
                 continue;
             }
+
             Schema.ContentValueBuilder cv = new Schema.ContentValueBuilder();
             cv.put(Options.SYMBOL, Options.getKey(protoChain.getSymbol(), dateChain.getExpiration(), optionQuote.getOptionType(), optionQuote.getStrike()))
                     .put(Options.UNDERLYING_SYMBOL, protoChain.getSymbol())

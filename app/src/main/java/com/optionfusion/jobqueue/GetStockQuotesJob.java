@@ -12,7 +12,9 @@ import com.optionfusion.events.StockQuotesUpdatedEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.optionfusion.model.provider.Interfaces.StockQuote;
 
@@ -61,22 +63,15 @@ public class GetStockQuotesJob extends BaseApiJob {
 
         Log.d(TAG, "Got " + result.size() + " quotes from server");
 
-        bus.post(new StockQuotesUpdatedEvent(result));
-        writeResultsToDb(result);
-    }
+        // Only post the event if something changed
+        for (StockQuote stockQuote : result) {
+            StockQuote oldQuote = stockQuoteProvider.get(stockQuote.getSymbol());
+            if (oldQuote == null || oldQuote.getQuoteTimestamp() != stockQuote.getQuoteTimestamp() || oldQuote.getClose() != stockQuote.getClose()) {
+                bus.post(new StockQuotesUpdatedEvent(result));
+                break;
+            }
+        }
 
-    private void writeResultsToDb(List<StockQuote> result) {
-//        org.sqlite.database.sqlite.SQLiteDatabase db = dbHelper.getWritableDatabase();
-//        db.beginTransaction();
-//        try {
-//            for (StockQuote stockQuote : result) {
-//                db.insertWithOnConflict(StockQuotes.getTableName(), "",
-//                        getStockQuoteContentValues(stockQuote), SQLiteDatabase.CONFLICT_REPLACE);
-//            }
-//            db.setTransactionSuccessful();
-//        } finally {
-//            db.endTransaction();
-//        }
     }
 
     private ContentValues getStockQuoteContentValues(StockQuote stockQuote) {

@@ -83,11 +83,20 @@ public class DbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         dropTable(db, Schema.Options.ASK);
         dropTable(db, Schema.VerticalSpreads.BUFFER_TO_BREAK_EVEN);
+        dropTable(db, Schema.StockQuotes.CHANGE);
+        onCreate(db);
+    }
+
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        dropTable(db, Schema.Options.ASK);
+        dropTable(db, Schema.VerticalSpreads.BUFFER_TO_BREAK_EVEN);
+        dropTable(db, Schema.StockQuotes.CHANGE);
         onCreate(db);
     }
 
     private void dropTable(SQLiteDatabase db, Schema.DbColumn col) {
-        execSql(db, "DROP TABLE " + col.getClass().getSimpleName());
+        execSql(db, "DROP TABLE IF EXISTS " + col.getClass().getSimpleName());
     }
 
 

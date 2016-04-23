@@ -26,7 +26,8 @@ public class FusionOptionChain implements Interfaces.OptionChain {
 
     DbHelper dbHelper;
 
-    private final long lastUpdatedTimestamp = System.currentTimeMillis();
+    private final long lastUpdatedLocalTimestamp = System.currentTimeMillis();
+    private long quoteDataTimestamp;
     private String symbol;
     private double underlyingPrice;
 
@@ -37,6 +38,7 @@ public class FusionOptionChain implements Interfaces.OptionChain {
         }
         symbol = protoChain.getSymbol();
         underlyingPrice = protoChain.getUnderlyingPrice();
+        quoteDataTimestamp = protoChain.getTimestamp();
         getStrikePrices();
     }
 
@@ -124,8 +126,13 @@ public class FusionOptionChain implements Interfaces.OptionChain {
     }
 
     @Override
-    public long getLastUpdatedTimestamp() {
-        return lastUpdatedTimestamp;
+    public long getLastUpdatedLocalTimestamp() {
+        return lastUpdatedLocalTimestamp;
+    }
+
+    @Override
+    public long getQuoteTimestamp() {
+        return quoteDataTimestamp;
     }
 
     @Override

@@ -14,11 +14,13 @@ public class OptionChainProvider {
 
     private final String TAG = OptionChainProvider.class.getSimpleName();
     private final JobManager jobManager;
+    private final StockQuoteProvider stockQuoteProvider;
     HashMap<String, Interfaces.OptionChain> chains = new HashMap<>();
     HashMap<String, ArrayList<ClientInterfaces.Callback<Interfaces.OptionChain>>> callbacks = new HashMap<>();
 
-    public OptionChainProvider(JobManager jobManager) {
+    public OptionChainProvider(JobManager jobManager, StockQuoteProvider stockQuoteProvider) {
         this.jobManager = jobManager;
+        this.stockQuoteProvider = stockQuoteProvider;
         jobManager.addCallback(new JobManagerCallbackAdapter(){
             @Override
             public void onDone(Job job) {
@@ -29,8 +31,16 @@ public class OptionChainProvider {
         });
     }
 
-    public Interfaces.OptionChain get(String symbol) {
+    public synchronized Interfaces.OptionChain get(String symbol) {
+        Interfaces.StockQuote quote = stockQuoteProvider.get(symbol);
+
         Interfaces.OptionChain ret = chains.get(symbol);
+
+        if (quote != null && ret != null && quote.getQuoteTimestamp() > ret.getQuoteTimestamp()) {
+            chains.remove(symbol);
+            ret = null;
+        }
+
         if (ret != null)
             return ret;
 
@@ -38,7 +48,7 @@ public class OptionChainProvider {
         return null;
     }
 
-    public void get(String symbol, ClientInterfaces.Callback<Interfaces.OptionChain> callback) {
+    public synchronized void get(String symbol, ClientInterfaces.Callback<Interfaces.OptionChain> callback) {
 
         addCallback(symbol, callback);
 
@@ -66,11 +76,11 @@ public class OptionChainProvider {
         }
     }
 
-    public void put(Interfaces.OptionChain result) {
+    public synchronized void put(Interfaces.OptionChain result) {
         chains.put(result.getSymbol(), result);
     }
 
-    public void handleResult(String symbol, Interfaces.OptionChain chain) {
+    private void handleResult(String symbol, Interfaces.OptionChain chain) {
         chains.put(symbol, chain);
 
         if (!callbacks.containsKey(symbol))

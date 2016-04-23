@@ -37,8 +37,10 @@ public class SpreadPopulator {
                         " and buy.underlying_symbol = '" + symbol + "' " +
                         " and buy.symbol != sell.symbol " +
                         " and buy.expiration == sell.expiration " +
-                        " and max_gain_absolute >= 0.05 " +
-                        " and sell.bid >= 0.05 and buy.bid >= 0.05 " +
+                        " and max_gain_percent >= 0.02 " +
+                        " and max_gain_annualized >= 0.02 " +
+                        " and abs(net_ask) > 0.05 and abs(net_bid) > 0.05 " +
+                        " and max_gain_annualized < 1000000 " +
                         " and min(buy.ask, sell.bid) / max(buy.ask, sell.bid) > 0.1" +
                         ";");
 

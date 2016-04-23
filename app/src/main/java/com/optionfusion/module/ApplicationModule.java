@@ -150,8 +150,8 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    OptionChainProvider getOptionChainProvider(JobManager jobManager) {
-        return new OptionChainProvider(jobManager);
+    OptionChainProvider getOptionChainProvider(JobManager jobManager, StockQuoteProvider stockQuoteProvider) {
+        return new OptionChainProvider(jobManager, stockQuoteProvider);
     }
 
     @Provides

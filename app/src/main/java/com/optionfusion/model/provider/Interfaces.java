@@ -139,7 +139,9 @@ public class Interfaces {
 
         Provider getProvider();
 
-        long getLastUpdatedTimestamp();
+        long getLastUpdatedLocalTimestamp();
+
+        long getQuoteTimestamp();
     }
 
     public interface Account {
