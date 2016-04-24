@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.TextView;
 
 import com.optionfusion.R;
 import com.optionfusion.model.provider.VerticalSpread;
@@ -14,17 +13,33 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ListViewHolders {
+public class ResultsListViewHolders {
     enum ViewType {
-        LABEL(R.layout.item_label),
-        FILTER_SET(R.layout.item_filter_buttons),
+        NONE(R.layout.item_filter_layout_none),
+        FILTER_BUTTONS(R.layout.item_filter_buttons),
+        FILTER_TIME(R.layout.item_filter_layout_time),
+        FILTER_STRIKE(R.layout.item_filter_layout_strike),
+        FILTER_ROI(R.layout.item_filter_layout_roi),
+        FILTER_SPREAD_KIND(R.layout.item_filter_layout_spread_kind),
+        FILTER_PILLS(R.layout.item_filter_pills),
         SPREAD_DETAILS(R.layout.item_spread_details);
 
         int layout;
 
         ViewType(int layout) {
-
             this.layout = layout;
+        }
+
+        public static ViewType filterTypeFromButtonId(int activeButton) {
+            if (activeButton == R.id.btn_roi)
+                return FILTER_ROI;
+            if (activeButton == R.id.btn_spread_types)
+                return FILTER_SPREAD_KIND;
+            if (activeButton == R.id.btn_strike)
+                return FILTER_STRIKE;
+            if (activeButton == R.id.btn_time)
+                return FILTER_TIME;
+            return NONE;
         }
     }
 
@@ -41,20 +56,6 @@ public class ListViewHolders {
         }
 
         abstract void bind(ResultsAdapter.ListItem item);
-    }
-
-    public static class LabelViewHolder extends BaseViewHolder {
-        @Bind(R.id.text)
-        TextView textView;
-
-        public LabelViewHolder(View itemView) {
-            super(itemView, null, null);
-        }
-
-        @Override
-        void bind(ResultsAdapter.ListItem item) {
-            textView.setText(item.labelText);
-        }
     }
 
     public static class SpreadViewHolder extends BaseViewHolder {
@@ -76,7 +77,7 @@ public class ListViewHolders {
         }
 
         public void bind(ResultsAdapter.ListItem item) {
-            this.spread = item.spread;
+            this.spread = ((ResultsAdapter.ListItemSpread)item).spread;
             briefTradeDetailsHolder.bind(spread);
             tradeHeaderHolder.bind(spread);
         }

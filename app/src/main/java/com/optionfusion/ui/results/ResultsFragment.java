@@ -5,8 +5,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +23,6 @@ import com.optionfusion.events.StockQuotesUpdatedEvent;
 import com.optionfusion.model.FilterSet;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
-import com.optionfusion.model.provider.backend.FusionOptionChain;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.SharedViewHolders;
 import com.optionfusion.util.Util;
@@ -89,11 +90,38 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
         View ret = inflater.inflate(R.layout.fragment_results, container, false);
         ButterKnife.bind(this, ret);
 
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Vertical Spreads");
-
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        if (toolbar != null) {
+            activity.setSupportActionBar(toolbar);
+            toolbar.setTitle("Vertical Spreads");
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        }
         bus.register(this);
+
+        ItemTouchHelper.Callback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+            @Override
+            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                if (viewHolder instanceof FilterLayoutViewHolder) {
+                    return makeMovementFlags(0, ItemTouchHelper.END);
+                }
+                return makeMovementFlags(0, 0);
+            }
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                if (viewHolder instanceof FilterLayoutViewHolder) {
+                    onFilterSelected(0);
+                }
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
 
         return ret;
     }
@@ -151,7 +179,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
                     resultsAdapter = new ResultsAdapter(filterSet, symbol, spreads, getActivity(), ResultsFragment.this);
                     recyclerView.setAdapter(resultsAdapter);
                 } else {
-                    resultsAdapter.update(filterSet, spreads);
+                    resultsAdapter.updateSpreads(spreads);
                 }
 
                 if (spreads.isEmpty()) {
@@ -167,6 +195,15 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
                 return allSpreads;
             }
         }.execute();
+    }
+
+    @Override
+    public void onFilterSelected(int buttonResId) {
+        filterSet.setActiveButton(buttonResId);
+        ResultsListViewHolders.ViewType type = ResultsListViewHolders.ViewType.filterTypeFromButtonId(buttonResId);
+        resultsAdapter.onFilterSelected(type);
+        if (type != ResultsListViewHolders.ViewType.FILTER_ROI)
+            Util.hideSoftKeyboard(getActivity());
     }
 
     @Override

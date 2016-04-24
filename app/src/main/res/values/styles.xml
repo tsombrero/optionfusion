@@ -238,6 +238,7 @@
 
     <style name="FilterButton">
         <item name="android:tint">@color/primary_text_inverse</item>
+        <item name="android:backgroundTint">@color/filter_button_color</item>
         <item name="android:scaleType">fitCenter</item>
         <item name="elevation">@dimen/widget_elevation_resting</item>
         <item name="android:layout_gravity">center</item>

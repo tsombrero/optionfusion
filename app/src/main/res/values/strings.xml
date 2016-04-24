@@ -36,4 +36,11 @@
     <string name="type">Type</string>
     <string name="qty">Qty</string>
     <string name="failed_fetch_chain">Failed getting option chain</string>
+    <string name="add_filters_to_refine_results">Add filters to refine results</string>
+    <string name="year">% / year</string>
+    <string name="potential_return">Potential return:</string>
+    <string name="expiration">Expiration</string>
+    <string name="time">Time</string>
+    <string name="roi">Return</string>
+    <string name="kind">Kind</string>
 </resources>

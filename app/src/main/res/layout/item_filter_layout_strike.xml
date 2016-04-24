@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- the Strike filter layout -->
+
+<RelativeLayout
+    android:id="@+id/strike_edit_layout"
+    style="@style/filtercard"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_vertical_margin">
+
+    <TextView
+        android:id="@+id/strike_edit_bullish_label"
+        style="@style/FilterItemLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="Include Options for Bullish Spreads"/>
+
+    <TextView
+        android:id="@+id/strike_edit_bullish_text"
+        style="@style/RangebarValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/strike_edit_bullish_label"
+        />
+
+    <com.optionfusion.ui.widgets.rangebar.RangeBar
+        android:id="@+id/strike_edit_bullish"
+        style="@style/rangebar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/strike_edit_bullish_text"
+        app:barColor="@color/rangebar_green"
+        app:barColorLeft="@color/rangebar_red"
+        app:connectingLineColor="@color/rangebar_green"
+        app:selectorColor="@color/rangebar_green"
+        />
+
+    <TextView
+        android:id="@+id/strike_edit_bearish_label"
+        style="@style/FilterItemLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/strike_edit_bullish"
+        android:layout_marginLeft="@dimen/activity_vertical_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:text="Include Options for Bearish Spreads"/>
+
+    <TextView
+        android:id="@+id/strike_edit_bearish_text"
+        style="@style/RangebarValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/strike_edit_bearish_label"/>
+
+    <com.optionfusion.ui.widgets.rangebar.RangeBar
+        android:id="@+id/strike_edit_bearish"
+        style="@style/rangebar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/strike_edit_bearish_text"
+        app:barColor="@color/rangebar_red"
+        app:barColorLeft="@color/rangebar_green"
+        app:connectingLineColor="@color/rangebar_green"
+        app:selectorColor="@color/rangebar_green"/>
+
+</RelativeLayout>

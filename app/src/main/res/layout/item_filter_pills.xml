@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+    <!--Hint-->
+    <TextView
+        android:id="@+id/filter_hint"
+        style="@style/HintText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:layout_marginTop="32dp"
+        android:text="@string/add_filters_to_refine_results"/>
+
+    <com.wefika.flowlayout.FlowLayout
+        android:id="@+id/active_filters_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="start|top"/>
+
+
+</LinearLayout>

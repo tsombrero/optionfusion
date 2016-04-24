@@ -1,63 +1,149 @@
 package com.optionfusion.ui.results;
 
 import android.app.Activity;
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.optionfusion.R;
 import com.optionfusion.model.FilterSet;
 import com.optionfusion.model.provider.VerticalSpread;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseViewHolder> {
+import static com.optionfusion.ui.results.ResultsListViewHolders.BaseViewHolder;
+import static com.optionfusion.ui.results.ResultsListViewHolders.SpreadViewHolder;
+import static com.optionfusion.ui.results.ResultsListViewHolders.ViewType;
+
+public class ResultsAdapter extends RecyclerView.Adapter<ResultsListViewHolders.BaseViewHolder> {
 
     private final String symbol;
     private final Activity activity;
+    private final FilterSet filterSet;
     List<ListItem> items;
     private final ResultsListener resultsListener;
+    private int indexOfFilterLayout;
+    private int indexOfFirstSpread;
+    private int indexOfPillsLayout;
+    private int indexOfButtonsLayout;
+
+    private static final String TAG = "ResultsAdapter";
 
     public ResultsAdapter(FilterSet filterSet, String symbol, List<VerticalSpread> spreads, Activity activity, ResultsListener resultsListener) {
         this.symbol = symbol;
         this.activity = activity;
         this.resultsListener = resultsListener;
+        this.filterSet = filterSet;
 
-        update(filterSet, spreads);
+        items = new ArrayList<>();
+        items.add(new FilterSetListItem(ViewType.FILTER_BUTTONS, filterSet));
+        indexOfButtonsLayout = items.size() - 1;
+        items.add(new FilterLayoutListItem(ViewType.filterTypeFromButtonId(filterSet.getActiveButton()), filterSet, symbol));
+        indexOfFilterLayout = items.size() - 1;
+        items.add(new FilterSetListItem(ViewType.FILTER_PILLS, filterSet));
+        indexOfPillsLayout = items.size() - 1;
+        indexOfFirstSpread = items.size();
+
+        updateSpreads(spreads);
     }
 
-    public void update(FilterSet filterSet, List<VerticalSpread> spreads) {
-        List<ListItem> newList = new ArrayList<>();
+    public void updateSpreads(List<VerticalSpread> spreads) {
 
-        newList.add(new ListItem(filterSet, symbol));
+        notifyItemChanged(indexOfPillsLayout);
+        notifyItemChanged(indexOfFilterLayout);
+
+        int itemsRemoved = items.size() - indexOfFirstSpread;
+
+        while (items.size() > indexOfFirstSpread)
+            items.remove(indexOfFirstSpread);
 
         if (spreads != null) {
             for (VerticalSpread spread : spreads) {
-                newList.add(new ListItem(spread));
+                items.add(new ListItemSpread(spread));
             }
         }
 
-        items = newList;
-        notifyDataSetChanged();
+        notifyItemRangeChanged(indexOfFirstSpread, Math.min(itemsRemoved, spreads.size()));
+
+        if (itemsRemoved > spreads.size()) {
+            int previousSize = itemsRemoved + indexOfFirstSpread;
+            notifyItemRangeRemoved(items.size(), previousSize - items.size());
+        }
+
+        if (itemsRemoved < spreads.size()) {
+            int previousSize = itemsRemoved + indexOfFirstSpread;
+            notifyItemRangeInserted(previousSize, items.size() - previousSize);
+        }
+
     }
 
-    @Override
-    public ListViewHolders.BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        ListViewHolders.ViewType type = ListViewHolders.ViewType.values()[viewType];
+    private Map<ViewType, BaseViewHolder> stableViewHolders = new HashMap<>();
 
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(type.layout, parent, false);
+    @Override
+    public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        ViewType type = ViewType.values()[viewType];
+
+        if (stableViewHolders.get(type) != null)
+            return stableViewHolders.get(type);
+
+        View itemView;
+
+        itemView = LayoutInflater.from(parent.getContext()).inflate(type.layout, parent, false);
+
+        BaseViewHolder ret = null;
 
         switch (type) {
-            case LABEL:
-                return new ListViewHolders.LabelViewHolder(itemView);
-            case FILTER_SET:
-                return new FilterViewHolder(itemView, activity, resultsListener);
+            case NONE:
+                ret = new EmptyViewHolder(itemView, activity, resultsListener);
+                break;
+            case FILTER_BUTTONS:
+                ret = new FilterButtonsViewHolder(itemView, activity, resultsListener);
+                break;
+            case FILTER_TIME:
+                ret = new TimeFilterViewHolder(itemView, activity, resultsListener);
+                break;
+            case FILTER_STRIKE:
+                ret = new StrikeFilterViewHolder(itemView, activity, resultsListener);
+                break;
+            case FILTER_ROI:
+                ret = new RoiFilterViewHolder(itemView, activity, resultsListener);
+                break;
+            case FILTER_SPREAD_KIND:
+                ret = new SpreadKindViewHolder(itemView, activity, resultsListener);
+                break;
+            case FILTER_PILLS:
+                ret = new FilterPillsViewHolder(itemView, activity, resultsListener);
+                break;
             case SPREAD_DETAILS:
-                return new ListViewHolders.SpreadViewHolder(itemView, activity, resultsListener);
+                ret = new SpreadViewHolder(itemView, activity, resultsListener);
+                break;
         }
-        return null;
+
+        switch (type) {
+            case NONE:
+            case FILTER_BUTTONS:
+            case FILTER_TIME:
+            case FILTER_STRIKE:
+            case FILTER_ROI:
+            case FILTER_SPREAD_KIND:
+                stableViewHolders.put(type, ret);
+        }
+        return ret;
+    }
+
+    static class EmptyViewHolder extends BaseViewHolder {
+        public EmptyViewHolder(View itemView, Context context, ResultsListener resultsListener) {
+            super(itemView, context, resultsListener);
+        }
+
+        @Override
+        void bind(ListItem item) {
+
+        }
     }
 
     @Override
@@ -66,7 +152,7 @@ public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseVie
     }
 
     @Override
-    public void onBindViewHolder(ListViewHolders.BaseViewHolder holder, int position) {
+    public void onBindViewHolder(BaseViewHolder holder, int position) {
         holder.bind(items.get(position));
     }
 
@@ -75,36 +161,60 @@ public class ResultsAdapter extends RecyclerView.Adapter<ListViewHolders.BaseVie
         return items == null ? 0 : items.size();
     }
 
+    public void onFilterSelected(ViewType type) {
+        if (items.get(indexOfFilterLayout).viewType != type) {
+            items.remove(indexOfFilterLayout);
+            notifyItemRemoved(indexOfFilterLayout);
+        }
+
+        items.add(indexOfFilterLayout, new FilterLayoutListItem(type, filterSet, symbol));
+        notifyItemInserted(indexOfFilterLayout);
+
+        notifyItemChanged(indexOfButtonsLayout);
+    }
+
     public static class ListItem {
-        String symbol;
-        VerticalSpread spread;
-        ListViewHolders.ViewType viewType;
+        ViewType viewType;
+
+        public ListItem(ViewType viewType) {
+            this.viewType = viewType;
+        }
+    }
+
+    public static class FilterSetListItem extends ListItem {
         FilterSet filterSet;
-        int layout;
-        String labelText;
 
-        public ListItem(VerticalSpread spread) {
-            this.spread = spread;
-            layout = R.layout.item_spread_details;
-            viewType = ListViewHolders.ViewType.SPREAD_DETAILS;
-        }
-
-        ListItem(String labelText) {
-            this.labelText = labelText;
-            layout = R.layout.item_label;
-            viewType = ListViewHolders.ViewType.LABEL;
-        }
-
-        public ListItem(FilterSet filterSet, String symbol) {
-            this.symbol = symbol;
+        public FilterSetListItem(ViewType type, FilterSet filterSet) {
+            super(type);
             this.filterSet = filterSet;
-            layout = R.layout.item_filter_buttons;
-            viewType = ListViewHolders.ViewType.FILTER_SET;
+        }
+    }
+
+    public static class FilterLayoutListItem extends ListItem {
+        final FilterSet filterSet;
+        String symbol;
+
+        public FilterLayoutListItem(ViewType type, FilterSet filterSet, String symbol) {
+            super(type);
+            this.filterSet = filterSet;
+            this.symbol = symbol;
+        }
+    }
+
+    public static class ListItemSpread extends ListItem {
+        VerticalSpread spread;
+
+        public ListItemSpread(VerticalSpread spread) {
+            super(ViewType.SPREAD_DETAILS);
+            this.spread = spread;
         }
     }
 
     public interface ResultsListener {
         void onChange(FilterSet filterSet);
+
+        void onFilterSelected(int buttonResId);
+
         void onResultSelected(VerticalSpread spread, View headerLayout, View detailsLayout);
     }
 }

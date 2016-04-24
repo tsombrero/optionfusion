@@ -122,8 +122,6 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
                     return;
 
                 adapter.removeItem(viewHolder.getAdapterPosition());
-
-                //TODO job to remove symbol from db & backend
             }
         };
 
