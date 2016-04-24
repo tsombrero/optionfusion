@@ -39,6 +39,7 @@ import com.optionfusion.ui.login.LoginActivity;
 import com.optionfusion.ui.results.ResultsFragment;
 import com.optionfusion.ui.search.WatchlistFragment;
 import com.optionfusion.ui.tradedetails.TradeDetailsFragment;
+import com.optionfusion.util.SharedPrefStore;
 import com.optionfusion.util.Util;
 
 import org.greenrobot.eventbus.EventBus;
@@ -87,6 +88,9 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
     @Inject
     JobManager jobManager;
 
+    @Inject
+    SharedPrefStore sharedPrefStore;
+
     private static GoogleApiClient apiClient;
 
     private static final int GOOGLE_API_CLIENTID = 2;
@@ -96,8 +100,14 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
         OptionFusionApplication.from(this).getComponent().inject(this);
+
+        if (!sharedPrefStore.isUserAuthenticated()) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+        }
+
+        setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         bus.register(this);
 
@@ -134,14 +144,14 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
 
                     accountClient.setGoogleAccount(googleSignInResult.getSignInAccount());
 
+                    if (isDestroyed() || isFinishing())
+                        return;
+
                     Fragment frag = WatchlistFragment.newInstance();
                     getSupportFragmentManager().beginTransaction()
                             .addToBackStack(null)
                             .add(R.id.fragment_container, frag, "tag_search")
                             .commitAllowingStateLoss();
-                } else {
-                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                    finish();
                 }
             }
         }.execute(null, null);

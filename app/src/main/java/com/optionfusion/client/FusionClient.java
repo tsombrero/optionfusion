@@ -423,10 +423,10 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         this.account = account;
 
         if (account != null) {
-            sharedPrefStore.setAccountName(account.getEmail());
+            sharedPrefStore.setEmail(account.getEmail());
             // User is authorized.
         } else {
-            sharedPrefStore.setAccountName(null);
+            sharedPrefStore.setEmail(null);
         }
     }
 
@@ -496,7 +496,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
     @Override
     public GoogleSignInResult trySilentSignIn(GoogleApiClient apiClient) {
-        Log.i(TAG, "trySilentSignIn");
+        Log.i(TAG, "trySilentSignIn", new RuntimeException("TACO"));
 
         signinResult =
                 Auth.GoogleSignInApi.silentSignIn(apiClient).await(15, TimeUnit.SECONDS);
@@ -508,6 +508,8 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
         if (account == null)
             return null;
+
+        sharedPrefStore.setEmail(account.getEmail());
 
         if (BuildConfig.DEBUG) {
             try {
