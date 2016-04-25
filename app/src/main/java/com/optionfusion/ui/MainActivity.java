@@ -217,6 +217,9 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
         optionChainProvider.get(symbol, new ClientInterfaces.Callback<Interfaces.OptionChain>() {
             @Override
             public void call(Interfaces.OptionChain optionChain) {
+                if (isDestroyed() || isFinishing())
+                    return;
+
                 if (progressBar.getVisibility() != View.VISIBLE)
                     return;
 

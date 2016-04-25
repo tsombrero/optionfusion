@@ -1,5 +1,7 @@
 package com.optionfusion.cache;
 
+import android.util.Log;
+
 import com.birbit.android.jobqueue.Job;
 import com.birbit.android.jobqueue.JobManager;
 import com.birbit.android.jobqueue.callback.JobManagerCallbackAdapter;
@@ -67,8 +69,13 @@ public class OptionChainProvider {
     }
 
     private synchronized void callCallback(String symbol, Interfaces.OptionChain chain, ClientInterfaces.Callback<Interfaces.OptionChain> callback) {
+        if (symbol == null || callback == null)
+            return;
+
         try {
             callback.call(chain);
+        } catch (Throwable t) {
+            Log.e(TAG, "Error notifying of new option chain");
         } finally {
             if (callbacks.get(symbol) != null) {
                 callbacks.get(symbol).remove(callback);

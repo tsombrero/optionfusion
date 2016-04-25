@@ -18,7 +18,7 @@ import static com.optionfusion.db.Schema.DbConstraint.PRIMARY_KEY;
 
 public class Schema {
 
-    public final static int SCHEMA_VERSION = 6;
+    public final static int SCHEMA_VERSION = 8;
     public static final String DB_NAME = "optionfusion.db";
 
     enum DbConstraint {
@@ -161,7 +161,7 @@ public class Schema {
         PRICE_AT_MAX_LOSS(REAL),
         MAX_GAIN_ABSOLUTE(REAL),
         MAX_GAIN_PERCENT(REAL),
-        MAX_GAIN_MONTHLY(REAL),
+//        MAX_GAIN_MONTHLY(REAL),
         MAX_GAIN_ANNUALIZED(REAL),
         MAX_VALUE_AT_EXPIRATION(REAL),
         CAPITAL_AT_RISK(REAL),

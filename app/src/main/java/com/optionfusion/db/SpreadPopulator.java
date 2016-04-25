@@ -7,6 +7,10 @@ import com.optionfusion.model.provider.VerticalSpread;
 
 import org.sqlite.database.sqlite.SQLiteDatabase;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class SpreadPopulator {
@@ -47,6 +51,16 @@ public class SpreadPopulator {
         Log.d(TAG, "Inserting spreads:");
         db.execSQL(sb.toString());
         Log.d(TAG, "Done inserting spreads");
+
+        try {
+            FileOutputStream fos = new FileOutputStream(new File("/sdcard", "giantQuery.sql"));
+            fos.write(sb.toString().getBytes());
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // very poor excuse for a template language, quick and dirty.
@@ -149,17 +163,17 @@ public class SpreadPopulator {
                         " (net_ask * -1) / (normal_max_value + net_ask) " +
                         "END";
                 break;
-            case MAX_GAIN_MONTHLY:
-                // periodic_roi(principal, final, days held, days in period)
-                sql = "CASE " +
-                        "WHEN isBullCall OR isBearPut THEN " +
-                        " periodic_roi(net_ask, normal_max_value, buy.days_to_expiration, 30) " +
-                        "ELSE " +
-                        // principal: capital_at_risk
-                        // final: normal_max_value
-                        " periodic_roi(normal_max_value + net_ask, normal_max_value, buy.days_to_expiration, 30) " +
-                        "END";
-                break;
+//            case MAX_GAIN_MONTHLY:
+//                // periodic_roi(principal, final, days held, days in period)
+//                sql = "CASE " +
+//                        "WHEN isBullCall OR isBearPut THEN " +
+//                        " periodic_roi(net_ask, normal_max_value, buy.days_to_expiration, 30) " +
+//                        "ELSE " +
+//                        // principal: capital_at_risk
+//                        // final: normal_max_value
+//                        " periodic_roi(normal_max_value + net_ask, normal_max_value, buy.days_to_expiration, 30) " +
+//                        "END";
+//                break;
             case MAX_GAIN_ANNUALIZED:
                 // periodic_roi(principal, final, days held, days in period)
                 sql = "CASE " +

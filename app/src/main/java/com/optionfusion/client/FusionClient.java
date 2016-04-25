@@ -504,12 +504,11 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         if (signinResult != null && signinResult.isSuccess()) {
             account = signinResult.getSignInAccount();
             Log.i(TAG, "Account updated " + account);
+            sharedPrefStore.setEmail(account.getEmail());
         }
 
         if (account == null)
             return null;
-
-        sharedPrefStore.setEmail(account.getEmail());
 
         if (BuildConfig.DEBUG) {
             try {

@@ -33,8 +33,8 @@ public class DbHelper extends SQLiteOpenHelper {
         createTable(db, Schema.Options.values());
         createTable(db, Schema.VerticalSpreads.values());
 
-        createUniqueIndex(db, Schema.VerticalSpreads.BUY_SYMBOL, Schema.VerticalSpreads.SELL_SYMBOL);
-
+//        createUniqueIndex(db, Schema.VerticalSpreads.BUY_SYMBOL, Schema.VerticalSpreads.SELL_SYMBOL);
+        createUniqueIndex(db, Schema.Options.OPTION_TYPE, Schema.Options.UNDERLYING_SYMBOL, Schema.Options.SYMBOL, Schema.Options.EXPIRATION);
     }
 
     private void createUniqueIndex(SQLiteDatabase db, Schema.DbColumn ... columns) {
