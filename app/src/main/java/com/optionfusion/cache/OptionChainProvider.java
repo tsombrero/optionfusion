@@ -84,7 +84,8 @@ public class OptionChainProvider {
     }
 
     public synchronized void put(Interfaces.OptionChain result) {
-        chains.put(result.getSymbol(), result);
+        if (result != null && result.getSymbol() != null)
+            chains.put(result.getSymbol(), result);
     }
 
     private void handleResult(String symbol, Interfaces.OptionChain chain) {

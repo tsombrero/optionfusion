@@ -10,6 +10,7 @@ import com.optionfusion.R;
 import com.optionfusion.model.filter.Filter;
 
 import butterknife.Bind;
+import butterknife.BindColor;
 
 public class FilterPillsViewHolder extends FilterViewHolder {
 
@@ -20,6 +21,9 @@ public class FilterPillsViewHolder extends FilterViewHolder {
 
     @Bind(R.id.active_filters_container)
     ViewGroup activeFiltersContainer;
+
+    @BindColor(R.color.rangebar_red)
+    int redColor;
 
     public FilterPillsViewHolder(View itemView, Activity activity, ResultsAdapter.ResultsListener changeListener) {
         super(itemView, activity, changeListener);
@@ -44,6 +48,9 @@ public class FilterPillsViewHolder extends FilterViewHolder {
                     removeFilterMatching((Filter) v.getTag());
                 }
             });
+            if (filter.isError()) {
+                newFilterView.setTextColor(redColor);
+            }
         }
         filterHintText.setVisibility(getFilterSet().isEmpty() ? View.VISIBLE : View.GONE);
     }

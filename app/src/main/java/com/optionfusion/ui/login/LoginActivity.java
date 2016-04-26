@@ -61,22 +61,6 @@ public class LoginActivity extends AppCompatActivity implements StartFragment.Ho
                 .commit();
 
         googleApiClient = FusionClient.getGoogleApiClient(this, GOOGLE_API_CLIENTID);
-
-        new AsyncTask<Void, Void, GoogleSignInResult>() {
-            @Override
-            protected GoogleSignInResult doInBackground(Void... params) {
-                return accountClient.trySilentSignIn(googleApiClient);
-            }
-
-            @Override
-            protected void onPostExecute(GoogleSignInResult googleSignInResult) {
-                if (googleSignInResult != null && googleSignInResult.isSuccess()) {
-                    startLogin(OptionFusionApplication.Provider.OPTION_FUSION_BACKEND);
-                } else {
-                    ((StartFragment)frag).showSignInButton();
-                }
-            }
-        }.execute(null, null);
     }
 
     @Override

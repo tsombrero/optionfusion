@@ -55,8 +55,6 @@ public class StartFragment extends Fragment implements GoogleApiClient.OnConnect
 
         signInButton.setSize(SignInButton.SIZE_WIDE);
         signInButton.setColorScheme(SignInButton.COLOR_LIGHT);
-        signInButton.setVisibility(View.GONE);
-        signInText.setVisibility(View.GONE);
 
         return ret;
     }
@@ -105,13 +103,6 @@ public class StartFragment extends Fragment implements GoogleApiClient.OnConnect
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Toast.makeText(getActivity(), "Connection Failed: " + connectionResult.toString(), Toast.LENGTH_SHORT);
-    }
-
-    public void showSignInButton() {
-        if (signInButton != null) {
-            signInButton.setVisibility(View.VISIBLE);
-            signInText.setVisibility(View.VISIBLE);
-        }
     }
 
     public interface Host {

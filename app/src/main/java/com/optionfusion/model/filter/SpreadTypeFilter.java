@@ -40,7 +40,7 @@ public class SpreadTypeFilter extends Filter {
 
     @Override
     public void addDbSelection(ArrayList<String> selections, ArrayList<String> selectionArgs) {
-        if (includeTypes.isEmpty() || includeTypes.size() == VerticalSpread.SpreadType.values().length)
+        if (includeTypes.size() == VerticalSpread.SpreadType.values().length)
             return;
 
         ArrayList<Integer> includedOrdinals = new ArrayList<>();
@@ -101,6 +101,11 @@ public class SpreadTypeFilter extends Filter {
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean isError() {
+        return includeTypes.size() == 0;
     }
 
     @Override

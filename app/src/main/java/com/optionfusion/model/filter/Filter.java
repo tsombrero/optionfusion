@@ -72,6 +72,10 @@ abstract public class Filter implements Parcelable {
         }
     };
 
+    public boolean isError() {
+        return false;
+    }
+
     public enum FilterType {
         ROI,
         TIME,
