@@ -53,17 +53,8 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
     private static final String KEY_WATCHLIST = "watchlist";
     private static final String KEY_PROVIDER = "provider";
 
-    @Bind(R.id.toolbar)
-    Toolbar toolbar;
-
     @Bind(R.id.list)
     RecyclerView recyclerView;
-
-    @Bind(R.id.fab)
-    FloatingActionButton fab;
-
-    @Bind(R.id.appbarLayout)
-    AppBarLayout appBarLayout;
 
     @Inject
     SharedPreferences sharedPreferences;
@@ -93,9 +84,6 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
         OptionFusionApplication.from(getActivity()).getComponent().inject(this);
         View ret = inflater.inflate(R.layout.fragment_search, container, false);
         ButterKnife.bind(this, ret);
-
-        toolbar.setTitle("Option Fusion " + BuildConfig.VERSION_NAME);
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
 
         swipeRefreshLayout.setOnRefreshListener(this);
 
@@ -169,8 +157,8 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
     @Override
     public void onResume() {
         super.onResume();
-        if (appBarLayout != null)
-            appBarLayout.addOnOffsetChangedListener(this);
+//        if (appBarLayout != null)
+//            appBarLayout.addOnOffsetChangedListener(this);
 
         if (adapter == null || adapter.getStockQuoteList().isEmpty()) {
             showProgress(true);
@@ -183,8 +171,8 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
     @Override
     public void onPause() {
         super.onPause();
-        if (appBarLayout != null)
-            appBarLayout.removeOnOffsetChangedListener(this);
+//        if (appBarLayout != null)
+//            appBarLayout.removeOnOffsetChangedListener(this);
     }
 
     SharedViewHolders.StockQuoteViewConfig viewConfig = new SharedViewHolders.StockQuoteViewConfig() {
@@ -199,11 +187,13 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
         Host host = ((Host) getActivity());
         if (host != null && isAdded() && isVisible()) {
             ((Host) getActivity()).showProgress(show);
-            fab.setEnabled(!show);
         }
     }
 
-    @OnClick(R.id.fab)
+    public void onFabClicked() {
+        onOpenAddToWatchlistDialog();
+    }
+
     public void onOpenAddToWatchlistDialog() {
         Util.showSoftKeyboard(getActivity());
 

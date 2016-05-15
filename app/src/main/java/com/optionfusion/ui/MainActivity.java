@@ -11,10 +11,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.MainThread;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.BuildConfig;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.Menu;
@@ -91,6 +94,18 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
     @Inject
     SharedPrefStore sharedPrefStore;
 
+
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
+
+    @Bind(R.id.fab)
+    FloatingActionButton fab;
+
+    @Bind(R.id.appbarLayout)
+    AppBarLayout appBarLayout;
+
+
+
     private static GoogleApiClient apiClient;
 
     private static final int GOOGLE_API_CLIENTID = 2;
@@ -113,6 +128,9 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
 
         progressBar.getIndeterminateDrawable().setColorFilter(accentColor, PorterDuff.Mode.SRC_IN);
         showProgress(true);
+
+        toolbar.setTitle("Option Fusion " + com.optionfusion.BuildConfig.VERSION_NAME);
+        setSupportActionBar(toolbar);
 
         reconnect();
     }
@@ -146,6 +164,8 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
 
                     if (isDestroyed() || isFinishing())
                         return;
+
+                    //TODO this can put multiple watchlists on the backstack
 
                     Fragment frag = WatchlistFragment.newInstance();
                     getSupportFragmentManager().beginTransaction()
@@ -280,6 +300,7 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
         progressBar.post(new Runnable() {
             @Override
             public void run() {
+                fab.setEnabled(!show);
                 progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
             }
         });

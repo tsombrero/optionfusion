@@ -498,8 +498,12 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     public GoogleSignInResult trySilentSignIn(GoogleApiClient apiClient) {
         Log.v(TAG, "trySilentSignIn", new RuntimeException("TACO"));
 
-        signinResult =
-                Auth.GoogleSignInApi.silentSignIn(apiClient).await(15, TimeUnit.SECONDS);
+        try {
+            signinResult =
+                    Auth.GoogleSignInApi.silentSignIn(apiClient).await(15, TimeUnit.SECONDS);
+        } catch (Throwable t) {
+            return null;
+        }
 
         if (signinResult != null && signinResult.isSuccess()) {
             account = signinResult.getSignInAccount();
