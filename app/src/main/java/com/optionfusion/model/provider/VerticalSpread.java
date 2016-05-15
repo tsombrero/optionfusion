@@ -34,6 +34,8 @@ public interface VerticalSpread extends Parcelable {
 
     double getMaxReturnAnnualized();
 
+    double getMaxReturnMonthly();
+
     double getBreakEvenDepth();
 
     int getDaysToExpiration();

@@ -106,6 +106,10 @@ public class DbSpread implements VerticalSpread, Parcelable {
         return getDouble(VerticalSpreads.MAX_GAIN_ANNUALIZED);
     }
 
+    public double getMaxReturnMonthly() {
+        return Math.pow(1d + getMaxPercentProfitAtExpiration(), 30d / (double) getDaysToExpiration()) - 1d;
+    }
+
     @Override
     public double getBreakEvenDepth() {
         return getDouble(VerticalSpreads.BUFFER_TO_BREAK_EVEN);

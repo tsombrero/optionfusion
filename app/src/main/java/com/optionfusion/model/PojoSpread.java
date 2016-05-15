@@ -165,6 +165,11 @@ abstract public class PojoSpread implements Parcelable, com.optionfusion.model.p
         return Math.pow(1d + getMaxPercentProfitAtExpiration(), 365d / (double) getDaysToExpiration()) - 1d;
     }
 
+    public double getMaxReturnMonthly() {
+        return Math.pow(1d + getMaxPercentProfitAtExpiration(), 30d / (double) getDaysToExpiration()) - 1d;
+    }
+
+
     public String toString() {
         return String.format("%s $%.2f; dte:%d; spr:%.2f/%.2f b/a:$%.2f/%.2f MaxProfit: %s / %.1f%% risk:%.3f",
                 chain.getSymbol(),

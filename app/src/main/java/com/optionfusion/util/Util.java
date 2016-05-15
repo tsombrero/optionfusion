@@ -35,6 +35,8 @@ public class Util {
     private static final DecimalFormat percentFormatBig = new DecimalFormat("@@E0x");
     private static final DecimalFormat percentFormat = new DecimalFormat("@@%");
 
+    public static final float MAX_PERCENT_NORMAL_FORMAT = 100F;
+
     private static final GregorianCalendar calendar = new GregorianCalendar();
 
     public static String formatDollars(Double val) {
@@ -83,7 +85,7 @@ public class Util {
     }
 
     public static String formatPercent(double pct) {
-        if (Math.abs(pct) < 100F)
+        if (Math.abs(pct) < MAX_PERCENT_NORMAL_FORMAT)
             return percentFormat.format(pct);
 
         return percentFormatBig.format(pct);

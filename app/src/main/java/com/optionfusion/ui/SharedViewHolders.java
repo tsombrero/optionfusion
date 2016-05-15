@@ -319,8 +319,8 @@ public class SharedViewHolders {
         }
 
         public void bind(VerticalSpread spread) {
-            summary.setText(String.format("Returns %s/yr if %s is %s %s from the current price",
-                    Util.formatPercentCompact(spread.getMaxReturnAnnualized()),             // Returns %s / yr
+            summary.setText(String.format("Returns %s if %s is %s %s from the current price",
+                    getPeriodicRoi(spread),                                                 // Returns n/yr or n/mo
                     spread.getUnderlyingSymbol(),                                           // if %symbol
                     spread.isBullSpread()                                                   // "down less than" "up at least" "up less than" "down at least"
                             ? (spread.isInTheMoney_MaxReturn() ? "down less than" : "up at least")
@@ -348,6 +348,13 @@ public class SharedViewHolders {
         static public String getTransitionName(VerticalSpread spread) {
             return "details_" + spread.getDescription();
         }
+    }
+
+    private static String getPeriodicRoi(VerticalSpread spread) {
+        if (spread.getMaxReturnAnnualized() > Util.MAX_PERCENT_NORMAL_FORMAT)
+            return Util.formatPercentCompact(spread.getMaxReturnMonthly()) + "/mo";
+
+        return Util.formatPercentCompact(spread.getMaxReturnAnnualized()) + "/yr";
     }
 
     public static class MarketDataTimestampHeaderViewHolder extends StockQuoteListViewHolder {

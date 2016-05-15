@@ -134,7 +134,7 @@ class PinView extends View {
         int targetRadius = (int) Math.max(MINIMUM_TARGET_RADIUS_DP, Math.min(mPinHeightPx, mPinWidthPx));
 
         mTargetRadiusPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                targetRadius,
+                (float)targetRadius * 1.5f,
                 mRes.getDisplayMetrics());
         mY = y;
     }
