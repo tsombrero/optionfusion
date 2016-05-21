@@ -251,7 +251,9 @@ public class TradeDetailsFragment extends Fragment {
         v.left = (float) Math.max(0f, Math.min(oc.getUnderlyingPrice() * 0.98f, v.left));
         v.right = (float) Math.max(oc.getUnderlyingPrice() * 1.02f, v.right);
 
-        v.bottom = (float) Math.max(v.bottom, Math.max(0f, spread.getAsk()) * -1f);
+        v.bottom = v.bottom / 2;
+
+//        v.bottom = (float) Math.max(v.bottom, Math.max(0f, spread.getAsk()) * -1f);
 
         plChart.setMaxZoom(Float.MAX_VALUE);
         plChart.setMaximumViewport(v);

@@ -30,7 +30,7 @@
     <string name="ok">OK</string>
     <string name="total_loss_price">Total loss price</string>
     <string name="gain_at_expiration">Gain at Expiration</string>
-    <string name="the_trade">The Trade:</string>
+    <string name="the_trade">To Open</string>
     <string name="exp">Exp</string>
     <string name="strike">Strike</string>
     <string name="type">Type</string>

@@ -3,6 +3,7 @@ package com.optionfusion.db;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.optionfusion.BuildConfig;
 import com.optionfusion.model.provider.VerticalSpread;
 
 import org.sqlite.database.sqlite.SQLiteDatabase;
@@ -52,14 +53,16 @@ public class SpreadPopulator {
         db.execSQL(sb.toString());
         Log.d(TAG, "Done inserting spreads");
 
-        try {
-            FileOutputStream fos = new FileOutputStream(new File("/sdcard", "giantQuery.sql"));
-            fos.write(sb.toString().getBytes());
-            fos.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (BuildConfig.DEBUG) {
+            try {
+                FileOutputStream fos = new FileOutputStream(new File("/sdcard", "giantQuery.sql"));
+                fos.write(sb.toString().getBytes());
+                fos.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
