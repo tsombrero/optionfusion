@@ -1,5 +1,6 @@
 package com.optionfusion.ui;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Matrix;
@@ -13,9 +14,13 @@ import android.os.Parcelable;
 import android.support.annotation.MainThread;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.BuildConfig;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.SharedElementCallback;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.transition.TransitionInflater;
@@ -39,6 +44,7 @@ import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.login.LoginActivity;
+import com.optionfusion.ui.results.ResultsActivity;
 import com.optionfusion.ui.results.ResultsFragment;
 import com.optionfusion.ui.search.WatchlistFragment;
 import com.optionfusion.ui.tradedetails.TradeDetailsFragment;
@@ -104,6 +110,11 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
     @Bind(R.id.appbarLayout)
     AppBarLayout appBarLayout;
 
+    @Bind(R.id.tablayout)
+    TabLayout tabLayout;
+
+    @Bind(R.id.pager)
+    ViewPager pager;
 
 
     private static GoogleApiClient apiClient;
@@ -111,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
     private static final int GOOGLE_API_CLIENTID = 2;
 
     private static final String TAG = "MainActivity";
+    private TabPagerAdapter pagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,6 +143,43 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
 
         toolbar.setTitle("Option Fusion " + com.optionfusion.BuildConfig.VERSION_NAME);
         setSupportActionBar(toolbar);
+
+        pagerAdapter = new MainActivity.TabPagerAdapter(getSupportFragmentManager(), this);
+        pager.setAdapter(pagerAdapter);
+
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                pager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
+        });
+
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                tabLayout.getTabAt(position).select();
+                toolbar.setTitle(pagerAdapter.getPageTitle(position));
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
 
         reconnect();
     }
@@ -166,15 +215,58 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
                         return;
 
                     //TODO this can put multiple watchlists on the backstack
-
-                    Fragment frag = WatchlistFragment.newInstance();
-                    getSupportFragmentManager().beginTransaction()
-                            .addToBackStack(null)
-                            .add(R.id.fragment_container, frag, "tag_search")
-                            .commitAllowingStateLoss();
+//
+//                    Fragment frag = WatchlistFragment.newInstance();
+//                    getSupportFragmentManager().beginTransaction()
+//                            .addToBackStack(null)
+//                            .add(R.id.fragment_container, frag, "tag_search")
+//                            .commitAllowingStateLoss();
                 }
             }
         }.execute(null, null);
+    }
+
+    public static class TabPagerAdapter extends FragmentPagerAdapter {
+
+        private final Activity activity;
+        Fragment watchlistFragment;
+        Fragment favoritesFragment;
+        Fragment helpFragment;
+
+        public TabPagerAdapter(FragmentManager fm, Activity activity) {
+            super(fm);
+            this.activity = activity;
+            watchlistFragment = WatchlistFragment.newInstance();
+            favoritesFragment = WatchlistFragment.newInstance();
+            helpFragment = WatchlistFragment.newInstance();
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 1:
+                    return favoritesFragment;
+                case 2:
+                    return helpFragment;
+            }
+            return watchlistFragment;
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 1:
+                    return activity.getString(R.string.favorites);
+                case 2:
+                    return activity.getString(R.string.help);
+            }
+            return activity.getString(R.string.watchlist);
+        }
     }
 
     @Override
@@ -245,11 +337,9 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
 
                 showProgress(false);
                 if (optionChain != null) {
-                    Fragment fragment = ResultsFragment.newInstance(optionChain.getSymbol());
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, fragment, optionChain.getSymbol())
-                            .addToBackStack(null)
-                            .commitAllowingStateLoss();
+                    Intent intent = new Intent(MainActivity.this, ResultsActivity.class);
+                    intent.putExtra(ResultsActivity.EXTRA_SYMBOL, symbol);
+                    startActivity(intent);
                 } else {
                     onError(0, null);
                 }

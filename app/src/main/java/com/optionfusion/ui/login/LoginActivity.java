@@ -51,7 +51,7 @@ public class LoginActivity extends AppCompatActivity implements StartFragment.Ho
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_start);
         OptionFusionApplication.from(this).getComponent().inject(this);
 
         final Fragment frag = StartFragment.newInstance();

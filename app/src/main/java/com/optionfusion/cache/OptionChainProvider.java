@@ -75,7 +75,7 @@ public class OptionChainProvider {
         try {
             callback.call(chain);
         } catch (Throwable t) {
-            Log.e(TAG, "Error notifying of new option chain");
+            Log.e(TAG, "Error notifying of new option chain", t);
         } finally {
             if (callbacks.get(symbol) != null) {
                 callbacks.get(symbol).remove(callback);

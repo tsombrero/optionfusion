@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="8dp"
+        android:foregroundTint="@color/material_blue_500"
+        android:progressTint="@color/material_green_500"
+        android:secondaryProgressTint="@color/foreground_dark_grey"
+        android:visibility="gone"
+        tools:showIn="@layout/activity_start"/>
+
+</merge>

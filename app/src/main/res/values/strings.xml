@@ -43,4 +43,7 @@
     <string name="time">Time</string>
     <string name="roi">Return</string>
     <string name="kind">Kind</string>
+    <string name="watchlist">Watchlist</string>
+    <string name="help">Help</string>
+    <string name="favorites">Favorites</string>
 </resources>

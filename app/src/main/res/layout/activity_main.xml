@@ -20,7 +20,6 @@
             app:layout_scrollFlags="scroll|enterAlways"/>
 
         <android.support.design.widget.TabLayout
-            android:visibility="gone"
             android:id="@+id/tablayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,14 +37,21 @@
                 android:layout="@layout/tab_star"
                 />
 
+            <android.support.design.widget.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout="@layout/tab_help"
+                />
+
         </android.support.design.widget.TabLayout>
 
     </android.support.design.widget.AppBarLayout>
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
+    <android.support.v4.view.ViewPager
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         />
 
@@ -60,20 +66,10 @@
         android:elevation="@dimen/fab_elevation"
         android:tint="@android:color/white"
         app:borderWidth="0dp"
-        app:layout_anchor="@id/fragment_container"
+        app:layout_anchor="@id/pager"
         app:layout_anchorGravity="bottom|right|end"
         app:srcCompat="@drawable/ic_add_24dp"/>
 
-    <ProgressBar
-        android:id="@+id/progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="8dp"
-        android:progressTint="@color/material_green_500"
-        android:secondaryProgressTint="@color/foreground_dark_grey"
-        android:foregroundTint="@color/material_blue_500"
-        android:visibility="gone"/>
+    <include layout="@layout/progressbar"/>
 
 </android.support.design.widget.CoordinatorLayout>
