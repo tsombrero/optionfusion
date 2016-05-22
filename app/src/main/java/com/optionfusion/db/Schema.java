@@ -46,7 +46,7 @@ public class Schema {
             return this;
         }
 
-        public ContentValueBuilder put(DbColumn key, int value) {
+        public ContentValueBuilder put(DbColumn key, long value) {
             cv.put(key.name(), value);
             return this;
         }
@@ -186,6 +186,40 @@ public class Schema {
         public final DbConstraint[] constraints;
 
         VerticalSpreads(DataType datatype, DbConstraint... constraints) {
+            this.datatype = datatype;
+            this.constraints = resolveConstraints(datatype, constraints);
+        }
+
+        public DataType dataType() {
+            return datatype;
+        }
+
+        public DbConstraint[] constraints() {
+            return constraints;
+        }
+
+        public static String getTableName() {
+            return VerticalSpreads.class.getSimpleName();
+        }
+    }
+
+    public enum Favorites implements DbColumn {
+        BUY_SYMBOL(TEXT),
+        SELL_SYMBOL(TEXT),
+        BUY_QUANTITY(INTEGER),
+        SELL_QUANTITY(INTEGER),
+        TIMESTAMP_ACQUIRED(INTEGER),
+        TIMESTAMP_EXPIRATION(INTEGER),
+        TIMESTAMP_CLOSED(INTEGER),
+        TIMESTAMP_ARCHIVED(INTEGER),
+        PRICE_ACQUIRED(REAL),
+        CURRENT_BID(REAL),
+        CURRENT_ASK(REAL);
+
+        public final DataType datatype;
+        public final DbConstraint[] constraints;
+
+        Favorites(DataType datatype, DbConstraint... constraints) {
             this.datatype = datatype;
             this.constraints = resolveConstraints(datatype, constraints);
         }

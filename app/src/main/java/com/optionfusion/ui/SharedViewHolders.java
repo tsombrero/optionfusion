@@ -34,6 +34,8 @@ import com.optionfusion.util.Util;
 import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
 
+import java.util.Locale;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -219,12 +221,17 @@ public class SharedViewHolders {
         @Bind(R.id.trade_strikes)
         TextView strikes;
 
+        @Bind(R.id.star)
+        ImageView star;
+        private VerticalSpread spread;
+
         public TradeDetailsHeaderHolder(View view) {
             this.context = view.getContext();
             ButterKnife.bind(this, view);
         }
 
         public void bind(VerticalSpread spread) {
+            this.spread = spread;
 
             Resources resources = context.getResources();
 
@@ -236,13 +243,28 @@ public class SharedViewHolders {
 
             description.setText(spread.getSpreadType().toString());
             expiration.setText(Util.getFormattedOptionDate(spread.getExpiresDate()));
-            strikes.setText(String.format("%.2f/%.2f", spread.getBuyStrike(), spread.getSellStrike()));
 
+            strikes.setText(String.format("%.2f/%.2f", spread.getBuyStrike(), spread.getSellStrike()).replaceAll("\\.00", ""));
 
             if (Build.VERSION.SDK_INT >= 21)
                 header.setTransitionName(getTransitionName(spread));
 
+            bindStar();
         }
+
+        private void bindStar() {
+            star.setImageDrawable(context.getResources().getDrawable(
+                    spread.isFavorite()
+                            ? R.drawable.ic_star_gold_v_24dp
+                            : R.drawable.ic_star_border_gray_24dp));
+        }
+
+        @OnClick(R.id.star)
+        public void onClickStar() {
+            spread.setIsFavorite(!spread.isFavorite());
+            bindStar();
+        }
+
 
         static public String getTransitionName(VerticalSpread spread) {
             return "header_" + spread.getDescription();
@@ -330,8 +352,8 @@ public class SharedViewHolders {
 
             textTradeCost.setText(Util.formatDollars(spread.getCapitalAtRisk()));
             breakEvenPrice.setText(Util.formatDollars(spread.getPrice_BreakEven()));
-            daysToExp.setText(Util.getFormattedOptionDate(spread.getExpiresDate()) + " / " + String.valueOf(spread.getDaysToExpiration()) + " days");
-            maxReturn.setText(Util.formatDollars(spread.getMaxReturn()) + " / " + Util.formatPercentCompact(spread.getMaxPercentProfitAtExpiration()));
+            daysToExp.setText(String.format(Locale.US, context.getString(R.string.days_to_exp_format), Util.getFormattedOptionDate(spread.getExpiresDate()), spread.getDaysToExpiration()));
+            maxReturn.setText(String.format(Locale.US, "%s / %s", Util.formatDollars(spread.getMaxReturn()), Util.formatPercentCompact(spread.getMaxPercentProfitAtExpiration())));
 
             Resources resources = context.getResources();
 

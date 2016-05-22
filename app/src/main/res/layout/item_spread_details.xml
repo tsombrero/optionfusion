@@ -2,23 +2,30 @@
 <LinearLayout
     style="@style/card"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:orientation="vertical">
 
     <include layout="@layout/incl_details_header"/>
 
     <include layout="@layout/incl_details_brief"/>
 
-    <ImageView
-        android:id="@+id/btn_more"
-        android:layout_width="wrap_content"
+    <FrameLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="@dimen/actionbar_padding_vertical"
-        android:alpha="0.22"
-        app:srcCompat="@drawable/ic_more_horiz_48dp"
-        />
+        android:layout_marginTop="8dp"
+        >
+
+        <ImageView
+            android:id="@+id/btn_more"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="@dimen/actionbar_padding_vertical"
+            app:srcCompat="@drawable/ic_more_horiz_gray_24dp"
+            />
+
+    </FrameLayout>
 
 </LinearLayout>

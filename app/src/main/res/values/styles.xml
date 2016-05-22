@@ -58,6 +58,9 @@
     <color name="button_pressed">@color/primary_light</color>
     <color name="button_selected">@color/primary_dark</color>
 
+    <color name="star_selected">@color/star_gold</color>
+    <color name="star_unselected">@color/foreground_light_grey</color>
+
     <color name="bull_spread_background">@color/material_green_700</color>
     <color name="bear_spread_background">@color/primary</color>
 
@@ -74,6 +77,8 @@
     <color name="material_orange_A700">#FFFF6D00</color>
     <color name="material_green_A400">#00E676</color>
     <color name="material_green_A700">#00C853</color>
+    <color name="material_yellow_500">#FFFFEB3B</color>
+    <color name="star_gold">#FEB500</color>
 
     // handy colors
     <color name="material_blue_grey_500">#ff607D8B</color>

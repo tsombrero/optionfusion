@@ -24,4 +24,7 @@
 
         </FrameLayout>
     </android.support.v4.widget.SwipeRefreshLayout>
+
+    <include layout="@layout/progressbar"/>
+
 </FrameLayout>

@@ -12,6 +12,8 @@ import com.optionfusion.client.YhooClientClientProvider;
 import com.optionfusion.jobqueue.BaseApiJob;
 import com.optionfusion.ui.MainActivity;
 import com.optionfusion.ui.StockDetailsFragment;
+import com.optionfusion.ui.favorites.FavoritesFragment;
+import com.optionfusion.ui.help.HelpFragment;
 import com.optionfusion.ui.login.AmeritradeLoginFragment;
 import com.optionfusion.ui.login.LoginActivity;
 import com.optionfusion.ui.login.StartFragment;
@@ -74,4 +76,8 @@ public interface OptionFusionApplicationComponent {
     void inject(BaseApiJob job);
 
     void inject(EventBus bus);
+
+    void inject(HelpFragment helpFragment);
+
+    void inject(FavoritesFragment favoritesFragment);
 }

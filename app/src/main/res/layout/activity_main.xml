@@ -70,6 +70,4 @@
         app:layout_anchorGravity="bottom|right|end"
         app:srcCompat="@drawable/ic_add_24dp"/>
 
-    <include layout="@layout/progressbar"/>
-
 </android.support.design.widget.CoordinatorLayout>

@@ -1,15 +1,12 @@
 {
   "project_info": {
-    "project_id": "option-fusion-api",
     "project_number": "386969647168",
-    "name": "Option Fusion API"
+    "project_id": "option-fusion-api"
   },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:386969647168:android:65490f23acb53758",
-        "client_id": "android:com.optionfusion",
-        "client_type": 1,
         "android_client_info": {
           "package_name": "com.optionfusion"
         }
@@ -30,26 +27,27 @@
             "package_name": "com.optionfusion",
             "certificate_hash": "74AECC4975A97C17CC6519EE02CFBE5E4E082AA2"
           }
+        },
+        {
+          "client_id": "386969647168-q03ig3s5jmp26onj5bfn0bobuvpatdm2.apps.googleusercontent.com",
+          "client_type": 3
         }
       ],
-      "api_key": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1CNdeN3U1sJem7HQr4ne643nmdzsJyBg"
+        }
+      ],
       "services": {
         "analytics_service": {
           "status": 2,
           "analytics_property": {
-            "tracking_id": "UA-72805532-1"
+            "tracking_id": "UA-76857379-1"
           }
-        },
-        "cloud_messaging_service": {
-          "status": 1,
-          "apns_config": []
         },
         "appinvite_service": {
           "status": 1,
           "other_platform_oauth_client": []
-        },
-        "google_signin_service": {
-          "status": 2
         },
         "ads_service": {
           "status": 1
@@ -57,6 +55,5 @@
       }
     }
   ],
-  "client_info": [],
-  "ARTIFACT_VERSION": "1"
+  "configuration_version": "1"
 }

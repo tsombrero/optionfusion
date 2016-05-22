@@ -44,6 +44,7 @@
     <string name="roi">Return</string>
     <string name="kind">Kind</string>
     <string name="watchlist">Watchlist</string>
-    <string name="help">Help</string>
+    <string name="help">FAQ</string>
     <string name="favorites">Favorites</string>
+    <string name="days_to_exp_format" formatted='false'>%s / %d days</string>
 </resources>

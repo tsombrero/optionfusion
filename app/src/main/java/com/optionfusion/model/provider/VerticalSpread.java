@@ -76,6 +76,10 @@ public interface VerticalSpread extends Parcelable {
 
     Double getCapitalAtRisk();
 
+    boolean isFavorite();
+
+    void setIsFavorite(boolean b);
+
     enum SpreadType {
         BULL_CALL(true, false, true),
         BEAR_CALL(false, true, true),

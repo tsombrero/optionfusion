@@ -43,6 +43,8 @@ import com.optionfusion.events.LoggedOutExceptionEvent;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
+import com.optionfusion.ui.favorites.FavoritesFragment;
+import com.optionfusion.ui.help.HelpFragment;
 import com.optionfusion.ui.login.LoginActivity;
 import com.optionfusion.ui.results.ResultsActivity;
 import com.optionfusion.ui.results.ResultsFragment;
@@ -72,9 +74,6 @@ import butterknife.ButterKnife;
 
 
 public class MainActivity extends AppCompatActivity implements WatchlistFragment.Host, ResultsFragment.Host {
-
-    @Bind(R.id.progress)
-    ProgressBar progressBar;
 
     @BindColor(R.color.accent)
     int accentColor;
@@ -138,8 +137,8 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
         ButterKnife.bind(this);
         bus.register(this);
 
-        progressBar.getIndeterminateDrawable().setColorFilter(accentColor, PorterDuff.Mode.SRC_IN);
-        showProgress(true);
+//        progressBar.getIndeterminateDrawable().setColorFilter(accentColor, PorterDuff.Mode.SRC_IN);
+//        showProgress(true);
 
         toolbar.setTitle("Option Fusion " + com.optionfusion.BuildConfig.VERSION_NAME);
         setSupportActionBar(toolbar);
@@ -172,6 +171,15 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
             public void onPageSelected(int position) {
                 tabLayout.getTabAt(position).select();
                 toolbar.setTitle(pagerAdapter.getPageTitle(position));
+                switch (position) {
+                    case 0:
+                        fab.show();
+                        break;
+                    case 1:
+                    case 2:
+                    default:
+                        fab.hide();
+                }
             }
 
             @Override
@@ -237,8 +245,8 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
             super(fm);
             this.activity = activity;
             watchlistFragment = WatchlistFragment.newInstance();
-            favoritesFragment = WatchlistFragment.newInstance();
-            helpFragment = WatchlistFragment.newInstance();
+            favoritesFragment = FavoritesFragment.newInstance();
+            helpFragment = HelpFragment.newInstance();
         }
 
         @Override
@@ -319,12 +327,12 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
     @Override
     @MainThread
     public void openResultsFragment(final String symbol) {
-        if (progressBar.getVisibility() == View.VISIBLE)
-            return;
+//        if (progressBar.getVisibility() == View.VISIBLE)
+//            return;
 
         Util.hideSoftKeyboard(this);
 
-        progressBar.setVisibility(View.VISIBLE);
+//        progressBar.setVisibility(View.VISIBLE);
 
         optionChainProvider.get(symbol, new ClientInterfaces.Callback<Interfaces.OptionChain>() {
             @Override
@@ -332,10 +340,10 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
                 if (isDestroyed() || isFinishing())
                     return;
 
-                if (progressBar.getVisibility() != View.VISIBLE)
-                    return;
+//                if (progressBar.getVisibility() != View.VISIBLE)
+//                    return;
 
-                showProgress(false);
+//                showProgress(false);
                 if (optionChain != null) {
                     Intent intent = new Intent(MainActivity.this, ResultsActivity.class);
                     intent.putExtra(ResultsActivity.EXTRA_SYMBOL, symbol);
@@ -384,18 +392,6 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
             finish();
         }
     }
-
-    @Override
-    public void showProgress(final boolean show) {
-        progressBar.post(new Runnable() {
-            @Override
-            public void run() {
-                fab.setEnabled(!show);
-                progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-            }
-        });
-    }
-
 
     public class MySharedElementCallback extends SharedElementCallback {
         @Override

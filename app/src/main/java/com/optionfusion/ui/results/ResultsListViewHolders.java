@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.optionfusion.R;
 import com.optionfusion.model.provider.VerticalSpread;
@@ -77,7 +78,7 @@ public class ResultsListViewHolders {
         }
 
         public void bind(ResultsAdapter.ListItem item) {
-            this.spread = ((ResultsAdapter.ListItemSpread)item).spread;
+            this.spread = ((ResultsAdapter.ListItemSpread) item).spread;
             briefTradeDetailsHolder.bind(spread);
             tradeHeaderHolder.bind(spread);
         }

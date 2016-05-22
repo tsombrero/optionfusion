@@ -13,10 +13,16 @@ public class Position {
     Long id;
 
     @Parent
+    Ref<FusionUser> fusionUser;
+
     Ref<Equity> underlying;
 
     boolean isDebit;
     double bid, ask;
+
+    double cost;
+    long dateAcquired;
+
     double maxGain, maxGainPercent, getMaxGainPercentAnnualized, maxLoss;
     HashMap<String, Long> components = new HashMap<>();
 

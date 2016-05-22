@@ -1,11 +1,15 @@
 package com.optionfusion.model;
 
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import com.google.android.gms.common.api.Batch;
 import com.google.gson.Gson;
+import com.optionfusion.db.Schema;
 import com.optionfusion.db.Schema.VerticalSpreads;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
@@ -21,6 +25,7 @@ public class DbSpread implements VerticalSpread, Parcelable {
     ConcurrentHashMap<VerticalSpreads, Object> columnValues = new ConcurrentHashMap<>();
 
     private static final String TAG = "DbSpread";
+    private boolean favorite;
 
     private DbSpread() {
     }
@@ -148,6 +153,16 @@ public class DbSpread implements VerticalSpread, Parcelable {
         }
     }
 
+    @Override
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    @Override
+    public void setIsFavorite(boolean isFavorite) {
+        favorite = isFavorite;
+    }
+
     public Interfaces.OptionType getOptionType() {
         return isCall() ? Interfaces.OptionType.CALL : Interfaces.OptionType.PUT;
     }
@@ -265,6 +280,38 @@ public class DbSpread implements VerticalSpread, Parcelable {
     }
 
     public static final Parcelable.Creator<VerticalSpread> CREATOR = new SpreadCreator();
+
+    public void saveAsFavorite(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            ContentValues cvInsert = new Schema.ContentValueBuilder()
+                    .put(Schema.Favorites.BUY_QUANTITY, 1)
+                    .put(Schema.Favorites.SELL_QUANTITY, 1)
+                    .put(Schema.Favorites.BUY_SYMBOL, getBuySymbol())
+                    .put(Schema.Favorites.SELL_SYMBOL, getSellSymbol())
+                    .put(Schema.Favorites.CURRENT_ASK, getAsk())
+                    .put(Schema.Favorites.CURRENT_BID, getBid())
+                    .put(Schema.Favorites.PRICE_ACQUIRED, getAsk() + getBid() / 2)
+                    .put(Schema.Favorites.TIMESTAMP_ACQUIRED, System.currentTimeMillis())
+                    .put(Schema.Favorites.TIMESTAMP_EXPIRATION, getExpiresDate().getMillis())
+                    .build();
+
+            db.insertWithOnConflict(Schema.Favorites.getTableName(), null, cvInsert, SQLiteDatabase.CONFLICT_IGNORE);
+
+            ContentValues cvUpdate = new Schema.ContentValueBuilder()
+                    .put(Schema.Favorites.CURRENT_ASK, getAsk())
+                    .put(Schema.Favorites.CURRENT_BID, getBid())
+                    .build();
+
+            String selection = Schema.Favorites.BUY_SYMBOL + "=? AND " + Schema.Favorites.SELL_SYMBOL + "=?";
+            String[] selectionArgs = new String[]{getBuySymbol(), getSellSymbol()};
+            db.update(Schema.Favorites.getTableName(), cvUpdate, selection, selectionArgs);
+            db.setTransactionSuccessful();
+        } finally {
+            if (db.inTransaction())
+                db.endTransaction();
+        }
+    }
 
     public static class SpreadCreator implements Parcelable.Creator<VerticalSpread> {
         public VerticalSpread createFromParcel(Parcel in) {

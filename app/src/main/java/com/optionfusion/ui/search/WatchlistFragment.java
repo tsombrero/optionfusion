@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ProgressBar;
 
 import com.birbit.android.jobqueue.JobManager;
 import com.optionfusion.R;
@@ -68,6 +69,9 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
 
     @Bind(R.id.swipe_refresh_layout)
     SwipeRefreshLayout swipeRefreshLayout;
+
+    @Bind(R.id.progress)
+    ProgressBar progressBar;
 
     private StockQuoteAdapter adapter;
 
@@ -145,8 +149,8 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
 
     public interface Host {
         void openResultsFragment(String symbol);
-
-        void showProgress(boolean show);
+//
+//        void showProgress(boolean show);
     }
 
     @Override
@@ -178,10 +182,15 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
         }
     };
 
-    void showProgress(boolean show) {
+    void showProgress(final boolean show) {
         Host host = ((Host) getActivity());
         if (host != null && isAdded() && isVisible()) {
-            ((Host) getActivity()).showProgress(show);
+            progressBar.post(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
         }
     }
 
@@ -287,5 +296,6 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
                 break;
         }
     }
+
 }
 

@@ -11,6 +11,7 @@ import com.optionfusion.util.Util;
 import org.joda.time.DateTime;
 
 import java.util.Comparator;
+import java.util.Locale;
 
 abstract public class PojoSpread implements Parcelable, com.optionfusion.model.provider.VerticalSpread {
     Interfaces.OptionQuote buy, sell;
@@ -32,6 +33,7 @@ abstract public class PojoSpread implements Parcelable, com.optionfusion.model.p
             return Double.compare(rhs.getMaxReturnAnnualized(), lhs.getMaxReturnAnnualized());
         }
     };
+    private boolean favorite;
 
     protected PojoSpread() {}
 
@@ -171,7 +173,7 @@ abstract public class PojoSpread implements Parcelable, com.optionfusion.model.p
 
 
     public String toString() {
-        return String.format("%s $%.2f; dte:%d; spr:%.2f/%.2f b/a:$%.2f/%.2f MaxProfit: %s / %.1f%% risk:%.3f",
+        return String.format(Locale.US, "%s $%.2f; dte:%d; spr:%.2f/%.2f b/a:$%.2f/%.2f MaxProfit: %s / %.1f%% risk:%.3f",
                 chain.getSymbol(),
                 chain.getUnderlyingPrice(),
                 buy.getDaysUntilExpiration(),
@@ -304,5 +306,15 @@ abstract public class PojoSpread implements Parcelable, com.optionfusion.model.p
     @Override
     public String getSellSymbol() {
         return getSell().getOptionSymbol();
+    }
+
+    @Override
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    @Override
+    public void setIsFavorite(boolean favorite) {
+        this.favorite = favorite;
     }
 }
