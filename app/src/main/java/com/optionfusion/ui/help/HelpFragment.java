@@ -15,7 +15,7 @@ import butterknife.ButterKnife;
 public class HelpFragment extends Fragment {
 
 
-    public static Fragment newInstance() {
+    public static HelpFragment newInstance() {
         return new HelpFragment();
     }
 

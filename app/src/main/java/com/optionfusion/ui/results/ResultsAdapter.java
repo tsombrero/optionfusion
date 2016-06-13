@@ -7,8 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.birbit.android.jobqueue.JobManager;
+import com.optionfusion.jobqueue.SetFavoriteJob;
+import com.optionfusion.model.DbSpread;
 import com.optionfusion.model.FilterSet;
 import com.optionfusion.model.provider.VerticalSpread;
+import com.optionfusion.ui.SharedViewHolders;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,11 +23,12 @@ import static com.optionfusion.ui.results.ResultsListViewHolders.BaseViewHolder;
 import static com.optionfusion.ui.results.ResultsListViewHolders.SpreadViewHolder;
 import static com.optionfusion.ui.results.ResultsListViewHolders.ViewType;
 
-public class ResultsAdapter extends RecyclerView.Adapter<ResultsListViewHolders.BaseViewHolder> {
+public class ResultsAdapter extends RecyclerView.Adapter<ResultsListViewHolders.BaseViewHolder> implements SharedViewHolders.SpreadFavoriteListener {
 
     private final String symbol;
     private final Activity activity;
     private final FilterSet filterSet;
+    private final JobManager jobManager;
     List<ListItem> items;
     private final ResultsListener resultsListener;
     private int indexOfFilterLayout;
@@ -33,11 +38,12 @@ public class ResultsAdapter extends RecyclerView.Adapter<ResultsListViewHolders.
 
     private static final String TAG = "ResultsAdapter";
 
-    public ResultsAdapter(FilterSet filterSet, String symbol, List<VerticalSpread> spreads, Activity activity, ResultsListener resultsListener) {
+    public ResultsAdapter(FilterSet filterSet, String symbol, List<VerticalSpread> spreads, Activity activity, ResultsListener resultsListener, JobManager jobManager) {
         this.symbol = symbol;
         this.activity = activity;
         this.resultsListener = resultsListener;
         this.filterSet = filterSet;
+        this.jobManager = jobManager;
 
         items = new ArrayList<>();
         items.add(new FilterSetListItem(ViewType.FILTER_BUTTONS, filterSet));
@@ -119,7 +125,7 @@ public class ResultsAdapter extends RecyclerView.Adapter<ResultsListViewHolders.
                 ret = new FilterPillsViewHolder(itemView, activity, resultsListener);
                 break;
             case SPREAD_DETAILS:
-                ret = new SpreadViewHolder(itemView, activity, resultsListener);
+                ret = new SpreadViewHolder(itemView, activity, resultsListener, this);
                 break;
         }
 
@@ -133,6 +139,12 @@ public class ResultsAdapter extends RecyclerView.Adapter<ResultsListViewHolders.
                 stableViewHolders.put(type, ret);
         }
         return ret;
+    }
+
+    @Override
+    public void setFavorite(VerticalSpread spread, boolean isFavorite) {
+        if (spread instanceof DbSpread)
+            jobManager.addJobInBackground(new SetFavoriteJob((DbSpread) spread, isFavorite));
     }
 
     static class EmptyViewHolder extends BaseViewHolder {

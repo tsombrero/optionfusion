@@ -25,8 +25,14 @@ public class GetWatchlistJob extends BaseApiJob {
     public void onRun() throws Throwable {
         super.onRun();
         List<Interfaces.StockQuote> stockQuotes = accountClient.getWatchlist();
+
+        if (stockQuotes == null)
+            throw new RuntimeException("Failed getting stockquotes");
+
         Log.d(TAG, "Got " + (stockQuotes == null ? "0" : stockQuotes.size()) + " quotes from FusionUser");
         stockQuoteProvider.refresh(stockQuotes);
         bus.post(WatchListUpdatedEvent.fromStockQuoteList(stockQuotes));
     }
+
+
 }

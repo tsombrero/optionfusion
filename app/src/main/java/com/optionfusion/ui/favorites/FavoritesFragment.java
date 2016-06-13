@@ -14,7 +14,7 @@ import butterknife.ButterKnife;
 
 public class FavoritesFragment extends Fragment {
 
-    public static Fragment newInstance() {
+    public static FavoritesFragment newInstance() {
         return new FavoritesFragment();
     }
 

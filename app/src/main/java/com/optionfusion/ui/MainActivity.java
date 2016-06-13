@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Matrix;
-import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -28,7 +27,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.birbit.android.jobqueue.JobManager;
@@ -71,6 +69,7 @@ import javax.inject.Inject;
 import butterknife.Bind;
 import butterknife.BindColor;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 
 public class MainActivity extends AppCompatActivity implements WatchlistFragment.Host, ResultsFragment.Host {
@@ -237,9 +236,9 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
     public static class TabPagerAdapter extends FragmentPagerAdapter {
 
         private final Activity activity;
-        Fragment watchlistFragment;
-        Fragment favoritesFragment;
-        Fragment helpFragment;
+        WatchlistFragment watchlistFragment;
+        FavoritesFragment favoritesFragment;
+        HelpFragment helpFragment;
 
         public TabPagerAdapter(FragmentManager fm, Activity activity) {
             super(fm);
@@ -327,23 +326,18 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
     @Override
     @MainThread
     public void openResultsFragment(final String symbol) {
-//        if (progressBar.getVisibility() == View.VISIBLE)
-//            return;
 
         Util.hideSoftKeyboard(this);
-
-//        progressBar.setVisibility(View.VISIBLE);
 
         optionChainProvider.get(symbol, new ClientInterfaces.Callback<Interfaces.OptionChain>() {
             @Override
             public void call(Interfaces.OptionChain optionChain) {
+                if (pagerAdapter.watchlistFragment != null)
+                    pagerAdapter.watchlistFragment.showProgress(false);
+
                 if (isDestroyed() || isFinishing())
                     return;
 
-//                if (progressBar.getVisibility() != View.VISIBLE)
-//                    return;
-
-//                showProgress(false);
                 if (optionChain != null) {
                     Intent intent = new Intent(MainActivity.this, ResultsActivity.class);
                     intent.putExtra(ResultsActivity.EXTRA_SYMBOL, symbol);
@@ -423,5 +417,10 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
         public View onCreateSnapshotView(Context context, Parcelable snapshot) {
             return super.onCreateSnapshotView(context, snapshot);
         }
+    }
+
+    @OnClick(R.id.fab)
+    public void onFabClicked(View v) {
+        pagerAdapter.watchlistFragment.onFabClicked();
     }
 }

@@ -281,6 +281,12 @@ public class DbSpread implements VerticalSpread, Parcelable {
 
     public static final Parcelable.Creator<VerticalSpread> CREATOR = new SpreadCreator();
 
+    public void unFavorite(SQLiteDatabase db) {
+        String selection = Schema.Favorites.BUY_SYMBOL + "=? AND " + Schema.Favorites.SELL_SYMBOL + "=?";
+        String[] selectionArgs = new String[]{getBuySymbol(), getSellSymbol()};
+        db.delete(Schema.Favorites.getTableName(), selection, selectionArgs);
+    }
+
     public void saveAsFavorite(SQLiteDatabase db) {
         db.beginTransaction();
         try {

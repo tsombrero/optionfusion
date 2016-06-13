@@ -71,10 +71,10 @@ public class ResultsListViewHolders {
         private VerticalSpread spread;
         private final SharedViewHolders.BriefTradeDetailsHolder briefTradeDetailsHolder;
 
-        public SpreadViewHolder(View itemView, Context context, ResultsAdapter.ResultsListener listener) {
+        public SpreadViewHolder(View itemView, Context context, ResultsAdapter.ResultsListener listener, SharedViewHolders.SpreadFavoriteListener spreadFavoriteListener) {
             super(itemView, context, listener);
             briefTradeDetailsHolder = new SharedViewHolders.BriefTradeDetailsHolder(briefDetailsLayout);
-            tradeHeaderHolder = new SharedViewHolders.TradeDetailsHeaderHolder(spreadHeaderLayout);
+            tradeHeaderHolder = new SharedViewHolders.TradeDetailsHeaderHolder(spreadHeaderLayout, spreadFavoriteListener);
         }
 
         public void bind(ResultsAdapter.ListItem item) {

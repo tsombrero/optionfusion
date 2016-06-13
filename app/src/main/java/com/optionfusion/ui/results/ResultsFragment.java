@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.birbit.android.jobqueue.JobManager;
 import com.google.gson.Gson;
 import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
@@ -60,6 +61,9 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
 
     @Inject
     Gson gson;
+
+    @Inject
+    JobManager jobManager;
 
     @Inject
     EventBus bus;
@@ -176,7 +180,7 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
             @Override
             protected void onPostExecute(List<VerticalSpread> spreads) {
                 if (resultsAdapter == null) {
-                    resultsAdapter = new ResultsAdapter(filterSet, symbol, spreads, getActivity(), ResultsFragment.this);
+                    resultsAdapter = new ResultsAdapter(filterSet, symbol, spreads, getActivity(), ResultsFragment.this, jobManager);
                     recyclerView.setAdapter(resultsAdapter);
                 } else {
                     resultsAdapter.updateSpreads(spreads);

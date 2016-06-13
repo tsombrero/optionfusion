@@ -132,12 +132,13 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
         }
     }
 
-    public static Fragment newInstance() {
+    public static WatchlistFragment newInstance() {
         return new WatchlistFragment();
     }
 
     @Override
     public void onSymbolSelected(String symbol) {
+        showProgress(true);
         ((Host) getActivity()).openResultsFragment(symbol);
     }
 
@@ -149,29 +150,17 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
 
     public interface Host {
         void openResultsFragment(String symbol);
-//
-//        void showProgress(boolean show);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-//        if (appBarLayout != null)
-//            appBarLayout.addOnOffsetChangedListener(this);
-
         if (adapter == null || adapter.getStockQuoteList().isEmpty()) {
             showProgress(true);
             jobManager.addJobInBackground(new GetWatchlistJob());
         } else {
             showProgress(false);
         }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-//        if (appBarLayout != null)
-//            appBarLayout.removeOnOffsetChangedListener(this);
     }
 
     SharedViewHolders.StockQuoteViewConfig viewConfig = new SharedViewHolders.StockQuoteViewConfig() {
@@ -182,7 +171,7 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
         }
     };
 
-    void showProgress(final boolean show) {
+    public void showProgress(final boolean show) {
         Host host = ((Host) getActivity());
         if (host != null && isAdded() && isVisible()) {
             progressBar.post(new Runnable() {

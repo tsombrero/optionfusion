@@ -38,5 +38,6 @@ public class SetFavoriteJob extends BaseApiJob {
     @Override
     public void onRun() throws Throwable {
         super.onRun();
+        //TODO write to backend
     }
 }

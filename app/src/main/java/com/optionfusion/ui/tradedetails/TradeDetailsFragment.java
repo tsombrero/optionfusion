@@ -11,9 +11,12 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.birbit.android.jobqueue.JobManager;
 import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.cache.StockQuoteProvider;
+import com.optionfusion.jobqueue.SetFavoriteJob;
+import com.optionfusion.model.DbSpread;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
@@ -41,7 +44,7 @@ import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.model.Viewport;
 import lecho.lib.hellocharts.view.LineChartView;
 
-public class TradeDetailsFragment extends Fragment {
+public class TradeDetailsFragment extends Fragment implements SharedViewHolders.SpreadFavoriteListener {
 
     @Bind(R.id.stock_quote)
     protected ViewGroup stockQuoteLayout;
@@ -87,6 +90,9 @@ public class TradeDetailsFragment extends Fragment {
 
     @Inject
     EventBus bus;
+
+    @Inject
+    JobManager jobManager;
 
     VerticalSpread spread;
 
@@ -145,7 +151,7 @@ public class TradeDetailsFragment extends Fragment {
         initTradeProfitChart();
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Trade Details");
-        new SharedViewHolders.TradeDetailsHeaderHolder(heaader).bind(spread);
+        new SharedViewHolders.TradeDetailsHeaderHolder(heaader, this).bind(spread);
     }
 
     private void initTradeProfitChart() {
@@ -258,5 +264,12 @@ public class TradeDetailsFragment extends Fragment {
         plChart.setMaxZoom(Float.MAX_VALUE);
         plChart.setMaximumViewport(v);
         plChart.setCurrentViewport(v);
+    }
+
+    @Override
+    public void setFavorite(VerticalSpread spread, boolean isFavorite) {
+        spread.setIsFavorite(isFavorite);
+        if (spread instanceof DbSpread)
+            jobManager.addJobInBackground(new SetFavoriteJob((DbSpread) spread, isFavorite));
     }
 }

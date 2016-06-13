@@ -208,6 +208,7 @@ public class SharedViewHolders {
 
     public static class TradeDetailsHeaderHolder {
         private final Context context;
+        private final SpreadFavoriteListener spreadFavoriteListener;
 
         @Bind(R.id.header)
         View header;
@@ -225,7 +226,8 @@ public class SharedViewHolders {
         ImageView star;
         private VerticalSpread spread;
 
-        public TradeDetailsHeaderHolder(View view) {
+        public TradeDetailsHeaderHolder(View view, SpreadFavoriteListener spreadFavoriteListener) {
+            this.spreadFavoriteListener = spreadFavoriteListener;
             this.context = view.getContext();
             ButterKnife.bind(this, view);
         }
@@ -261,7 +263,7 @@ public class SharedViewHolders {
 
         @OnClick(R.id.star)
         public void onClickStar() {
-            spread.setIsFavorite(!spread.isFavorite());
+            spreadFavoriteListener.setFavorite(spread, !spread.isFavorite());
             bindStar();
         }
 
@@ -269,6 +271,10 @@ public class SharedViewHolders {
         static public String getTransitionName(VerticalSpread spread) {
             return "header_" + spread.getDescription();
         }
+    }
+
+    public interface SpreadFavoriteListener {
+        void setFavorite(VerticalSpread spread, boolean isFavorite);
     }
 
     public static class OptionLegHolder {
