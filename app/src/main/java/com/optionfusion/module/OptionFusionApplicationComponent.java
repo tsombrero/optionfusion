@@ -12,6 +12,7 @@ import com.optionfusion.client.YhooClientClientProvider;
 import com.optionfusion.jobqueue.BaseApiJob;
 import com.optionfusion.ui.MainActivity;
 import com.optionfusion.ui.StockDetailsFragment;
+import com.optionfusion.ui.favorites.FavoritesAdapter;
 import com.optionfusion.ui.favorites.FavoritesFragment;
 import com.optionfusion.ui.help.HelpFragment;
 import com.optionfusion.ui.login.AmeritradeLoginFragment;
@@ -20,6 +21,7 @@ import com.optionfusion.ui.login.StartFragment;
 import com.optionfusion.ui.results.FilterViewHolder;
 import com.optionfusion.ui.results.ResultsFragment;
 import com.optionfusion.ui.search.WatchlistFragment;
+import com.optionfusion.ui.tradedetails.TradeDetailsActivity;
 import com.optionfusion.ui.tradedetails.TradeDetailsFragment;
 import com.optionfusion.ui.widgets.SymbolSearchTextView;
 
@@ -80,4 +82,8 @@ public interface OptionFusionApplicationComponent {
     void inject(HelpFragment helpFragment);
 
     void inject(FavoritesFragment favoritesFragment);
+
+    void inject(FavoritesAdapter favoritesAdapter);
+
+    void inject(TradeDetailsActivity tradeDetailsActivity);
 }

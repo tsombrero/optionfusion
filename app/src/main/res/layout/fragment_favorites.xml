@@ -4,11 +4,11 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <TextView
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/list"
+        style="@style/listView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="Favorites"
-        />
+        android:layout_height="match_parent"/>
+
 
 </LinearLayout>

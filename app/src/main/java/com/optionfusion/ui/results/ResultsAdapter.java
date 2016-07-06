@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.birbit.android.jobqueue.JobManager;
+import com.optionfusion.R;
 import com.optionfusion.jobqueue.SetFavoriteJob;
 import com.optionfusion.model.DbSpread;
 import com.optionfusion.model.FilterSet;
@@ -96,9 +97,7 @@ public class ResultsAdapter extends RecyclerView.Adapter<ResultsListViewHolders.
         if (stableViewHolders.get(type) != null)
             return stableViewHolders.get(type);
 
-        View itemView;
-
-        itemView = LayoutInflater.from(parent.getContext()).inflate(type.layout, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(type.layout, parent, false);
 
         BaseViewHolder ret = null;
 
@@ -143,8 +142,10 @@ public class ResultsAdapter extends RecyclerView.Adapter<ResultsListViewHolders.
 
     @Override
     public void setFavorite(VerticalSpread spread, boolean isFavorite) {
-        if (spread instanceof DbSpread)
-            jobManager.addJobInBackground(new SetFavoriteJob((DbSpread) spread, isFavorite));
+        if (spread instanceof DbSpread) {
+            spread.setIsFavorite(isFavorite);
+            jobManager.addJobInBackground(new SetFavoriteJob(activity, (DbSpread) spread, isFavorite));
+        }
     }
 
     static class EmptyViewHolder extends BaseViewHolder {
@@ -222,11 +223,12 @@ public class ResultsAdapter extends RecyclerView.Adapter<ResultsListViewHolders.
         }
     }
 
-    public interface ResultsListener {
-        void onChange(FilterSet filterSet);
-
-        void onFilterSelected(int buttonResId);
-
+    public interface SpreadSelectedListener {
         void onResultSelected(VerticalSpread spread, View headerLayout, View detailsLayout);
+    }
+
+    public interface ResultsListener extends SpreadSelectedListener {
+        void onChange(FilterSet filterSet);
+        void onFilterSelected(int buttonResId);
     }
 }

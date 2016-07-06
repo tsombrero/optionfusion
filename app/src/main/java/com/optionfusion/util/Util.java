@@ -232,6 +232,8 @@ public class Util {
     }
 
     public static void showSoftKeyboard(Activity activity) {
+        if (activity == null)
+            return;
         InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
     }

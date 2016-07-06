@@ -11,6 +11,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.TouchDelegate;
 import android.view.View;
@@ -41,6 +42,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class SharedViewHolders {
+
+    private static final String TAG = "SharedViewHolders";
 
     public static class StockInfoHolder {
 
@@ -263,7 +266,10 @@ public class SharedViewHolders {
 
         @OnClick(R.id.star)
         public void onClickStar() {
-            spreadFavoriteListener.setFavorite(spread, !spread.isFavorite());
+            boolean isFavorite = !spread.isFavorite();
+            Log.i(TAG, "TACO newIsFavorite : " + isFavorite);
+            spread.setIsFavorite(isFavorite);
+            spreadFavoriteListener.setFavorite(spread, isFavorite);
             bindStar();
         }
 

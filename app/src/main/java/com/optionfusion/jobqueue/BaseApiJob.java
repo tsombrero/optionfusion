@@ -1,5 +1,6 @@
 package com.optionfusion.jobqueue;
 
+import android.app.Application;
 import android.content.Context;
 import android.support.annotation.CallSuper;
 import android.util.Log;
@@ -10,6 +11,9 @@ import com.birbit.android.jobqueue.RetryConstraint;
 import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.client.ClientInterfaces;
+import com.optionfusion.db.DbHelper;
+import com.optionfusion.module.ApplicationModule;
+import com.optionfusion.module.OptionFusionApplication;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -37,6 +41,9 @@ public abstract class BaseApiJob extends Job {
 
     @Inject
     Context context;
+
+    @Inject
+    DbHelper dbHelper;
 
     private static final String TAG = "JobQueue";
 

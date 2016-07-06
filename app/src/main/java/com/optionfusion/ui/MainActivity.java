@@ -45,8 +45,10 @@ import com.optionfusion.ui.favorites.FavoritesFragment;
 import com.optionfusion.ui.help.HelpFragment;
 import com.optionfusion.ui.login.LoginActivity;
 import com.optionfusion.ui.results.ResultsActivity;
+import com.optionfusion.ui.results.ResultsAdapter;
 import com.optionfusion.ui.results.ResultsFragment;
 import com.optionfusion.ui.search.WatchlistFragment;
+import com.optionfusion.ui.tradedetails.TradeDetailsActivity;
 import com.optionfusion.ui.tradedetails.TradeDetailsFragment;
 import com.optionfusion.util.SharedPrefStore;
 import com.optionfusion.util.Util;
@@ -72,7 +74,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class MainActivity extends AppCompatActivity implements WatchlistFragment.Host, ResultsFragment.Host {
+public class MainActivity extends AppCompatActivity implements WatchlistFragment.Host, ResultsAdapter.SpreadSelectedListener {
 
     @BindColor(R.color.accent)
     int accentColor;
@@ -261,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
 
         @Override
         public int getCount() {
-            return 3;
+            return 2;
         }
 
         @Override
@@ -269,8 +271,6 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
             switch (position) {
                 case 1:
                     return activity.getString(R.string.favorites);
-                case 2:
-                    return activity.getString(R.string.help);
             }
             return activity.getString(R.string.watchlist);
         }
@@ -355,23 +355,10 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
     }
 
     @Override
-    public void showDetails(VerticalSpread spread, Fragment requestingFragment, View headerLayout, View detailsLayout, View stockInfoLayout) {
-
-        Fragment fragment = TradeDetailsFragment.newInstance(spread);
-        if (Build.VERSION.SDK_INT >= 21) {
-            requestingFragment.setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.change_transform));
-            requestingFragment.setExitTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
-            fragment.setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.change_transform));
-            fragment.setEnterTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
-        }
-
-        fragment.setEnterSharedElementCallback(new MySharedElementCallback());
-
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment, spread.toString())
-                .addSharedElement(detailsLayout, SharedViewHolders.BriefTradeDetailsHolder.getTransitionName(spread))
-                .addToBackStack(null)
-                .commitAllowingStateLoss();
+    public void onResultSelected(VerticalSpread spread, View headerLayout, View detailsLayout) {
+        Intent intent = new Intent(this, TradeDetailsActivity.class);
+        intent.putExtra(TradeDetailsActivity.EXTRA_SPREAD, spread);
+        startActivity(intent);
     }
 
     @Override

@@ -83,9 +83,6 @@ public class TradeDetailsFragment extends Fragment implements SharedViewHolders.
     protected int currentPriceColor;
 
     @Inject
-    OptionChainProvider optionChainProvider;
-
-    @Inject
     StockQuoteProvider stockQuoteProvider;
 
     @Inject
@@ -97,7 +94,7 @@ public class TradeDetailsFragment extends Fragment implements SharedViewHolders.
     VerticalSpread spread;
 
     private static final String ARG_TRADE = "trade";
-    private Interfaces.OptionChain oc;
+    private Interfaces.StockQuote stockQuote;
 
     public static TradeDetailsFragment newInstance(VerticalSpread spread) {
         TradeDetailsFragment ret = new TradeDetailsFragment();
@@ -123,13 +120,11 @@ public class TradeDetailsFragment extends Fragment implements SharedViewHolders.
     public void onResume() {
         super.onResume();
         spread = getArguments().getParcelable(ARG_TRADE);
+        stockQuote = stockQuoteProvider.get(spread.getUnderlyingSymbol());
         initView();
     }
 
     public void initView() {
-        oc = optionChainProvider.get(spread.getUnderlyingSymbol());
-        Interfaces.StockQuote stockQuote = stockQuoteProvider.get(spread.getUnderlyingSymbol());
-
         new SharedViewHolders.StockQuoteViewHolder(stockQuoteLayout, null, null, bus).bind(stockQuote);
         new SharedViewHolders.BriefTradeDetailsHolder(briefDetailsLayout).bind(spread);
 
@@ -160,7 +155,7 @@ public class TradeDetailsFragment extends Fragment implements SharedViewHolders.
         values.add(new PointValue((float) spread.getPrice_BreakEven(), 0f).setLabel(""));
         values.add(new PointValue((float) spread.getPrice_MaxReturn(), (float) spread.getMaxPercentProfitAtExpiration()).setLabel(""));
 
-        float lastPrice = (float) oc.getUnderlyingPrice();
+        float lastPrice = (float) stockQuote.getLast();
 
         if (spread.isBullSpread()) {
             values.add(new PointValue(lastPrice * 100f, (float) spread.getMaxPercentProfitAtExpiration()).setLabel(""));
@@ -254,8 +249,8 @@ public class TradeDetailsFragment extends Fragment implements SharedViewHolders.
         v.left = (float) (spread.getPrice_BreakEven() - xViewRange);
         v.right = (float) (spread.getPrice_BreakEven() + xViewRange);
 
-        v.left = (float) Math.max(0f, Math.min(oc.getUnderlyingPrice() * 0.98f, v.left));
-        v.right = (float) Math.max(oc.getUnderlyingPrice() * 1.02f, v.right);
+        v.left = (float) Math.max(0f, Math.min(stockQuote.getLast() * 0.98f, v.left));
+        v.right = (float) Math.max(stockQuote.getLast() * 1.02f, v.right);
 
         v.bottom = v.bottom / 2;
 
@@ -270,6 +265,6 @@ public class TradeDetailsFragment extends Fragment implements SharedViewHolders.
     public void setFavorite(VerticalSpread spread, boolean isFavorite) {
         spread.setIsFavorite(isFavorite);
         if (spread instanceof DbSpread)
-            jobManager.addJobInBackground(new SetFavoriteJob((DbSpread) spread, isFavorite));
+            jobManager.addJobInBackground(new SetFavoriteJob(getActivity(), (DbSpread) spread, isFavorite));
     }
 }

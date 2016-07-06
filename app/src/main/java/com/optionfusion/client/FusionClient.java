@@ -2,6 +2,7 @@ package com.optionfusion.client;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -238,10 +239,10 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             db.beginTransaction();
             Log.d(TAG, "Cleaning DB");
 
-            db.delete(Schema.Options.getTableName(),
+            db.delete(Options.TABLE_NAME,
                     Schema.Options.UNDERLYING_SYMBOL + "='" + protoChain.getSymbol() + "'", null);
 
-            db.delete(Schema.VerticalSpreads.getTableName(),
+            db.delete(Schema.VerticalSpreads.TABLE_NAME,
                     Schema.VerticalSpreads.UNDERLYING_SYMBOL + "='" + protoChain.getSymbol() + "'", null);
 
             Log.d(TAG, "Writing Option Records");
@@ -252,8 +253,11 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             Log.d(TAG, "Writing Spread Records");
             SpreadPopulator.updateSpreads(protoChain.getSymbol(), db);
 
+            Log.d(TAG, "Writing favorites");
+            writeFavorites(db, protoChain.getSymbol());
+
             Log.d(TAG, "Cleaning up");
-//            clearBidAsk(db, protoChain.getSymbol());
+            clearBidAsk(db, protoChain.getSymbol());
 
             db.setTransactionSuccessful();
         } finally {
@@ -262,13 +266,35 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         }
     }
 
+    private void writeFavorites(SQLiteDatabase db, String symbol) {
+        ContentValues cv = new Schema.ContentValueBuilder()
+                .put(Schema.VerticalSpreads.IS_FAVORITE, 1)
+                .build();
+
+        Cursor c = null;
+        try {
+            c = db.query(Schema.Favorites.TABLE_NAME, Schema.getProjection(Schema.Favorites.values()), Schema.Favorites.UNDERLYING_SYMBOL + "=?", new String[]{symbol}, null, null, null);
+            while (c != null && c.moveToNext()) {
+                db.update(Schema.VerticalSpreads.TABLE_NAME,
+                        cv,
+                        Schema.VerticalSpreads.BUY_SYMBOL + "=? AND " + Schema.VerticalSpreads.SELL_SYMBOL + "=?",
+                        new String[]{c.getString(Schema.Favorites.BUY_SYMBOL.ordinal()), c.getString(Schema.Favorites.SELL_SYMBOL.ordinal())}
+                );
+            }
+        } finally {
+            if (c != null)
+                c.close();
+        }
+
+    }
+
     private void clearBidAsk(SQLiteDatabase db, String symbol) {
         ContentValues cv = new Schema.ContentValueBuilder()
                 .put(Options.ASK, 0)
                 .put(Options.BID, 0)
                 .build();
 
-        db.update(Options.getTableName(),
+        db.update(Options.TABLE_NAME,
                 cv,
                 Options.UNDERLYING_SYMBOL + "=?",
                 new String[]{symbol});
@@ -304,7 +330,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                     .put(Options.TIMESTAMP_FETCH, now)
                     .put(Options.TIMESTAMP_QUOTE, protoChain.getTimestamp());
 
-            db.insertWithOnConflict(Options.getTableName(), "", cv.build(), SQLiteDatabase.CONFLICT_REPLACE);
+            db.insertWithOnConflict(Options.TABLE_NAME, "", cv.build(), SQLiteDatabase.CONFLICT_REPLACE);
         }
         Log.v(TAG, "Wrote date chain " + dateChain.getExpiration());
     }

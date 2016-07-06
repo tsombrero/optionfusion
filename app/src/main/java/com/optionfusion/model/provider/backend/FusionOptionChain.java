@@ -67,7 +67,7 @@ public class FusionOptionChain implements Interfaces.OptionChain {
     public List<Double> getStrikePrices() {
         if (strikePriceTicks == null) {
             String sql = "select min(strike), max(strike) " +
-                    " FROM " + Schema.Options.getTableName() +
+                    " FROM " + Schema.Options.TABLE_NAME +
                     " WHERE " + Schema.Options.UNDERLYING_SYMBOL + " =?";
 
             Cursor c = dbHelper.getReadableDatabase()
@@ -102,7 +102,7 @@ public class FusionOptionChain implements Interfaces.OptionChain {
         String selection = TextUtils.join(" AND ", selections);
 
         Cursor c = dbHelper.getReadableDatabase()
-                .query(Schema.VerticalSpreads.getTableName(),
+                .query(Schema.VerticalSpreads.TABLE_NAME,
                         Schema.getProjection(Schema.VerticalSpreads.values()),
                         selection, selectionArgs.toArray(new String[]{}),
                         null, null, orderBy + " LIMIT 50");

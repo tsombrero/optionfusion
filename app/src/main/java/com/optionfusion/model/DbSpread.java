@@ -2,30 +2,32 @@ package com.optionfusion.model;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.google.android.gms.common.api.Batch;
 import com.google.gson.Gson;
 import com.optionfusion.db.Schema;
 import com.optionfusion.db.Schema.VerticalSpreads;
+import com.optionfusion.events.FavoritesUpdatedEvent;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.util.Util;
 
+import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
+import org.sqlite.database.sqlite.SQLiteDatabase;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DbSpread implements VerticalSpread, Parcelable {
 
-    ConcurrentHashMap<VerticalSpreads, Object> columnValues = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, String> columnValues = new ConcurrentHashMap<>();
 
     private static final String TAG = "DbSpread";
-    private boolean favorite;
 
     private DbSpread() {
     }
@@ -33,22 +35,26 @@ public class DbSpread implements VerticalSpread, Parcelable {
     public DbSpread(Cursor cursor) {
         for (int i = 0; i < cursor.getColumnCount(); i++) {
             String colName = cursor.getColumnName(i);
-            VerticalSpreads col = VerticalSpreads.valueOf(colName);
+            VerticalSpreads col = null;
+            try {
+                col = VerticalSpreads.valueOf(colName);
+            } catch (Exception e) {
+            }
             if (col == null) {
-                Log.d(TAG, "Unknown column name " + col);
                 continue;
             }
+            putValue(col, cursor, i);
+        }
+    }
 
-            switch (col.datatype) {
-                case TEXT:
-                    columnValues.put(col, cursor.getString(i));
-                    break;
-                case INTEGER:
-                    columnValues.put(col, cursor.getLong(i));
-                    break;
-                case REAL:
-                    columnValues.put(col, cursor.getDouble(i));
-            }
+    protected void putValue(Schema.DbColumn col, Cursor cursor, int colIndex) {
+        switch (col.dataType()) {
+            case TEXT:
+            case INTEGER:
+                columnValues.put(col.name(), cursor.getString(colIndex));
+                break;
+            case REAL:
+                columnValues.put(col.name(), String.valueOf(cursor.getDouble(colIndex)));
         }
     }
 
@@ -155,12 +161,12 @@ public class DbSpread implements VerticalSpread, Parcelable {
 
     @Override
     public boolean isFavorite() {
-        return favorite;
+        return getBoolean(VerticalSpreads.IS_FAVORITE);
     }
 
     @Override
     public void setIsFavorite(boolean isFavorite) {
-        favorite = isFavorite;
+        columnValues.put(VerticalSpreads.IS_FAVORITE.name(), isFavorite ? "1" : "0");
     }
 
     public Interfaces.OptionType getOptionType() {
@@ -217,6 +223,10 @@ public class DbSpread implements VerticalSpread, Parcelable {
         return getString(VerticalSpreads.UNDERLYING_SYMBOL);
     }
 
+    public long getQuoteTimestamp() {
+        return getLong(VerticalSpreads.TIMESTAMP_QUOTE);
+    }
+
     @Override
     public boolean isBullSpread() {
         return getBoolean(VerticalSpreads.IS_BULLISH);
@@ -236,33 +246,33 @@ public class DbSpread implements VerticalSpread, Parcelable {
         return getDouble(VerticalSpreads.RISK_AVERSION_SCORE);
     }
 
-    private double getDouble(VerticalSpreads col) {
+    private double getDouble(Schema.DbColumn col) {
         try {
-            return (double) columnValues.get(col);
+            return Double.valueOf(columnValues.get(col.name()));
         } catch (Exception e) {
-            Log.w(TAG, "Failed converting " + columnValues.get(col) + " to double");
+            Log.w(TAG, "Failed converting " + columnValues.get(col.name()) + " to double ; " + col);
             return 0D;
         }
     }
 
-    private String getString(VerticalSpreads col) {
+    private String getString(Schema.DbColumn col) {
         try {
-            return (String) columnValues.get(col);
+            return columnValues.get(col.name());
         } catch (Exception e) {
-            Log.w(TAG, "Failed converting " + columnValues.get(col) + " to String");
+            Log.w(TAG, "Failed converting " + columnValues.get(col.name()) + " to String ; " + col);
             return null;
         }
     }
 
-    private boolean getBoolean(VerticalSpreads col) {
+    private boolean getBoolean(Schema.DbColumn col) {
         return getLong(col) != 0;
     }
 
-    private long getLong(VerticalSpreads col) {
+    private long getLong(Schema.DbColumn col) {
         try {
-            return (long) columnValues.get(col);
+            return Long.valueOf(columnValues.get(col.name()));
         } catch (Exception e) {
-            Log.w(TAG, "Failed converting " + columnValues.get(col) + " to long");
+            Log.w(TAG, "Failed converting " + columnValues.get(col.name()) + " to long ; " + col);
             return 0L;
         }
     }
@@ -276,21 +286,43 @@ public class DbSpread implements VerticalSpread, Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeMap(columnValues);
+        Bundle bundle = new Bundle();
+        for (Map.Entry<String, String> entry : columnValues.entrySet()) {
+            bundle.putString(entry.getKey(), entry.getValue());
+        }
+        dest.writeBundle(bundle);
     }
 
     public static final Parcelable.Creator<VerticalSpread> CREATOR = new SpreadCreator();
 
-    public void unFavorite(SQLiteDatabase db) {
-        String selection = Schema.Favorites.BUY_SYMBOL + "=? AND " + Schema.Favorites.SELL_SYMBOL + "=?";
-        String[] selectionArgs = new String[]{getBuySymbol(), getSellSymbol()};
-        db.delete(Schema.Favorites.getTableName(), selection, selectionArgs);
-    }
-
-    public void saveAsFavorite(SQLiteDatabase db) {
+    public void unFavorite(SQLiteDatabase db, EventBus bus) {
+        setIsFavorite(false);
         db.beginTransaction();
         try {
+            String selection = Schema.Favorites.BUY_SYMBOL + "=? AND " + Schema.Favorites.SELL_SYMBOL + "=?";
+            String[] selectionArgs = new String[]{getBuySymbol(), getSellSymbol()};
+            db.delete(Schema.Favorites.TABLE_NAME, selection, selectionArgs);
+
+            // VerticalSpreads IS_FAVORITE=0
+            selection = VerticalSpreads.BUY_SYMBOL + "=? AND " + VerticalSpreads.SELL_SYMBOL + "=?";
+            ContentValues cvUpdate = new Schema.ContentValueBuilder()
+                    .put(VerticalSpreads.IS_FAVORITE, 0)
+                    .build();
+            int n = db.update(VerticalSpreads.TABLE_NAME, cvUpdate, selection, selectionArgs);
+        } finally {
+            if (db.inTransaction())
+                db.endTransaction();
+        }
+        bus.post(new FavoritesUpdatedEvent());
+    }
+
+    public void saveAsFavorite(SQLiteDatabase db, EventBus bus) {
+        setIsFavorite(true);
+        db.beginTransaction();
+        try {
+            // Favorites table upsert
             ContentValues cvInsert = new Schema.ContentValueBuilder()
+                    .put(Schema.Favorites.UNDERLYING_SYMBOL, getUnderlyingSymbol())
                     .put(Schema.Favorites.BUY_QUANTITY, 1)
                     .put(Schema.Favorites.SELL_QUANTITY, 1)
                     .put(Schema.Favorites.BUY_SYMBOL, getBuySymbol())
@@ -300,9 +332,10 @@ public class DbSpread implements VerticalSpread, Parcelable {
                     .put(Schema.Favorites.PRICE_ACQUIRED, getAsk() + getBid() / 2)
                     .put(Schema.Favorites.TIMESTAMP_ACQUIRED, System.currentTimeMillis())
                     .put(Schema.Favorites.TIMESTAMP_EXPIRATION, getExpiresDate().getMillis())
+                    .put(Schema.Favorites.TIMESTAMP_QUOTE, getQuoteTimestamp())
                     .build();
 
-            db.insertWithOnConflict(Schema.Favorites.getTableName(), null, cvInsert, SQLiteDatabase.CONFLICT_IGNORE);
+            db.insertWithOnConflict(Schema.Favorites.TABLE_NAME, null, cvInsert, SQLiteDatabase.CONFLICT_IGNORE);
 
             ContentValues cvUpdate = new Schema.ContentValueBuilder()
                     .put(Schema.Favorites.CURRENT_ASK, getAsk())
@@ -311,17 +344,31 @@ public class DbSpread implements VerticalSpread, Parcelable {
 
             String selection = Schema.Favorites.BUY_SYMBOL + "=? AND " + Schema.Favorites.SELL_SYMBOL + "=?";
             String[] selectionArgs = new String[]{getBuySymbol(), getSellSymbol()};
-            db.update(Schema.Favorites.getTableName(), cvUpdate, selection, selectionArgs);
+            db.update(Schema.Favorites.TABLE_NAME, cvUpdate, selection, selectionArgs);
+
+            // VerticalSpreads IS_FAVORITE=1
+            selection = VerticalSpreads.BUY_SYMBOL + "=? AND " + VerticalSpreads.SELL_SYMBOL + "=?";
+            cvUpdate = new Schema.ContentValueBuilder()
+                    .put(VerticalSpreads.IS_FAVORITE, 1)
+                    .build();
+            db.update(VerticalSpreads.TABLE_NAME, cvUpdate, selection, selectionArgs);
+
             db.setTransactionSuccessful();
         } finally {
             if (db.inTransaction())
                 db.endTransaction();
         }
+        bus.post(new FavoritesUpdatedEvent());
     }
 
     public static class SpreadCreator implements Parcelable.Creator<VerticalSpread> {
         public VerticalSpread createFromParcel(Parcel in) {
-            return new DbSpread();
+            DbSpread ret = new DbSpread();
+            Bundle bundle = in.readBundle();
+            for (String key : bundle.keySet()) {
+                ret.columnValues.put(key, bundle.getString(key));
+            }
+            return ret;
         }
 
         public DbSpread[] newArray(int size) {

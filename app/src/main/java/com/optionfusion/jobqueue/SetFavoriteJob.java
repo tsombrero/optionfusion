@@ -1,12 +1,11 @@
 package com.optionfusion.jobqueue;
 
-import android.database.sqlite.SQLiteDatabase;
+import android.content.Context;
 import android.util.Log;
 
 import com.birbit.android.jobqueue.Params;
 import com.optionfusion.model.DbSpread;
-
-import javax.inject.Inject;
+import com.optionfusion.module.OptionFusionApplication;
 
 public class SetFavoriteJob extends BaseApiJob {
 
@@ -14,10 +13,7 @@ public class SetFavoriteJob extends BaseApiJob {
     private final DbSpread spread;
     private final boolean isFavorite;
 
-    @Inject
-    SQLiteDatabase db;
-
-    public SetFavoriteJob(DbSpread spread, boolean isFavorite) {
+    public SetFavoriteJob(Context context, DbSpread spread, boolean isFavorite) {
         super(new Params(1)
                 .requireNetwork()
                 .setPersistent(false)
@@ -25,6 +21,7 @@ public class SetFavoriteJob extends BaseApiJob {
 
         this.spread = spread;
         this.isFavorite = isFavorite;
+        OptionFusionApplication.from(context).getComponent().inject(this);
 
         Log.i(TAG, "New SetFavoriteJob : " + spread);
     }
@@ -32,7 +29,11 @@ public class SetFavoriteJob extends BaseApiJob {
     @Override
     public void onAdded() {
         super.onAdded();
-        spread.saveAsFavorite(db);
+        if (isFavorite) {
+            spread.saveAsFavorite(dbHelper.getWritableDatabase(), bus);
+        } else {
+            spread.unFavorite(dbHelper.getWritableDatabase(), bus);
+        }
     }
 
     @Override

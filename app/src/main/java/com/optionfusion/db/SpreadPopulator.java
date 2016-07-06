@@ -32,7 +32,7 @@ public class SpreadPopulator {
             colValues.add(appendCalculatedColumnValue(col));
         }
 
-        StringBuilder sb = new StringBuilder("INSERT OR REPLACE INTO " + Schema.VerticalSpreads.getTableName())
+        StringBuilder sb = new StringBuilder("INSERT OR REPLACE INTO " + Schema.VerticalSpreads.TABLE_NAME)
                 .append(" (")
                 .append(TextUtils.join(",", colNames))
                 .append(") SELECT ")
