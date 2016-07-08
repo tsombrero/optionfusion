@@ -308,7 +308,8 @@ public class DbSpread implements VerticalSpread, Parcelable {
             ContentValues cvUpdate = new Schema.ContentValueBuilder()
                     .put(VerticalSpreads.IS_FAVORITE, 0)
                     .build();
-            int n = db.update(VerticalSpreads.TABLE_NAME, cvUpdate, selection, selectionArgs);
+            db.update(VerticalSpreads.TABLE_NAME, cvUpdate, selection, selectionArgs);
+            db.setTransactionSuccessful();
         } finally {
             if (db.inTransaction())
                 db.endTransaction();

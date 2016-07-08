@@ -342,10 +342,12 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             optionFusionApi = null;
 
             synchronized (TAG) {
-                if (account == null)
-                    return null;
-
                 if (fusionUser == null && Looper.getMainLooper() != Looper.myLooper()) {
+
+                    if (account == null) {
+                        bus.post(new LoggedOutExceptionEvent());
+                    }
+
                     try {
                         FusionUser user = new FusionUser();
                         user.setDisplayName(account.getDisplayName());

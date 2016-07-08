@@ -83,18 +83,24 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
 
         Cursor c = null;
         try {
+            boolean needsUpdate = false;
             c = db.query(Schema.vw_Favorites.VIEW_NAME, Schema.getProjection(Schema.vw_Favorites.values()), null, null, null, null, null);
             while (c != null && c.moveToNext()) {
                 newSpreads.add(new FavoriteSpread(c));
+                int pos = newSpreads.size() - 1;
+                if (favoriteSpreads.size() <= pos || !newSpreads.get(pos).equals(favoriteSpreads.get(pos)))
+                    needsUpdate = true;
             }
+
             favoriteSpreads = newSpreads;
 
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    notifyDataSetChanged();
-                }
-            });
+            if (needsUpdate)
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyDataSetChanged();
+                    }
+                });
         } finally {
             if (c != null)
                 c.close();
@@ -103,7 +109,10 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
 
     @Override
     public void setFavorite(VerticalSpread spread, boolean isFavorite) {
-
+        if (isFavorite)
+            ((DbSpread) spread).saveAsFavorite(dbHelper.getWritableDatabase(), bus);
+        else
+            ((DbSpread) spread).unFavorite(dbHelper.getWritableDatabase(), bus);
     }
 
     public class FavoriteSpread extends DbSpread {

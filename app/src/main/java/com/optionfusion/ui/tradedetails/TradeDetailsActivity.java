@@ -32,7 +32,6 @@ public class TradeDetailsActivity extends AppCompatActivity {
                 .replace(R.id.fragment_container, fragment, spread.getDescription())
                 .addToBackStack(null)
                 .commitAllowingStateLoss();
-
     }
 
     @Override

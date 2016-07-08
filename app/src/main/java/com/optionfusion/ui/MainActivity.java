@@ -7,7 +7,6 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.MainThread;
@@ -22,7 +21,6 @@ import android.support.v4.app.SharedElementCallback;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,10 +44,8 @@ import com.optionfusion.ui.help.HelpFragment;
 import com.optionfusion.ui.login.LoginActivity;
 import com.optionfusion.ui.results.ResultsActivity;
 import com.optionfusion.ui.results.ResultsAdapter;
-import com.optionfusion.ui.results.ResultsFragment;
 import com.optionfusion.ui.search.WatchlistFragment;
 import com.optionfusion.ui.tradedetails.TradeDetailsActivity;
-import com.optionfusion.ui.tradedetails.TradeDetailsFragment;
 import com.optionfusion.util.SharedPrefStore;
 import com.optionfusion.util.Util;
 
@@ -188,7 +184,6 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
 
             }
         });
-
 
         reconnect();
     }

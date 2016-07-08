@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.transition.TransitionInflater;
+import android.util.Log;
 import android.view.View;
 
 import com.optionfusion.R;
@@ -30,7 +31,6 @@ public class ResultsActivity extends AppCompatActivity implements ResultsFragmen
         Fragment fragment = ResultsFragment.newInstance(symbol);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment, symbol)
-                .addToBackStack(null)
                 .commitAllowingStateLoss();
     }
 
@@ -43,7 +43,10 @@ public class ResultsActivity extends AppCompatActivity implements ResultsFragmen
 
     @Override
     public void onBackPressed() {
-        finish();
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0)
+            finish();
+        else
+            super.onBackPressed();
     }
 
     @Override
@@ -60,7 +63,7 @@ public class ResultsActivity extends AppCompatActivity implements ResultsFragmen
 //        fragment.setEnterSharedElementCallback(new MySharedElementCallback());
 
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment, spread.toString())
+                .add(R.id.fragment_container, fragment, spread.toString())
                 .addSharedElement(detailsLayout, SharedViewHolders.BriefTradeDetailsHolder.getTransitionName(spread))
                 .addToBackStack(null)
                 .commitAllowingStateLoss();

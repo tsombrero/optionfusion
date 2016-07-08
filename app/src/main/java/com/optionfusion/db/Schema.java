@@ -92,7 +92,9 @@ public class Schema {
             return constraints;
         }
 
-        public String tableName() { return TABLE_NAME; }
+        public String tableName() {
+            return TABLE_NAME;
+        }
     }
 
     public enum Options implements DbColumn {
@@ -168,7 +170,7 @@ public class Schema {
         PRICE_AT_MAX_LOSS(REAL),
         MAX_GAIN_ABSOLUTE(REAL),
         MAX_GAIN_PERCENT(REAL),
-//        MAX_GAIN_MONTHLY(REAL),
+        //        MAX_GAIN_MONTHLY(REAL),
         MAX_GAIN_ANNUALIZED(REAL),
         MAX_VALUE_AT_EXPIRATION(REAL),
         CAPITAL_AT_RISK(REAL),
@@ -297,6 +299,7 @@ public class Schema {
 
         TIMESTAMP_QUOTE(VerticalSpreads.TIMESTAMP_QUOTE),
         TIMESTAMP_FETCH(VerticalSpreads.TIMESTAMP_FETCH),
+        IS_FAVORITE(VerticalSpreads.IS_FAVORITE),
 
         // Favorites cols
         BUY_QUANTITY(Favorites.BUY_QUANTITY),
@@ -375,7 +378,7 @@ public class Schema {
         return names;
     }
 
-    public static String[] getProjection(DbColumn ... columns) {
+    public static String[] getProjection(DbColumn... columns) {
         return getColumnNames(columns).toArray(new String[columns.length]);
     }
 
