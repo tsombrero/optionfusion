@@ -1,15 +1,11 @@
 package com.optionfusion.client;
 
-import android.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.com.backend.optionFusion.model.FusionUser;
 import com.optionfusion.model.provider.Interfaces;
-import com.optionfusion.model.provider.Interfaces.OptionChain;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -50,6 +46,7 @@ public class ClientInterfaces {
 
     public interface StockQuoteClient {
         Interfaces.StockQuote getStockQuote(String symbol, Callback<Interfaces.StockQuote> callback);
+
         List<Interfaces.StockQuote> getStockQuotes(Collection<String> symbols, Callback<List<Interfaces.StockQuote>> callback);
     }
 
@@ -87,13 +84,17 @@ public class ClientInterfaces {
 
     public interface AccountClient {
         void setGoogleAccount(GoogleSignInAccount account);
+
         GoogleSignInResult trySilentSignIn(GoogleApiClient googleApiClient);
 
         FusionUser getAccountUser();
+
         List<Interfaces.StockQuote> setWatchlist(Collection<String> symbols) throws IOException;
+
         List<Interfaces.StockQuote> getWatchlist() throws IOException;
 
         void setUserData(String key, String value) throws IOException;
+
         String getUserData(String key);
     }
 }

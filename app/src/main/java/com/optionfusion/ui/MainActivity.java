@@ -21,6 +21,7 @@ import android.support.v4.app.SharedElementCallback;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -96,7 +97,6 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
     @Inject
     SharedPrefStore sharedPrefStore;
 
-
     @Bind(R.id.toolbar)
     Toolbar toolbar;
 
@@ -133,9 +133,6 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         bus.register(this);
-
-//        progressBar.getIndeterminateDrawable().setColorFilter(accentColor, PorterDuff.Mode.SRC_IN);
-//        showProgress(true);
 
         toolbar.setTitle("Option Fusion " + com.optionfusion.BuildConfig.VERSION_NAME);
         setSupportActionBar(toolbar);
@@ -190,6 +187,11 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
 
     private void reconnect() {
 
+        if (!TextUtils.isEmpty(sharedPrefStore.getSessionId())) {
+            Log.i(TAG, "Session established");
+            return;
+        }
+
         if (apiClient != null) {
             try {
                 apiClient.stopAutoManage(this);
@@ -212,19 +214,10 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
             @Override
             protected void onPostExecute(GoogleSignInResult googleSignInResult) {
                 if (googleSignInResult != null && googleSignInResult.isSuccess()) {
-
                     accountClient.setGoogleAccount(googleSignInResult.getSignInAccount());
-
-                    if (isDestroyed() || isFinishing())
-                        return;
-
-                    //TODO this can put multiple watchlists on the backstack
-//
-//                    Fragment frag = WatchlistFragment.newInstance();
-//                    getSupportFragmentManager().beginTransaction()
-//                            .addToBackStack(null)
-//                            .add(R.id.fragment_container, frag, "tag_search")
-//                            .commitAllowingStateLoss();
+                } else {
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    finish();
                 }
             }
         }.execute(null, null);

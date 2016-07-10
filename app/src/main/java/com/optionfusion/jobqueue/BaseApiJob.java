@@ -14,6 +14,7 @@ import com.optionfusion.client.ClientInterfaces;
 import com.optionfusion.db.DbHelper;
 import com.optionfusion.module.ApplicationModule;
 import com.optionfusion.module.OptionFusionApplication;
+import com.optionfusion.util.SharedPrefStore;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -44,6 +45,9 @@ public abstract class BaseApiJob extends Job {
 
     @Inject
     DbHelper dbHelper;
+
+    @Inject
+    SharedPrefStore sharedPrefStore;
 
     private static final String TAG = "JobQueue";
 

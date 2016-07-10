@@ -24,21 +24,25 @@ public class FusionUser {
     @Id
     String email;
 
-    @Load
-    transient List<Ref<Equity>> watchlistRefs = new ArrayList<>();
-
-    @Ignore
-    List<Equity> materializedWatchlist = new ArrayList<>();
-
-    Map<String, String> userDataMap = new HashMap<>();
-
-    List<Position> savedPositions = new ArrayList<>();
+    @Index
+    String sessionId;
 
     @Index
     String displayName;
 
+    @Load
+    transient List<Ref<Equity>> watchlistRefs = new ArrayList<>();
+
+    Map<String, String> userDataMap = new HashMap<>();
+
+    List<Position> favorites = new ArrayList<>();
+
     Date joinDate;
     Date lastLogin;
+
+    @Ignore
+    List<Equity> materializedWatchlist = new ArrayList<>();
+
 
     public FusionUser() {
     }
@@ -129,7 +133,15 @@ public class FusionUser {
         return userDataMap.get(userDataKey);
     }
 
-    public List<Position> getSavedPositions() {
-        return savedPositions;
+    public List<Position> getFavorites() {
+        return favorites;
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 }

@@ -83,7 +83,7 @@ public class LoginActivity extends AppCompatActivity implements StartFragment.Ho
                 // Show an expanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
-                Toast.makeText(this, "It gives us permissions!", Toast.LENGTH_SHORT);
+                Toast.makeText(this, "Permission Required", Toast.LENGTH_SHORT);
 
             }
         }

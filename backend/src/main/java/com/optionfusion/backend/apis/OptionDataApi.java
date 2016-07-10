@@ -13,6 +13,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
+import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
@@ -26,10 +27,12 @@ import com.optionfusion.backend.models.StockQuote;
 import com.optionfusion.backend.utils.Constants;
 import com.optionfusion.backend.utils.TextUtils;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -118,9 +121,7 @@ public class OptionDataApi {
 
         ensureLoggedIn(user, req);
 
-        Equity equity = getEquity(ticker);
-
-        OptionChain ret = ofy().load().type(OptionChain.class).ancestor(equity).order("-__key__").first().now();
+        OptionChain ret = ofy().load().type(OptionChain.class).ancestor(Key.create(Equity.class, ticker)).order("-__key__").first().now();
 
         return ret;
     }
@@ -157,6 +158,11 @@ public class OptionDataApi {
             createWatchlist(ret);
         }
 
+        if (TextUtils.isEmpty(ret.getSessionId())) {
+            String sessionId = RandomStringUtils.random(32, 0, 0, true, true, null, new SecureRandom());
+            ret.setSessionId(sessionId);
+        }
+
         ret.setLastLogin(new Date());
 
         if (!TextUtils.isEmpty(fusionUserIn.getDisplayName()))
@@ -170,11 +176,9 @@ public class OptionDataApi {
         return ret;
     }
 
-    @ApiMethod(httpMethod = "POST", path="setUserData")
+    @ApiMethod(httpMethod = "POST", path = "setUserData")
     public final void setUserData(HttpServletRequest req, @Named("userDataKey") String key, @Named("userDataValue") String value, User user) throws OAuthRequestException {
-        user = ensureLoggedIn(user, req);
-
-        FusionUser fuser = getFusionUser(user.getEmail());
+        FusionUser fuser = ensureLoggedIn(user, req);
         fuser.setUserData(key, value);
         ofy().save().entity(fuser).now();
     }
@@ -295,13 +299,32 @@ public class OptionDataApi {
         return ret;
     }
 
+    private FusionUser getFusionUserBySessionId(String sessionId) {
+        if (TextUtils.isEmpty(sessionId))
+            return null;
+
+        FusionUser ret = ofy().load().type(FusionUser.class)
+                .filter(new FilterPredicate("sessionId", Query.FilterOperator.EQUAL, sessionId))
+                .first()
+                .now();
+
+        return ret;
+    }
+
     private static Filter startsWithFilter(String field, String q) {
         return CompositeFilterOperator.and(
                 new FilterPredicate(field, GREATER_THAN_OR_EQUAL, q),
                 new FilterPredicate(field, LESS_THAN, q + Character.MAX_VALUE));
     }
 
-    private User ensureLoggedIn(User user, HttpServletRequest req) throws OAuthRequestException {
+    private FusionUser ensureLoggedIn(User user, HttpServletRequest req) throws OAuthRequestException {
+        String sessionId = req.getHeader("SessionId");
+        FusionUser fusionUser = getFusionUserBySessionId(sessionId);
+
+        if (fusionUser != null) {
+            return fusionUser;
+        }
+
         if (user == null)
             log.severe("User is null");
 
@@ -315,6 +338,6 @@ public class OptionDataApi {
         if (user == null)
             throw new OAuthRequestException("Please authenticate first");
 
-        return user;
+        return getFusionUser(user.getEmail());
     }
 }

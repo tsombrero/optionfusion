@@ -346,12 +346,16 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
                     if (account == null) {
                         bus.post(new LoggedOutExceptionEvent());
+                        return null;
                     }
 
                     try {
                         FusionUser user = new FusionUser();
                         user.setDisplayName(account.getDisplayName());
                         fusionUser = getEndpoints().optionDataApi().loginUser(user).execute();
+
+                        if (!TextUtils.isEmpty(fusionUser.getSessionId()))
+                            sharedPrefStore.setSessionid(fusionUser.getSessionId());
 
                         if (fusionUser.getUserDatamap() != null)
                             for (Map.Entry<String, Object> stringObjectEntry : fusionUser.getUserDatamap().entrySet()) {
@@ -476,20 +480,11 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         return optionFusionApi;
     }
 
-    /**
-     * Returns appropriate HttpRequestInitializer depending whether the application is configured to
-     * require users to be signed in or not.
-     *
-     * @return an appropriate HttpRequestInitializer.
-     */
     GoogleClientRequestInitializer getGoogleClientRequestInitializer() {
         return new GoogleClientRequestInitializer() {
             @Override
             public void initialize(AbstractGoogleClientRequest<?> request) throws IOException {
-                if (account != null) {
-//                    String token = account.getIdToken();
-                    request.setDisableGZipContent(true);
-                }
+                request.setDisableGZipContent(true);
             }
         };
     }
@@ -498,11 +493,9 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         return new HttpRequestInitializer() {
             @Override
             public void initialize(HttpRequest request) throws IOException {
-                if (account != null) {
-                    RequestHandler handler = new RequestHandler();
-                    request.setInterceptor(handler);
-                    request.setUnsuccessfulResponseHandler(handler);
-                }
+                RequestHandler handler = new RequestHandler();
+                request.setInterceptor(handler);
+                request.setUnsuccessfulResponseHandler(handler);
             }
         };
     }
@@ -512,8 +505,14 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         String token;
 
         public void intercept(HttpRequest request) throws IOException {
-            token = account.getIdToken();
-            request.getHeaders().setAuthorization("Bearer " + token);
+            if (account != null) {
+                token = account.getIdToken();
+                request.getHeaders().setAuthorization("Bearer " + token);
+            }
+
+            if (!TextUtils.isEmpty(sharedPrefStore.getSessionId())) {
+                request.getHeaders().set("SessionId", sharedPrefStore.getSessionId());
+            }
         }
 
         public boolean handleResponse(
@@ -539,10 +538,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             sharedPrefStore.setEmail(account.getEmail());
         }
 
-        if (account == null)
-            return null;
-
-        if (BuildConfig.DEBUG) {
+        if (account != null && BuildConfig.DEBUG) {
             try {
                 GoogleIdToken token = GoogleIdToken.parse(new AndroidJsonFactory(), account.getIdToken());
                 if (token.getPayload().getExpirationTimeSeconds() * 1000 < System.currentTimeMillis()) {
