@@ -4,7 +4,7 @@ import android.database.Cursor;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
-import com.optionfusion.backend.protobuf.OptionChainProto;
+import com.optionfusion.common.protobuf.OptionChainProto;
 import com.optionfusion.db.DbHelper;
 import com.optionfusion.db.Schema;
 import com.optionfusion.model.DbSpread;

@@ -32,13 +32,14 @@ import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.optionfusion.BuildConfig;
 import com.optionfusion.R;
-import com.optionfusion.backend.protobuf.OptionChainProto;
 import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.com.backend.optionFusion.OptionFusion;
 import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.com.backend.optionFusion.model.EquityCollection;
 import com.optionfusion.com.backend.optionFusion.model.FusionUser;
 import com.optionfusion.com.backend.optionFusion.model.OptionChain;
+import com.optionfusion.com.backend.optionFusion.model.Position;
+import com.optionfusion.common.protobuf.OptionChainProto;
 import com.optionfusion.db.DbHelper;
 import com.optionfusion.db.Schema;
 import com.optionfusion.db.Schema.Options;
@@ -231,6 +232,21 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         return ret;
     }
 
+    public void putFavorite(Position position) {
+        try {
+            getEndpoints().optionDataApi().putPosition(position).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removeFavorite(Position position) {
+        try {
+            getEndpoints().optionDataApi().removePosition(position).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void writeChainToDb(OptionChainProto.OptionChain protoChain) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();

@@ -1,17 +1,17 @@
 package com.optionfusion.backend.admin;
 
-import com.google.gcloud.storage.Blob;
+import com.google.cloud.storage.Blob;
 import com.googlecode.objectify.Key;
 import com.opencsv.CSVIterator;
 import com.opencsv.CSVReader;
 import com.optionfusion.backend.models.Equity;
 import com.optionfusion.backend.models.OptionChain;
 import com.optionfusion.backend.models.StockQuote;
-import com.optionfusion.backend.protobuf.OptionChainProto;
 import com.optionfusion.backend.utils.Constants;
 import com.optionfusion.backend.utils.GoogleApiUtils;
-import com.optionfusion.backend.utils.TextUtils;
 import com.optionfusion.backend.utils.Util;
+import com.optionfusion.common.TextUtils;
+import com.optionfusion.common.protobuf.OptionChainProto;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -34,9 +34,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static com.optionfusion.backend.protobuf.OptionChainProto.OptionQuote.OptionType.CALL;
-import static com.optionfusion.backend.protobuf.OptionChainProto.OptionQuote.OptionType.PUT;
 import static com.optionfusion.backend.utils.OfyService.ofy;
+import static com.optionfusion.common.protobuf.OptionChainProto.OptionQuote.OptionType.CALL;
+import static com.optionfusion.common.protobuf.OptionChainProto.OptionQuote.OptionType.PUT;
 
 public class GetEodDataWorkerServlet extends HttpServlet {
 

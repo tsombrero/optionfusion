@@ -8,6 +8,9 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.optionfusion.com.backend.optionFusion.model.JsonMap;
+import com.optionfusion.com.backend.optionFusion.model.Position;
+import com.optionfusion.common.OptionKey;
 import com.optionfusion.db.Schema;
 import com.optionfusion.db.Schema.VerticalSpreads;
 import com.optionfusion.events.FavoritesUpdatedEvent;
@@ -360,6 +363,29 @@ public class DbSpread implements VerticalSpread, Parcelable {
                 db.endTransaction();
         }
         bus.post(new FavoritesUpdatedEvent());
+    }
+
+    public Position getPosition() {
+        OptionKey buy = new OptionKey(
+                getUnderlyingSymbol(),
+                getExpiresDate().getMillis(),
+                getOptionType() == Interfaces.OptionType.CALL,
+                getBuyStrike());
+
+        OptionKey sell = new OptionKey(
+                getUnderlyingSymbol(),
+                getExpiresDate().getMillis(),
+                getOptionType() == Interfaces.OptionType.CALL,
+                getSellStrike());
+
+        Position ret = new Position();
+
+        JsonMap jsonMap = new JsonMap();
+        jsonMap.put(buy.toString(), 1);
+        jsonMap.put(sell.toString(), -1);
+        ret.setLegs(jsonMap);
+
+        return ret;
     }
 
     public static class SpreadCreator implements Parcelable.Creator<VerticalSpread> {

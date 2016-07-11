@@ -1,11 +1,10 @@
 package com.optionfusion.backend.admin;
 
-import com.google.appengine.api.datastore.Query;
 import com.google.common.base.Strings;
 import com.googlecode.objectify.Key;
 import com.opencsv.CSVReader;
 import com.optionfusion.backend.models.Equity;
-import com.optionfusion.backend.utils.TextUtils;
+import com.optionfusion.common.TextUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,9 +1,9 @@
 package com.optionfusion.backend.utils;
 
-import com.google.gcloud.storage.Blob;
-import com.google.gcloud.storage.BlobId;
-import com.google.gcloud.storage.Storage;
-import com.google.gcloud.storage.StorageOptions;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import com.googlecode.objectify.Key;
 import com.optionfusion.backend.models.Equity;
 import com.optionfusion.backend.models.OptionChain;

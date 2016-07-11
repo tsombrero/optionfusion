@@ -19,13 +19,17 @@ import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.oauth.OAuthRequestException;
 import com.google.appengine.api.users.User;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.googlecode.objectify.Key;
 import com.optionfusion.backend.models.Equity;
 import com.optionfusion.backend.models.FusionUser;
 import com.optionfusion.backend.models.OptionChain;
+import com.optionfusion.backend.models.Position;
 import com.optionfusion.backend.models.StockQuote;
 import com.optionfusion.backend.utils.Constants;
-import com.optionfusion.backend.utils.TextUtils;
+import com.optionfusion.common.OptionKey;
+import com.optionfusion.common.TextUtils;
+import com.optionfusion.common.protobuf.OptionChainProto;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
@@ -33,6 +37,7 @@ import org.joda.time.DateTime;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -129,21 +134,156 @@ public class OptionDataApi {
     @ApiMethod(httpMethod = "POST", path = "setWatchlist")
     public final List<Equity> setWatchlist(HttpServletRequest req, @Named("q") String tickers, User user) throws OAuthRequestException {
 
-        ensureLoggedIn(user, req);
+        FusionUser fuser = ensureLoggedIn(user, req);
 
-        FusionUser fuser = getFusionUser(user.getEmail());
-
-        if (fuser == null) {
-            throw new OAuthRequestException("Authenticated user not found in datastore");
-        }
-
-        List<Equity> ret = getEquityQuotes(req, tickers, user);
+        List<Equity> ret = getEquities(tickers);
 
         fuser.setWatchlist(ret);
 
         ofy().save().entity(fuser).now();
 
         return ret;
+    }
+
+    @ApiMethod(httpMethod = "POST", path = "putPosition")
+    public final void putPosition(HttpServletRequest req, Position pos) throws OAuthRequestException {
+        FusionUser fusionUser = ensureLoggedIn(req);
+        Key<FusionUser> fuserKey = Key.create(FusionUser.class, fusionUser.getEmail());
+        Key<Position> positionKey = Key.create(fuserKey, Position.class, pos.getPositionKey());
+        Position existingPosition = ofy().load().key(positionKey).now();
+        if (existingPosition != null) {
+            existingPosition.setDeletedTimestamp(0);
+            if (existingPosition.getCost() == 0D) {
+                pos.setCost(existingPosition.getCost());
+            }
+            if (existingPosition.getAcquiredTimestamp() != 0) {
+                pos.setAcquiredTimestamp(existingPosition.getAcquiredTimestamp());
+            }
+        }
+
+        pos.setFusionUserKey(fuserKey);
+
+        if (TextUtils.isEmpty(pos.getUnderlyingSymbol())) {
+            log.warning("Failed parsing underlying symbol from position: " + pos.getPositionKey());
+        } else {
+            refreshPosition(pos);
+            ofy().save().entity(pos).now();
+        }
+    }
+
+    @ApiMethod(httpMethod = "POST", path = "removePosition")
+    public final void removePosition(HttpServletRequest req, Position pos) throws OAuthRequestException {
+        FusionUser fusionUser = ensureLoggedIn(req);
+        Key<FusionUser> fuserKey = Key.create(FusionUser.class, fusionUser.getEmail());
+        Key<Position> posKey = Key.create(fuserKey, Position.class, pos.getPositionKey());
+        Position entity = ofy().load().key(posKey).now();
+        if (entity != null) {
+            entity.setDeletedTimestamp(System.currentTimeMillis());
+            ofy().save().entity(entity).now();
+        }
+    }
+
+    @ApiMethod(httpMethod = "GET", path = "getPositions")
+    public final List<Position> getPositions(HttpServletRequest req) throws OAuthRequestException {
+        FusionUser fuser = ensureLoggedIn(req);
+
+        List<Position> positionList = ofy().load().type(Position.class).ancestor(fuser).list();
+        List<Position> ret = new ArrayList<>();
+
+        for (Position pos : positionList) {
+            if (pos.getDeletedTimestamp() > 0)
+                continue;
+
+            if (refreshPosition(pos)) {
+                ofy().save().entity(pos).now();
+            }
+            ret.add(pos);
+        }
+
+        return ret;
+    }
+
+    private boolean refreshPosition(Position pos) {
+        if (pos.getDeletedTimestamp() > 0)
+            return false;
+
+        Key<Equity> underlyingKey = Key.create(Equity.class, pos.getUnderlyingSymbol());
+        OptionChain oc = ofy().load().type(OptionChain.class).ancestor(underlyingKey).order("-__key__").first().now();
+        if (oc == null || oc.getQuote_timestamp().getTime() <= pos.getQuoteTimestamp())
+            return false;
+
+        OptionChainProto.OptionChain protoChain;
+        try {
+            protoChain = OptionChainProto.OptionChain.parseFrom(oc.getChainData().getBytes());
+        } catch (InvalidProtocolBufferException e) {
+            log.warning(e.toString() + " " + e.getMessage());
+            return false;
+        }
+
+        double bid = 0D;
+        double ask = 0D;
+
+        for (String leg : pos.getLegs().keySet()) {
+            OptionChainProto.OptionQuote option = getOption(leg, protoChain);
+            if (option != null) {
+                Long qty = pos.getQty(leg);
+                if (qty == null) {
+                    log.warning("Failed getting qty for leg " + leg);
+                    return false;
+                }
+                if (qty > 0) {
+                    bid += (option.getBid() * qty);
+                    ask += (option.getAsk() * qty);
+                } else {
+                    bid += (option.getAsk() * qty);
+                    ask += (option.getBid() * qty);
+                }
+            }
+        }
+        pos.setBid(bid);
+        pos.setAsk(ask);
+        pos.setQuoteTimestamp(protoChain.getTimestamp());
+
+        if (pos.getCost() == 0) {
+            pos.setCost((bid + ask) / 2);
+        }
+
+        if (pos.getAcquiredTimestamp() == 0) {
+            pos.setAcquiredTimestamp(new DateTime().getMillis());
+        }
+
+        return true;
+    }
+
+    private OptionChainProto.OptionQuote getOption(String optionKeyString, OptionChainProto.OptionChain chain) {
+        OptionChainProto.OptionDateChain dateChain = null;
+        OptionKey optionKey = null;
+        try {
+            optionKey = OptionKey.parse(optionKeyString);
+        } catch (ParseException e) {
+            log.warning("Failed parsing option string " + optionKeyString);
+            return null;
+        }
+
+        for (OptionChainProto.OptionDateChain optionDateChain : chain.getOptionDatesList()) {
+            if (optionDateChain.getExpiration() == optionKey.getExpiration()) {
+                dateChain = optionDateChain;
+                break;
+            }
+        }
+
+        if (dateChain == null) {
+            log.warning("No date chain found for " + optionKeyString);
+            return null;
+        }
+
+        for (OptionChainProto.OptionQuote optionQuote : dateChain.getOptionsList()) {
+            if (optionQuote.getStrike() == optionKey.getStrike() && optionQuote.getOptionType() == optionKey.getOptionType())
+                return optionQuote;
+        }
+
+        log.warning("No option found for " + optionKeyString);
+        return null;
     }
 
     @ApiMethod(httpMethod = "POST", path = "loginUser")
@@ -315,6 +455,14 @@ public class OptionDataApi {
         return CompositeFilterOperator.and(
                 new FilterPredicate(field, GREATER_THAN_OR_EQUAL, q),
                 new FilterPredicate(field, LESS_THAN, q + Character.MAX_VALUE));
+    }
+
+    private FusionUser ensureLoggedIn(HttpServletRequest req) throws OAuthRequestException {
+        String sessionId = req.getHeader("SessionId");
+        FusionUser fusionUser = getFusionUserBySessionId(sessionId);
+        if (fusionUser == null)
+            throw new OAuthRequestException("Please authenticate first");
+        return fusionUser;
     }
 
     private FusionUser ensureLoggedIn(User user, HttpServletRequest req) throws OAuthRequestException {

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import com.birbit.android.jobqueue.Params;
+import com.optionfusion.client.FusionClient;
+import com.optionfusion.com.backend.optionFusion.model.Position;
 import com.optionfusion.model.DbSpread;
 import com.optionfusion.module.OptionFusionApplication;
 
@@ -39,6 +41,11 @@ public class SetFavoriteJob extends BaseApiJob {
     @Override
     public void onRun() throws Throwable {
         super.onRun();
-        //TODO write to backend
+        Position pos = spread.getPosition();
+        if (isFavorite) {
+            ((FusionClient) accountClient).putFavorite(pos);
+        } else {
+            ((FusionClient) accountClient).removeFavorite(pos);
+        }
     }
 }

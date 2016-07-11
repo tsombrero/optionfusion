@@ -1,7 +1,7 @@
 package com.optionfusion.model.provider.backend;
 
 import com.google.gson.Gson;
-import com.optionfusion.backend.protobuf.OptionChainProto;
+import com.optionfusion.common.protobuf.OptionChainProto;
 import com.optionfusion.model.FilterSet;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;

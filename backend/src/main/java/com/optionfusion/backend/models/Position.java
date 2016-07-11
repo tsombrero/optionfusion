@@ -1,37 +1,49 @@
 package com.optionfusion.backend.models;
 
+import com.google.api.server.spi.config.AnnotationBoolean;
+import com.google.api.server.spi.config.ApiResourceProperty;
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Load;
+import com.googlecode.objectify.annotation.OnLoad;
+import com.googlecode.objectify.annotation.OnSave;
 import com.googlecode.objectify.annotation.Parent;
+import com.optionfusion.common.OptionKey;
+import com.optionfusion.common.TextUtils;
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+
+import javax.jdo.annotations.Embedded;
 
 @Entity
 public class Position {
     @Id
-    Long id;
+    private String hashString;
 
     @Parent
-    Ref<FusionUser> fusionUser;
+    @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
+    Key<FusionUser> fusionUserKey;
 
-    Ref<Equity> underlying;
+    String underlyingSymbol;
 
-    boolean isDebit;
     double bid, ask;
+    long quoteTimestamp;
+
+    long deletedTimestamp;
 
     double cost;
-    long dateAcquired;
+    long acquiredTimestamp;
 
-    double maxGain, maxGainPercent, getMaxGainPercentAnnualized, maxLoss;
-    HashMap<String, Long> components = new HashMap<>();
+    HashMap<String, Long> legs = new HashMap<>();
 
-    public Equity getUnderlying() {
-        return underlying.get();
-    }
-
-    public boolean isDebit() {
-        return isDebit;
+    public void setUnderlyingSymbol(String underlyingSymbol) {
+        this.underlyingSymbol = underlyingSymbol;
     }
 
     public double getBid() {
@@ -42,23 +54,108 @@ public class Position {
         return ask;
     }
 
-    public double getMaxGain() {
-        return maxGain;
+    public void setCost(double cost) {
+        this.cost = cost;
     }
 
-    public double getMaxGainPercent() {
-        return maxGainPercent;
+    public HashMap<String, Long> getLegs() {
+        return legs;
     }
 
-    public double getGetMaxGainPercentAnnualized() {
-        return getMaxGainPercentAnnualized;
+    public void setLegs(HashMap<String, Long> legs) {
+        this.legs = legs;
     }
 
-    public double getMaxLoss() {
-        return maxLoss;
+    @Override
+    public int hashCode() {
+        return getPositionKey().hashCode();
     }
 
-    public HashMap<String, Long> getComponents() {
-        return components;
+    @Override
+    public boolean equals(Object obj) {
+        if (obj.hashCode() == hashCode() && obj instanceof Position)
+            return TextUtils.equals(getPositionKey(), ((Position) obj).getPositionKey());
+        return false;
     }
+
+    @OnSave
+    public String getPositionKey() {
+        if (TextUtils.isEmpty(hashString)) {
+            List<String> keys = new ArrayList<>(legs.keySet());
+            Collections.sort(keys);
+            StringBuilder sb = new StringBuilder();
+            for (String key : keys) {
+                sb.append(legs.get(key))
+                        .append(":")
+                        .append(key)
+                        .append(";");
+            }
+            hashString = sb.toString();
+        }
+        return hashString;
+    }
+
+    @OnSave
+    public String getUnderlyingSymbol() {
+        if (underlyingSymbol == null) {
+            for (String leg : getLegs().keySet()) {
+                try {
+                    OptionKey optionKey = OptionKey.parse(leg);
+                    setUnderlyingSymbol(optionKey.getUnderlyingSymbol());
+                } catch (ParseException e) {
+                }
+            }
+        }
+        return underlyingSymbol;
+    }
+
+    public long getQuoteTimestamp() {
+        return quoteTimestamp;
+    }
+
+    public Long getQty(String leg) {
+        return legs.get(leg);
+    }
+
+    public void setBid(double bid) {
+        this.bid = bid;
+    }
+
+    public void setAsk(double ask) {
+        this.ask = ask;
+    }
+
+    public void setQuoteTimestamp(long quoteTimestamp) {
+        this.quoteTimestamp = quoteTimestamp;
+    }
+
+    public void setFusionUserKey(Key<FusionUser> key) {
+        this.fusionUserKey = key;
+    }
+
+    public String getId() {
+        return getPositionKey();
+    }
+
+    public long getDeletedTimestamp() {
+        return deletedTimestamp;
+    }
+
+    public void setDeletedTimestamp(long deletedTimestamp) {
+        this.deletedTimestamp = deletedTimestamp;
+    }
+
+    public double getCost() {
+        return cost;
+    }
+
+    public long getAcquiredTimestamp() {
+        return acquiredTimestamp;
+    }
+
+    public void setAcquiredTimestamp(long acquiredTimestamp) {
+        this.acquiredTimestamp = acquiredTimestamp;
+    }
+
+
 }

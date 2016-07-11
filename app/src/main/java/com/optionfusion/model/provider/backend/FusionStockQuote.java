@@ -4,11 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.Gson;
-import com.optionfusion.backend.protobuf.OptionChainProto;
 import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.com.backend.optionFusion.model.StockQuote;
+import com.optionfusion.common.protobuf.OptionChainProto;
 import com.optionfusion.model.provider.Interfaces;
-import com.optionfusion.model.provider.dummy.DummyStockQuote;
 import com.optionfusion.module.OptionFusionApplication;
 
 public class FusionStockQuote implements Interfaces.StockQuote {

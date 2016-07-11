@@ -1,4 +1,4 @@
-package com.optionfusion.backend.utils;
+package com.optionfusion.common;
 
 public class TextUtils {
     public static boolean equals(String a, String b) {

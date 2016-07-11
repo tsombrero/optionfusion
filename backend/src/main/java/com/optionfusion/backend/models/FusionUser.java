@@ -8,7 +8,7 @@ import com.googlecode.objectify.annotation.Ignore;
 import com.googlecode.objectify.annotation.Index;
 import com.googlecode.objectify.annotation.Load;
 import com.googlecode.objectify.annotation.OnLoad;
-import com.optionfusion.backend.utils.TextUtils;
+import com.optionfusion.common.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,8 +34,6 @@ public class FusionUser {
     transient List<Ref<Equity>> watchlistRefs = new ArrayList<>();
 
     Map<String, String> userDataMap = new HashMap<>();
-
-    List<Position> favorites = new ArrayList<>();
 
     Date joinDate;
     Date lastLogin;
@@ -131,10 +129,6 @@ public class FusionUser {
 
     public String getUserData(String userDataKey) {
         return userDataMap.get(userDataKey);
-    }
-
-    public List<Position> getFavorites() {
-        return favorites;
     }
 
     public String getSessionId() {

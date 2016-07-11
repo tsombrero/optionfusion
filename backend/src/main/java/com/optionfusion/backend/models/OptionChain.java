@@ -7,10 +7,9 @@ import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Index;
 import com.googlecode.objectify.annotation.Parent;
 import com.googlecode.objectify.annotation.Serialize;
-import com.optionfusion.backend.protobuf.OptionChainProto;
+import com.optionfusion.common.protobuf.OptionChainProto;
 
 import java.util.Date;
 

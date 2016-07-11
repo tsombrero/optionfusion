@@ -308,6 +308,10 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
         if (lastConnectionFailedErr < System.currentTimeMillis() - 10000) {
             lastConnectionFailedErr = System.currentTimeMillis();
         }
+
+        sharedPrefStore.setEmail(null);
+        sharedPrefStore.setSessionid(null);
+
         reconnect();
     }
 

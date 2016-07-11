@@ -3,9 +3,9 @@ package com.optionfusion.db;
 import android.content.ContentValues;
 import android.text.TextUtils;
 
-import com.optionfusion.backend.protobuf.OptionChainProto;
+import com.optionfusion.common.protobuf.OptionChainProto;
+import com.optionfusion.common.OptionKey;
 import com.optionfusion.model.provider.Interfaces;
-import com.optionfusion.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -141,7 +141,7 @@ public class Schema {
         }
 
         private static String getKey(String underlying, long expiration, boolean isCall, Double strike) {
-            return String.format("%s%d%s%s", underlying, expiration, isCall ? "C" : "P", Util.formatDollars(strike));
+            return OptionKey.getKey(underlying, expiration, isCall, strike);
         }
 
         public String tableName() {

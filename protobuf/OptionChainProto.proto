@@ -1,4 +1,4 @@
-package com.optionfusion.backend.protobuf;
+package com.optionfusion.common.protobuf;
 
 message OptionChain {
 	repeated OptionDateChain optionDates = 1;
