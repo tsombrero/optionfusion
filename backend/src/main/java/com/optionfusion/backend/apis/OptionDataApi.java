@@ -199,7 +199,6 @@ public class OptionDataApi {
             }
             ret.add(pos);
         }
-
         return ret;
     }
 
