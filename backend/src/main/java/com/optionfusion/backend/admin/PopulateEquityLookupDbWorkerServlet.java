@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.googlecode.objectify.Key;
 import com.opencsv.CSVReader;
 import com.optionfusion.backend.models.Equity;
+import com.optionfusion.backend.utils.Util;
 import com.optionfusion.common.TextUtils;
 
 import java.io.IOException;
@@ -54,6 +55,10 @@ public class PopulateEquityLookupDbWorkerServlet extends HttpServlet {
     private void addRecord(String[] record, HttpServletResponse resp) throws IOException {
         String description = getDescription(record);
         String ticker = record[Columns.Ticker.ordinal()];
+
+        if (Util.isDevelopmentEnv() && !ticker.startsWith("A")) {
+            return;
+        }
 
         if (Strings.isNullOrEmpty(description)) {
             resp.getWriter().println("ERROR no description for ticker " + ticker);

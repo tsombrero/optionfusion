@@ -27,6 +27,7 @@ import com.optionfusion.backend.models.OptionChain;
 import com.optionfusion.backend.models.Position;
 import com.optionfusion.backend.models.StockQuote;
 import com.optionfusion.backend.utils.Constants;
+import com.optionfusion.backend.utils.Util;
 import com.optionfusion.common.OptionKey;
 import com.optionfusion.common.TextUtils;
 import com.optionfusion.common.protobuf.OptionChainProto;
@@ -398,6 +399,11 @@ public class OptionDataApi {
 
     private void createWatchlist(FusionUser fusionUser) {
         List<Equity> equityList = getEquityList(new String[]{"SPY", "AAPL", "AMZN", "CSCO", "FB", "GOOG", "NFLX", "TSLA"});
+
+        if (Util.isDevelopmentEnv()) {
+            equityList = getEquityList(new String[]{"A", "AAPL", "AMZN", "ABT", "ACN", "ACU", "ADBE", "AEO"});
+        }
+
         fusionUser.setWatchlist(equityList);
     }
 

@@ -19,7 +19,7 @@ import static com.optionfusion.db.Schema.DbConstraint.PRIMARY_KEY;
 
 public class Schema {
 
-    public final static int SCHEMA_VERSION = 1;
+    public final static int SCHEMA_VERSION = 2;
     public static final String DB_NAME = "optionfusion.db";
 
     enum DbConstraint {
@@ -229,7 +229,8 @@ public class Schema {
         TIMESTAMP_ARCHIVED(INTEGER),
         PRICE_ACQUIRED(REAL),
         CURRENT_BID(REAL),
-        CURRENT_ASK(REAL);
+        CURRENT_ASK(REAL),
+        IS_DELETED(INTEGER);
 
         public final DataType datatype;
         public final DbConstraint[] constraints;
@@ -308,7 +309,8 @@ public class Schema {
         TIMESTAMP_EXPIRATION(Favorites.TIMESTAMP_EXPIRATION),
         TIMESTAMP_CLOSED(Favorites.TIMESTAMP_CLOSED),
         TIMESTAMP_ARCHIVED(Favorites.TIMESTAMP_ARCHIVED),
-        PRICE_ACQUIRED(Favorites.PRICE_ACQUIRED);
+        PRICE_ACQUIRED(Favorites.PRICE_ACQUIRED),
+        IS_DELETED(Favorites.IS_DELETED);
 
         public DbColumn sourceCol;
         public static final String VIEW_NAME = vw_Favorites.class.getSimpleName();

@@ -249,7 +249,7 @@ public class DbSpread implements VerticalSpread, Parcelable {
         return getDouble(VerticalSpreads.RISK_AVERSION_SCORE);
     }
 
-    private double getDouble(Schema.DbColumn col) {
+    protected double getDouble(Schema.DbColumn col) {
         try {
             return Double.valueOf(columnValues.get(col.name()));
         } catch (Exception e) {
@@ -258,7 +258,7 @@ public class DbSpread implements VerticalSpread, Parcelable {
         }
     }
 
-    private String getString(Schema.DbColumn col) {
+    protected String getString(Schema.DbColumn col) {
         try {
             return columnValues.get(col.name());
         } catch (Exception e) {
@@ -267,11 +267,11 @@ public class DbSpread implements VerticalSpread, Parcelable {
         }
     }
 
-    private boolean getBoolean(Schema.DbColumn col) {
+    protected boolean getBoolean(Schema.DbColumn col) {
         return getLong(col) != 0;
     }
 
-    private long getLong(Schema.DbColumn col) {
+    protected long getLong(Schema.DbColumn col) {
         try {
             return Long.valueOf(columnValues.get(col.name()));
         } catch (Exception e) {
@@ -302,9 +302,13 @@ public class DbSpread implements VerticalSpread, Parcelable {
         setIsFavorite(false);
         db.beginTransaction();
         try {
+            // Only one favorite can be in the 'deleted' state (one-level undo)
+            db.delete(Schema.Favorites.TABLE_NAME, Schema.Favorites.IS_DELETED + "=1", null);
+
             String selection = Schema.Favorites.BUY_SYMBOL + "=? AND " + Schema.Favorites.SELL_SYMBOL + "=?";
             String[] selectionArgs = new String[]{getBuySymbol(), getSellSymbol()};
-            db.delete(Schema.Favorites.TABLE_NAME, selection, selectionArgs);
+            ContentValues cv = new Schema.ContentValueBuilder().put(Schema.Favorites.IS_DELETED, 1).build();
+            db.update(Schema.Favorites.TABLE_NAME, cv, selection, selectionArgs);
 
             // VerticalSpreads IS_FAVORITE=0
             selection = VerticalSpreads.BUY_SYMBOL + "=? AND " + VerticalSpreads.SELL_SYMBOL + "=?";
@@ -344,6 +348,7 @@ public class DbSpread implements VerticalSpread, Parcelable {
             ContentValues cvUpdate = new Schema.ContentValueBuilder()
                     .put(Schema.Favorites.CURRENT_ASK, getAsk())
                     .put(Schema.Favorites.CURRENT_BID, getBid())
+                    .put(Schema.Favorites.IS_DELETED, 0)
                     .build();
 
             String selection = Schema.Favorites.BUY_SYMBOL + "=? AND " + Schema.Favorites.SELL_SYMBOL + "=?";

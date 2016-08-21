@@ -26,6 +26,9 @@ public class FavoritesFragment extends Fragment {
     @Bind(R.id.list)
     RecyclerView recyclerView;
 
+    @Bind(R.id.emptylayout)
+    View emptyLayout;
+
 
     @Nullable
     @Override
@@ -43,5 +46,7 @@ public class FavoritesFragment extends Fragment {
         return ret;
     }
 
-
+    public void showEmpty(boolean showEmpty) {
+        emptyLayout.setVisibility(showEmpty ? View.VISIBLE : View.GONE);
+    }
 }

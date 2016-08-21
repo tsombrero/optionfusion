@@ -6,6 +6,7 @@ import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskHandle;
 import com.google.appengine.api.taskqueue.TaskOptions;
+import com.google.appengine.api.utils.SystemProperty;
 import com.googlecode.objectify.Key;
 import com.optionfusion.backend.models.OptionChain;
 import com.optionfusion.backend.utils.Constants;
@@ -154,10 +155,17 @@ public class AdminServlet extends HttpServlet {
         Queue queue = QueueFactory.getQueue("eoddataqueue");
 
         for (char c = 'A'; c <= 'Z'; c++) {
+            long msToWait = TimeUnit.MINUTES.toMillis(4);
+            if (Util.isDevelopmentEnv()) {
+                if (c != 'A')
+                    continue;
+                msToWait = 1000;
+            }
+
             queue.add(TaskOptions.Builder.withUrl("/eoddataworker")
                     .param(GetEodDataWorkerServlet.PARAM_DATE_TO_SEARCH, String.valueOf(dateTime.getMillis()))
                     .param(GetEodDataWorkerServlet.PARAM_INITIAL_LETTER_SHARD, String.valueOf(c))
-                    .countdownMillis(dayCounter * TimeUnit.MINUTES.toMillis(4))
+                    .countdownMillis(dayCounter * msToWait)
             );
             log("Added job for " + c + " " + dateTime);
         }

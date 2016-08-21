@@ -3,16 +3,21 @@ package com.optionfusion.ui.favorites;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Handler;
+import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.birbit.android.jobqueue.JobManager;
 import com.optionfusion.R;
+import com.optionfusion.common.TextUtils;
 import com.optionfusion.db.DbHelper;
 import com.optionfusion.db.Schema;
 import com.optionfusion.events.FavoritesUpdatedEvent;
+import com.optionfusion.jobqueue.SetFavoriteJob;
 import com.optionfusion.model.DbSpread;
 import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
@@ -26,6 +31,7 @@ import org.sqlite.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.RunnableFuture;
 
 import javax.inject.Inject;
 
@@ -33,7 +39,9 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.FavoriteViewHolder> implements SharedViewHolders.SpreadFavoriteListener {
+import static com.optionfusion.db.Schema.*;
+
+public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.BaseViewHolder> implements SharedViewHolders.SpreadFavoriteListener {
 
     @Inject
     DbHelper dbHelper;
@@ -44,25 +52,38 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
     @Inject
     Context context;
 
+    @Inject
+    JobManager jobManager;
+
     Handler handler = new Handler();
     private final FavoritesFragment fragment;
     List<FavoriteSpread> favoriteSpreads = new ArrayList<>();
 
-    public FavoritesAdapter(FavoritesFragment favoritesFragment) {
+    FavoritesAdapter(FavoritesFragment favoritesFragment) {
         OptionFusionApplication.from(favoritesFragment.getActivity()).getComponent().inject(this);
-        populate();
         bus.register(this);
         fragment = favoritesFragment;
+        onEvent(null);
     }
 
     @Override
-    public FavoriteViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_spread_details, parent, false);
-        return new FavoriteViewHolder(itemView, context, this, (ResultsAdapter.SpreadSelectedListener) fragment.getActivity());
+    public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == 0) {
+            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_spread_details, parent, false);
+            return new FavoriteViewHolder(itemView, context, this, (ResultsAdapter.SpreadSelectedListener) fragment.getActivity());
+        } else {
+            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_undo, parent, false);
+            return new UndoViewHolder(itemView, context, jobManager);
+        }
     }
 
     @Override
-    public void onBindViewHolder(FavoriteViewHolder holder, int position) {
+    public int getItemViewType(int position) {
+        return favoriteSpreads.get(position).isDeleted() ? 1 : 0;
+    }
+
+    @Override
+    public void onBindViewHolder(BaseViewHolder holder, int position) {
         holder.bind(favoriteSpreads.get(position));
     }
 
@@ -73,37 +94,69 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void onEvent(FavoritesUpdatedEvent event) {
-        populate();
-    }
-
-    public void populate() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        List<FavoriteSpread> newSpreads = new ArrayList<>();
-
+        final List<FavoriteSpread> newSpreads = new ArrayList<>();
         Cursor c = null;
         try {
-            boolean needsUpdate = false;
-            c = db.query(Schema.vw_Favorites.VIEW_NAME, Schema.getProjection(Schema.vw_Favorites.values()), null, null, null, null, null);
+            c = db.query(vw_Favorites.VIEW_NAME, getProjection(vw_Favorites.values()), null, null, null, null,
+                    vw_Favorites.UNDERLYING_SYMBOL + ", " + vw_Favorites.TIMESTAMP_EXPIRATION + ", " + vw_Favorites.BUY_STRIKE + " ASC");
             while (c != null && c.moveToNext()) {
                 newSpreads.add(new FavoriteSpread(c));
-                int pos = newSpreads.size() - 1;
-                if (favoriteSpreads.size() <= pos || !newSpreads.get(pos).equals(favoriteSpreads.get(pos)))
-                    needsUpdate = true;
             }
-
-            favoriteSpreads = newSpreads;
-
-            if (needsUpdate)
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        notifyDataSetChanged();
-                    }
-                });
         } finally {
             if (c != null)
                 c.close();
+        }
+
+        handler.post(new Runnable() {
+
+            @Override
+            public void run() {
+                populate(newSpreads);
+            }
+        });
+    }
+
+    @MainThread
+    private void populate(final List<FavoriteSpread> newSpreads) {
+
+        final List<FavoriteSpread> oldSpreads = favoriteSpreads;
+
+        favoriteSpreads = newSpreads;
+        fragment.showEmpty(favoriteSpreads.isEmpty());
+
+        if (oldSpreads != null) {
+            final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return oldSpreads.size();
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return newSpreads.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                    FavoriteSpread oldItem = oldSpreads.get(oldItemPosition);
+                    FavoriteSpread newItem = newSpreads.get(newItemPosition);
+                    return TextUtils.equals(oldItem.getDescription(), newItem.getDescription())
+                            && TextUtils.equals(oldItem.getUnderlyingSymbol(), newItem.getUnderlyingSymbol());
+                }
+
+                @Override
+                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                    FavoriteSpread oldItem = oldSpreads.get(oldItemPosition);
+                    FavoriteSpread newItem = newSpreads.get(newItemPosition);
+
+                    return TextUtils.equals(oldItem.getDescription(), newItem.getDescription())
+                            && TextUtils.equals(oldItem.getUnderlyingSymbol(), newItem.getUnderlyingSymbol())
+                            && oldItem.isDeleted() == newItem.isDeleted();
+                }
+            }, true);
+
+            diffResult.dispatchUpdatesTo(FavoritesAdapter.this);
         }
     }
 
@@ -123,9 +176,9 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
 
             for (int i = 0; i < cursor.getColumnCount(); i++) {
                 String colName = cursor.getColumnName(i);
-                Schema.Favorites col = null;
+                Favorites col = null;
                 try {
-                    col = Schema.Favorites.valueOf(colName);
+                    col = Favorites.valueOf(colName);
                 } catch (Exception e) {
                 }
 
@@ -136,9 +189,49 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
                 putValue(col, cursor, i);
             }
         }
+
+        public boolean isDeleted() {
+            return getBoolean(Favorites.IS_DELETED);
+        }
     }
 
-    public static class FavoriteViewHolder extends RecyclerView.ViewHolder {
+    static abstract class BaseViewHolder extends RecyclerView.ViewHolder {
+
+        BaseViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+
+        abstract void bind(FavoriteSpread item);
+    }
+
+    public static class UndoViewHolder extends BaseViewHolder {
+        private FavoriteSpread item;
+        private final Context context;
+        private final JobManager jobManager;
+
+        UndoViewHolder(View itemView, Context context, JobManager jobManager) {
+            super(itemView);
+            this.context = context;
+            this.jobManager = jobManager;
+        }
+
+        void bind(FavoriteSpread item) {
+            this.item = item;
+        }
+
+        @OnClick(R.id.close)
+        public void onClose() {
+            jobManager.addJobInBackground(new SetFavoriteJob(context, item, false));
+        }
+
+        @OnClick(R.id.undoButton)
+        public void onUndo() {
+            jobManager.addJobInBackground(new SetFavoriteJob(context, item, true));
+        }
+    }
+
+    public static class FavoriteViewHolder extends BaseViewHolder {
 
         private final Context context;
         private final SharedViewHolders.SpreadFavoriteListener spreadFavoriteListener;
@@ -153,17 +246,16 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
         private VerticalSpread spread;
         private final SharedViewHolders.BriefTradeDetailsHolder briefTradeDetailsHolder;
 
-        public FavoriteViewHolder(View itemView, Context context, SharedViewHolders.SpreadFavoriteListener spreadFavoriteListener, ResultsAdapter.SpreadSelectedListener spreadSelectedListener) {
+        FavoriteViewHolder(View itemView, Context context, SharedViewHolders.SpreadFavoriteListener spreadFavoriteListener, ResultsAdapter.SpreadSelectedListener spreadSelectedListener) {
             super(itemView);
             this.context = context;
             this.spreadFavoriteListener = spreadFavoriteListener;
             this.spreadSelectedListener = spreadSelectedListener;
-            ButterKnife.bind(this, itemView);
             briefTradeDetailsHolder = new SharedViewHolders.BriefTradeDetailsHolder(briefDetailsLayout);
             tradeHeaderHolder = new SharedViewHolders.TradeDetailsHeaderHolder(spreadHeaderLayout, spreadFavoriteListener);
         }
 
-        public void bind(FavoriteSpread item) {
+        void bind(FavoriteSpread item) {
             this.spread = item;
             briefTradeDetailsHolder.bind(spread);
             tradeHeaderHolder.bind(spread);

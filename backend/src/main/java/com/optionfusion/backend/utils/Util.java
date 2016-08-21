@@ -1,5 +1,6 @@
 package com.optionfusion.backend.utils;
 
+import com.google.appengine.api.utils.SystemProperty;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
@@ -79,5 +80,9 @@ public class Util {
         Storage storage = StorageOptions.defaultInstance().service();
         BlobId blobId = BlobId.of("optionfusion_com", fileName);
         return storage.get(blobId);
+    }
+
+    public static boolean isDevelopmentEnv() {
+        return SystemProperty.Environment.Value.Development == SystemProperty.environment.value();
     }
 }

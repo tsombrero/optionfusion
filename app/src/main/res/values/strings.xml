@@ -47,4 +47,6 @@
     <string name="help">FAQ</string>
     <string name="favorites">Favorites</string>
     <string name="days_to_exp_format" formatted='false'>%s / %d days</string>
+    <string name="favorites_list_empty">You haven\'t starred any favorites yet!</string>
+    <string name="undo">UNDO</string>
 </resources>
