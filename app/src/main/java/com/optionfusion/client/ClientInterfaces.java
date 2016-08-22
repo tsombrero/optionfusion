@@ -85,8 +85,6 @@ public class ClientInterfaces {
     public interface AccountClient {
         void setGoogleAccount(GoogleSignInAccount account);
 
-        GoogleSignInResult trySilentSignIn(GoogleApiClient googleApiClient);
-
         FusionUser getAccountUser();
 
         List<Interfaces.StockQuote> setWatchlist(Collection<String> symbols) throws IOException;

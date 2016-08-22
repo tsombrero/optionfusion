@@ -33,7 +33,7 @@ public class SharedPrefStore {
     public void setSessionid(String sessionid) {
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(SESSION_ID, sessionid);
-        editor.commit();
+        editor.apply();
     }
 
     public String getEmail() {
@@ -42,5 +42,10 @@ public class SharedPrefStore {
 
     public boolean isUserAuthenticated() {
         return !TextUtils.isEmpty(getEmail());
+    }
+
+    public void clear() {
+        setSessionid(null);
+        setEmail(null);
     }
 }

@@ -22,6 +22,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -38,7 +39,7 @@ class PinView extends View {
     // The radius (in dp) of the touchable area around the thumb. We are basing
     // this value off of the recommended 48dp Rhythm. See:
     // http://developer.android.com/design/style/metrics-grids.html#48dp-rhythm
-    private static final float MINIMUM_TARGET_RADIUS_DP = 24;
+    private static final float MINIMUM_TARGET_RADIUS_DP = 50;
 
     private static final float DEFAULT_THUMB_WIDTH_DP = 28;
     private static final float DEFAULT_THUMB_HEIGHT_DP = 14;
@@ -225,8 +226,12 @@ class PinView extends View {
      * false otherwise
      */
     public boolean isInTargetZone(float x, float y) {
-        return (Math.abs(x - mX) <= mTargetRadiusPx
+        boolean ret = (Math.abs(x - mX) <= mTargetRadiusPx
                 && Math.abs(y - mY + mPinPaddingPx) <= mTargetRadiusPx);
+        if (ret)
+            Log.i("TACO", "intargetzone");
+
+        return ret;
     }
 
     //Draw the circle regardless of pressed state. If pin size is >0 then also draw the pin and text

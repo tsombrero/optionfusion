@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.birbit.android.jobqueue.JobManager;
 import com.optionfusion.R;
@@ -145,6 +146,9 @@ public class ResultsAdapter extends RecyclerView.Adapter<ResultsListViewHolders.
         if (spread instanceof DbSpread) {
             spread.setIsFavorite(isFavorite);
             jobManager.addJobInBackground(new SetFavoriteJob(activity, (DbSpread) spread, isFavorite));
+            if (isFavorite) {
+                Toast.makeText(activity, "Added to Favorites", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

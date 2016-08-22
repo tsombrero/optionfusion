@@ -289,12 +289,10 @@ public class OptionDataApi {
     @ApiMethod(httpMethod = "POST", path = "loginUser")
     public final FusionUser loginUser(HttpServletRequest req, FusionUser fusionUserIn, User user) throws OAuthRequestException {
 
-        ensureLoggedIn(user, req);
-
-        FusionUser ret = getFusionUser(user.getEmail());
+        FusionUser ret = ensureLoggedIn(user, req);
 
         if (ret == null) {
-            ret = new FusionUser(user.getEmail(), fusionUserIn.getDisplayName());
+            ret = new FusionUser(user.getEmail(), fusionUserIn.getDisplayName() != null ? fusionUserIn.getDisplayName() : user.getEmail());
             createWatchlist(ret);
         }
 
@@ -324,7 +322,16 @@ public class OptionDataApi {
     }
 
     private User getUserFromToken(HttpServletRequest req) throws OAuthRequestException {
-        String tokenString = req.getHeader("Authorization").replace("Bearer ", "");
+        if (req == null)
+            return null;
+
+        String tokenString = req.getHeader("Authorization");
+
+        if (!TextUtils.isEmpty(tokenString))
+            tokenString = tokenString.replace("Bearer ", "");
+
+        if (TextUtils.isEmpty(tokenString))
+            return null;
 
         GoogleIdToken token = null;
         try {

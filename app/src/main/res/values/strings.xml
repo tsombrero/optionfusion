@@ -49,4 +49,6 @@
     <string name="days_to_exp_format" formatted='false'>%s / %d days</string>
     <string name="favorites_list_empty">You haven\'t starred any favorites yet!</string>
     <string name="undo">UNDO</string>
+    <string name="label_strikefilter_bullish">Include Options for Bullish Spreads</string>
+    <string name="label_strikefilter_bearish">Include Options for Bearish Spreads</string>
 </resources>

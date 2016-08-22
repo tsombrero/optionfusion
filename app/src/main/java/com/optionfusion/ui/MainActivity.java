@@ -113,10 +113,6 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
     ViewPager pager;
 
 
-    private static GoogleApiClient apiClient;
-
-    private static final int GOOGLE_API_CLIENTID = 2;
-
     private static final String TAG = "MainActivity";
     private TabPagerAdapter pagerAdapter;
 
@@ -181,46 +177,6 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
 
             }
         });
-
-        reconnect();
-    }
-
-    private void reconnect() {
-
-        if (!TextUtils.isEmpty(sharedPrefStore.getSessionId())) {
-            Log.i(TAG, "Session established");
-            return;
-        }
-
-        if (apiClient != null) {
-            try {
-                apiClient.stopAutoManage(this);
-                if (apiClient.isConnected())
-                    apiClient.disconnect();
-                apiClient = null;
-            } catch (Throwable t) {
-                t.printStackTrace();
-            }
-        }
-
-        apiClient = FusionClient.getGoogleApiClient(this, GOOGLE_API_CLIENTID);
-
-        new AsyncTask<Void, Void, GoogleSignInResult>() {
-            @Override
-            protected GoogleSignInResult doInBackground(Void... params) {
-                return accountClient.trySilentSignIn(apiClient);
-            }
-
-            @Override
-            protected void onPostExecute(GoogleSignInResult googleSignInResult) {
-                if (googleSignInResult != null && googleSignInResult.isSuccess()) {
-                    accountClient.setGoogleAccount(googleSignInResult.getSignInAccount());
-                } else {
-                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                    finish();
-                }
-            }
-        }.execute(null, null);
     }
 
     public static class TabPagerAdapter extends FragmentPagerAdapter {
@@ -287,32 +243,12 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
         }
     }
 
-    private long lastConnectionFailedErr;
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onLoggedOutException(LoggedOutExceptionEvent e) {
-        if (apiClient != null)
-            try {
-                if (BuildConfig.DEBUG) {
-                    File dumpfile = new File(getExternalCacheDir(), "connectionFailure_" + UUID.randomUUID());
-                    FileOutputStream fos = new FileOutputStream(dumpfile);
-                    apiClient.dump("FOO", null, new PrintWriter(fos), null);
-                    fos.close();
-                }
-                Log.e(TAG, "Connection Failed");
-            } catch (FileNotFoundException e1) {
-                e1.printStackTrace();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-        if (lastConnectionFailedErr < System.currentTimeMillis() - 10000) {
-            lastConnectionFailedErr = System.currentTimeMillis();
-        }
-
         sharedPrefStore.setEmail(null);
         sharedPrefStore.setSessionid(null);
-
-        reconnect();
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
     }
 
     @Override

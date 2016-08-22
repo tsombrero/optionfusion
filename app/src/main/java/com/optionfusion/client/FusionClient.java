@@ -102,7 +102,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     @Inject
     EventBus bus;
 
-    GoogleSignInResult signinResult;
+//    GoogleSignInResult signinResult;
     private List<Interfaces.StockQuote> watchlist;
 
     private Map<String, String> userData = new HashMap<>();
@@ -360,14 +360,16 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             synchronized (TAG) {
                 if (fusionUser == null && Looper.getMainLooper() != Looper.myLooper()) {
 
-                    if (account == null) {
+                    if (account == null && TextUtils.isEmpty(sharedPrefStore.getSessionId())) {
                         bus.post(new LoggedOutExceptionEvent());
                         return null;
                     }
 
                     try {
                         FusionUser user = new FusionUser();
-                        user.setDisplayName(account.getDisplayName());
+                        if (account != null && !TextUtils.isEmpty(account.getDisplayName()))
+                            user.setDisplayName(account.getDisplayName());
+
                         fusionUser = getEndpoints().optionDataApi().loginUser(user).execute();
 
                         if (!TextUtils.isEmpty(fusionUser.getSessionId()))
@@ -474,7 +476,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
             sharedPrefStore.setEmail(account.getEmail());
             // User is authorized.
         } else {
-            sharedPrefStore.setEmail(null);
+            sharedPrefStore.clear();
         }
     }
 
@@ -535,55 +537,6 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                 HttpRequest request, HttpResponse response, boolean supportsRetry) {
             return false;
         }
-    }
-
-    @Override
-    public GoogleSignInResult trySilentSignIn(GoogleApiClient apiClient) {
-        Log.v(TAG, "trySilentSignIn", new RuntimeException("TACO"));
-
-        try {
-            signinResult =
-                    Auth.GoogleSignInApi.silentSignIn(apiClient).await(15, TimeUnit.SECONDS);
-        } catch (Throwable t) {
-            return null;
-        }
-
-        if (signinResult != null && signinResult.isSuccess()) {
-            account = signinResult.getSignInAccount();
-            Log.i(TAG, "Account updated " + account);
-            sharedPrefStore.setEmail(account.getEmail());
-        }
-
-        if (account != null && BuildConfig.DEBUG) {
-            try {
-                GoogleIdToken token = GoogleIdToken.parse(new AndroidJsonFactory(), account.getIdToken());
-                if (token.getPayload().getExpirationTimeSeconds() * 1000 < System.currentTimeMillis()) {
-                    Log.e(TAG, "Token is expired " + token.getPayload().getExpirationTimeSeconds());
-                } else {
-                    Log.d(TAG, "Token is NOT expired");
-                    GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new AndroidJsonFactory())
-                            .setAudience(Arrays.asList(Constants.AUDIENCE_ANDROID_CLIENT_ID))
-                            // If you retrieved the token on Android using the Play Services 8.3 API or newer, set
-                            // the issuer to "https://accounts.google.com". Otherwise, set the issuer to
-                            // "accounts.google.com". If you need to verify tokens from multiple sources, build
-                            // a GoogleIdTokenVerifier for each issuer and try them both.
-                            .setIssuer("https://accounts.google.com")
-                            .build();
-
-                    if (!verifier.verify(token)) {
-                        Log.e(TAG, "Token failed verify " + token.getPayload().getAudience());
-                    } else {
-                        Log.i(TAG, "Token Verified");
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (GeneralSecurityException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return signinResult;
     }
 
     public static GoogleApiClient getGoogleApiClient(final FragmentActivity activity, int hostId) {

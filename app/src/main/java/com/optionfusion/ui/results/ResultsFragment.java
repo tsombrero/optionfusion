@@ -104,9 +104,10 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
         ItemTouchHelper.Callback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
             @Override
             public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-                if (viewHolder instanceof FilterLayoutViewHolder) {
-                    return makeMovementFlags(0, ItemTouchHelper.END);
-                }
+                // Swipe to dismiss doesn't play nice with rangeview widget
+//                if (viewHolder instanceof FilterLayoutViewHolder) {
+//                    return makeMovementFlags(0, ItemTouchHelper.END);
+//                }
                 return makeMovementFlags(0, 0);
             }
 

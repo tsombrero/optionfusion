@@ -83,19 +83,6 @@ public class StartFragment extends Fragment implements GoogleApiClient.OnConnect
         }
     }
 
-
-//    @OnClick({R.id.no_thanks, R.id.logo_ameritrade})
-//    public void onClickAmeritrade(View view) {
-//        switch (view.getId()) {
-//            case R.id.logo_ameritrade:
-//                getFragmentHost().startLogin(AMERITRADE);
-//                break;
-//            case R.id.no_thanks:
-//            default:
-//                getFragmentHost().startLogin(GOOGLE_FINANCE);
-//        }
-//    }
-
     private Host getFragmentHost() {
         return (Host) getActivity();
     }
