@@ -137,6 +137,9 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         try {
             Log.d(TAG, "Getting chain for " + symbol);
             OptionChain chain = getEndpoints().optionDataApi().getEodChain(symbol).execute();
+            if (chain == null)
+                return null;
+
             Log.d(TAG, "Parsing chain for " + symbol);
             OptionChainProto.OptionChain protoChain = OptionChainProto.OptionChain.parseFrom(chain.decodeChainData());
             writeChainToDb(protoChain);

@@ -10,18 +10,28 @@ import android.util.Log;
 import android.view.View;
 
 import com.optionfusion.R;
+import com.optionfusion.db.DbHelper;
+import com.optionfusion.model.DbSpread;
 import com.optionfusion.model.provider.VerticalSpread;
+import com.optionfusion.module.OptionFusionApplication;
 import com.optionfusion.ui.SharedViewHolders;
 import com.optionfusion.ui.tradedetails.TradeDetailsFragment;
+
+import javax.inject.Inject;
 
 public class ResultsActivity extends AppCompatActivity implements ResultsFragment.Host {
 
     public static final String EXTRA_SYMBOL = "EXTRA_SYMBOL";
 
+    @Inject
+    DbHelper dbHelper;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_results);
+
+        OptionFusionApplication.from(this).getComponent().inject(this);
 
         String symbol = getSymbol();
 
@@ -43,6 +53,8 @@ public class ResultsActivity extends AppCompatActivity implements ResultsFragmen
 
     @Override
     public void onBackPressed() {
+        DbSpread.clearDeletedFavorites(dbHelper.getWritableDatabase());
+
         if (getSupportFragmentManager().getBackStackEntryCount() == 0)
             finish();
         else

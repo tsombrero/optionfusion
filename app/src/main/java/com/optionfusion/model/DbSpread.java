@@ -303,7 +303,7 @@ public class DbSpread implements VerticalSpread, Parcelable {
         db.beginTransaction();
         try {
             // Only one favorite can be in the 'deleted' state (one-level undo)
-            db.delete(Schema.Favorites.TABLE_NAME, Schema.Favorites.IS_DELETED + "=1", null);
+            clearDeletedFavorites(db);
 
             String selection = Schema.Favorites.BUY_SYMBOL + "=? AND " + Schema.Favorites.SELL_SYMBOL + "=?";
             String[] selectionArgs = new String[]{getBuySymbol(), getSellSymbol()};
@@ -322,6 +322,11 @@ public class DbSpread implements VerticalSpread, Parcelable {
                 db.endTransaction();
         }
         bus.post(new FavoritesUpdatedEvent());
+    }
+
+    public static void clearDeletedFavorites(SQLiteDatabase db) {
+        // Only one favorite can be in the 'deleted' state (one-level undo)
+        db.delete(Schema.Favorites.TABLE_NAME, Schema.Favorites.IS_DELETED + "=1", null);
     }
 
     public void saveAsFavorite(SQLiteDatabase db, EventBus bus) {

@@ -83,7 +83,7 @@ public class OptionChainProvider {
         }
     }
 
-    public synchronized void put(Interfaces.OptionChain result) {
+    public synchronized void put(String symbol, Interfaces.OptionChain result) {
         if (result != null && result.getSymbol() != null)
             chains.put(result.getSymbol(), result);
     }

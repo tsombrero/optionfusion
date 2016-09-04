@@ -117,7 +117,7 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
 
     @Override
     public SharedViewHolders.StockQuoteListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.i(TAG, "TACO creating viewholder " + viewType);
+        Log.d(TAG, "creating viewholder " + viewType);
         switch (ViewTypes.values()[viewType]) {
             case STOCKQUOTE: {
                 View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_stock_quote, parent, false);

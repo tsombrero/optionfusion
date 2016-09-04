@@ -24,6 +24,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:tabIndicatorColor="@android:color/white"
+            android:backgroundTint="@color/rangebar_red"
+            android:background="@color/rangebar_red"
+            android:backgroundTintMode="src_in"
             >
             <android.support.design.widget.TabItem
                 android:layout_width="wrap_content"

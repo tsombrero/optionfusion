@@ -19,6 +19,7 @@ import com.optionfusion.ui.login.AmeritradeLoginFragment;
 import com.optionfusion.ui.login.LoginActivity;
 import com.optionfusion.ui.login.StartFragment;
 import com.optionfusion.ui.results.FilterViewHolder;
+import com.optionfusion.ui.results.ResultsActivity;
 import com.optionfusion.ui.results.ResultsFragment;
 import com.optionfusion.ui.search.WatchlistFragment;
 import com.optionfusion.ui.tradedetails.TradeDetailsActivity;
@@ -86,4 +87,6 @@ public interface OptionFusionApplicationComponent {
     void inject(FavoritesAdapter favoritesAdapter);
 
     void inject(TradeDetailsActivity tradeDetailsActivity);
+
+    void inject(ResultsActivity resultsActivity);
 }

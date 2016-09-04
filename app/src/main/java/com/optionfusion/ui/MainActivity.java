@@ -36,7 +36,9 @@ import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.client.ClientInterfaces;
 import com.optionfusion.client.FusionClient;
+import com.optionfusion.db.DbHelper;
 import com.optionfusion.events.LoggedOutExceptionEvent;
+import com.optionfusion.model.DbSpread;
 import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.model.provider.VerticalSpread;
 import com.optionfusion.module.OptionFusionApplication;
@@ -62,6 +64,7 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.RunnableFuture;
 
 import javax.inject.Inject;
 
@@ -97,6 +100,9 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
     @Inject
     SharedPrefStore sharedPrefStore;
 
+    @Inject
+    DbHelper dbHelper;
+
     @Bind(R.id.toolbar)
     Toolbar toolbar;
 
@@ -124,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
         if (!sharedPrefStore.isUserAuthenticated()) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
+            return;
         }
 
         setContentView(R.layout.activity_main);
@@ -277,7 +284,12 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
 
             @Override
             public void onError(int status, String message) {
-                Toast.makeText(MainActivity.this, R.string.failed_fetch_chain, Toast.LENGTH_SHORT).show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, R.string.failed_fetch_chain, Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
     }
@@ -291,6 +303,9 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
 
     @Override
     public void onBackPressed() {
+
+        DbSpread.clearDeletedFavorites(dbHelper.getWritableDatabase());
+
         try {
             if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
                 getSupportFragmentManager().popBackStack();

@@ -92,7 +92,7 @@ public class GoogleSignInJob extends BaseApiJob implements GoogleApiClient.OnCon
     }
 
     public GoogleSignInResult trySilentSignIn() {
-        Log.v(TAG, "trySilentSignIn", new RuntimeException("TACO"));
+        Log.v(TAG, "trySilentSignIn", new RuntimeException("trySilentSignIn"));
 
         GoogleSignInResult signinResult;
         try {

@@ -226,12 +226,8 @@ class PinView extends View {
      * false otherwise
      */
     public boolean isInTargetZone(float x, float y) {
-        boolean ret = (Math.abs(x - mX) <= mTargetRadiusPx
+        return (Math.abs(x - mX) <= mTargetRadiusPx
                 && Math.abs(y - mY + mPinPaddingPx) <= mTargetRadiusPx);
-        if (ret)
-            Log.i("TACO", "intargetzone");
-
-        return ret;
     }
 
     //Draw the circle regardless of pressed state. If pin size is >0 then also draw the pin and text

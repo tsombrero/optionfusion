@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.optionfusion.R;
+import com.optionfusion.db.Schema;
 import com.optionfusion.module.OptionFusionApplication;
 
 import butterknife.Bind;
@@ -28,7 +29,6 @@ public class FavoritesFragment extends Fragment {
 
     @Bind(R.id.emptylayout)
     View emptyLayout;
-
 
     @Nullable
     @Override

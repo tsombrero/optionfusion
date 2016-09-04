@@ -267,7 +267,7 @@ public class SharedViewHolders {
         @OnClick(R.id.star)
         public void onClickStar() {
             boolean isFavorite = !spread.isFavorite();
-            Log.i(TAG, "TACO newIsFavorite : " + isFavorite);
+            Log.d(TAG, "newIsFavorite : " + isFavorite);
             spread.setIsFavorite(isFavorite);
             spreadFavoriteListener.setFavorite(spread, isFavorite);
             bindStar();

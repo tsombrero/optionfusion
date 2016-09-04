@@ -1,6 +1,7 @@
 package com.optionfusion.jobqueue;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.birbit.android.jobqueue.Params;
 import com.optionfusion.model.provider.Interfaces;
@@ -27,7 +28,7 @@ public class GetOptionChainJob extends BaseApiJob {
     public void onRun() throws Throwable {
         super.onRun();
         result = optionChainClient.getOptionChain(symbol);
-        optionChainProvider.put(result);
+        optionChainProvider.put(symbol, result);
     }
 
     public Interfaces.OptionChain getResult() {
