@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -258,7 +259,7 @@ public class SharedViewHolders {
         }
 
         private void bindStar() {
-            star.setImageDrawable(context.getResources().getDrawable(
+            star.setImageDrawable(AppCompatResources.getDrawable(context,
                     spread.isFavorite()
                             ? R.drawable.ic_star_gold_v_24dp
                             : R.drawable.ic_star_border_gray_24dp));

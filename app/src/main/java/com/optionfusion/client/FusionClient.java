@@ -39,6 +39,7 @@ import com.optionfusion.com.backend.optionFusion.model.EquityCollection;
 import com.optionfusion.com.backend.optionFusion.model.FusionUser;
 import com.optionfusion.com.backend.optionFusion.model.OptionChain;
 import com.optionfusion.com.backend.optionFusion.model.Position;
+import com.optionfusion.com.backend.optionFusion.model.PositionCollection;
 import com.optionfusion.common.protobuf.OptionChainProto;
 import com.optionfusion.db.DbHelper;
 import com.optionfusion.db.Schema;
@@ -453,6 +454,12 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public List<Position> getFavorites() throws IOException {
+        PositionCollection favorites = getEndpoints().optionDataApi().getPositions().execute();
+        return favorites.getItems();
     }
 
     private static List<Interfaces.StockQuote> getStockQuoteList(Collection<Equity> equities) {

@@ -22,6 +22,7 @@ import com.birbit.android.jobqueue.JobManager;
 import com.optionfusion.R;
 import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.client.ClientInterfaces;
+import com.optionfusion.jobqueue.GetFavoritesJob;
 import com.optionfusion.jobqueue.GetWatchlistJob;
 import com.optionfusion.jobqueue.SetWatchlistJob;
 import com.optionfusion.model.provider.Interfaces;
@@ -158,6 +159,7 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
         if (adapter == null || adapter.getStockQuoteList().isEmpty()) {
             showProgress(true);
             jobManager.addJobInBackground(new GetWatchlistJob());
+            jobManager.addJobInBackground(new GetFavoritesJob());
         } else {
             showProgress(false);
         }

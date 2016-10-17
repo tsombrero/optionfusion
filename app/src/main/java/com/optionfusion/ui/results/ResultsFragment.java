@@ -179,6 +179,9 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
 
             @Override
             protected void onPostExecute(List<VerticalSpread> spreads) {
+                if (spreads == null) {
+                    getActivity().finish();
+                }
                 if (resultsAdapter == null) {
                     resultsAdapter = new ResultsAdapter(filterSet, symbol, spreads, getActivity(), ResultsFragment.this, jobManager);
                     recyclerView.setAdapter(resultsAdapter);
@@ -195,8 +198,11 @@ public class ResultsFragment extends Fragment implements ResultsAdapter.ResultsL
             protected List<VerticalSpread> doInBackground(Void... params) {
 
                 oc = optionChainProvider.get(symbol);
-                List<VerticalSpread> allSpreads = oc.getAllSpreads(filterSet);
-                return allSpreads;
+                if (oc != null) {
+                    List<VerticalSpread> allSpreads = oc.getAllSpreads(filterSet);
+                    return allSpreads;
+                }
+                return null;
             }
         }.execute();
     }

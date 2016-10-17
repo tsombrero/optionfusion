@@ -98,8 +98,8 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Base
         final List<FavoriteSpread> newSpreads = new ArrayList<>();
         Cursor c = null;
         try {
-            c = db.query(vw_Favorites.VIEW_NAME, getProjection(vw_Favorites.values()), null, null, null, null,
-                    vw_Favorites.UNDERLYING_SYMBOL + ", " + vw_Favorites.TIMESTAMP_EXPIRATION + ", " + vw_Favorites.BUY_STRIKE + " ASC");
+            c = db.query(Favorites.TABLE_NAME, getProjection(Favorites.values()), null, null, null, null,
+                    Favorites.UNDERLYING_SYMBOL + ", " + Favorites.TIMESTAMP_EXPIRATION + " ASC");
             while (c != null && c.moveToNext()) {
                 newSpreads.add(new FavoriteSpread(c));
             }

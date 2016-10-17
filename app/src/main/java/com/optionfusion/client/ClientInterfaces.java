@@ -5,6 +5,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.optionfusion.com.backend.optionFusion.model.Equity;
 import com.optionfusion.com.backend.optionFusion.model.FusionUser;
+import com.optionfusion.com.backend.optionFusion.model.Position;
 import com.optionfusion.model.provider.Interfaces;
 
 import java.io.IOException;
@@ -90,6 +91,8 @@ public class ClientInterfaces {
         List<Interfaces.StockQuote> setWatchlist(Collection<String> symbols) throws IOException;
 
         List<Interfaces.StockQuote> getWatchlist() throws IOException;
+
+        List<Position> getFavorites() throws IOException;
 
         void setUserData(String key, String value) throws IOException;
 

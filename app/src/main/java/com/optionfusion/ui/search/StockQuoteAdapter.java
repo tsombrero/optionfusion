@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.optionfusion.R;
 import com.optionfusion.events.StockQuotesUpdatedEvent;
 import com.optionfusion.events.WatchListUpdatedEvent;
+import com.optionfusion.jobqueue.GetFavoritesJob;
 import com.optionfusion.jobqueue.GetWatchlistJob;
 import com.optionfusion.jobqueue.SetWatchlistJob;
 import com.optionfusion.model.provider.Interfaces;
@@ -62,6 +63,7 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
         isUpdating = true;
 
         watchlistFragment.jobManager.addJobInBackground(new GetWatchlistJob());
+        watchlistFragment.jobManager.addJobInBackground(new GetFavoritesJob());
         watchlistFragment.recyclerView.postDelayed(new Runnable() {
             @Override
             public void run() {
