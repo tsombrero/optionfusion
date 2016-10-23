@@ -34,7 +34,7 @@ public class DbHelper extends SQLiteOpenHelper {
         createTable(db, Schema.Favorites.values());
         createTable(db, Schema.StockQuotes.values());
 
-//        createUniqueIndex(db, Schema.VerticalSpreads.BUY_SYMBOL, Schema.VerticalSpreads.SELL_SYMBOL);
+        createUniqueIndex(db, Schema.VerticalSpreads.BUY_SYMBOL, Schema.VerticalSpreads.SELL_SYMBOL);
         createUniqueIndex(db, Schema.Options.OPTION_TYPE, Schema.Options.UNDERLYING_SYMBOL, Schema.Options.SYMBOL, Schema.Options.EXPIRATION);
         createUniqueIndex(db, Schema.Favorites.BUY_SYMBOL, Schema.Favorites.SELL_SYMBOL);
 
@@ -42,7 +42,7 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
     private void createUniqueIndex(SQLiteDatabase db, Schema.DbColumn... columns) {
-        String indexName = "INDEX_" + TextUtils.join("_", Schema.getColumnNames(columns));
+        String indexName = "INDEX_" + columns[0].tableName() + "$" + TextUtils.join("_", Schema.getColumnNames(columns));
         String cmd = new StringBuilder("CREATE UNIQUE INDEX IF NOT EXISTS ")
                 .append(indexName)
                 .append(" ON ")

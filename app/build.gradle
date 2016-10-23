@@ -28,7 +28,7 @@ dependencies {
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.wefika:flowlayout:0.4.1'
     compile 'com.github.lecho:hellocharts-library:1.5.8@aar'
-    compile 'net.danlew:android.joda:2.8.2'
+    compile 'joda-time:joda-time:2.9.2'
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'
     compile 'com.squareup.retrofit:converter-simplexml:2.0.0-beta2'

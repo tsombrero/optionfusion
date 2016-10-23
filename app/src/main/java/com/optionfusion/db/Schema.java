@@ -19,7 +19,7 @@ import static com.optionfusion.db.Schema.DbConstraint.PRIMARY_KEY;
 
 public class Schema {
 
-    public final static int SCHEMA_VERSION = 2;
+    public final static int SCHEMA_VERSION = 3;
     public static final String DB_NAME = "optionfusion.db";
 
     enum DbConstraint {

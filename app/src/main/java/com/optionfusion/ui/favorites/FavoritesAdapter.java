@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 
 import com.birbit.android.jobqueue.JobManager;
 import com.optionfusion.R;
+import com.optionfusion.com.backend.optionFusion.model.Position;
 import com.optionfusion.common.TextUtils;
 import com.optionfusion.db.DbHelper;
 import com.optionfusion.db.Schema;
@@ -70,7 +71,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Base
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == 0) {
             View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_spread_details, parent, false);
-            return new FavoriteViewHolder(itemView, context, this, (ResultsAdapter.SpreadSelectedListener) fragment.getActivity());
+            return new FavoriteViewHolder(itemView, this, (ResultsAdapter.SpreadSelectedListener) fragment.getActivity());
         } else {
             View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_undo, parent, false);
             return new UndoViewHolder(itemView, context, jobManager);
@@ -98,8 +99,8 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Base
         final List<FavoriteSpread> newSpreads = new ArrayList<>();
         Cursor c = null;
         try {
-            c = db.query(Favorites.TABLE_NAME, getProjection(Favorites.values()), null, null, null, null,
-                    Favorites.UNDERLYING_SYMBOL + ", " + Favorites.TIMESTAMP_EXPIRATION + " ASC");
+            c = db.query(vw_Favorites.VIEW_NAME, getProjection(vw_Favorites.values()), null, null, null, null,
+                    vw_Favorites.UNDERLYING_SYMBOL + ", " + vw_Favorites.TIMESTAMP_EXPIRATION + " ASC");
             while (c != null && c.moveToNext()) {
                 newSpreads.add(new FavoriteSpread(c));
             }
@@ -162,10 +163,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Base
 
     @Override
     public void setFavorite(VerticalSpread spread, boolean isFavorite) {
-        if (isFavorite)
-            ((DbSpread) spread).saveAsFavorite(dbHelper.getWritableDatabase(), bus);
-        else
-            ((DbSpread) spread).unFavorite(dbHelper.getWritableDatabase(), bus);
+        jobManager.addJobInBackground(new SetFavoriteJob(context, (DbSpread) spread, isFavorite));
     }
 
     public class FavoriteSpread extends DbSpread {
@@ -192,6 +190,14 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Base
 
         public boolean isDeleted() {
             return getBoolean(Favorites.IS_DELETED);
+        }
+
+        @Override
+        public Position getPosition() {
+            Position ret = super.getPosition();
+            ret.setCost(getDouble(Favorites.PRICE_ACQUIRED));
+            ret.setAcquiredTimestamp(getLong(Favorites.TIMESTAMP_ACQUIRED));
+            return ret;
         }
     }
 
@@ -233,8 +239,6 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Base
 
     public static class FavoriteViewHolder extends BaseViewHolder {
 
-        private final Context context;
-        private final SharedViewHolders.SpreadFavoriteListener spreadFavoriteListener;
         private final ResultsAdapter.SpreadSelectedListener spreadSelectedListener;
         @Bind(R.id.details_brief)
         View briefDetailsLayout;
@@ -246,10 +250,8 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Base
         private VerticalSpread spread;
         private final SharedViewHolders.BriefTradeDetailsHolder briefTradeDetailsHolder;
 
-        FavoriteViewHolder(View itemView, Context context, SharedViewHolders.SpreadFavoriteListener spreadFavoriteListener, ResultsAdapter.SpreadSelectedListener spreadSelectedListener) {
+        FavoriteViewHolder(View itemView, SharedViewHolders.SpreadFavoriteListener spreadFavoriteListener, ResultsAdapter.SpreadSelectedListener spreadSelectedListener) {
             super(itemView);
-            this.context = context;
-            this.spreadFavoriteListener = spreadFavoriteListener;
             this.spreadSelectedListener = spreadSelectedListener;
             briefTradeDetailsHolder = new SharedViewHolders.BriefTradeDetailsHolder(briefDetailsLayout);
             tradeHeaderHolder = new SharedViewHolders.TradeDetailsHeaderHolder(spreadHeaderLayout, spreadFavoriteListener);

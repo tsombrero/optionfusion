@@ -14,13 +14,10 @@ import android.widget.Toast;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
@@ -29,7 +26,6 @@ import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
-import com.google.api.client.http.javanet.NetHttpTransport;
 import com.optionfusion.BuildConfig;
 import com.optionfusion.R;
 import com.optionfusion.cache.StockQuoteProvider;
@@ -40,6 +36,7 @@ import com.optionfusion.com.backend.optionFusion.model.FusionUser;
 import com.optionfusion.com.backend.optionFusion.model.OptionChain;
 import com.optionfusion.com.backend.optionFusion.model.Position;
 import com.optionfusion.com.backend.optionFusion.model.PositionCollection;
+import com.optionfusion.common.OptionKey;
 import com.optionfusion.common.protobuf.OptionChainProto;
 import com.optionfusion.db.DbHelper;
 import com.optionfusion.db.Schema;
@@ -59,51 +56,42 @@ import org.joda.time.DateTime;
 import org.sqlite.database.sqlite.SQLiteDatabase;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
+import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.Set;
 
 import javax.inject.Inject;
 
 import dagger.Lazy;
+
+import static com.optionfusion.common.OptionFusionUtils.roundToNearestFriday;
 
 public class FusionClient implements ClientInterfaces.SymbolLookupClient, ClientInterfaces.OptionChainClient, ClientInterfaces.AccountClient, ClientInterfaces.StockQuoteClient {
 
     public static final String USERDATA_TRUE = "1";
     public static final String USERDATA_NONE = "";
     public static final String USERDATA_NOTIFY_UPGRADE = "USERDATA_NOTIFY_UPGRADE";
-
-    OptionFusion optionFusionApi;
-
-    FusionUser fusionUser;
-
-    private GoogleSignInAccount account;
-
-    Context context;
-
     private static final String ROOT_URL = BuildConfig.ROOT_URL;
-
     private static final String TAG = "FusionClient";
-
+    OptionFusion optionFusionApi;
+    FusionUser fusionUser;
+    Context context;
     @Inject
     DbHelper dbHelper;
-
     @Inject
     Lazy<StockQuoteProvider> stockQuoteProvider;
-
     @Inject
     SharedPrefStore sharedPrefStore;
-
     @Inject
     EventBus bus;
-
-//    GoogleSignInResult signinResult;
+    private GoogleSignInAccount account;
+    //    GoogleSignInResult signinResult;
     private List<Interfaces.StockQuote> watchlist;
 
     private Map<String, String> userData = new HashMap<>();
@@ -111,6 +99,35 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     public FusionClient(Context context) {
         OptionFusionApplication.from(context).getComponent().inject(this);
         this.context = context;
+    }
+
+    private static List<Interfaces.StockQuote> getStockQuoteList(Collection<Equity> equities) {
+        List ret = new ArrayList<>();
+        if (equities != null)
+            for (Equity equity : equities) {
+                ret.add(new FusionStockQuote(equity));
+            }
+        return ret;
+    }
+
+    public static GoogleApiClient getGoogleApiClient(final FragmentActivity activity, int hostId) {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(Constants.WEB_CLIENT_ID)
+                .requestEmail()
+                .requestId()
+                .build();
+
+        GoogleApiClient.Builder ret = new GoogleApiClient.Builder(activity)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .enableAutoManage(activity, hostId, new GoogleApiClient.OnConnectionFailedListener() {
+                    @Override
+                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+                        Log.e(TAG, "Connection Failed" + connectionResult);
+                        Toast.makeText(activity, R.string.connection_failed, Toast.LENGTH_SHORT);
+                    }
+                });
+
+        return ret.build();
     }
 
     @Override
@@ -134,7 +151,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
     }
 
     @Override
-    public Interfaces.OptionChain getOptionChain(final String symbol) {
+    public Interfaces.OptionChain getOptionChain(final String symbol, boolean favoritesOnly) {
         try {
             Log.d(TAG, "Getting chain for " + symbol);
             OptionChain chain = getEndpoints().optionDataApi().getEodChain(symbol).execute();
@@ -143,7 +160,7 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
 
             Log.d(TAG, "Parsing chain for " + symbol);
             OptionChainProto.OptionChain protoChain = OptionChainProto.OptionChain.parseFrom(chain.decodeChainData());
-            writeChainToDb(protoChain);
+            writeChainToDb(protoChain, favoritesOnly);
 
             Log.d(TAG, "Returning chain for " + symbol);
             return new FusionOptionChain(protoChain, dbHelper);
@@ -252,38 +269,84 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         }
     }
 
-    private void writeChainToDb(OptionChainProto.OptionChain protoChain) {
+    private void writeChainToDb(OptionChainProto.OptionChain protoChain, boolean favoritesOnly) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         long now = System.currentTimeMillis();
-        try {
-            db.beginTransaction();
-            Log.d(TAG, "Cleaning DB");
+        synchronized (TAG) {
+            try {
+                db.beginTransaction();
 
-            db.delete(Options.TABLE_NAME,
-                    Schema.Options.UNDERLYING_SYMBOL + "='" + protoChain.getSymbol() + "'", null);
+                Set<OptionKey> toKeepFilter = null;
 
-            db.delete(Schema.VerticalSpreads.TABLE_NAME,
-                    Schema.VerticalSpreads.UNDERLYING_SYMBOL + "='" + protoChain.getSymbol() + "'", null);
+                if (favoritesOnly) {
+                    toKeepFilter = getOptionsInFavorites(protoChain);
+                } else {
+                    Log.d(TAG, "Cleaning DB");
 
-            Log.d(TAG, "Writing Option Records");
-            for (OptionChainProto.OptionDateChain dateChain : protoChain.getOptionDatesList()) {
-                writeDateChainToDb(db, dateChain, now, protoChain);
+                    db.delete(Options.TABLE_NAME,
+                            Schema.Options.UNDERLYING_SYMBOL + "='" + protoChain.getSymbol() + "'", null);
+
+                    db.delete(Schema.VerticalSpreads.TABLE_NAME,
+                            Schema.VerticalSpreads.UNDERLYING_SYMBOL + "='" + protoChain.getSymbol() + "'", null);
+                }
+
+                Log.d(TAG, "Writing Option Records");
+                for (OptionChainProto.OptionDateChain dateChain : protoChain.getOptionDatesList()) {
+                    if (toKeepFilter == null || isKeepDate(dateChain, toKeepFilter))
+                        writeDateChainToDb(db, dateChain, now, protoChain, toKeepFilter);
+                }
+
+                Log.d(TAG, "Writing Spread Records");
+                SpreadPopulator.updateSpreads(protoChain.getSymbol(), db);
+
+                Log.d(TAG, "Writing favorites");
+                writeFavorites(db, protoChain.getSymbol());
+
+                Log.d(TAG, "Cleaning up");
+                clearBidAsk(db, protoChain.getSymbol());
+
+                db.setTransactionSuccessful();
+            } finally {
+                if (db.inTransaction())
+                    db.endTransaction();
             }
-
-            Log.d(TAG, "Writing Spread Records");
-            SpreadPopulator.updateSpreads(protoChain.getSymbol(), db);
-
-            Log.d(TAG, "Writing favorites");
-            writeFavorites(db, protoChain.getSymbol());
-
-            Log.d(TAG, "Cleaning up");
-            clearBidAsk(db, protoChain.getSymbol());
-
-            db.setTransactionSuccessful();
-        } finally {
-            if (db.inTransaction())
-                db.endTransaction();
         }
+    }
+
+    private Set<OptionKey> getOptionsInFavorites(OptionChainProto.OptionChain protoChain) {
+        Set<OptionKey> toKeepFilter = new HashSet<>();
+        Cursor c = null;
+        try {
+            c = dbHelper.getReadableDatabase().query(
+                    Schema.Favorites.TABLE_NAME,
+                    new String[]{Schema.Favorites.BUY_SYMBOL.name(), Schema.Favorites.SELL_SYMBOL.name()},
+                    Schema.Favorites.UNDERLYING_SYMBOL + "=?",
+                    new String[]{protoChain.getSymbol()},
+                    null, null, null);
+
+            while (c != null && c.moveToNext()) {
+                try {
+                    toKeepFilter.add(OptionKey.parse(c.getString(0)));
+                    toKeepFilter.add(OptionKey.parse(c.getString(1)));
+                } catch (ParseException e) {
+                    Log.i(TAG, "failed parsing", e);
+                }
+            }
+        } finally {
+            if (c != null)
+                c.close();
+        }
+
+        return toKeepFilter;
+    }
+
+    private boolean isKeepDate(OptionChainProto.OptionDateChain dateChain, Set<OptionKey> toKeepFilter) {
+        for (OptionKey optionKey : toKeepFilter) {
+            if (optionKey.getExpiration() == roundToNearestFriday(dateChain.getExpiration())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void writeFavorites(SQLiteDatabase db, String symbol) {
@@ -320,18 +383,30 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                 new String[]{symbol});
     }
 
-    private void writeDateChainToDb(SQLiteDatabase db, OptionChainProto.OptionDateChain dateChain, long now, OptionChainProto.OptionChain protoChain) {
+    private void writeDateChainToDb(SQLiteDatabase db, OptionChainProto.OptionDateChain dateChain, long now, OptionChainProto.OptionChain protoChain, Set<OptionKey> toKeep) {
 
-        int i = 0;
+        DateTime expiration = new DateTime(roundToNearestFriday(dateChain.getExpiration()));
+        int expiresInDays = Util.getDaysFromNow(expiration);
 
-        if (Util.getDaysFromNow(new DateTime(dateChain.getExpiration())) <= 1) {
+        if (expiresInDays <= 1) {
             return;
         }
 
         double minPrice = protoChain.getUnderlyingPrice() / 500;
 
+        OptionKey optionKey;
+
         for (OptionChainProto.OptionQuote optionQuote : dateChain.getOptionsList()) {
-            if (optionQuote.getAsk() < minPrice && optionQuote.getBid() < minPrice) {
+
+            if (toKeep != null) {
+                optionKey = new OptionKey(protoChain.getSymbol(),
+                        dateChain.getExpiration(),
+                        optionQuote.getOptionType() == OptionChainProto.OptionQuote.OptionType.CALL,
+                        optionQuote.getStrike());
+
+                if (!toKeep.contains(optionKey))
+                    continue;
+            } else if (optionQuote.getAsk() < minPrice && optionQuote.getBid() < minPrice) {
                 continue;
             }
 
@@ -342,8 +417,8 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                     .put(Options.BID, optionQuote.getBid())
                     .put(Options.ASK, optionQuote.getAsk())
                     .put(Options.STRIKE, optionQuote.getStrike())
-                    .put(Options.EXPIRATION, Util.roundToNearestFriday(new DateTime(dateChain.getExpiration())).getMillis())
-                    .put(Options.DAYS_TO_EXPIRATION, Math.max(1, Util.getDaysFromNow(new DateTime(dateChain.getExpiration()))))
+                    .put(Options.EXPIRATION, roundToNearestFriday(expiration.getMillis()))
+                    .put(Options.DAYS_TO_EXPIRATION, Math.max(1, expiresInDays))
                     .put(Options.IV, optionQuote.getIv())
                     .put(Options.OPTION_TYPE, optionQuote.getOptionType().name().substring(0, 1))
                     .put(Options.OPEN_INTEREST, optionQuote.getOpenInterest())
@@ -462,15 +537,6 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
         return favorites.getItems();
     }
 
-    private static List<Interfaces.StockQuote> getStockQuoteList(Collection<Equity> equities) {
-        List ret = new ArrayList<>();
-        if (equities != null)
-            for (Equity equity : equities) {
-                ret.add(new FusionStockQuote(equity));
-            }
-        return ret;
-    }
-
     @Override
     public String getUserData(String userDataKey) {
         synchronized (TAG) {
@@ -547,25 +613,5 @@ public class FusionClient implements ClientInterfaces.SymbolLookupClient, Client
                 HttpRequest request, HttpResponse response, boolean supportsRetry) {
             return false;
         }
-    }
-
-    public static GoogleApiClient getGoogleApiClient(final FragmentActivity activity, int hostId) {
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(Constants.WEB_CLIENT_ID)
-                .requestEmail()
-                .requestId()
-                .build();
-
-        GoogleApiClient.Builder ret = new GoogleApiClient.Builder(activity)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .enableAutoManage(activity, hostId, new GoogleApiClient.OnConnectionFailedListener() {
-                    @Override
-                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-                        Log.e(TAG, "Connection Failed" + connectionResult);
-                        Toast.makeText(activity, R.string.connection_failed, Toast.LENGTH_SHORT);
-                    }
-                });
-
-        return ret.build();
     }
 }

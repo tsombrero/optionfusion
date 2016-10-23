@@ -7,7 +7,6 @@ import com.optionfusion.model.provider.Interfaces;
 import com.optionfusion.module.OptionFusionApplication;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 
@@ -20,6 +19,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+
+import static com.optionfusion.common.OptionFusionUtils.roundToNearestFriday;
 
 public class Util {
 
@@ -162,13 +163,6 @@ public class Util {
             return "After " + getFormattedOptionDate(startDate);
         }
         return getFormattedOptionDate(startDate) + " - " + getFormattedOptionDate(endDate);
-    }
-
-    public static DateTime roundToNearestFriday(DateTime date) {
-        DateTime t1 = date.withDayOfWeek(DateTimeConstants.FRIDAY);
-        if (t1.isBefore(date.minusDays(3))) return t1.plusWeeks(1);
-        else if (t1.isAfter(date.plusDays(3))) return t1.minusWeeks(1);
-        else return t1;
     }
 
     static final double intervals[] = new double[]{0.01d, 0.05d, 0.10d, .25d, 0.5d, 1d, 2d, 2.50d, 5d, 10d, 20d, 50d, 100d, 250d};

@@ -46,7 +46,7 @@ public class OptionChainProvider {
         if (ret != null)
             return ret;
 
-        jobManager.addJobInBackground(new GetOptionChainJob(symbol));
+        jobManager.addJobInBackground(new GetOptionChainJob(symbol, false));
         return null;
     }
 

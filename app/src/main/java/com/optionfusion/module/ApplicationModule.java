@@ -30,8 +30,6 @@ import com.optionfusion.db.Schema;
 import com.optionfusion.jobqueue.BaseApiJob;
 import com.optionfusion.util.SharedPrefStore;
 
-import net.danlew.android.joda.JodaTimeAndroid;
-
 import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
 
@@ -65,7 +63,6 @@ public class ApplicationModule {
 
     ApplicationModule(Application application) {
         this.application = application;
-        JodaTimeAndroid.init(application);
     }
 
     @Provides

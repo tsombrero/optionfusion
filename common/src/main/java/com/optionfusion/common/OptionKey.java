@@ -6,6 +6,8 @@ import java.text.ParseException;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import static com.optionfusion.common.OptionFusionUtils.roundToNearestFriday;
+
 public class OptionKey implements Comparable<OptionKey> {
     final String underlyingSymbol;
     final double strike;
@@ -15,10 +17,10 @@ public class OptionKey implements Comparable<OptionKey> {
 
     public OptionKey(String underlyingSymbol, long expiration, boolean isCall, Double strike) {
         this.underlyingSymbol = underlyingSymbol;
-        this.expiration = expiration;
+        this.expiration = roundToNearestFriday(expiration);
         this.isCall = isCall;
         this.strike = strike;
-        key = getKey(underlyingSymbol, expiration, isCall, strike);
+        key = getKey(this.underlyingSymbol, this.expiration, this.isCall, this.strike);
     }
 
     public String getUnderlyingSymbol() {
@@ -56,6 +58,7 @@ public class OptionKey implements Comparable<OptionKey> {
     }
 
     public static String getKey(String underlying, long expiration, boolean isCall, Double strike) {
+        expiration = roundToNearestFriday(expiration);
         if (TextUtils.isEmpty(underlying))
             throw new IllegalArgumentException("Underlying symbol cannot be empty");
         if (expiration < TimeUnit.DAYS.toMillis(365 * 30))
@@ -78,5 +81,18 @@ public class OptionKey implements Comparable<OptionKey> {
 
     public OptionChainProto.OptionQuote.OptionType getOptionType() {
         return isCall ? OptionChainProto.OptionQuote.OptionType.CALL : OptionChainProto.OptionQuote.OptionType.PUT;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof OptionKey) {
+            return TextUtils.equals(key, ((OptionKey)obj).key);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return key.hashCode();
     }
 }

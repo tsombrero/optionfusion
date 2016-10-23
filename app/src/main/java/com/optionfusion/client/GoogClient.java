@@ -33,7 +33,7 @@ public class GoogClient implements ClientInterfaces.OptionChainClient, ClientInt
     }
 
     @Override
-    public Interfaces.OptionChain getOptionChain(String symbol) {
+    public Interfaces.OptionChain getOptionChain(String symbol, boolean favoritesOnly) {
         Interfaces.StockQuote quote = getStockQuote(symbol);
 
         // TODO decouple quote from chain

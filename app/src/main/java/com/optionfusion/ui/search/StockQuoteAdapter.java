@@ -121,25 +121,36 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
     public SharedViewHolders.StockQuoteListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Log.d(TAG, "creating viewholder " + viewType);
         switch (ViewTypes.values()[viewType]) {
-            case STOCKQUOTE: {
-                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_stock_quote, parent, false);
-                return new SharedViewHolders.StockQuoteViewHolder(v, watchlistFragment.viewConfig, watchlistFragment, watchlistFragment.bus);
-            }
-            default: {
+            case HEADER:
                 View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_timestamp_header, parent, false);
                 return new SharedViewHolders.MarketDataTimestampHeaderViewHolder(v, watchlistFragment.getFragmentManager(), watchlistFragment.jobManager, watchlistFragment.accountClient);
+            case STOCKQUOTE:
+                View v1 = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_stock_quote, parent, false);
+                return new SharedViewHolders.StockQuoteViewHolder(v1, watchlistFragment.viewConfig, watchlistFragment, watchlistFragment.bus);
+            case FOOTER:
+                View v2 = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_footer, parent, false);
+                return new SharedViewHolders.StockQuoteListViewHolder(v2) {
+                    @Override
+                    public void bind(Interfaces.StockQuote stockQuote) {
+                    }
+                };
+            default: {
             }
         }
+        return null;
     }
 
     enum ViewTypes {
-        HEADER, STOCKQUOTE
+        HEADER, STOCKQUOTE, FOOTER
     }
 
     @Override
     public int getItemViewType(int position) {
         if (position == 0)
             return ViewTypes.HEADER.ordinal();
+        if (position == getItemCount() - 1)
+            return ViewTypes.FOOTER.ordinal();
+
         return ViewTypes.STOCKQUOTE.ordinal();
     }
 
@@ -148,12 +159,25 @@ class StockQuoteAdapter extends RecyclerView.Adapter<SharedViewHolders.StockQuot
         if (stockQuoteList.isEmpty())
             return;
 
-        holder.bind(stockQuoteList.get(pos2index(position)));
+        ViewTypes type = ViewTypes.values()[getItemViewType(position)];
+
+        switch (type) {
+            case HEADER:
+                holder.bind(stockQuoteList.get(0));
+                break;
+            case STOCKQUOTE:
+                holder.bind(stockQuoteList.get(pos2index(position)));
+                break;
+            case FOOTER:
+                holder.bind(null);
+                break;
+        }
     }
 
     @Override
     public int getItemCount() {
-        return stockQuoteList == null || stockQuoteList.isEmpty() ? 0 : stockQuoteList.size() + 1;
+        // plus two for header and footer
+        return stockQuoteList == null || stockQuoteList.isEmpty() ? 0 : stockQuoteList.size() + 2;
     }
 
     public ArrayList<Interfaces.StockQuote> getStockQuoteList() {

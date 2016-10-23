@@ -54,7 +54,7 @@ public class AmeritradeClient implements ClientInterfaces.OptionChainClient, Cli
     }
 
     @Override
-    public Interfaces.OptionChain getOptionChain(String symbol) {
+    public Interfaces.OptionChain getOptionChain(String symbol, boolean favoritesOnly) {
         try {
             Response<AmeritradeStockQuote> quoteResponse = restInterface.getStockQuote(symbol).execute();
             if (!checkRespoonse(quoteResponse))

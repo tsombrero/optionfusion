@@ -179,8 +179,7 @@ public class OptionDataApi {
         Key<Position> posKey = Key.create(fuserKey, Position.class, pos.getPositionKey());
         Position entity = ofy().load().key(posKey).now();
         if (entity != null) {
-            entity.setDeletedTimestamp(System.currentTimeMillis());
-            ofy().save().entity(entity).now();
+            ofy().delete().entity(entity).now();
         }
     }
 

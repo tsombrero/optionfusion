@@ -34,7 +34,7 @@ public class ClientInterfaces {
     }
 
     public interface OptionChainClient {
-        Interfaces.OptionChain getOptionChain(String symbol);
+        Interfaces.OptionChain getOptionChain(String symbol, boolean favoritesOnly);
     }
 
     public interface BrokerageClient {

@@ -26,6 +26,8 @@ import org.sqlite.database.sqlite.SQLiteDatabase;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.optionfusion.common.OptionFusionUtils.roundToNearestFriday;
+
 public class DbSpread implements VerticalSpread, Parcelable {
 
     private ConcurrentHashMap<String, String> columnValues = new ConcurrentHashMap<>();
@@ -112,7 +114,7 @@ public class DbSpread implements VerticalSpread, Parcelable {
 
     @Override
     public DateTime getExpiresDate() {
-        return new DateTime(getLong(VerticalSpreads.EXPIRATION));
+        return new DateTime(roundToNearestFriday(getLong(VerticalSpreads.EXPIRATION)));
     }
 
     @Override

@@ -18,6 +18,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.optionfusion.common.OptionFusionUtils.roundToNearestFriday;
+
 /*
 
 {
@@ -411,7 +413,7 @@ public class GoogOptionChain implements Interfaces.OptionChain {
         }
 
         private DateTime getDate() {
-            return Util.roundToNearestFriday(Util.getEodDateTime(y,m,d));
+            return roundToNearestFriday(Util.getEodDateTime(y,m,d));
         }
     }
 }
