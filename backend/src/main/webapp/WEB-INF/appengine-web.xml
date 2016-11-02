@@ -3,6 +3,10 @@
     <application>option-fusion-api</application>
     <version>1</version>
     <threadsafe>true</threadsafe>
+    <instance-class>F1</instance-class>
+    <automatic-scaling>
+        <min-idle-instances>1</min-idle-instances>
+    </automatic-scaling>
 
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>

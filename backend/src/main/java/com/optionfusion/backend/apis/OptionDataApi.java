@@ -81,6 +81,12 @@ public class OptionDataApi {
     private static final int MAX_RESULTS = 50;
     private static final Logger log = Logger.getLogger(OptionDataApi.class.getSimpleName());
 
+    private static Filter startsWithFilter(String field, String q) {
+        return CompositeFilterOperator.and(
+                new FilterPredicate(field, GREATER_THAN_OR_EQUAL, q),
+                new FilterPredicate(field, LESS_THAN, q + Character.MAX_VALUE));
+    }
+
     @ApiMethod(httpMethod = "GET", path = "getTickersMatching")
     public final List<Equity> getTickersMatching(@Named("q") String searchString) {
 
@@ -288,7 +294,9 @@ public class OptionDataApi {
     @ApiMethod(httpMethod = "POST", path = "loginUser")
     public final FusionUser loginUser(HttpServletRequest req, FusionUser fusionUserIn, User user) throws OAuthRequestException {
 
+        log.info("loginUser start");
         FusionUser ret = ensureLoggedIn(user, req);
+        log.info("loginUser userLoggedIn: " + (ret == null ? "false" : "true"));
 
         if (ret == null) {
             ret = new FusionUser(user.getEmail(), fusionUserIn.getDisplayName() != null ? fusionUserIn.getDisplayName() : user.getEmail());
@@ -301,6 +309,7 @@ public class OptionDataApi {
         }
 
         ret.setLastLogin(new Date());
+        log.info("loginUser setLastLogin");
 
         if (!TextUtils.isEmpty(fusionUserIn.getDisplayName()))
             ret.setDisplayName(fusionUserIn.getDisplayName());
@@ -309,6 +318,7 @@ public class OptionDataApi {
             ret.setJoinDate(ret.getLastLogin());
 
         ofy().save().entity(ret).now();
+        log.info("loginUser done");
 
         return ret;
     }
@@ -454,18 +464,18 @@ public class OptionDataApi {
         if (TextUtils.isEmpty(sessionId))
             return null;
 
+        long t = System.currentTimeMillis();
         FusionUser ret = ofy().load().type(FusionUser.class)
                 .filter(new FilterPredicate("sessionId", Query.FilterOperator.EQUAL, sessionId))
                 .first()
                 .now();
 
-        return ret;
-    }
+        t = System.currentTimeMillis() - t;
+        if (t > 1000) {
+            log.warning("Took " + t + "ms to load user");
+        }
 
-    private static Filter startsWithFilter(String field, String q) {
-        return CompositeFilterOperator.and(
-                new FilterPredicate(field, GREATER_THAN_OR_EQUAL, q),
-                new FilterPredicate(field, LESS_THAN, q + Character.MAX_VALUE));
+        return ret;
     }
 
     private FusionUser ensureLoggedIn(HttpServletRequest req) throws OAuthRequestException {
