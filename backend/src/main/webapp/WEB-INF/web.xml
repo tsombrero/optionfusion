@@ -12,6 +12,15 @@
     </servlet>
 
     <servlet>
+        <servlet-name>pingServlet</servlet-name>
+        <servlet-class>com.optionfusion.backend.admin.PingServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>pingServlet</servlet-name>
+        <url-pattern>/ping</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>adminServlet</servlet-name>
         <servlet-class>com.optionfusion.backend.admin.AdminServlet</servlet-class>
     </servlet>

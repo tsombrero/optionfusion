@@ -6,4 +6,10 @@
         <schedule>every 15 minutes from 16:15 to 19:15</schedule>
         <timezone>America/New_York</timezone>
     </cron>
+
+    <cron>
+        <url>/ping</url>
+        <description>ping</description>
+        <schedule>every 1 minutes</schedule>
+    </cron>
 </cronentries>

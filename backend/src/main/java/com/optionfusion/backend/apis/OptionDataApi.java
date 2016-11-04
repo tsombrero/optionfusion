@@ -87,7 +87,7 @@ public class OptionDataApi {
                 new FilterPredicate(field, LESS_THAN, q + Character.MAX_VALUE));
     }
 
-    @ApiMethod(httpMethod = "GET", path = "getTickersMatching")
+    @ApiMethod(httpMethod = ApiMethod.HttpMethod.GET, path = "getTickersMatching")
     public final List<Equity> getTickersMatching(@Named("q") String searchString) {
 
         ArrayList<Equity> ret = new ArrayList<>();
