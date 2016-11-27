@@ -280,4 +280,14 @@ public class Util {
         return symbols;
     }
 
+    public static boolean equals(Double a, Double b) {
+        if (a == b)
+            return true;
+
+        if (a == null || b == null)
+            return false;
+
+        return a.equals(b);
+    }
+
 }

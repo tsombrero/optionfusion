@@ -9,21 +9,46 @@
     android:padding="@dimen/activity_vertical_margin">
 
     <TextView
-        android:id="@+id/return_edit_label"
+        android:id="@+id/title_label"
         style="@style/FilterItemLabel"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:text="@string/potential_return"/>
+
+    <TextView
+        android:id="@+id/label_annualized"
+        style="@style/FilterItemLabel"
+        android:layout_width="130dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/title_label"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        android:gravity="right"
+        android:text="Annualized:"
+        />
+
+    <TextView
+        android:id="@+id/label_absolute"
+        style="@style/FilterItemLabel"
+        android:layout_width="130dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/label_annualized"
+        android:layout_marginEnd="10dp"
+        android:gravity="right"
+        android:text="Absolute:"
+        />
 
     <EditText
         android:id="@+id/roi_edit_value"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/return_edit_label"
-        android:layout_marginStart="10dp"
-        android:layout_toEndOf="@id/return_edit_label"
+        android:layout_alignBaseline="@id/label_annualized"
+        android:layout_below="@id/title_label"
+        android:layout_toEndOf="@id/label_annualized"
+        android:imeOptions="actionDone"
         android:inputType="numberDecimal"
         android:singleLine="true"
         android:textDirection="ltr"
@@ -33,9 +58,33 @@
         style="@style/FilterItemLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/return_edit_label"
+        android:layout_alignBaseline="@id/roi_edit_value"
         android:layout_toEndOf="@id/roi_edit_value"
-        android:text="@string/year"/>
+        android:text="@string/pct_per_year"/>
+
+    <TextView
+        android:id="@+id/absolute_return_edit_label"
+        style="@style/FilterItemLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/label_absolute"
+        android:layout_marginLeft="10dp"
+        android:layout_toEndOf="@id/label_absolute"
+        android:text="$"/>
+
+    <EditText
+        android:id="@+id/absolute_return_edit_value"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/label_absolute"
+        android:layout_toEndOf="@id/absolute_return_edit_label"
+        android:imeOptions="actionDone"
+        android:inputType="numberDecimal"
+        android:singleLine="true"
+        android:textDirection="ltr"
+        android:textIsSelectable="false"
+        />
+
 
 </RelativeLayout>
 

@@ -44,14 +44,13 @@ public class FilterViewHolder extends ResultsListViewHolders.BaseViewHolder {
     }
 
     protected void addFilter(Filter filter) {
-        filterSet.addFilter(filter);
-        resultsListener.onChange(filterSet);
+        if (filterSet.addFilter(filter))
+            resultsListener.onChange(filterSet);
     }
 
     protected void removeFilterMatching(Filter matchfilter) {
-        if (filterSet.removeFilterMatching(matchfilter)) {
+        if (filterSet.removeFilterMatching(matchfilter))
             resultsListener.onChange(filterSet);
-        }
     }
 
     protected void animateTextViewActive(TextView textView, boolean active) {

@@ -21,7 +21,7 @@ import com.optionfusion.ui.login.StartFragment;
 import com.optionfusion.ui.results.FilterViewHolder;
 import com.optionfusion.ui.results.ResultsActivity;
 import com.optionfusion.ui.results.ResultsFragment;
-import com.optionfusion.ui.search.WatchlistFragment;
+import com.optionfusion.ui.watchlist.WatchlistFragment;
 import com.optionfusion.ui.tradedetails.TradeDetailsActivity;
 import com.optionfusion.ui.tradedetails.TradeDetailsFragment;
 import com.optionfusion.ui.widgets.SymbolSearchTextView;

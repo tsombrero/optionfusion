@@ -6,14 +6,12 @@ import android.content.Intent;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.MainThread;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
-import android.support.v4.BuildConfig;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -21,21 +19,16 @@ import android.support.v4.app.SharedElementCallback;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import com.birbit.android.jobqueue.JobManager;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.optionfusion.R;
 import com.optionfusion.cache.OptionChainProvider;
 import com.optionfusion.cache.StockQuoteProvider;
 import com.optionfusion.client.ClientInterfaces;
-import com.optionfusion.client.FusionClient;
 import com.optionfusion.db.DbHelper;
 import com.optionfusion.events.LoggedOutExceptionEvent;
 import com.optionfusion.model.DbSpread;
@@ -47,7 +40,7 @@ import com.optionfusion.ui.help.HelpFragment;
 import com.optionfusion.ui.login.LoginActivity;
 import com.optionfusion.ui.results.ResultsActivity;
 import com.optionfusion.ui.results.ResultsAdapter;
-import com.optionfusion.ui.search.WatchlistFragment;
+import com.optionfusion.ui.watchlist.WatchlistFragment;
 import com.optionfusion.ui.tradedetails.TradeDetailsActivity;
 import com.optionfusion.util.SharedPrefStore;
 import com.optionfusion.util.Util;
@@ -56,15 +49,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.RunnableFuture;
 
 import javax.inject.Inject;
 
@@ -264,12 +250,11 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
 
         Util.hideSoftKeyboard(this);
 
+        pagerAdapter.watchlistFragment.showProgress(true);
+
         optionChainProvider.get(symbol, new ClientInterfaces.Callback<Interfaces.OptionChain>() {
             @Override
             public void call(Interfaces.OptionChain optionChain) {
-                if (pagerAdapter.watchlistFragment != null)
-                    pagerAdapter.watchlistFragment.showProgress(false);
-
                 if (isDestroyed() || isFinishing())
                     return;
 
@@ -290,6 +275,13 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
                         Toast.makeText(MainActivity.this, R.string.failed_fetch_chain, Toast.LENGTH_SHORT).show();
                     }
                 });
+            }
+
+            @Override
+            public void onFinally() {
+                super.onFinally();
+                if (pagerAdapter.watchlistFragment != null)
+                    pagerAdapter.watchlistFragment.showProgress(false);
             }
         });
     }

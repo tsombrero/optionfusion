@@ -76,15 +76,19 @@ public class FilterSet implements Parcelable {
         return filters.get(i);
     }
 
-    public void addFilter(Filter filter) {
+    public boolean addFilter(Filter filter) {
         if (filter == null)
-            return;
+            return false;
 
         for (int i = filters.size() - 1; i >= 0; i--) {
+            if (filter.isRedundant(filters.get(i)))
+                return false;
+
             if (filter.shouldReplace(filters.get(i)))
                 filters.remove(i);
         }
         filters.add(filter);
+        return true;
     }
 
     public List<Filter> getFilters() {

@@ -64,6 +64,11 @@ public class RoiFilter extends Filter {
     }
 
     @Override
+    public boolean isRedundant(Filter filter) {
+        return filter != null && filter instanceof RoiFilter && Util.equals(((RoiFilter)filter).getValue(), getValue());
+    }
+
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(FilterType.ROI.ordinal());
         dest.writeDouble(roi);
@@ -79,4 +84,8 @@ public class RoiFilter extends Filter {
             return new RoiFilter[size];
         }
     };
+
+    public Double getValue() {
+        return roi;
+    }
 }

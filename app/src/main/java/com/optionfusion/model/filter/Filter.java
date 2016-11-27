@@ -43,6 +43,8 @@ abstract public class Filter implements Parcelable {
                     return gson.fromJson(json, StrikeFilter.class);
                 case SPREAD_TYPE:
                     return gson.fromJson(json, SpreadTypeFilter.class);
+                case ABSOLUTE_RETURN:
+                    return gson.fromJson(json, AbsoluteReturnFilter.class);
             }
         } catch (Throwable t) {
             Log.w(TAG, "fromJson: Failed parsing filter " + json, t);
@@ -63,6 +65,8 @@ abstract public class Filter implements Parcelable {
                     return new StrikeFilter(in);
                 case SPREAD_TYPE:
                     return new SpreadTypeFilter(in);
+                case ABSOLUTE_RETURN:
+                    return new AbsoluteReturnFilter(in);
             }
             return null;
         }
@@ -76,10 +80,15 @@ abstract public class Filter implements Parcelable {
         return false;
     }
 
+    public boolean isRedundant(Filter filter) {
+        return false;
+    }
+
     public enum FilterType {
         ROI,
         TIME,
         STRIKE,
-        SPREAD_TYPE
+        SPREAD_TYPE,
+        ABSOLUTE_RETURN
     }
 }
