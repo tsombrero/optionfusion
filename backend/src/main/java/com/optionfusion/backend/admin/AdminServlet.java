@@ -29,7 +29,7 @@ import static com.optionfusion.backend.utils.OfyService.ofy;
 
 public class AdminServlet extends HttpServlet {
 
-    public static final String LOOKUP_CSV_FILE_URI = "lookupCsvFile";
+    static final String LOOKUP_CSV_FILE_URI = "lookupCsvFile";
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -42,8 +42,8 @@ public class AdminServlet extends HttpServlet {
             try {
                 Integer days = Integer.valueOf(req.getParameter(GetEodDataWorkerServlet.PARAM_DAYS_TO_SEARCH));
                 if (days != null) {
-                    boolean dataDownload = populateBlobStorage(resp);
-                    getEodData(days, dataDownload);
+                    populateBlobStorage(resp);
+                    getEodData(days);
                 }
             } catch (Exception e) {
                 log("Failed", e);
@@ -96,9 +96,6 @@ public class AdminServlet extends HttpServlet {
     }
 
     public static LocalDate[] MARKET_HOLIDAYS = new LocalDate[]{
-            new LocalDate(2016, 5, 30),
-            new LocalDate(2016, 7, 4),
-            new LocalDate(2016, 9, 5),
             new LocalDate(2016, 11, 24),
             new LocalDate(2016, 12, 26),
             new LocalDate(2017, 1, 2),
@@ -124,7 +121,7 @@ public class AdminServlet extends HttpServlet {
         return true;
     }
 
-    private void getEodData(int daysToSearch, boolean dataDownload) {
+    private void getEodData(int daysToSearch) {
         DateTime todayEod = Util.getEodDateTime();
         DateTime quoteDate = todayEod.minusDays(daysToSearch);
 

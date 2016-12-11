@@ -1,5 +1,7 @@
 package com.optionfusion.backend.admin;
 
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.cloud.storage.Blob;
 import com.googlecode.objectify.Key;
 import com.opencsv.CSVIterator;
@@ -72,6 +74,10 @@ public class GetEodDataWorkerServlet extends HttpServlet {
 
         try {
             processFilesForDate(dateToSearch, initialLetter);
+            if (initialLetter.equalsIgnoreCase("Z")) {
+                MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
+                syncCache.clearAll();
+            }
         } catch (Throwable e) {
             resp.getWriter().println("Failed");
             e.printStackTrace();

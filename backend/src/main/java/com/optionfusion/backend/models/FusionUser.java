@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 @Entity
-@Cache
+@Cache(expirationSeconds = 600)
 public class FusionUser {
 
     @Id
