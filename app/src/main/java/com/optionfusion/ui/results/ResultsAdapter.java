@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.birbit.android.jobqueue.JobManager;
-import com.optionfusion.R;
 import com.optionfusion.jobqueue.SetFavoriteJob;
 import com.optionfusion.model.DbSpread;
 import com.optionfusion.model.FilterSet;

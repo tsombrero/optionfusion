@@ -111,6 +111,13 @@ public class WatchlistFragment extends Fragment implements SharedViewHolders.Sym
 
                 adapter.removeItem(viewHolder.getAdapterPosition());
             }
+
+            @Override
+            public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+                super.onSelectedChanged(viewHolder, actionState);
+                final boolean swiping = actionState == ItemTouchHelper.ACTION_STATE_SWIPE;
+                swipeRefreshLayout.setEnabled(!swiping);
+            }
         };
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);

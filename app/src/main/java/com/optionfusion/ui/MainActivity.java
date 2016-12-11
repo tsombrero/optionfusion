@@ -144,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements WatchlistFragment
             }
         });
 
+
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
